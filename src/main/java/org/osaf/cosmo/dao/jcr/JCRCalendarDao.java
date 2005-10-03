@@ -1686,6 +1686,9 @@ public class JCRCalendarDao implements CalendarDao {
             java.util.Date date = propertyNode.
                 getProperty(CosmoJcrConstants.NP_ICAL_DATETIME).
                 getDate().getTime();
+            if (value.equals(Value.DATE)) {
+                return new DtEnd(parameters, new Date(date));
+            }
             return new DtEnd(parameters, new DateTime(date));
         } catch (PathNotFoundException e) {
             return null;
