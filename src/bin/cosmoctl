@@ -52,4 +52,6 @@ export JAVA_OPTS="$JAVA_OPTS -server -Dical4j.unfolding.relaxed=true"
 
 echo "Using COSMO_HOME:      $COSMO_HOME"
 
-exec "$CATALINA_HOME"/bin/"$EXECUTABLE" "$@"
+#exec "$CATALINA_HOME"/bin/"$EXECUTABLE" "$@"
+"$CATALINA_HOME"/bin/"$EXECUTABLE" "$@"
+rm -f "$COSMO_HOME"/data/repository/.lock
