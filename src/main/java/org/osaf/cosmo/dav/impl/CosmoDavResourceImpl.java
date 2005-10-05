@@ -43,7 +43,7 @@ import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.simple.DavResourceImpl;
 import org.apache.jackrabbit.webdav.simple.ChainBasedNodeResource;
 import org.apache.jackrabbit.webdav.simple.NodeResource;
-import org.apache.jackrabbit.webdav.simple.ResourceFilter;
+import org.apache.jackrabbit.webdav.simple.ResourceConfig;
 
 import org.apache.log4j.Logger;
 
@@ -96,33 +96,13 @@ public class CosmoDavResourceImpl extends DavResourceImpl
     public CosmoDavResourceImpl(DavResourceLocator locator,
                                 CosmoDavResourceFactory factory,
                                 DavSession session,
-                                ResourceFilter filter)
+                                ResourceConfig config)
         throws RepositoryException, DavException {
-        super(locator, factory, session, filter);
+        super(locator, factory, session, config);
         initializing = false;
     }
 
     // DavResource methods
-
-    /**
-     */
-    public boolean isCollection() {
-        // DavResourceImpl assumes that a resource is a collection
-        // until proven otherwise, so we use the same strategy,
-        // checking all the node types we know represent
-        // addressable, non-collection resources.
-        try {
-            if (exists() &&
-                (getNode().isNodeType(CosmoJcrConstants.NT_TICKET) ||
-                 getNode().isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE) ||
-                 getNode().isNodeType(CosmoJcrConstants.NT_CALDAV_RESOURCE))) {
-                return false;
-            }
-            return super.isCollection();
-        } catch (RepositoryException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      */
@@ -148,24 +128,6 @@ public class CosmoDavResourceImpl extends DavResourceImpl
         c.setBaseUrl(baseUrl);
         c.setApplicationContext(applicationContext);
         return c;
-    }
-
-    /**
-     */
-    public void addMember(DavResource member,
-                          InputContext ctx)
-        throws DavException {
-        super.addMember(member, ctx);
-
-        CosmoDavResourceImpl cdr = (CosmoDavResourceImpl) member;
-        try {
-            // force the newly-created member's properties to be
-            // initialized so we can use them in the dav response
-            cdr.init(getNode().getSession().
-                     getItem(cdr.getLocator().getResourcePath()));
-        } catch (RepositoryException e) {
-            log.warn("could not initialize properties for new resource", e);
-        }
     }
 
     // CosmoDavResource methods
@@ -458,17 +420,6 @@ public class CosmoDavResourceImpl extends DavResourceImpl
                 log.warn("error getting tickets for node", e);
             }
         }
-    }
-
-    /**
-     */
-    protected DavResource buildResourceFromItem(Item item)
-        throws DavException, RepositoryException {
-        CosmoDavResourceImpl resource = (CosmoDavResourceImpl)
-            super.buildResourceFromItem(item);
-        resource.setBaseUrl(baseUrl);
-        resource.setApplicationContext(applicationContext);
-        return resource;
     }
 
     /**

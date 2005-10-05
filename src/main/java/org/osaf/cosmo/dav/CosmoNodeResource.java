@@ -20,8 +20,8 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.apache.jackrabbit.server.io.ExportContext;
+import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.simple.ChainBasedNodeResource;
-import org.apache.jackrabbit.webdav.simple.DavResourceImpl;
 
 import org.apache.log4j.Logger;
 
@@ -56,7 +56,7 @@ public class CosmoNodeResource extends ChainBasedNodeResource {
      * Creates an <code>ApplicationContextAwareExportContext</code> to
      * be used when executing the export chain.
      */
-    protected ExportContext createExportContext(DavResourceImpl davResource,
+    protected ExportContext createExportContext(DavResource davResource,
                                                 Node node) {
         ApplicationContextAwareExportContext ctx =
             new ApplicationContextAwareExportContext(node);
