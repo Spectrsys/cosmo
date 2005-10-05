@@ -41,7 +41,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.simple.DavResourceImpl;
-import org.apache.jackrabbit.webdav.simple.DefaultNodeResource;
+import org.apache.jackrabbit.webdav.simple.ChainBasedNodeResource;
 import org.apache.jackrabbit.webdav.simple.NodeResource;
 import org.apache.jackrabbit.webdav.simple.ResourceFilter;
 
@@ -51,6 +51,7 @@ import org.osaf.cosmo.jcr.CosmoJcrConstants;
 import org.osaf.cosmo.jcr.JCRUtils;
 import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.dao.TicketDao;
+import org.osaf.cosmo.dav.CosmoCollectionNodeResource;
 import org.osaf.cosmo.dav.CosmoDavConstants;
 import org.osaf.cosmo.dav.CosmoDavResource;
 import org.osaf.cosmo.dav.CosmoDavResourceFactory;
@@ -474,9 +475,15 @@ public class CosmoDavResourceImpl extends DavResourceImpl
      */
     protected NodeResource createNodeResource()
         throws RepositoryException {
-        CosmoNodeResource cnr = new CosmoNodeResource(getApplicationContext());
-        cnr.init(this, getNode());
-        return cnr;
+        if (isCollection()) {
+            CosmoCollectionNodeResource nr =
+                new CosmoCollectionNodeResource(getApplicationContext());
+            nr.init(this, getNode());
+            return nr;
+        }
+        CosmoNodeResource nr = new CosmoNodeResource(getApplicationContext());
+        nr.init(this, getNode());
+        return nr;
     }
 
     /**
