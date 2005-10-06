@@ -116,6 +116,49 @@ public class CalendarDaoTest extends BaseCoreTestCase {
         }
     }
 
+    public void testStoreCalendarObjectInTwoCalendarCollections()
+        throws Exception {
+        if (log.isDebugEnabled()) {
+            log.debug("BEGIN");
+        }
+
+        Session session = sessionFactory.getSession();
+
+        // create a calendar object containing an event
+        // and a timezone
+        Calendar calendar = TestHelper.makeDummyCalendar();
+        VEvent event = TestHelper.makeDummyEvent();
+        calendar.getComponents().add(event);
+        calendar.getComponents().add(VTimeZone.getDefault());
+        String summary = ICalendarUtils.getSummary(event).getValue();
+        String name = summary +  ".ics";
+
+        // make a calendar collection in the repository
+        String collectionName1 = "twocols1";
+        dao.createCalendarCollection(session.getRootNode(), collectionName1);
+        Node collection1 = session.getRootNode().getNode(collectionName1);
+
+        // make a dav resource in twocols1
+        Node resource1 = createICalendarResource(collection1, name, calendar);
+
+        // store the calendar object with the dav resource
+        dao.storeCalendarObject(resource1, calendar);
+        session.save();
+
+        // make a second calendar collection
+        String collectionName2 = "twocols2";
+        dao.createCalendarCollection(session.getRootNode(), collectionName2);
+        Node collection2 = session.getRootNode().getNode(collectionName2);
+
+        // make a dav resource in twocols2
+        Node resource2 = createICalendarResource(collection2, name, calendar);
+
+        // now store the same calendar object with the second resource
+        dao.storeCalendarObject(resource2, calendar);
+
+        session.logout();
+    }
+
     public void testStoreCalendarObjectInCalendarCollectionWithDuplicateUid()
         throws Exception {
         if (log.isDebugEnabled()) {
