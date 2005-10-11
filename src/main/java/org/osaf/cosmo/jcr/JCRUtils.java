@@ -86,6 +86,14 @@ public class JCRUtils {
         return node;
     }
 
+    /**
+     * Return the name part of a JCR path.
+     */
+    public static String getName(String path) {
+        int pos = path.lastIndexOf('/');
+        return pos >= 0 ? path.substring(pos + 1) : "";
+    }
+
     // low level accessors and mutators for specifically-typed JCR
     // property values
 

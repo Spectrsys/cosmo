@@ -34,20 +34,20 @@ public class JCREscapist {
 
     private static int utf16length = 4;
 
-    public static String escapeJCRValues(String str) {
-        return escapeValues(str);
+    public static String xmlEscapeJCRValues(String str) {
+        return xmlEscapeValues(str);
     }
 
-    public static String escapeJCRNames(String str) {
-        return escapeNames(str);
+    public static String xmlEscapeJCRNames(String str) {
+        return xmlEscapeNames(str);
     }
 
-    public static String escapeJCRPath(String str) {
+    public static String xmlEscapeJCRPath(String str) {
         StringBuffer buf = new StringBuffer();
 
         String[] names = str.split("/");
         for (int i=0; i<names.length; i++) {
-            buf.append(escapeNames(names[i]));
+            buf.append(xmlEscapeNames(names[i]));
             if (i < names.length-1) {
                 buf.append("/");
             }
@@ -56,22 +56,58 @@ public class JCREscapist {
         return buf.toString();
     }
 
-    //----------------------- private methods ----------------------------------
+    public static String hexEscapeJCRNames(String str) {
+        return hexEscapeNames(str);
+    }
 
-    private static String escapeNames(String str) {
+    public static String hexEscapeJCRPath(String str) {
+        StringBuffer buf = new StringBuffer();
+
+        String[] names = str.split("/");
+        for (int i=0; i<names.length; i++) {
+            buf.append(hexEscapeNames(names[i]));
+            if (i < names.length-1) {
+                buf.append("/");
+            }
+        }
+
+        return buf.toString();
+    }
+
+    public static String hexUnescapeJCRNames(String str) {
+        return hexUnescapeNames(str);
+    }
+
+    public static String hexUnescapeJCRPath(String str) {
+        StringBuffer buf = new StringBuffer();
+
+        String[] names = str.split("/");
+        for (int i=0; i<names.length; i++) {
+            buf.append(hexUnescapeNames(names[i]));
+            if (i < names.length-1) {
+                buf.append("/");
+            }
+        }
+
+        return buf.toString();
+    }
+
+    // private methods
+
+    private static String xmlEscapeNames(String str) {
         String[] split = str.split(":");
         if (split.length == 2) {
             // prefix should yet be a valid xml name
-            String localname = escape(split[1]);
+            String localname = xmlEscape(split[1]);
             String name = split[0] + ":" + localname;
             return name;
         } else {
-            String localname = escape(split[0]);
+            String localname = xmlEscape(split[0]);
             return localname;
         }
     }
 
-    private static String escapeValues(String str) {
+    private static String xmlEscapeValues(String str) {
         char[] chars = str.toCharArray();
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < chars.length; i++) {
@@ -80,7 +116,7 @@ public class JCREscapist {
                     || c == '\u0009'
                     || c == '\n'
                     || c == '\r') {
-                buf.append(escapeChar(c));
+                buf.append(xmlEscapeChar(c));
             } else {
                 buf.append(c);
             }
@@ -88,12 +124,8 @@ public class JCREscapist {
         return buf.toString();
     }
 
-    /**
-     * Check if a substring can be misinterpreted as an escape sequence.
-     *
-     * @param str
-     * @return
-     */
+    // Check if a substring can be misinterpreted as an xml escape
+    // sequence.
     private static boolean canMisinterpret(String str) {
         boolean misinterprete = false;
         // check if is like "_xXXXX_"
@@ -106,13 +138,8 @@ public class JCREscapist {
         return misinterprete;
     }
 
-    /**
-     * Escapes a single (invalid xml) character.
-     *
-     * @param c
-     * @return
-     */
-    private static String escapeChar(char c) {
+    // Escapes a single (invalid xml) character.
+    private static String xmlEscapeChar(char c) {
         String unicodeRepr = Integer.toHexString(c);
         StringBuffer escaped = new StringBuffer();
         escaped.append("_x");
@@ -122,13 +149,8 @@ public class JCREscapist {
         return escaped.toString();
     }
 
-    /**
-     * Escapes a string containing invalid xml character(s).
-     *
-     * @param str
-     * @return
-     */
-    private static String escape(String str) {
+    // Escapes a string containing invalid xml character(s).
+    private static String xmlEscape(String str) {
         char[] chars = str.toCharArray();
         StringBuffer buf = new StringBuffer();
 
@@ -137,28 +159,127 @@ public class JCREscapist {
             // handle start character
             if (i == 0) {
                 if (!XMLChar.isNameStart(c)) {
-                    String escaped = escapeChar(c);
+                    String escaped = xmlEscapeChar(c);
                     buf.append(escaped);
                 } else {
                     String substr = str.substring(i, str.length());
                     if (canMisinterpret(substr)) {
-                        buf.append(escapeChar(c));
+                        buf.append(xmlEscapeChar(c));
                     } else {
                         buf.append(c);
                     }
                 }
             } else {
                 if (!XMLChar.isName(c)) {
-                    buf.append(escapeChar(c));
+                    buf.append(xmlEscapeChar(c));
                 } else {
                     String substr = str.substring(i, str.length());
                     if (canMisinterpret(substr)) {
-                        buf.append(escapeChar(c));
+                        buf.append(xmlEscapeChar(c));
                     } else {
                         buf.append(c);
                     }
                 }
             }
+        }
+        return buf.toString();
+    }
+
+    private static String hexEscapeNames(String str) {
+        String[] split = str.split(":");
+        if (split.length == 2) {
+            // prefix should yet be a valid xml name
+            String localname = hexEscape(split[1]);
+            String name = split[0] + ":" + localname;
+            return name;
+        } else {
+            String localname = hexEscape(split[0]);
+            return localname;
+        }
+    }
+
+    private static String hexEscape(String str) {
+        StringBuffer buf = null;
+        int length = str.length();
+        int pos = 0;
+        for (int i = 0; i < length; i++) {
+            int ch = str.charAt(i);
+            switch (ch) {
+            case '\'':
+                if (buf == null) {
+                    buf = new StringBuffer();
+                }
+                if (i > 0) {
+                    buf.append(str.substring(pos, i));
+                }
+                pos = i + 1;
+                break;
+            default:
+                continue;
+            }
+            if (ch == '\'') {
+                buf.append("%").append(Integer.toHexString(ch));
+            }
+        }
+        
+        if (buf == null) {
+            return str;
+        }
+
+        if (pos < length) {
+            buf.append(str.substring(pos));
+        }
+        return buf.toString();
+    }
+
+    private static String hexUnescapeNames(String str) {
+        String[] split = str.split(":");
+        if (split.length == 2) {
+            // prefix should yet be a valid xml name
+            String localname = hexUnescape(split[1]);
+            String name = split[0] + ":" + localname;
+            return name;
+        } else {
+            String localname = hexUnescape(split[0]);
+            return localname;
+        }
+    }
+
+    private static String hexUnescape(String str) {
+        
+        StringBuffer buf = null;
+        int length = str.length();
+        int pos = 0;
+        for (int i = 0; i < length; i++) {
+            int ch = str.charAt(i);
+            switch (ch) {
+            case '%':
+                if (buf == null) {
+                    buf = new StringBuffer();
+                }
+                if (i > 0) {
+                    buf.append(str.substring(pos, i));
+                }
+                pos = i + 1;
+                break;
+            default:
+                continue;
+            }
+            if (ch == '%') {
+                if (i+2 < length && str.substring(i+1, i+3).
+                    equals(Integer.toHexString('\''))) {
+                    buf.append("'");
+                    i += 2;
+                    pos = i + 1;
+                }
+            }
+        }
+        if (buf == null) {
+            return str;
+        }
+
+        if (pos < length) {
+            buf.append(str.substring(pos));
         }
         return buf.toString();
     }

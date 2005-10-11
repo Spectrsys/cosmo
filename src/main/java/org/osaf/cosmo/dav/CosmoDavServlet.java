@@ -35,6 +35,7 @@ import org.apache.jackrabbit.webdav.simple.LocatorFactoryImpl;
 import org.apache.log4j.Logger;
 
 import org.osaf.cosmo.dav.CosmoDavResource;
+import org.osaf.cosmo.dav.impl.CosmoDavLocatorFactoryImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavRequestImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavResourceImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavResourceFactoryImpl;
@@ -97,6 +98,10 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
                                             getResourceConfig());
         resourceFactory.setSecurityManager(securityManager);
         setResourceFactory(resourceFactory);
+
+        CosmoDavLocatorFactoryImpl locatorFactory =
+            new CosmoDavLocatorFactoryImpl(getPathPrefix());
+        setLocatorFactory(locatorFactory);
     }
 
 

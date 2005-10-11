@@ -209,7 +209,8 @@ public class JCRCalendarDao implements CalendarDao {
         StringBuffer stmt = new StringBuffer();
         stmt.append("/jcr:root");
         if (! node.getParent().getPath().equals("/")) {
-            stmt.append(JCREscapist.escapeJCRPath(node.getParent().getPath()));
+            stmt.append(JCREscapist.xmlEscapeJCRPath(node.getParent().
+                                                     getPath()));
         }
         stmt.append("//element(*, ").
             append(CosmoJcrConstants.NT_CALDAV_RESOURCE).

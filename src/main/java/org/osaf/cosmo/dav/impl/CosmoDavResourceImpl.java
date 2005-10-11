@@ -182,9 +182,10 @@ public class CosmoDavResourceImpl extends DavResourceImpl
         }
         try {
             Node parent = getNode();
+            String name = JCRUtils.getName(child.getLocator().getJcrPath());
             CalendarDao dao = (CalendarDao) applicationContext.
                 getBean(BEAN_CALENDAR_DAO, CalendarDao.class);
-            dao.createCalendarCollection(parent, child.getDisplayName());
+            dao.createCalendarCollection(parent, name);
             parent.save();
         } catch (DataIntegrityViolationException e) {
             log.error("resource " + child.getResourcePath() +
