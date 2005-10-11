@@ -59,6 +59,7 @@ import org.osaf.cosmo.icalendar.DuplicateUidException;
 import org.osaf.cosmo.icalendar.ICalendarUtils;
 import org.osaf.cosmo.icalendar.RecurrenceSet;
 import org.osaf.cosmo.jcr.CosmoJcrConstants;
+import org.osaf.cosmo.jcr.JCREscapist;
 import org.osaf.cosmo.jcr.JCRUtils;
 
 /**
@@ -208,7 +209,7 @@ public class JCRCalendarDao implements CalendarDao {
         StringBuffer stmt = new StringBuffer();
         stmt.append("/jcr:root");
         if (! node.getParent().getPath().equals("/")) {
-            stmt.append(node.getParent().getPath());
+            stmt.append(JCREscapist.escapeJCRPath(node.getParent().getPath()));
         }
         stmt.append("//element(*, ").
             append(CosmoJcrConstants.NT_CALDAV_RESOURCE).

@@ -22,11 +22,11 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import net.fortuna.ical4j.data.CalendarBuilder;
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.component.VTimeZone;
+import net.fortuna.ical4j.data.*;
+import net.fortuna.ical4j.model.*;
+import net.fortuna.ical4j.model.component.*;
+import net.fortuna.ical4j.model.parameter.*;
+import net.fortuna.ical4j.model.property.*;
 
 import org.osaf.commons.spring.jcr.JCRSessionFactory;
 import org.osaf.cosmo.BaseCoreTestCase;
@@ -62,7 +62,7 @@ public class CalendarDaoTest extends BaseCoreTestCase {
         // create the calendar collection in the repository
         Session session = sessionFactory.getSession();
         Node root = session.getRootNode();
-        dao.createCalendarCollection(root, "calendarcollection");
+        dao.createCalendarCollection(root, "calendar collection");
         session.save();
         session.logout();
 
@@ -134,7 +134,7 @@ public class CalendarDaoTest extends BaseCoreTestCase {
         String name = summary +  ".ics";
 
         // make a calendar collection in the repository
-        String collectionName1 = "twocols1";
+        String collectionName1 = "two cols #1";
         dao.createCalendarCollection(session.getRootNode(), collectionName1);
         Node collection1 = session.getRootNode().getNode(collectionName1);
 
@@ -146,7 +146,7 @@ public class CalendarDaoTest extends BaseCoreTestCase {
         session.save();
 
         // make a second calendar collection
-        String collectionName2 = "twocols2";
+        String collectionName2 = "two cols #2";
         dao.createCalendarCollection(session.getRootNode(), collectionName2);
         Node collection2 = session.getRootNode().getNode(collectionName2);
 
@@ -175,7 +175,7 @@ public class CalendarDaoTest extends BaseCoreTestCase {
 
         // make a calendar collection in the repository
         // XXX createCalendarCollection ought to return the created node
-        String collectionName = "dupcal";
+        String collectionName = "duplicate calendar";
         dao.createCalendarCollection(session.getRootNode(), collectionName);
         Node collection = session.getRootNode().getNode(collectionName);
 
