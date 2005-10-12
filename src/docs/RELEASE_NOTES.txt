@@ -15,7 +15,8 @@ BUGS FIXED
 
 2854: WebDAV resources with spaces in their names have their URLs
       correctly escaped in PROPFIND responses
-3068: Apostrophes are now accepted in WebDAV resource names
+3068: WebDAV resource names may now contain any Unicode character
+      except for non-space whitespace characters
 4102: The `root' user can no longer be deleted via CMP
 4103: CMP ensures that the username in the URI and in the XML request
       content are the same

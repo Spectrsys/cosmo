@@ -57,7 +57,7 @@ public class JCREscapist {
     }
 
     public static String hexEscapeJCRNames(String str) {
-        return hexEscapeNames(str);
+        return hexEscape(str);
     }
 
     public static String hexEscapeJCRPath(String str) {
@@ -65,7 +65,7 @@ public class JCREscapist {
 
         String[] names = str.split("/");
         for (int i=0; i<names.length; i++) {
-            buf.append(hexEscapeNames(names[i]));
+            buf.append(hexEscape(names[i]));
             if (i < names.length-1) {
                 buf.append("/");
             }
@@ -75,7 +75,7 @@ public class JCREscapist {
     }
 
     public static String hexUnescapeJCRNames(String str) {
-        return hexUnescapeNames(str);
+        return hexUnescape(str);
     }
 
     public static String hexUnescapeJCRPath(String str) {
@@ -83,7 +83,7 @@ public class JCREscapist {
 
         String[] names = str.split("/");
         for (int i=0; i<names.length; i++) {
-            buf.append(hexUnescapeNames(names[i]));
+            buf.append(hexUnescape(names[i]));
             if (i < names.length-1) {
                 buf.append("/");
             }
@@ -185,19 +185,6 @@ public class JCREscapist {
         return buf.toString();
     }
 
-    private static String hexEscapeNames(String str) {
-        String[] split = str.split(":");
-        if (split.length == 2) {
-            // prefix should yet be a valid xml name
-            String localname = hexEscape(split[1]);
-            String name = split[0] + ":" + localname;
-            return name;
-        } else {
-            String localname = hexEscape(split[0]);
-            return localname;
-        }
-    }
-
     private static String hexEscape(String str) {
         StringBuffer buf = null;
         int length = str.length();
@@ -205,6 +192,14 @@ public class JCREscapist {
         for (int i = 0; i < length; i++) {
             int ch = str.charAt(i);
             switch (ch) {
+            case '.':
+            case '/':
+            case ':':
+            case '[':
+            case ']':
+            case '*':
+            case '"':
+            case '|':
             case '\'':
                 if (buf == null) {
                     buf = new StringBuffer();
@@ -217,9 +212,7 @@ public class JCREscapist {
             default:
                 continue;
             }
-            if (ch == '\'') {
-                buf.append("%").append(Integer.toHexString(ch));
-            }
+            buf.append("%").append(Integer.toHexString(ch));
         }
         
         if (buf == null) {
@@ -230,19 +223,6 @@ public class JCREscapist {
             buf.append(str.substring(pos));
         }
         return buf.toString();
-    }
-
-    private static String hexUnescapeNames(String str) {
-        String[] split = str.split(":");
-        if (split.length == 2) {
-            // prefix should yet be a valid xml name
-            String localname = hexUnescape(split[1]);
-            String name = split[0] + ":" + localname;
-            return name;
-        } else {
-            String localname = hexUnescape(split[0]);
-            return localname;
-        }
     }
 
     private static String hexUnescape(String str) {
@@ -266,12 +246,42 @@ public class JCREscapist {
                 continue;
             }
             if (ch == '%') {
-                if (i+2 < length && str.substring(i+1, i+3).
-                    equals(Integer.toHexString('\''))) {
-                    buf.append("'");
-                    i += 2;
-                    pos = i + 1;
+                if (i+3 >= length) {
+                    continue;
                 }
+                String hex = str.substring(i+1, i+3);
+                if (hex.equals("2e")) {
+                    buf.append(".");
+                }
+                else if (hex.equals("2f")) {
+                    buf.append("/");
+                }
+                else if (hex.equals("3a")) {
+                    buf.append(":");
+                }
+                else if (hex.equals("5b")) {
+                    buf.append("[");
+                }
+                else if (hex.equals("5d")) {
+                    buf.append("]");
+                }
+                else if (hex.equals("2a")) {
+                    buf.append("*");
+                }
+                else if (hex.equals("22")) {
+                    buf.append("\"");
+                }
+                else if (hex.equals("7c")) {
+                    buf.append("|");
+                }
+                else if (hex.equals("27")) {
+                    buf.append("'");
+                }
+                else {
+                    continue;
+                }
+                i += 2;
+                pos = i + 1;
             }
         }
         if (buf == null) {
