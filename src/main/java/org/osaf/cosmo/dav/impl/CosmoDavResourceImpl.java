@@ -28,6 +28,8 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
+import net.fortuna.ical4j.model.Calendar;
+
 import org.apache.jackrabbit.server.io.ImportContext;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
@@ -199,6 +201,27 @@ public class CosmoDavResourceImpl extends DavResourceImpl
             }
             throw new DavException(CosmoDavResponse.SC_INTERNAL_SERVER_ERROR,
                                    e.getMessage());
+        }
+    }
+
+    /**
+     * For calendar collection resources, returns a
+     * <code>Calendar</code> representing the calendar objects
+     * contained within the collection.
+     */
+    public Calendar getCollectionCalendar()
+        throws DavException {
+        if (! isCalendarCollection()) {
+            return null;
+        }
+        try {
+            CalendarDao dao = (CalendarDao) applicationContext.
+                getBean(BEAN_CALENDAR_DAO, CalendarDao.class);
+            return dao.getCalendarObject(getNode());
+        } catch (DataAccessException e) {
+            log.error("can't get collection calendar", e);
+            throw new DavException(CosmoDavResponse.SC_INTERNAL_SERVER_ERROR,
+                                   "can't get collection calendar");
         }
     }
 

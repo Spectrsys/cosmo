@@ -221,9 +221,6 @@ public class JCRCalendarDao implements CalendarDao {
             append(uid).
             append("']");
 
-        if (log.isDebugEnabled()) {
-            log.debug("verifying unique uid with query " + stmt);
-        }
         QueryManager qm =
             node.getSession().getWorkspace().getQueryManager();
         QueryResult qr =
@@ -290,14 +287,6 @@ public class JCRCalendarDao implements CalendarDao {
         // put timezones at the end
         for (Iterator i=tzIdx.values().iterator(); i.hasNext();) {
             calendar.getComponents().add((Component) i.next());
-        }
-
-        // if the calendar is empty (no components), add the default
-        // timezone to the calendar so that it has a component (and
-        // therefore is a valid calendar object)
-
-        if (calendar.getComponents().isEmpty()) {
-            calendar.getComponents().add(VTimeZone.getDefault());
         }
 
         return calendar;

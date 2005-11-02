@@ -193,6 +193,11 @@ public class JCREscapist {
             int ch = str.charAt(i);
             switch (ch) {
             case '.':
+                if (i >= 2) {
+                    // . only needs to be escaped if it's the first or
+                    // second character
+                    continue;
+                }
             case '/':
             case ':':
             case '[':
