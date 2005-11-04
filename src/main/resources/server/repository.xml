@@ -194,7 +194,9 @@
             persistence manager of the workspace:
             class: FQN of class implementing the PersistenceManager interface
         -->
+        <!--
         <PersistenceManager class="org.apache.jackrabbit.core.state.xml.XMLPersistenceManager"/>
+        -->
         <!--
         <PersistenceManager class="org.apache.jackrabbit.core.state.mem.InMemPersistenceManager">
             <param name="initialCapacity" value="100000"/>
@@ -202,9 +204,7 @@
             <param name="persistent" value="true"/>
         </PersistenceManager>
         -->
-        <!--
         <PersistenceManager class="org.apache.jackrabbit.core.state.obj.ObjectPersistenceManager"/>
-        -->
         <!--
             Search index and the file system it uses.
             class: FQN of class implementing the QueryHandler interface
