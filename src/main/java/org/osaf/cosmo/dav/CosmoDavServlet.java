@@ -123,6 +123,24 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
         cosmoResource.setBaseUrl(cosmoRequest.getBaseUrl());
         cosmoResource.setApplicationContext(wac);
 
+        if (ifNoneMatch(request, cosmoResource)) {
+            switch (method) {
+            case CosmoDavMethods.DAV_GET:
+            case CosmoDavMethods.DAV_HEAD:
+                response.setStatus(DavServletResponse.SC_NOT_MODIFIED);
+                response.setHeader("ETag", cosmoResource.getETag());
+                return true;
+            default:
+                response.setStatus(DavServletResponse.SC_PRECONDITION_FAILED);
+                return true;
+            }
+        }
+
+        if (ifMatch(request, cosmoResource)) {
+            response.setStatus(DavServletResponse.SC_PRECONDITION_FAILED);
+            return true;
+        }
+
         if (method > 0) {
             return super.execute(request, response, method, resource);
         }
@@ -139,7 +157,6 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
             doDelTicket(cosmoRequest, cosmoResponse, cosmoResource);
             break;
         default:
-            // any other method
             return false;
         }
 
@@ -177,38 +194,6 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
         CosmoDavRequestImpl cosmoRequest = new CosmoDavRequestImpl(request);
         CosmoDavResponseImpl cosmoResponse = new CosmoDavResponseImpl(response);
         CosmoDavResourceImpl cosmoResource = (CosmoDavResourceImpl) resource;
-
-        // caldav (section 4.6.2): honor "If-None-Match"
-        String ifNoneMatch = request.getHeader("If-None-Match");
-        if (ifNoneMatch != null) {
-            // fail if it's "*" and the resource exists at all
-            if ((ifNoneMatch.equals("*") && resource.exists()) ||
-                // fail if the resource exists and both etags are
-                // strong and they match
-                (resource.exists() &&
-                 ! ifNoneMatch.startsWith("W/") &&
-                 ! cosmoResource.getETag().startsWith("W/") &&
-                 cosmoResource.getETag().equals(ifNoneMatch))) {
-                response.sendError(DavServletResponse.SC_PRECONDITION_FAILED);
-                return;
-            }
-        }
-
-        // caldav (section 4.6.2): honor "If-Match" header
-        String ifMatch = request.getHeader("If-Match");
-        if (ifMatch != null) {
-            // fail if it's "*" and the resource does not exist
-            if ((ifMatch.equals("*") && ! resource.exists()) ||
-                // fail if the resource does not exist, one or both of
-                // the etags are weak, or if the etags don't match
-                (! resource.exists() ||
-                 ifMatch.startsWith("W/") ||
-                 cosmoResource.getETag().startsWith("W/") ||
-                 ! cosmoResource.getETag().equals(ifMatch))) {
-                response.sendError(DavServletResponse.SC_PRECONDITION_FAILED);
-                return;
-            }
-        }
 
         try {
             super.doPut(request, response, resource);
@@ -393,6 +378,103 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
     }
 
     // our methods
+
+    /**
+     * Checks if an <code>If-None-Match</code> header is present in
+     * the request; if so, compares the specified value to the entity
+     * tag of the resource and returns <code>true</code> if the
+     * request should fail.
+     *
+     * @param request
+     * @param resource
+     * @return
+     */
+    protected boolean ifNoneMatch(WebdavRequest request,
+                                  CosmoDavResource resource) {
+        String ifNoneMatch = request.getHeader("If-None-Match");
+        if (ifNoneMatch == null) {
+            return false;
+        }
+
+        // fail if it's "*" and the resource exists at all
+        if (ifNoneMatch.equals("*") && resource.exists()) {
+            return true;
+        }
+
+        // fail if the resource exists and the etags match
+        // XXX: account for multiple etags in the header
+        if (resource.exists()) {
+            if (request.getMethod().equals(CosmoDavMethods.METHOD_GET) ||
+                request.getMethod().equals(CosmoDavMethods.METHOD_HEAD)) {
+                return isWeakEtagMatch(ifNoneMatch, resource.getETag());
+            }
+            return isStrongEtagMatch(ifNoneMatch, resource.getETag());
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if an <code>If-Match</code> header is present in
+     * the request; if so, compares the specified value to the entity
+     * tag of the resource and returns <code>true</code> if the
+     * request should fail.
+     *
+     * @param request
+     * @param resource
+     * @return
+     */
+    protected boolean ifMatch(WebdavRequest request,
+                              CosmoDavResource resource) {
+        String ifMatch = request.getHeader("If-Match");
+        if (ifMatch == null) {
+            return false;
+        }
+
+        // fail if it's "*" and the resource does not exist
+        if (ifMatch.equals("*") && ! resource.exists()) {
+            return true;
+        }
+
+        // fail if the resource doesn't exist, or if the resource
+        // exists but there is no match
+        // XXX: account for multiple etags in the header
+        if (! resource.exists() ||
+            (resource.exists() &&
+             ! isStrongEtagMatch(ifMatch, resource.getETag()))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Uses the strong comparison function to determine if two etags
+     * match.
+     */
+    protected boolean isStrongEtagMatch(String etag,
+                                        String test) {
+        // both etags must be strong
+        return (! etag.startsWith("W/") &&
+                ! test.startsWith("W/") &&
+                etag.equals(test));
+    }
+
+    /**
+     * Uses the weak comparison function to determine if two etags
+     * match.
+     */
+    protected boolean isWeakEtagMatch(String etag,
+                                      String test) {
+        // either etag may be weak or strong
+        if (etag.startsWith("W/")) {
+            etag = etag.substring(2);
+        }
+        if (test.startsWith("W/")) {
+            test = test.substring(2);
+        }
+        return etag.equals(test);
+    }
 
     /**
      */
