@@ -17,6 +17,7 @@ package org.osaf.cosmo.dao;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.TimeZone;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -79,7 +80,7 @@ public class CalendarDaoTest extends BaseCoreTestCase {
         Calendar calendar1 = TestHelper.makeDummyCalendar();
         VEvent event1 = TestHelper.makeDummyEvent();
         calendar1.getComponents().add(event1);
-        calendar1.getComponents().add(VTimeZone.getDefault());
+        calendar1.getComponents().add(getDefaultTimeZone());
 
         // store the calendar object in the repository
         String name =
@@ -129,7 +130,7 @@ public class CalendarDaoTest extends BaseCoreTestCase {
         Calendar calendar = TestHelper.makeDummyCalendar();
         VEvent event = TestHelper.makeDummyEvent();
         calendar.getComponents().add(event);
-        calendar.getComponents().add(VTimeZone.getDefault());
+        calendar.getComponents().add(getDefaultTimeZone());
         String summary = ICalendarUtils.getSummary(event).getValue();
         String name = summary +  ".ics";
 
@@ -171,7 +172,7 @@ public class CalendarDaoTest extends BaseCoreTestCase {
         Calendar calendar = TestHelper.makeDummyCalendar();
         VEvent event = TestHelper.makeDummyEvent();
         calendar.getComponents().add(event);
-        calendar.getComponents().add(VTimeZone.getDefault());
+        calendar.getComponents().add(getDefaultTimeZone());
 
         // make a calendar collection in the repository
         // XXX createCalendarCollection ought to return the created node
@@ -216,7 +217,7 @@ public class CalendarDaoTest extends BaseCoreTestCase {
         Calendar calendar1 = TestHelper.makeDummyCalendar();
         VEvent event1 = TestHelper.makeDummyEvent();
         calendar1.getComponents().add(event1);
-        calendar1.getComponents().add(VTimeZone.getDefault());
+        calendar1.getComponents().add(getDefaultTimeZone());
 
         // store the calendar object in the repository
         String name =
@@ -346,6 +347,13 @@ public class CalendarDaoTest extends BaseCoreTestCase {
         contentNode.setProperty(CosmoJcrConstants.NN_JCR_LASTMODIFIED,
                                 java.util.Calendar.getInstance());
         return resourceNode;
+    }
+
+    /**
+     */
+    protected VTimeZone getDefaultTimeZone() {
+        return TimeZoneRegistryFactory.getInstance().createRegistry().
+            getTimeZone(TimeZone.getDefault().getID()).getVTimeZone();
     }
 
     /**

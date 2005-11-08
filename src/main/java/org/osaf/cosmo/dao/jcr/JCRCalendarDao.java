@@ -373,7 +373,7 @@ public class JCRCalendarDao implements CalendarDao {
              i.hasNext();) {
             VEvent exceptionEvent = (VEvent) i.next();
             java.util.Date recurid =
-                ICalendarUtils.getRecurrenceId(exceptionEvent).getTime();
+                ICalendarUtils.getRecurrenceId(exceptionEvent).getDate();
             Node eventNode = (Node) updateIdx.get(recurid);
             if (eventNode == null) {
                 eventNode =
@@ -753,7 +753,7 @@ public class JCRCalendarDao implements CalendarDao {
             componentNodes.nextNode().remove();
         }
         // set new component nodes
-        for (Iterator i=timezone.getTypes().iterator(); i.hasNext();) {
+        for (Iterator i=timezone.getObservances().iterator(); i.hasNext();) {
             setTimeZoneComponentNode((Component) i.next(), timezoneNode);
         }
         setXPropertyNodes(timezone, timezoneNode);
@@ -1003,7 +1003,7 @@ public class JCRCalendarDao implements CalendarDao {
             setXParameterProperties(dtStart, propertyNode);
             JCRUtils.setDateValue(propertyNode,
                                   CosmoJcrConstants.NP_ICAL_DATETIME,
-                                  dtStart.getTime());
+                                  dtStart.getDate());
             propertyNode.setProperty(CosmoJcrConstants.NP_ICAL_UTC,
                                      dtStart.isUtc());
             setTzIdParameterProperty(dtStart, propertyNode);
@@ -1595,7 +1595,7 @@ public class JCRCalendarDao implements CalendarDao {
             setXParameterProperties(recurrenceId, propertyNode);
             JCRUtils.setDateValue(propertyNode,
                                   CosmoJcrConstants.NP_ICAL_DATETIME,
-                                  recurrenceId.getTime());
+                                  recurrenceId.getDate());
             propertyNode.setProperty(CosmoJcrConstants.NP_ICAL_UTC,
                                      recurrenceId.isUtc());
             setValueParameterProperty(recurrenceId, propertyNode);
