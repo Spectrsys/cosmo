@@ -1,36 +1,38 @@
 
-Cosmo Sharing Server 0.2.1
+Cosmo Sharing Server 0.2.2
 Release Notes
         
 
 UPGRADING FROM A PREVIOUS RELEASE
 =================================
 
-Due to incompatible schema changes, 0.2.1 cannot operate against
-repositories created by earlier versions of Cosmo.
+Due to a change in the way that repository data is stored on disk,
+0.2.2 cannot operate against repositories created by earlier versions
+of Cosmo.
 
 
 BUGS FIXED
 ==========
 
-2854: WebDAV resources with spaces in their names have their URLs
-      correctly escaped in PROPFIND responses
-3068: WebDAV resource names may now contain any Unicode character
-      except for non-space whitespace characters
-4102: The `root' user can no longer be deleted via CMP
-4103: CMP ensures that the username in the URI and in the XML request
-      content are the same
-4104: CMP no longer includes a homedirUrl in the XML representation of
-      the `root' user
-4212: "Expensive" WebDAV properties are no longer calculated when
-      those properties are not needed in the response
-4225: The repository is now cleanly shut down when the server is
-      stopped.
-4226: Ticket validation now properly handles lookups for resources
-      with spaces in their names
-4255: Duplicate UID queries for CalDAV event resources now properly
-      handle resources with spaces in their names
-
+4350: Expanded timezone support provided by ical4j 0.9.17.
+4388: The Content-Type response header is properly set when GETing
+      collections.
+4390: Temporary files are no longer used when creating the response
+      contents for GET requests against collections, which should get
+      rid of the "too many open files" error message seen in
+      cosmo.log.
+4521: The If-Match and If-None-Match headers are now supported for all
+      HTTP methods.
+4526: GET requests including If-Modified-Since headers now cause 304
+      (Unmodified) responses as appropriate.
+4527: The date value of the Last-Modified response header is now in
+      the same timezone as the other date headers in the response.
+4563: Unusually formatted timezones within PUT calendar objects are
+      more robustly handled with ical4j 0.9.17.
+4575: Intermittent failures making collections and PUTing resources
+      are guarded against by using a filesystem storage scheme that
+      does not run up against operating system limits for inode
+      links.
 
 
 
