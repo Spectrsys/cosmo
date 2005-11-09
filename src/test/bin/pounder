@@ -11,7 +11,7 @@ use Getopt::Long ();
 
 BEGIN { $0 = File::Basename::basename($0) }
 
-use constant VERSION => '0.01';
+use constant VERSION => '0.02';
 use constant PROGRAM => $0;
 use constant USAGE => <<EOT;
 Usage: $0 [OPTIONS...]
@@ -63,7 +63,7 @@ my $user = create_user($cmp);
 my $dav = dav_connect($user);
 publish($dav);
 unpublish($dav);
-remove_user($user);
+remove_user($cmp, $user);
 
 exit;
 
@@ -113,6 +113,7 @@ sub unpublish {
 }
 
 sub remove_user {
+    my $cmp = shift;
     my $user = shift;
 
     $cmp->remove_user($user);
