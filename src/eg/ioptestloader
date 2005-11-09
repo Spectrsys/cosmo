@@ -3,67 +3,85 @@
 
 use strict;
 
+use Cosmo::CMP ();
+use Cosmo::DAV ();
+use Cosmo::User ();
 use File::Basename ();
 use Getopt::Long ();
 
 BEGIN { $0 = File::Basename::basename($0) }
 
-use constant VERSION => '0.01';
+use constant VERSION => '0.02';
 use constant PROGRAM => $0;
 use constant USAGE => <<EOT;
-Usage: $0 [OPTIONS...] [-n <num accounts>] <server root URL> \
-          <admin username> <admin password>
+Usage: $0 [OPTIONS...]
 
 A simple tool for bulk loading test accounts into a Cosmo server.
 
 Options:
+  -s               server root URL (defaults to http://localhost:8080)
+  -u               admin username (defaults to root)
+  -p               admin password (defaults to cosmo)
   -n               number of test accounts to create (defaults to 20)
   -d               print debugging information to STDOUT
   -h               list available command line options (this page)
   -v               print version information and exit
 EOT
 
+use constant DEFAULT_SERVER_URL => 'http://localhost:8080';
+use constant DEFAULT_ADMIN_USERNAME => 'root';
+use constant DEFAULT_ADMIN_PASSWORD => 'cosmo';
 use constant DEFAULT_NUM_ACCOUNTS => 20;
 
 $SIG{__DIE__} = sub { die sprintf("%s: %s", PROGRAM, $_[0]) };
 
-my ($opt_num, $opt_debug, $opt_help, $opt_version);
+my ($server_url, $admin_username, $admin_password, $num_accounts,
+    $opt_debug, $opt_help, $opt_version);
 
 # process command line options
 Getopt::Long::GetOptions(
-                         "n=i"   => \$opt_num,
-                         "d"   => \$opt_debug,
-                         "h"   => \$opt_help,
-                         "v"   => \$opt_version,
-                        );
+    "s=s" => \$server_url,
+    "u=s" => \$admin_username,
+    "p=s" => \$admin_password,
+    "n=i" => \$num_accounts,
+    "d"   => \$opt_debug,
+    "h"   => \$opt_help,
+    "v"   => \$opt_version,
+    );
 (print USAGE and exit) if $opt_help;
 (print sprintf("%s/%s\n", PROGRAM, VERSION) and exit) if $opt_version;
 
-my $server_url = shift @ARGV;
-my $admin_username = shift @ARGV;
-my $admin_password = shift @ARGV;
-$server_url && $admin_username && $admin_password or
-    die USAGE;
-if ($server_url !~ m|.+\/$|) {
-    $server_url = "$server_url/";
-}
-my $num_accounts = $opt_num || DEFAULT_NUM_ACCOUNTS;
+$server_url ||= DEFAULT_SERVER_URL;
+chop($server_url) if $server_url =~ m|/$|;
+$admin_username ||= DEFAULT_ADMIN_USERNAME;
+$admin_password ||= DEFAULT_ADMIN_PASSWORD;
+$num_accounts ||= DEFAULT_NUM_ACCOUNTS;
 
 # set up client and check server availability
-my $client = ioptestloader::client->new($server_url, $admin_username,
-                                        $admin_password);
-$client->agent(PROGRAM . "/" . VERSION);
-
-$client->check_server_availability();
+my $cmp = Cosmo::CMP->new($server_url, $admin_username, $admin_password,
+                          $opt_debug);
+$cmp->agent(PROGRAM . "/" . VERSION);
+$cmp->check_server_availability();
 
 # create accounts and calendars
 for my $num (1..$num_accounts) {
     my $username = "user$num";
 
-    my $account_url = $client->create_account($username);
-    print "Created account at $account_url\n";
+    my $user = new Cosmo::User();
+    $user->username($username);
+    $user->password($username);
+    $user->first_name($username);
+    $user->last_name($username);
+    $user->email("$username\@localhost");
 
-    my $calendar_url = $client->create_calendar($username, "test");
+    $cmp->create_user($user);
+    print "Created user at " . $user->user_url() . "\n";
+
+    my $dav = Cosmo::DAV->new($server_url, $user->username,
+                              $user->password, $opt_debug);
+    $dav->agent(PROGRAM . "/" . VERSION);
+    my $calendar_url = sprintf("%s%s/", $dav->homedir_url(), "test");
+    $dav->mkcalendar($calendar_url);
     print "Created calendar at $calendar_url\n";
 
     if ($num != $num_accounts) {
@@ -72,133 +90,3 @@ for my $num (1..$num_accounts) {
 }
 
 exit;
-
-package ioptestloader::client;
-
-use base qw(LWP::UserAgent);
-use constant REALM => "Cosmo Sharing Server";
-
-sub new {
-    my $class = shift;
-
-    my $self = LWP::UserAgent->new();
-    $self->{server_url} = shift;
-    $self->{username} = shift;
-    $self->{password} = shift;
-
-    return bless $self, $class;
-}
-
-sub ua {
-    my $self = shift;
-    return $self->{ua};
-}
-
-sub server_url {
-    my $self = shift;
-    return $self->{server_url};
-}
-
-sub user_url {
-    my $self = shift;
-    my $username = shift;
-
-    return sprintf("%sapi/user/%s", $client->server_url, $username);
-}
-
-sub account_url {
-    my $self = shift;
-    my $username = shift;
-
-    return sprintf("%shome/%s/", $client->server_url, $username);
-}
-
-sub calendar_url {
-    my $self = shift;
-    my $username = shift;
-    my $calendar_name = shift;
-
-    return sprintf("%s%s/", $self->account_url($username), $calendar_name);
-}
-
-sub get_basic_credentials {
-    my $self = shift;
-    my $realm = shift;
-    my $uri = shift;
-    my $isproxy = shift;
-
-    if ($realm eq REALM) {
-        return ($self->{username}, $self->{password});
-    }
-    return ();
-}
-
-sub check_server_availability {
-    my $self = shift;
-    my $res = $self->get($self->server_url);
-    $res->is_success or
-        die $res->status_line . "\n";
-}
-
-sub create_account {
-    my $self = shift;
-    my $username = shift;
-    my $user_url = $self->user_url($username);
-
-    my $xml = <<EOT;
-<?xml version="1.0" encoding="utf-8" ?>
-<user xmlns="http://osafoundation.org/cosmo">
-  <username>$username</username>
-  <password>$username</password>
-  <firstName>$username</firstName>
-  <lastName>$username</lastName>
-  <email>$username\@localhost</email>
-</user>
-EOT
-    my $req = HTTP::Request->new(PUT => $user_url);
-    $req->content_type("text/xml; charset='utf-8'");
-    $req->content($xml);
-    if ($opt_debug) {
-        warn $req->as_string . "\n";
-    }
-
-    my $res = $self->request($req);
-    if ($opt_debug) {
-        warn $res->as_string . "\n";
-    }
-
-    if (! $res->is_success) {
-        if ($res->code == 401) {
-            die "Bad username or password\n";
-        }
-        die $res->status_line . "\n";
-    }
-
-    return $self->account_url($username);
-}
-
-sub create_calendar {
-    my $self = shift;
-    my $username = shift;
-    my $calendar_name = shift;
-    my $calendar_url = $self->calendar_url($username, $calendar_name);
-
-    my $req = HTTP::Request->new(MKCALENDAR => $calendar_url);
-    if ($opt_debug) {
-        warn $req->as_string . "\n";
-    }
-
-    my $res = $self->request($req);
-    if ($opt_debug) {
-        warn $res->as_string . "\n";
-    }
-
-    if (! $res->is_success) {
-        if ($res->code == 401) {
-            die "Bad username or password\n";
-        }
-        die $res->status_line . "\n";
-    }
-
-    return $calendar_url;
-}
