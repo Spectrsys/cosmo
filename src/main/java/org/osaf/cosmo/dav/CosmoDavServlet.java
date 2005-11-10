@@ -167,7 +167,7 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
      */
     protected void doHead(WebdavRequest request, WebdavResponse response,
                           DavResource resource) throws IOException {
-        if (! resource.isCollection()) {
+        if (! (resource.exists() && resource.isCollection())) {
             super.doHead(request, response, resource);
             return;
         }
@@ -178,7 +178,7 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
      */
     protected void doGet(WebdavRequest request, WebdavResponse response,
                          DavResource resource) throws IOException {
-        if (! resource.isCollection()) {
+        if (! (resource.exists() && resource.isCollection())) {
             super.doGet(request, response, resource);
             return;
         }
