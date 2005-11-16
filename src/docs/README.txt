@@ -1,5 +1,5 @@
 
-                           Cosmo Sharing Server 0.2.2
+                           Cosmo Sharing Server 0.2.3
 
 
 WHAT IS COSMO?
@@ -37,6 +37,8 @@ Cosmo's project page is at
 
 Instructions for installing and running Cosmo are found at
 <http://wiki.osafoundation.org/bin/view/Documentation/CosmoAdministrator>.
+
+Release notes for this distribution are found in RELEASE_NOTES.txt.
 
 Legal information is found in LICENSE.txt, NOTICE.txt and in the
 license/ subdirectory.
