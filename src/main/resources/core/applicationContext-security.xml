@@ -61,7 +61,7 @@
   </bean>
 
   <bean id="authenticationManager"
-        class="org.osaf.cosmo.acegisecurity.CosmoProviderManager">
+        class="net.sf.acegisecurity.providers.ProviderManager">
     <property name="providers">
       <list>
         <ref local="daoAuthenticationProvider"/>

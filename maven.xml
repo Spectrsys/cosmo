@@ -36,9 +36,6 @@
        catalog="${basedir}/src/docs/jcr/tickets.txt"
        descriptor="${basedir}/src/main/resources/jackrabbit/tickets_nodetypes.xml"/>
     <jackrabbit:generate
-       catalog="${basedir}/src/docs/jcr/icalendar.txt"
-       descriptor="${basedir}/src/main/resources/jackrabbit/icalendar_nodetypes.xml"/>
-    <jackrabbit:generate
        catalog="${basedir}/src/docs/jcr/caldav.txt"
        descriptor="${basedir}/src/main/resources/jackrabbit/caldav_nodetypes.xml"/>
   </goal>
@@ -76,6 +73,10 @@
     <filter token="VERSION" value="${pom.currentVersion}"/>
   </preGoal>
 
+  <postGoal name="clean:clean">
+    <delete file="${basedir}/derby.log"/>
+  </postGoal>
+
   <preGoal name="test:test-resources">
     <j:if test="${unitTestSourcesPresent == 'true' and context.getVariable('maven.test.skip') != 'true'}">
       <attainGoal name="test:dbsetup"/>
@@ -111,12 +112,6 @@
        username="${cosmo.test.repository.username}"
        password="${cosmo.test.repository.password}"
        descriptor="${basedir}/src/main/resources/jackrabbit/tickets_nodetypes.xml"/>
-    <jackrabbit:import
-       configFilePath="${basedir}/src/main/resources/server/repository.xml"
-       repositoryHomedirPath="${maven.build.dir}/test-repository"
-       username="${cosmo.test.repository.username}"
-       password="${cosmo.test.repository.password}"
-       descriptor="${basedir}/src/main/resources/jackrabbit/icalendar_nodetypes.xml"/>
     <jackrabbit:import
        configFilePath="${basedir}/src/main/resources/server/repository.xml"
        repositoryHomedirPath="${maven.build.dir}/test-repository"
@@ -258,12 +253,6 @@
        username="${cosmo.dist.repository.username}"
        password="${cosmo.dist.repository.password}"
        descriptor="${basedir}/src/main/resources/jackrabbit/tickets_nodetypes.xml"/>
-    <jackrabbit:import
-       configFilePath="${basedir}/src/main/resources/server/repository.xml"
-       repositoryHomedirPath="${cosmo.dist.version}/data/repository"
-       username="${cosmo.dist.repository.username}"
-       password="${cosmo.dist.repository.password}"
-       descriptor="${basedir}/src/main/resources/jackrabbit/icalendar_nodetypes.xml"/>
     <jackrabbit:import
        configFilePath="${basedir}/src/main/resources/server/repository.xml"
        repositoryHomedirPath="${cosmo.dist.version}/data/repository"

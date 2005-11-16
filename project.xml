@@ -18,7 +18,7 @@
   <name>Cosmo</name>
   <groupId>cosmo</groupId>
   <artifactId>cosmo</artifactId>
-  <currentVersion>0.2.2</currentVersion>
+  <currentVersion>0.2.3</currentVersion>
   <organization>
     <name>OSAF</name>
     <url>http://osafoundation.org/</url>
@@ -50,7 +50,7 @@
     <dependency>
       <groupId>acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
-      <version>0.9.0-SNAPSHOT</version>
+      <version>0.9.0</version>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -198,6 +198,14 @@
       <version>0.9.17</version>
       <properties>
         <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.1.1.0</version>
+      <properties>
+        <tomcat.bundle>true</tomcat.bundle>
       </properties>
     </dependency>
     <dependency>
@@ -349,7 +357,7 @@
       <!-- from internal repository -->
       <groupId>osaf-commons</groupId>
       <artifactId>osaf-commons-jackrabbit</artifactId>
-      <version>0.2</version>
+      <version>0.3</version>
     </dependency>
     <dependency>
       <!-- from internal repository -->
