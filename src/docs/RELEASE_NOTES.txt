@@ -10,6 +10,13 @@ Since Cosmo's repository is now stored in an embedded Derby instance,
 0.2.3 cannot operate against repositories created by earlier versions
 of Cosmo.
 
+Derby writes errors to the file $COSMO_HOME/logs/derby.log. The file
+is appended to by default; to change this behavior, edit
+$COSMO_HOME/bin/cosmoctl and change "-Dderby.infolog.append=true" to
+false. The file is never rotated or truncated. This is a consequence
+of Derby's proprietary logging system, which we hope will be addressed
+in a future release.
+
 
 BUGS FIXED
 ==========
