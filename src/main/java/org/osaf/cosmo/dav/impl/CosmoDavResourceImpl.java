@@ -52,8 +52,6 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.simple.DavResourceImpl;
-import org.apache.jackrabbit.webdav.simple.ChainBasedNodeResource;
-import org.apache.jackrabbit.webdav.simple.CollectionNodeResource;
 import org.apache.jackrabbit.webdav.simple.NodeResource;
 import org.apache.jackrabbit.webdav.simple.ResourceConfig;
 
@@ -511,20 +509,6 @@ public class CosmoDavResourceImpl extends DavResourceImpl
                 log.warn("error getting tickets for node", e);
             }
         }
-    }
-
-    /**
-     */
-    protected NodeResource createNodeResource()
-        throws RepositoryException {
-        if (isCollection()) {
-            CollectionNodeResource nr = new CollectionNodeResource();
-            nr.init(this, getNode());
-            return nr;
-        }
-        ChainBasedNodeResource nr = new ChainBasedNodeResource();
-        nr.init(this, getNode());
-        return nr;
     }
 
     /**
