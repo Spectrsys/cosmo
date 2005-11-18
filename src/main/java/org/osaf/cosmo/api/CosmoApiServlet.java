@@ -176,10 +176,16 @@ public class CosmoApiServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        if (req.getContentLength() <= 0 ||
-            req.getContentType() == null ||
-            ! req.getContentType().startsWith("text/xml") ||
-            req.getHeader("Content-Transfer-Encoding") != null ||
+        if (req.getContentLength() <= 0) {
+            resp.setStatus(HttpServletResponse.SC_LENGTH_REQUIRED);
+            return;
+        }
+        if (req.getContentType() == null ||
+            ! req.getContentType().startsWith("text/xml")) {
+            resp.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+            return;
+        }
+        if (req.getHeader("Content-Transfer-Encoding") != null ||
             req.getHeader("Content-Encoding") != null ||
             req.getHeader("Content-Base") != null ||
             req.getHeader("Content-Location") != null ||
