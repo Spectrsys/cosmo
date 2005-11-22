@@ -188,6 +188,13 @@
       <forward name="failure" path="/users.do"/>
       <forward name="success" path="/users" redirect="true"/>
     </action>
+
+    <!-- status page -->
+    <action path="/status"
+            type="org.osaf.cosmo.ui.status.StatusAction"
+            parameter="status">
+      <forward name="ok" path="status"/>
+    </action>
   </action-mappings>
 
   <controller nocache="true"
