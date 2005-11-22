@@ -43,6 +43,10 @@ public class JCREscapist {
     }
 
     public static String xmlEscapeJCRPath(String str) {
+        if (str.equals("/")) {
+            return str;
+        }
+
         StringBuffer buf = new StringBuffer();
 
         String[] names = str.split("/");
@@ -61,6 +65,10 @@ public class JCREscapist {
     }
 
     public static String hexEscapeJCRPath(String str) {
+        if (str.equals("/")) {
+            return str;
+        }
+
         StringBuffer buf = new StringBuffer();
 
         String[] names = str.split("/");
@@ -79,6 +87,10 @@ public class JCREscapist {
     }
 
     public static String hexUnescapeJCRPath(String str) {
+        if (str.equals("/")) {
+            return str;
+        }
+
         StringBuffer buf = new StringBuffer();
 
         String[] names = str.split("/");

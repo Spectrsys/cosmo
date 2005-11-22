@@ -454,6 +454,9 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
      */
     protected boolean isStrongEtagMatch(String etag,
                                         String test) {
+        if (etag == null || test == null) {
+            return false;
+        }
         // both etags must be strong
         return (! etag.startsWith("W/") &&
                 ! test.startsWith("W/") &&
@@ -466,6 +469,9 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
      */
     protected boolean isWeakEtagMatch(String etag,
                                       String test) {
+        if (etag == null || test == null) {
+            return false;
+        }
         // either etag may be weak or strong
         if (etag.startsWith("W/")) {
             etag = etag.substring(2);
