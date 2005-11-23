@@ -14,10 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Wrapper script for Tomcat's catalina.sh
+# Wrapper script for Tomcat's catalina.sh that sets up the environment
+# and changes the directory to run in the Cosmo distribution directory.
 #
 # Ripped off from Tomcat's shutdown.sh
 # -----------------------------------------------------------------------------
+
+function check_feature() {
+    if [ -z "$1" ] ; then
+        return 1;
+    elif [ "$1" == "false" ] || [ "$1" == "0" ] ; then
+        return 2;
+    fi
+    return 0;
+}
 
 # resolve links - $0 may be a softlink
 PRG="$0"
@@ -31,15 +41,45 @@ while [ -h "$PRG" ] ; do
     PRG=`dirname "$PRG"`/"$link"
   fi
 done
- 
+
+# tomcat is found one level above this directory
 PRGDIR=`dirname "$PRG"`/../tomcat/bin
 EXECUTABLE=catalina.sh
 
-# Check that target executable exists
+# check that the tomcat control script exists
 if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
   echo "Cannot find $PRGDIR/$EXECUTABLE"
   echo "This file is needed to run this program"
   exit 1
+fi
+
+# source the config script if it exists
+CFGSCRIPT=cosmocfg
+if [ -f "$CFGSCRIPT" ]; then
+    . $CFGSCRIPT
+fi
+
+# enable/disable features
+COSMO_OPTS="-server"
+check_feature $COSMO_ICAL4J_UNFOLDING_RELAXED
+if [ $? -lt 2 ]; then
+    COSMO_OPTS="$COSMO_OPTS -Dical4j.unfolding.relaxed=true"
+else
+    COSMO_OPTS="$COSMO_OPTS -Dical4j.unfolding.relaxed=false"
+    echo "Disabling ical4j relaxed unfolding"
+fi
+if [ -n "$COSMO_DERBY_ERROR_LOG" ]; then
+    COSMO_OPTS="$COSMO_OPTS -Dderby.stream.error.file=$COSMO_DERBY_ERROR_LOG";
+    echo "Logging derby output to $COSMO_DERBY_ERROR_LOG"
+else
+    COSMO_OPTS="$COSMO_OPTS -Dderby.stream.error.file=logs/derby.log"
+fi
+check_feature $COSMO_DERBY_ERROR_LOG_APPEND
+if [ $? -lt 2 ]; then
+    COSMO_OPTS="$COSMO_OPTS -Dderby.infolog.append=true"
+else
+    COSMO_OPTS="$COSMO_OPTS -Dderby.infolog.append=false"
+    echo "Disabling appending for derby log"
 fi
 
 # move into the cosmo homedir so that paths relative to the current
@@ -48,7 +88,7 @@ cd $PRGDIR/../..
 
 export COSMO_HOME=`pwd`
 export CATALINA_HOME=$COSMO_HOME/tomcat
-export JAVA_OPTS="$JAVA_OPTS -server -Dical4j.unfolding.relaxed=true -Dderby.stream.error.file=logs/derby.log -Dderby.infolog.append=true"
+export JAVA_OPTS="$JAVA_OPTS $COSMO_OPTS"
 
 echo "Using COSMO_HOME:      $COSMO_HOME"
 
