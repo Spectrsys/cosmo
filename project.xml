@@ -47,6 +47,11 @@
     </developer>
   </developers>
   <dependencies>
+    <!--
+        dependencies with the war.bundle property are included in the
+        war's WEB-INF/lib directory. those with the tomcat.bundle
+        property are included in tomcat's common/lib directory.
+      -->
     <dependency>
       <groupId>acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
@@ -302,8 +307,6 @@
       </properties>
     </dependency>
     <dependency>
-      <!-- cannot be redistributed, therefore must be maintained in an
-           internal repository -->
       <groupId>jta</groupId>
       <artifactId>jta</artifactId>
       <version>dist</version>
@@ -345,7 +348,6 @@
       </properties>
     </dependency>
     <dependency>
-      <!-- from internal repository -->
       <groupId>osaf-commons</groupId>
       <artifactId>osaf-commons-spring</artifactId>
       <version>0.2</version>
@@ -354,13 +356,11 @@
       </properties>
     </dependency>
     <dependency>
-      <!-- from internal repository -->
       <groupId>osaf-commons</groupId>
       <artifactId>osaf-commons-jackrabbit</artifactId>
       <version>0.3</version>
     </dependency>
     <dependency>
-      <!-- from internal repository -->
       <groupId>osaf-commons</groupId>
       <artifactId>osaf-commons-jsp</artifactId>
       <version>0.1</version>
@@ -369,7 +369,6 @@
       </properties>
     </dependency>
     <dependency>
-      <!-- from internal repository -->
       <groupId>osaf-commons</groupId>
       <artifactId>osaf-commons-struts</artifactId>
       <version>0.2</version>
@@ -420,7 +419,6 @@
       </properties>
     </dependency>
     <dependency>
-      <!-- not currently on ibiblio -->
       <groupId>taglibs</groupId>
       <artifactId>unstandard</artifactId>
       <version>20050518</version>
@@ -429,7 +427,6 @@
       </properties>
     </dependency>
     <dependency>
-      <!-- not currently on ibiblio -->
       <groupId>urlrewrite</groupId>
       <artifactId>urlrewrite</artifactId>
       <version>2.0.1</version>
@@ -438,9 +435,20 @@
       </properties>
     </dependency>
     <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+      <version>2.6.0</version>
+      <properties>
+        <tomcat.bundle>true</tomcat.bundle>
+      </properties>
+    </dependency>
+    <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
       <version>2.6.2</version>
+      <properties>
+        <tomcat.bundle>true</tomcat.bundle>
+      </properties>
     </dependency>
     <dependency>
       <groupId>xerces</groupId>
