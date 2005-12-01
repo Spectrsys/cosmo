@@ -193,7 +193,19 @@
     <action path="/status"
             type="org.osaf.cosmo.ui.status.StatusAction"
             parameter="status">
-      <forward name="ok" path="status"/>
+      <forward name="ok" path="status.view"/>
+    </action>
+
+    <action path="/status/dump"
+            type="org.osaf.cosmo.ui.status.StatusAction"
+            parameter="status">
+      <forward name="ok" path="status.dump"/>
+    </action>
+
+    <action path="/status/gc"
+            type="org.osaf.cosmo.ui.status.StatusAction"
+            parameter="gc">
+      <forward name="ok" path="/status" redirect="true"/>
     </action>
   </action-mappings>
 

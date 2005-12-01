@@ -34,6 +34,7 @@ import org.apache.struts.action.ActionMapping;
  */
 public class StatusAction extends CosmoAction {
     private static final Log log = LogFactory.getLog(StatusAction.class);
+    private static final String MSG_CONFIRM_GC = "Status.GC";
 
     /**
      * The request attribute where the status snapshot is stored.
@@ -54,6 +55,23 @@ public class StatusAction extends CosmoAction {
         StatusSnapshot snapshot = takeSnapshot();
 
         request.setAttribute(ATTR_STATUS, snapshot);
+
+        return mapping.findForward(OSAFStrutsConstants.FWD_OK);
+    }
+
+    /**
+     * Causes the JVM to begin a garbage collection run
+     * (asynchronously, in a separate thread) and forwards to the
+     * {@link OSAFStrutsConstants#FWD_OK} forward.
+     */
+    public ActionForward gc(ActionMapping mapping,
+                            ActionForm form,
+                            HttpServletRequest request,
+                            HttpServletResponse response)
+        throws Exception {
+        System.gc();
+
+        saveConfirmationMessage(request, MSG_CONFIRM_GC);
 
         return mapping.findForward(OSAFStrutsConstants.FWD_OK);
     }

@@ -19,6 +19,9 @@
 <%@ include file="/WEB-INF/jsp/taglibs.jsp"  %>
 <%@ include file="/WEB-INF/jsp/tagfiles.jsp" %>
 
+<cosmo:cnfmsg/>
+
+<!-- simple memory stats -->
 <div style="margin-top:24px; text-align: left;">
   <table cellpadding="4" cellspacing="1" border="0">
     <tr>
@@ -62,4 +65,11 @@
       </td>
     </tr>
   </table>
+</div>
+
+<!-- controls -->
+<div class="md" style="margin-top:24px; text-align: left;">
+  <a href="/status/gc.do"><fmt:message key="Status.Controls.RunGC"/></a>
+  |
+  <a href="/status/dump"><fmt:message key="Status.Controls.DumpRaw"/></a>
 </div>

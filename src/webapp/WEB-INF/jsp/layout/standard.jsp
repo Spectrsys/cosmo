@@ -92,7 +92,7 @@
             |
             <html:link page="/home/"><fmt:message key="Layout.Nav.Console.HomeDirectories"/></html:link>
             |
-            <c:choose><c:when test="${fn:endsWith(body, '/status.jsp')}"><strong><fmt:message key="Layout.Nav.Console.ServerStatus"/></strong></c:when><c:otherwise><html:link page="/status"><fmt:message key="Layout.Nav.Console.ServerStatus"/></html:link></c:otherwise></c:choose>
+            <c:choose><c:when test="${fn:endsWith(body, '/status/view.jsp')}"><strong><fmt:message key="Layout.Nav.Console.ServerStatus"/></strong></c:when><c:otherwise><html:link page="/status"><fmt:message key="Layout.Nav.Console.ServerStatus"/></html:link></c:otherwise></c:choose>
             <!-- end admin console navbar -->
           </div>
           <hr noshade="noshade"/>
