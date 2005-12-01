@@ -45,6 +45,34 @@
       <organization>OSAF</organization>
       <timezone>-8</timezone>
     </developer>
+    <developer>
+      <name>Matthew Eernisse</name>
+      <id>mde</id>
+      <email>mde@osafoundation.org</email>
+      <organization>OSAF</organization>
+      <timezone>-6</timezone>
+    </developer>
+    <developer>
+      <name>Todd Agulnick</name>
+      <id>todda</id>
+      <email>todd@agulnick.com</email>
+      <organization>KEI</organization>
+      <timezone>-8</timezone>
+    </developer>
+    <developer>
+      <name>Mike Taylor</name>
+      <id>bear</id>
+      <email>bear@osafoundation.org</email>
+      <organization>OSAF</organization>
+      <timezone>-5</timezone>
+    </developer>
+    <developer>
+      <name>Brian Kirsch</name>
+      <id>bkirsch</id>
+      <email>bkirsch@osafoundation.org</email>
+      <organization>OSAF</organization>
+      <timezone>-10</timezone>
+    </developer>
   </developers>
   <dependencies>
     <!--
