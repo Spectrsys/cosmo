@@ -157,6 +157,8 @@
     <copy todir="${cosmo.dist.version}/bin"
           file="${basedir}/src/bin/cosmoctl"/>
     <chmod file="${cosmo.dist.version}/bin/cosmoctl" perm="755"/>
+    <copy todir="${cosmo.dist.version}/bin"
+          file="${basedir}/src/bin/cosmocfg"/>
     <copy todir="${cosmo.dist.version}">
       <fileset dir="${basedir}/src/docs">
         <include name="*.txt"/>

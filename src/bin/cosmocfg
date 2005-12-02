@@ -35,6 +35,14 @@
 
 
 #
+# This feature enables the JVM's JMX agent for local monitoring and
+# management. See
+# <http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html>
+# for more details.
+#
+#COSMO_JMX_LOCAL=true
+
+#
 # This feature allows iCalendar objects with both LF and CRLF line
 # endings (RFC 2445 mandates CRLF, but some implementations only use
 # LF). To disable this feature and require strict line endings, set

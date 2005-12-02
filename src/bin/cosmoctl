@@ -42,25 +42,38 @@ while [ -h "$PRG" ] ; do
   fi
 done
 
+# move into cosmo home directory
+COSMO_HOME=`dirname "$PRG"`/..
+cd $COSMO_HOME
+export COSMO_HOME=`pwd`
+COSMO_BINDIR="$COSMO_HOME"/bin
+
 # tomcat is found one level above this directory
-PRGDIR=`dirname "$PRG"`/../tomcat/bin
-EXECUTABLE=catalina.sh
+export CATALINA_HOME="$COSMO_HOME"/tomcat
+CATALINA_BINDIR="$CATALINA_HOME"/bin
+TOMCAT_SCRIPT=catalina.sh
 
 # check that the tomcat control script exists
-if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
-  echo "Cannot find $PRGDIR/$EXECUTABLE"
+if [ ! -x "$CATALINA_BINDIR"/"$TOMCAT_SCRIPT" ]; then
+  echo "Cannot find $CATALINA_BINDIR/$TOMCAT_SCRIPT"
   echo "This file is needed to run this program"
   exit 1
 fi
 
 # source the config script if it exists
 CFGSCRIPT=cosmocfg
-if [ -f "$CFGSCRIPT" ]; then
-    . $CFGSCRIPT
+if [ -f "$COSMO_BINDIR"/"$CFGSCRIPT" ]; then
+    . "$COSMO_BINDIR"/"$CFGSCRIPT"
 fi
 
 # enable/disable features
 COSMO_OPTS="-server"
+check_feature $COSMO_JMX_LOCAL
+if [ $? -lt 2 ]; then
+    COSMO_OPTS="$COSMO_OPTS -Dcom.sun.management.jmxremote"
+else
+    echo "Disabling JMX"
+fi
 check_feature $COSMO_ICAL4J_UNFOLDING_RELAXED
 if [ $? -lt 2 ]; then
     COSMO_OPTS="$COSMO_OPTS -Dical4j.unfolding.relaxed=true"
@@ -84,12 +97,10 @@ fi
 
 # move into the cosmo homedir so that paths relative to the current
 # working directory resolve correctly
-cd $PRGDIR/../..
+cd $COSMO_HOME
 
-export COSMO_HOME=`pwd`
-export CATALINA_HOME=$COSMO_HOME/tomcat
 export JAVA_OPTS="$JAVA_OPTS $COSMO_OPTS"
 
 echo "Using COSMO_HOME:      $COSMO_HOME"
 
-exec "$CATALINA_HOME"/bin/"$EXECUTABLE" "$@"
+exec "$CATALINA_BINDIR"/"$TOMCAT_SCRIPT" "$@"
