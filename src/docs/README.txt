@@ -1,5 +1,5 @@
 
-                           Cosmo Sharing Server 0.2.3
+Cosmo Sharing Server
 
 
 WHAT IS COSMO?
