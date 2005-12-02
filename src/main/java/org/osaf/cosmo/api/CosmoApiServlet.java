@@ -261,7 +261,7 @@ public class CosmoApiServlet extends HttpServlet {
             user.addRole(userRole);
             provisioningManager.saveUser(user);
             resp.setStatus(HttpServletResponse.SC_CREATED);
-            resp.setHeader("Content-Location", resource.getUserUrl()); 
+            resp.setHeader("Content-Location", resource.getHomedirUrl()); 
         } catch (DuplicateUsernameException e) {
             log.error("Chosen username is already in use");
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
