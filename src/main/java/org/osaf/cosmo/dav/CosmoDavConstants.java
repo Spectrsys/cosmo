@@ -90,6 +90,10 @@ public class CosmoDavConstants {
     public static final String PROPERTY_CALDAV_CALENDAR_RESTRICTIONS =
         "calendar-restrictions";
 
+    // caldav content types
+    public static final String CONTENT_TYPE_CALENDAR_COLLECTION =
+        "application/x-calendar-collection";
+
     // ticket properties
     public static final String PROPERTY_TICKET_TICKETDISCOVERY =
         "ticketdiscovery";

@@ -22,6 +22,9 @@
 -->
 
 <config>
+  <iomanager>
+    <class name="org.osaf.cosmo.io.CosmoIOManager"/>
+  </iomanager>
   <collection>
     <nodetypes>
       <nodetype>nt:folder</nodetype>

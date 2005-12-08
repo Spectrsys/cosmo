@@ -65,6 +65,19 @@ public class CosmoDavResourceFactoryImpl extends ResourceFactoryImpl
     /**
      */
     public DavResource createResource(DavResourceLocator locator,
+                                      DavServletRequest request,
+                                      DavServletResponse response)
+        throws DavException {
+        CosmoDavResourceImpl resource = (CosmoDavResourceImpl)
+            super.createResource(locator, request, response);
+        resource.
+            setIsCalendarCollection(isCreateCalendarCollectionRequest(request));
+        return resource;
+    }
+
+    /**
+     */
+    public DavResource createResource(DavResourceLocator locator,
                                       DavSession session)
         throws DavException {
         try {
@@ -111,6 +124,18 @@ public class CosmoDavResourceFactoryImpl extends ResourceFactoryImpl
     }
 
     // our methods
+
+    /**
+     * Augments superclass method to also return <code>true</code> for
+     * <code>MKCALENDAR</code> requests.
+     */
+    protected boolean isCreateCalendarCollectionRequest(DavServletRequest request) {
+        if (CosmoDavMethods.getMethodCode(request.getMethod()) ==
+            CosmoDavMethods.DAV_MKCALENDAR) {
+            return true;
+        }
+        return super.isCreateCollectionRequest(request);
+    }
 
     /**
      */

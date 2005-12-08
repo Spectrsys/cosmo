@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.dav;
 
+import java.io.InputStream;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -25,9 +26,11 @@ import org.apache.jackrabbit.webdav.DavLocatorFactory;
 import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavSessionProvider;
+import org.apache.jackrabbit.webdav.DavServletRequest;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.WebdavRequest;
 import org.apache.jackrabbit.webdav.WebdavResponse;
+import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.simple.LocatorFactoryImpl;
@@ -40,6 +43,7 @@ import org.osaf.cosmo.dav.impl.CosmoDavRequestImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavResourceImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavResourceFactoryImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavResponseImpl;
+import org.osaf.cosmo.io.CosmoInputContext;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
@@ -128,7 +132,7 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
             case CosmoDavMethods.DAV_GET:
             case CosmoDavMethods.DAV_HEAD:
                 response.setStatus(DavServletResponse.SC_NOT_MODIFIED);
-                response.setHeader("ETag", cosmoResource.getETag());
+                response.setHeader("ETag", resource.getETag());
                 return true;
             default:
                 response.setStatus(DavServletResponse.SC_PRECONDITION_FAILED);
@@ -209,15 +213,13 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
             throw e;
         }
 
-        DavResource newResource =
-            getResourceFactory().createResource(request.getRequestLocator(),
-                                                request, response);
-        CosmoDavResource newCosmoResource = (CosmoDavResource) newResource;
-
         // caldav (section 4.6.2): return ETag header
-        if (! newCosmoResource.getETag().equals("")) {
-            response.setHeader("ETag", newCosmoResource.getETag());
-        }
+        // since we can't force a resource to reload its properties,
+        // we have to get a new copy of the resource which will
+        // contain the etag
+        DavResource newResource = getResourceFactory().
+            createResource(request.getRequestLocator(), request, response);
+        response.setHeader("ETag", newResource.getETag());
     }
 
     /**
@@ -290,7 +292,8 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
             log.debug("adding calendar collection at " +
                       resource.getResourcePath());
         }
-        parentResource.addCalendarCollection(resource);
+        parentResource.addMember(resource,
+                                 getInputContext(webdavRequest, null));
         response.setStatus(DavServletResponse.SC_CREATED);
     }
 
@@ -375,6 +378,13 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
         resource.removeTicket(ticket);
 
         response.sendDelTicketResponse(resource, ticket.getId());
+    }
+
+    /**
+     */
+    public InputContext getInputContext(DavServletRequest request,
+                                        InputStream in) {
+        return new CosmoInputContext(request, in);
     }
 
     // our methods

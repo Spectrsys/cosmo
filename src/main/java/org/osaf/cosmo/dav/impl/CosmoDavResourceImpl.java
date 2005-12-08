@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,12 +51,12 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.simple.DavResourceImpl;
-import org.apache.jackrabbit.webdav.simple.NodeResource;
 import org.apache.jackrabbit.webdav.simple.ResourceConfig;
 
 import org.apache.log4j.Logger;
 
 import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.io.CosmoImportContext;
 import org.osaf.cosmo.jcr.CosmoJcrConstants;
 import org.osaf.cosmo.jcr.JCRUtils;
 import org.osaf.cosmo.dao.TicketDao;
@@ -93,6 +92,8 @@ public class CosmoDavResourceImpl extends DavResourceImpl
     private boolean initializing;
     private Map tickets;
     private Map ownedTickets;
+    private boolean isCalendarHomeCollection;
+    private boolean isCalendarCollection;
 
     /**
      */
@@ -103,6 +104,19 @@ public class CosmoDavResourceImpl extends DavResourceImpl
         throws RepositoryException, DavException {
         super(locator, factory, session, config);
         initializing = false;
+        try {
+            isCalendarHomeCollection = exists() &&
+                getNode().isNodeType(CosmoJcrConstants.NT_CALDAV_HOME);
+        } catch (RepositoryException e) {
+            isCalendarHomeCollection = false;
+        }
+        try {
+            isCalendarCollection = exists() &&
+                getNode().isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION);
+        } catch (RepositoryException e) {
+            isCalendarCollection = false;
+        }
+
     }
 
     // DavResource methods
@@ -151,12 +165,7 @@ public class CosmoDavResourceImpl extends DavResourceImpl
      * collection.
      */
     public boolean isCalendarHomeCollection() {
-        try {
-            return exists() &&
-                getNode().isNodeType(CosmoJcrConstants.NT_CALDAV_HOME);
-        } catch (RepositoryException e) {
-            throw new RuntimeException(e);
-        }
+        return isCalendarHomeCollection;
     }
 
     /**
@@ -164,51 +173,13 @@ public class CosmoDavResourceImpl extends DavResourceImpl
      * collection.
      */
     public boolean isCalendarCollection() {
-        try {
-            return exists() &&
-                getNode().isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION);
-        } catch (RepositoryException e) {
-            throw new RuntimeException(e);
-        }
+        return isCalendarCollection;
     }
 
     /**
-     * Adds the given resource as an internal member to this resource.
      */
-    public void addCalendarCollection(CosmoDavResource child)
-        throws DavException {
-        if (!exists()) {
-            throw new DavException(CosmoDavResponse.SC_CONFLICT);
-        }
-	if (isLocked(this)) {
-            throw new DavException(CosmoDavResponse.SC_LOCKED);
-        }
-        try {
-            Node parent = getNode();
-            String name = JCRUtils.getName(child.getLocator().getJcrPath());
-
-            Node collection =
-                parent.addNode(name, CosmoJcrConstants.NT_DAV_COLLECTION);
-            collection.addMixin(CosmoJcrConstants.NT_TICKETABLE);
-            collection.addMixin(CosmoJcrConstants.NT_CALDAV_COLLECTION);
-            collection.setProperty(CosmoJcrConstants.NP_DAV_DISPLAYNAME, name);
-            collection.setProperty(CosmoJcrConstants.
-                                   NP_CALDAV_CALENDARDESCRIPTION, name);
-            collection.setProperty(CosmoJcrConstants.NP_XML_LANG,
-                                   Locale.getDefault().toString());
-
-            parent.save();
-        } catch (ItemExistsException e) {
-            log.error("resource " + child.getResourcePath() +
-                      " already exists", e);
-            throw new DavException(CosmoDavResponse.SC_METHOD_NOT_ALLOWED);
-        } catch (RepositoryException e) {
-            log.error("cannot add calendar collection", e);
-            throw new JcrDavException(e);
-        } catch (Exception e) {
-            log.error("cannot add calendar collection", e);
-            throw new DavException(CosmoDavResponse.SC_INTERNAL_SERVER_ERROR);
-        }
+    public void setIsCalendarCollection(boolean isCalendarCollection) {
+        this.isCalendarCollection = isCalendarCollection;
     }
 
     /**
@@ -288,14 +259,6 @@ public class CosmoDavResourceImpl extends DavResourceImpl
             throw new DavException(CosmoDavResponse.SC_INTERNAL_SERVER_ERROR,
                                    "can't get collection calendar");
         }
-    }
-
-    /**
-     * Returns the entity tag for this resource.
-     */
-    public String getETag() {
-        initProperties();
-        return getNodeResource() == null ? "" : getNodeResource().getETag();
     }
 
     /**
@@ -479,6 +442,14 @@ public class CosmoDavResourceImpl extends DavResourceImpl
 
     /**
      */
+    protected ImportContext getImportContext(InputContext inputCtx,
+                                             String systemId)
+        throws IOException {
+        return new CosmoImportContext(getNode(), systemId, inputCtx);
+    }
+
+    /**
+     */
     protected void initTickets() {
         // this should only happen before CosmoDavServlet.service
         // executes - for instance validating preconditions when
@@ -509,12 +480,6 @@ public class CosmoDavResourceImpl extends DavResourceImpl
                 log.warn("error getting tickets for node", e);
             }
         }
-    }
-
-    /**
-     */
-    protected ImportContext createImportContext() {
-        return new ImportContext(getNode());
     }
 
     // ApplicationContextAware methods
