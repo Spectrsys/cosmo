@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.jackrabbit.j2ee.SimpleWebdavServlet;
 import org.apache.jackrabbit.webdav.DavException;
@@ -121,8 +123,8 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
                               int method,
                               DavResource resource)
             throws ServletException, IOException, DavException {
-        CosmoDavRequestImpl cosmoRequest = new CosmoDavRequestImpl(request);
-        CosmoDavResponseImpl cosmoResponse = new CosmoDavResponseImpl(response);
+        CosmoDavRequest cosmoRequest = (CosmoDavRequest) request;
+        CosmoDavResponse cosmoResponse = (CosmoDavResponse)response;
         CosmoDavResourceImpl cosmoResource = (CosmoDavResourceImpl) resource;
         cosmoResource.setBaseUrl(cosmoRequest.getBaseUrl());
         cosmoResource.setApplicationContext(wac);
@@ -195,10 +197,6 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
                          WebdavResponse response,
                          DavResource resource)
         throws IOException, DavException {
-        CosmoDavRequestImpl cosmoRequest = new CosmoDavRequestImpl(request);
-        CosmoDavResponseImpl cosmoResponse = new CosmoDavResponseImpl(response);
-        CosmoDavResourceImpl cosmoResource = (CosmoDavResourceImpl) resource;
-
         try {
             super.doPut(request, response, resource);
         } catch (DavException e) {
@@ -232,8 +230,6 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
                                 CosmoDavResponse response,
                                 CosmoDavResource resource)
         throws IOException, DavException {
-        WebdavRequest webdavRequest = request.getWebdavRequest();
-
         // resource must be null
         if (resource.exists()) {
             if (log.isDebugEnabled()) {
@@ -273,8 +269,8 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
         }
 
         // we do not allow request bodies
-        if (webdavRequest.getContentLength() > 0 ||
-            webdavRequest.getHeader("Transfer-Encoding") != null) {
+        if (request.getContentLength() > 0 ||
+            request.getHeader("Transfer-Encoding") != null) {
             if (log.isDebugEnabled()) {
                 log.debug("cannot make calendar at " +
                           resource.getResourcePath() +
@@ -292,8 +288,7 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
             log.debug("adding calendar collection at " +
                       resource.getResourcePath());
         }
-        parentResource.addMember(resource,
-                                 getInputContext(webdavRequest, null));
+        parentResource.addMember(resource, getInputContext(request, null));
         response.setStatus(DavServletResponse.SC_CREATED);
     }
 
@@ -378,6 +373,18 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
         resource.removeTicket(ticket);
 
         response.sendDelTicketResponse(resource, ticket.getId());
+    }
+
+    /**
+     */
+    protected WebdavRequest createWebdavRequest(HttpServletRequest request) {
+        return new CosmoDavRequestImpl(request, getLocatorFactory());
+    }
+
+    /**
+     */
+    protected WebdavResponse createWebdavResponse(HttpServletResponse response) {
+        return new CosmoDavResponseImpl(response);
     }
 
     /**
@@ -498,9 +505,8 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
                                             WebdavResponse response,
                                             DavResource resource)
         throws IOException {
-        CosmoDavRequestImpl cosmoRequest = new CosmoDavRequestImpl(request);
-        CosmoDavResponseImpl cosmoResponse = new CosmoDavResponseImpl(response);
-        CosmoDavResourceImpl cosmoResource = (CosmoDavResourceImpl) resource;
+        CosmoDavResponse cosmoResponse = (CosmoDavResponse) response;
+        CosmoDavResource cosmoResource = (CosmoDavResource) resource;
 
         if (cosmoResource.isCalendarCollection()) {
             cosmoResponse.sendICalendarCollectionListingResponse(cosmoResource);

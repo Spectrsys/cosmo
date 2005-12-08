@@ -134,7 +134,7 @@ public class CosmoDavResourceFactoryImpl extends ResourceFactoryImpl
             CosmoDavMethods.DAV_MKCALENDAR) {
             return true;
         }
-        return super.isCreateCollectionRequest(request);
+        return false;
     }
 
     /**

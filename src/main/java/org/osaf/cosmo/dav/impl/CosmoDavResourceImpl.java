@@ -104,19 +104,10 @@ public class CosmoDavResourceImpl extends DavResourceImpl
         throws RepositoryException, DavException {
         super(locator, factory, session, config);
         initializing = false;
-        try {
-            isCalendarHomeCollection = exists() &&
-                getNode().isNodeType(CosmoJcrConstants.NT_CALDAV_HOME);
-        } catch (RepositoryException e) {
-            isCalendarHomeCollection = false;
-        }
-        try {
-            isCalendarCollection = exists() &&
-                getNode().isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION);
-        } catch (RepositoryException e) {
-            isCalendarCollection = false;
-        }
-
+        isCalendarHomeCollection = exists() &&
+            getNode().isNodeType(CosmoJcrConstants.NT_CALDAV_HOME);
+        isCalendarCollection = exists() &&
+            getNode().isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION);
     }
 
     // DavResource methods

@@ -23,7 +23,8 @@ import org.osaf.cosmo.dav.ticket.TicketDavResponse;
 
 /**
  * An empty interface collecting the functionality defined by various
- * WebDAV extensions implemented by Cosmo.
+ * WebDAV extensions implemented by Cosmo. Extends
+ * {@link org.apache.jackrabbit.webdav.WebdavResponse}.
  */
 public interface CosmoDavResponse extends WebdavResponse, TicketDavResponse {
 
