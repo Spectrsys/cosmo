@@ -74,22 +74,18 @@ import org.osaf.cosmo.icalendar.CosmoICalendarConstants;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
 /**
  * A subclass of
  * {@link org.apache.jackrabbit.server.simple.dav.DavResourceImpl}
  * that provides Cosmo-specific WebDAV behaviors.
  */
 public class CosmoDavResourceImpl extends DavResourceImpl 
-    implements CosmoDavResource, ApplicationContextAware {
+    implements CosmoDavResource {
     private static final Logger log = Logger.getLogger(CosmoDavResource.class);
-    private static final String BEAN_TICKET_DAO = "ticketDao";
 
     private String baseUrl;
-    private ApplicationContext applicationContext;
     private boolean initializing;
+    private TicketDao ticketDao;
     private Map tickets;
     private Map ownedTickets;
     private boolean isCalendarHomeCollection;
@@ -127,15 +123,6 @@ public class CosmoDavResourceImpl extends DavResourceImpl
             return CosmoDavResource.METHODS + ", MKCALENDAR";
         }
         return CosmoDavResource.METHODS;
-    }
-
-    /**
-     */
-    public DavResource getCollection() {
-        CosmoDavResourceImpl c = (CosmoDavResourceImpl) super.getCollection();
-        c.setBaseUrl(baseUrl);
-        c.setApplicationContext(applicationContext);
-        return c;
     }
 
     // CosmoDavResource methods
@@ -270,12 +257,8 @@ public class CosmoDavResourceImpl extends DavResourceImpl
 
         try {
             Node resource = getNode();
-
             ticket.setOwner(getLoggedInUser().getUsername());
-
-            TicketDao dao = (TicketDao) applicationContext.
-                getBean(BEAN_TICKET_DAO, TicketDao.class);
-            dao.createTicket(resource.getPath(), ticket);
+            ticketDao.createTicket(resource.getPath(), ticket);
         } catch (Exception e) {
             log.error("cannot save ticket for resource " + getResourcePath(),
                       e);
@@ -304,9 +287,7 @@ public class CosmoDavResourceImpl extends DavResourceImpl
         }
 
         try {
-            TicketDao dao = (TicketDao) applicationContext.
-                getBean(BEAN_TICKET_DAO, TicketDao.class);
-            dao.removeTicket(getNode().getPath(), ticket);
+            ticketDao.removeTicket(getNode().getPath(), ticket);
         } catch (Exception e) {
             log.error("cannot remove ticket " + ticket.getId() +
                       " for resource " + getResourcePath(), e);
@@ -442,10 +423,7 @@ public class CosmoDavResourceImpl extends DavResourceImpl
     /**
      */
     protected void initTickets() {
-        // this should only happen before CosmoDavServlet.service
-        // executes - for instance validating preconditions when
-        // locking
-        if (applicationContext == null) {
+        if (tickets != null) {
             return;
         }
 
@@ -454,10 +432,8 @@ public class CosmoDavResourceImpl extends DavResourceImpl
             ownedTickets = new HashMap();
 
             try {
-                TicketDao dao = (TicketDao)
-                    applicationContext.getBean(BEAN_TICKET_DAO, TicketDao.class);
-                for (Iterator i=dao.getTickets(getNode().getPath()).iterator();
-                     i.hasNext();) {
+                for (Iterator i=ticketDao.getTickets(getNode().getPath()).
+                         iterator(); i.hasNext();) {
                     Ticket ticket = (Ticket) i.next();
                     tickets.put(ticket.getId(), ticket);
                     Set ownedBy = (Set) ownedTickets.get(ticket.getOwner());
@@ -471,14 +447,6 @@ public class CosmoDavResourceImpl extends DavResourceImpl
                 log.warn("error getting tickets for node", e);
             }
         }
-    }
-
-    // ApplicationContextAware methods
-
-    /**
-     */
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
     }
 
     // our methods
@@ -503,7 +471,7 @@ public class CosmoDavResourceImpl extends DavResourceImpl
 
     /**
      */
-    public ApplicationContext getApplicationContext() {
-        return applicationContext;
+    public void setTicketDao(TicketDao ticketDao) {
+        this.ticketDao = ticketDao;
     }
 }

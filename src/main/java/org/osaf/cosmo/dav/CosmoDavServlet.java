@@ -27,7 +27,6 @@ import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
 import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
-import org.apache.jackrabbit.webdav.DavSessionProvider;
 import org.apache.jackrabbit.webdav.DavServletRequest;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.WebdavRequest;
@@ -39,12 +38,15 @@ import org.apache.jackrabbit.webdav.simple.LocatorFactoryImpl;
 
 import org.apache.log4j.Logger;
 
+import org.osaf.commons.spring.jcr.JCRSessionFactory;
+import org.osaf.cosmo.dao.TicketDao;
 import org.osaf.cosmo.dav.CosmoDavResource;
 import org.osaf.cosmo.dav.impl.CosmoDavLocatorFactoryImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavRequestImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavResourceImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavResourceFactoryImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavResponseImpl;
+import org.osaf.cosmo.dav.impl.CosmoDavSessionProviderImpl;
 import org.osaf.cosmo.io.CosmoInputContext;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
@@ -63,17 +65,22 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
     private static final Logger log =
         Logger.getLogger(CosmoDavServlet.class);
 
-    /** The name of the Spring bean identifying the servlet's
-     * {@link org.apache.jackrabbit.webdav.DavSessionProvider}
+    /**
+     * The name of the Spring bean identifying the
+     * {@link org.osaf.commons.spring.jcr.JCRSessionFactory} that
+     * produces JCR sessions for this servlet.
      */
-    public static final String BEAN_DAV_SESSION_PROVIDER =
-        "sessionProvider";
+    public static final String BEAN_DAV_SESSION_FACTORY =
+        "homedirSessionFactory";
     /**
      * The name of the Spring bean identifying the Cosmo security
      * manager
      */
-    public static final String BEAN_SECURITY_MANAGER =
-        "securityManager";
+    public static final String BEAN_SECURITY_MANAGER = "securityManager";
+    /**
+     * The name of the Spring bean identifying the Cosmo ticket DAO.
+     */
+    public static final String BEAN_TICKET_DAO = "ticketDao";
 
     private CosmoSecurityManager securityManager;
     private WebApplicationContext wac;
@@ -91,18 +98,23 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
         wac = WebApplicationContextUtils.
             getRequiredWebApplicationContext(getServletContext());
 
-        DavSessionProvider sessionProvider = (DavSessionProvider)
-            getBean(BEAN_DAV_SESSION_PROVIDER,
-                    DavSessionProvider.class);
-        setDavSessionProvider(sessionProvider);
-
+        JCRSessionFactory sessionFactory = (JCRSessionFactory)
+            getBean(BEAN_DAV_SESSION_FACTORY, JCRSessionFactory.class);
         securityManager = (CosmoSecurityManager)
             getBean(BEAN_SECURITY_MANAGER, CosmoSecurityManager.class);
+        TicketDao ticketDao = (TicketDao)
+            getBean(BEAN_TICKET_DAO, TicketDao.class);
+
+        CosmoDavSessionProviderImpl sessionProvider =
+            new CosmoDavSessionProviderImpl();
+        sessionProvider.setSessionFactory(sessionFactory);
+        setDavSessionProvider(sessionProvider);
 
         CosmoDavResourceFactoryImpl resourceFactory =
             new CosmoDavResourceFactoryImpl(getLockManager(),
                                             getResourceConfig());
         resourceFactory.setSecurityManager(securityManager);
+        resourceFactory.setTicketDao(ticketDao);
         setResourceFactory(resourceFactory);
 
         CosmoDavLocatorFactoryImpl locatorFactory =
@@ -126,8 +138,6 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
         CosmoDavRequest cosmoRequest = (CosmoDavRequest) request;
         CosmoDavResponse cosmoResponse = (CosmoDavResponse)response;
         CosmoDavResourceImpl cosmoResource = (CosmoDavResourceImpl) resource;
-        cosmoResource.setBaseUrl(cosmoRequest.getBaseUrl());
-        cosmoResource.setApplicationContext(wac);
 
         if (ifNoneMatch(request, cosmoResource)) {
             switch (method) {

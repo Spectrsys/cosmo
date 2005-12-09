@@ -69,7 +69,6 @@ public class CosmoDavSessionProviderImpl
      * @throws DavException if a problem occurred while obtaining the session
      */
     public boolean attachSession(WebdavRequest request) throws DavException {
-        // XXX cache dav session in web session?
         try {
             Session session = sessionFactory.getSession();
             DavSession davSession = new DavSessionImpl(session);

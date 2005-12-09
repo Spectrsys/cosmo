@@ -30,7 +30,9 @@ import org.apache.jackrabbit.webdav.simple.ResourceFactoryImpl;
 
 import org.apache.log4j.Logger;
 
+import org.osaf.cosmo.dao.TicketDao;
 import org.osaf.cosmo.dav.CosmoDavMethods;
+import org.osaf.cosmo.dav.CosmoDavRequest;
 import org.osaf.cosmo.dav.CosmoDavResource;
 import org.osaf.cosmo.dav.CosmoDavResourceFactory;
 import org.osaf.cosmo.security.CosmoSecurityManager;
@@ -46,6 +48,7 @@ public class CosmoDavResourceFactoryImpl extends ResourceFactoryImpl
         Logger.getLogger(CosmoDavResourceFactoryImpl.class);
 
     private CosmoSecurityManager securityManager;
+    private TicketDao ticketDao;
 
     /**
      */
@@ -70,8 +73,10 @@ public class CosmoDavResourceFactoryImpl extends ResourceFactoryImpl
         throws DavException {
         CosmoDavResourceImpl resource = (CosmoDavResourceImpl)
             super.createResource(locator, request, response);
+        CosmoDavRequest cosmoRequest = (CosmoDavRequest) request;
         resource.
             setIsCalendarCollection(isCreateCalendarCollectionRequest(request));
+        resource.setBaseUrl(cosmoRequest.getBaseUrl());
         return resource;
     }
 
@@ -85,6 +90,7 @@ public class CosmoDavResourceFactoryImpl extends ResourceFactoryImpl
                 new CosmoDavResourceImpl(locator, this, session,
                                          getResourceConfig());
             resource.addLockManager(getLockManager());
+            resource.setTicketDao(ticketDao);
             return resource;
         } catch (RepositoryException e) {
             throw new JcrDavException(e);
@@ -141,5 +147,11 @@ public class CosmoDavResourceFactoryImpl extends ResourceFactoryImpl
      */
     public void setSecurityManager(CosmoSecurityManager securityManager) {
         this.securityManager = securityManager;
+    }
+
+    /**
+     */
+    public void setTicketDao(TicketDao ticketDao) {
+        this.ticketDao = ticketDao;
     }
 }
