@@ -160,7 +160,7 @@ public class CosmoHandler extends DefaultHandler {
             }
         }
 
-        return importContent(context, isCollection);
+        return super.importContent(context, isCollection);
     }
 
     /**
@@ -182,47 +182,36 @@ public class CosmoHandler extends DefaultHandler {
     protected boolean importProperties(ImportContext context,
                                        boolean isCollection,
                                        Node contentNode) {
+        if (! super.importProperties(context, isCollection, contentNode)) {
+            return false;
+        }
+
         CosmoImportContext cosmoContext = (CosmoImportContext) context;
         Node resourceNode = contentNode;
-        if (! isCollection) {
-            try {
-                contentNode = contentNode.getParent();
-            } catch (RepositoryException e) {
-                // XXX ugh swallowing
-            }
-        }
         String displayName = 
             JCREscapist.hexUnescapeJCRNames(context.getSystemId());
 
-        // set display name on all dav collections and resources
         try {
-            if (resourceNode.
-                hasProperty(CosmoJcrConstants.NP_DAV_DISPLAYNAME)) {
+            if (! isCollection) {
+                resourceNode = contentNode.getParent();
+            }
+
+            if (resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE) ||
+                resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_COLLECTION)) {
+                // set display name on all dav collections and resources
                 resourceNode.setProperty(CosmoJcrConstants.NP_DAV_DISPLAYNAME,
-                                         displayName);
+                                        displayName);
             }
-        } catch (RepositoryException e) {
-            // XXX ugh swallowing
-        }
 
-        if (! isCollection) {
-            // set content language on all dav resources
-            try {
-                if (resourceNode.
-                    hasProperty(CosmoJcrConstants.NP_DAV_CONTENTLANGUAGE)) {
-                    resourceNode.
-                        setProperty(CosmoJcrConstants.NP_DAV_CONTENTLANGUAGE,
-                                    context.getContentLanguage());
-                }
-            } catch (RepositoryException e) {
-                // XXX ugh swallowing
+            if (resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE)) {
+                // set content language on all dav resources
+                resourceNode.
+                    setProperty(CosmoJcrConstants.NP_DAV_CONTENTLANGUAGE,
+                                context.getContentLanguage());
             }
-        }
 
-        if (cosmoContext.isCalendarContent() &&
-            inCaldavCollection(cosmoContext)) {
-            // set the uid property on caldav resources
-            try {
+            if (resourceNode.isNodeType(CosmoJcrConstants.NT_CALDAV_RESOURCE)) {
+                // set the uid property on caldav resources
                 Calendar calendar = cosmoContext.getCalendar();
                 Component event = (Component)
                     calendar.getComponents().getComponents(Component.VEVENT).
@@ -231,36 +220,31 @@ public class CosmoHandler extends DefaultHandler {
                     event.getProperties().getProperty(Property.UID);
                 resourceNode.setProperty(CosmoJcrConstants.NP_CALDAV_UID,
                                          uid.getValue());
-            } catch (Exception e) {
-                // XXX ugh swallowing
-            }
-        }
-        else if (cosmoContext.isCalendarCollection()) {
-            // set caldav:calendar-description property on calendar
-            // collections
-            try {
-                if (resourceNode.hasProperty(CosmoJcrConstants.
-                                             NP_CALDAV_CALENDARDESCRIPTION)) {
-                    resourceNode.setProperty(CosmoJcrConstants.
-                                             NP_CALDAV_CALENDARDESCRIPTION,
-                                             displayName);
-                }
-            } catch (RepositoryException e) {
-                // XXX ugh swallowing
             }
 
-            // set xml:lang property on calendar collections
-            try {
-                if (resourceNode.hasProperty(CosmoJcrConstants.NP_XML_LANG)) {
-                    resourceNode.setProperty(CosmoJcrConstants.NP_XML_LANG,
-                                             Locale.getDefault().toString());
-                }
-            } catch (RepositoryException e) {
-                // XXX ugh swallowing
+            if (resourceNode.
+                isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION)) {
+                // set caldav:calendar-description property on calendar
+                // collections
+                resourceNode.setProperty(CosmoJcrConstants.
+                                         NP_CALDAV_CALENDARDESCRIPTION,
+                                         displayName);
+
+                // set xml:lang property on calendar collections
+                resourceNode.setProperty(CosmoJcrConstants.NP_XML_LANG,
+                                         Locale.getDefault().toString());
             }
+        } catch (IOException e) {
+            // XXX ugh swallowing
+            log.error("error reading calendar stream", e);
+            return false;
+        } catch (RepositoryException e) {
+            // XXX ugh swallowing
+            log.error("error importing dav properties", e);
+            return false;
         }
 
-        return super.importProperties(context, isCollection, contentNode);
+        return true;
     }
 
     /**
