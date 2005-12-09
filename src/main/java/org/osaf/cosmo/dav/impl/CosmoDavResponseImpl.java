@@ -61,52 +61,6 @@ public class CosmoDavResponseImpl extends WebdavResponseImpl
     // CosmoDavResponse methods
 
     /**
-     * Send an HTML listing of a collection's contents in response to
-     * a <code>GET</code> request.
-     */
-    public void sendHtmlCollectionListingResponse(CosmoDavResource resource)
-        throws IOException {
-        setStatus(SC_OK);
-        setContentType("text/html; charset=UTF-8");
-        Writer writer = getWriter();
-        String title = resource.getLocator().getResourcePath(); 
-        writer.write("<html><head><title>");
-        writer.write(title); // XXX: html escape
-        writer.write("</title></head>");
-        writer.write("<body>");
-        writer.write("<h1>");
-        writer.write(title); // XXX: html escape
-        writer.write("</h1>");
-        writer.write("<ul>");
-        if (! resource.getLocator().getResourcePath().equals("/")) {
-            writer.write("<li><a href=\"../\">../</a></li>");
-        }
-        for (DavResourceIterator i=resource.getMembers(); i.hasNext();) {
-            DavResource child = i.nextResource();
-            String name = getName(child.getLocator().getResourcePath()); 
-            writer.write("<li><a href=\"");
-            try {
-                writer.write(URLEncoder.encode(name, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                log.warn("UTF-8 not supported?!", e);
-                writer.write(name);
-            }
-            if (child.isCollection()) {
-                writer.write("/");
-            }
-            writer.write("\">");
-            writer.write(name);
-            if (child.isCollection()) {
-                writer.write("/");
-            }
-            writer.write("</a></li>");
-        }
-        writer.write("</ul>");
-        writer.write("</body>");
-        writer.write("</html>");
-    }
-
-    /**
      * Send an iCalendar view of a calendar collection's contents in
      * response to a <code>GET</code> request.
      */

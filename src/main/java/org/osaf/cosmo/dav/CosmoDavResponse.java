@@ -15,8 +15,6 @@
  */
 package org.osaf.cosmo.dav;
 
-import java.io.IOException;
-
 import org.apache.jackrabbit.webdav.WebdavResponse;
 
 import org.osaf.cosmo.dav.ticket.TicketDavResponse;
@@ -27,18 +25,4 @@ import org.osaf.cosmo.dav.ticket.TicketDavResponse;
  * {@link org.apache.jackrabbit.webdav.WebdavResponse}.
  */
 public interface CosmoDavResponse extends WebdavResponse, TicketDavResponse {
-
-    /**
-     * Send an HTML listing of a collection's contents in response to
-     * a <code>GET</code> request.
-     */
-    public void sendHtmlCollectionListingResponse(CosmoDavResource resource)
-        throws IOException;
-
-    /**
-     * Send an iCalendar view of a calendar collection's contents in
-     * response to a <code>GET</code> request.
-     */
-    public void sendICalendarCollectionListingResponse(CosmoDavResource resource)
-        throws IOException;
 }

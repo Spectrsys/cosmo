@@ -36,6 +36,7 @@ import org.apache.jackrabbit.server.io.DefaultHandler;
 import org.apache.jackrabbit.server.io.ExportContext;
 import org.apache.jackrabbit.server.io.ImportContext;
 import org.apache.jackrabbit.server.io.IOManager;
+import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavResource;
 
 import org.osaf.cosmo.UnsupportedFeatureException;
@@ -55,7 +56,7 @@ public class CosmoHandler extends DefaultHandler {
      */
     public CosmoHandler(IOManager ioManager) {
         super(ioManager,
-              CosmoJcrConstants.NT_DAV_COLLECTION,
+              CosmoJcrConstants.NT_FOLDER,
               CosmoJcrConstants.NT_DAV_RESOURCE,
               CosmoJcrConstants.NT_RESOURCE);
     }
@@ -100,8 +101,7 @@ public class CosmoHandler extends DefaultHandler {
             resourceNode = contentNode.getParent();
         }
 
-        if (resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE) ||
-            resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_COLLECTION)) {
+        if (resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE)) {
             // add ticketable mixin type for all dav collections and
             // resources
             if (! resourceNode.isNodeType(CosmoJcrConstants.NT_TICKETABLE)) {
@@ -110,7 +110,8 @@ public class CosmoHandler extends DefaultHandler {
         }
 
         if (cosmoContext.isCalendarContent() &&
-            inCaldavCollection(resourceNode)) {
+            resourceNode.getParent().
+            isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION)) {
             Calendar calendar = cosmoContext.getCalendar();
 
             // since we are importing a calendar resource into a
@@ -187,14 +188,11 @@ public class CosmoHandler extends DefaultHandler {
                 resourceNode = contentNode.getParent();
             }
 
-            if (resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE) ||
-                resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_COLLECTION)) {
-                // set display name on all dav collections and resources
+            if (resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE)) {
+                // set display name on all dav resources
                 resourceNode.setProperty(CosmoJcrConstants.NP_DAV_DISPLAYNAME,
                                         displayName);
-            }
 
-            if (resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE)) {
                 // set content language on all dav resources
                 resourceNode.
                     setProperty(CosmoJcrConstants.NP_DAV_CONTENTLANGUAGE,
@@ -236,17 +234,6 @@ public class CosmoHandler extends DefaultHandler {
         }
 
         return true;
-    }
-
-    /**
-     * Returns true if the content is being imported into a CalDAV
-     * collection. This implementation returns true if the resource
-     * node's parent node is a <code>caldav:collection</code>.
-     */
-    protected boolean inCaldavCollection(Node resourceNode)
-        throws RepositoryException {
-        return resourceNode.getParent().
-            isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION);
     }
 
     /**

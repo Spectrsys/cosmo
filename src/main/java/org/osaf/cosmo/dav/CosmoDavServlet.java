@@ -162,28 +162,6 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
 
     /**
      */
-    protected void doHead(WebdavRequest request, WebdavResponse response,
-                          DavResource resource) throws IOException {
-        if (! (resource.exists() && resource.isCollection())) {
-            super.doHead(request, response, resource);
-            return;
-        }
-        generateDirectoryListing(request, response, resource);
-    }
-
-    /**
-     */
-    protected void doGet(WebdavRequest request, WebdavResponse response,
-                         DavResource resource) throws IOException {
-        if (! (resource.exists() && resource.isCollection())) {
-            super.doGet(request, response, resource);
-            return;
-        }
-        generateDirectoryListing(request, response, resource);
-    }
-
-    /**
-     */
     protected void doPut(WebdavRequest request,
                          WebdavResponse response,
                          DavResource resource)
@@ -386,22 +364,6 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
     }
 
     // our methods
-
-    /**
-     */
-    protected void generateDirectoryListing(WebdavRequest request,
-                                            WebdavResponse response,
-                                            DavResource resource)
-        throws IOException {
-        CosmoDavResponse cosmoResponse = (CosmoDavResponse) response;
-        CosmoDavResource cosmoResource = (CosmoDavResource) resource;
-
-        if (cosmoResource.isCalendarCollection()) {
-            cosmoResponse.sendICalendarCollectionListingResponse(cosmoResource);
-            return;
-        }
-        cosmoResponse.sendHtmlCollectionListingResponse(cosmoResource);
-    }
 
     /**
      * Looks up the bean with given name and class in the web

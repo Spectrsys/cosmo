@@ -31,6 +31,7 @@ public class CosmoIOManager extends DefaultIOManager {
      * </ol>
      */
     protected void init() {
+        addIOHandler(new DavCollectionHandler(this));
         addIOHandler(new CosmoHandler(this));
     }
 }
