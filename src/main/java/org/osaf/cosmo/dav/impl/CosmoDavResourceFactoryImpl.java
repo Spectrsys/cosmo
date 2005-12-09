@@ -74,8 +74,9 @@ public class CosmoDavResourceFactoryImpl extends ResourceFactoryImpl
         CosmoDavResourceImpl resource = (CosmoDavResourceImpl)
             super.createResource(locator, request, response);
         CosmoDavRequest cosmoRequest = (CosmoDavRequest) request;
-        resource.
-            setIsCalendarCollection(isCreateCalendarCollectionRequest(request));
+        if (isCreateRequest(request)) {
+            resource.setIsCalendarCollection(isCreateCalendarCollectionRequest(request));
+        }
         resource.setBaseUrl(cosmoRequest.getBaseUrl());
         return resource;
     }

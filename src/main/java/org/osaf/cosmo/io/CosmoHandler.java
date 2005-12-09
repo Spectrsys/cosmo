@@ -86,29 +86,31 @@ public class CosmoHandler extends DefaultHandler {
      * </ol>
      * </ol>
      */
-    public boolean importContent(ImportContext context,
-                                 boolean isCollection)
-        throws IOException {
-        if (! canImport(context, isCollection)) {
-            throw new IOException(getName() + ": Cannot import " +
-                                  context.getSystemId());
+    public boolean importData(ImportContext context,
+                              boolean isCollection,
+                              Node contentNode)
+        throws IOException, RepositoryException {
+        if (! super.importData(context, isCollection, contentNode)) {
+            return false;
         }
 
         CosmoImportContext cosmoContext = (CosmoImportContext) context;
-        Node resourceNode = (Node) context.getImportRoot();
+        Node resourceNode = contentNode;
+        if (! isCollection) {
+            resourceNode = contentNode.getParent();
+        }
 
-        // add ticketable mixin type for all dav collections and
-        // resources
-        try {
+        if (resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE) ||
+            resourceNode.isNodeType(CosmoJcrConstants.NT_DAV_COLLECTION)) {
+            // add ticketable mixin type for all dav collections and
+            // resources
             if (! resourceNode.isNodeType(CosmoJcrConstants.NT_TICKETABLE)) {
                 resourceNode.addMixin(CosmoJcrConstants.NT_TICKETABLE);
             }
-        } catch (RepositoryException e) {
-            throw new IOException(e.getMessage());
         }
 
         if (cosmoContext.isCalendarContent() &&
-            inCaldavCollection(cosmoContext)) {
+            inCaldavCollection(resourceNode)) {
             Calendar calendar = cosmoContext.getCalendar();
 
             // since we are importing a calendar resource into a
@@ -127,40 +129,29 @@ public class CosmoHandler extends DefaultHandler {
             // 2) make sure that the calendar object's uid is
             // unique with in the calendar collection
             Component event = (Component)
-                calendar.getComponents().getComponents(Component.VEVENT).get(0);
+                calendar.getComponents().getComponents(Component.VEVENT).
+                get(0);
             Property uid = (Property)
                 event.getProperties().getProperty(Property.UID);
-            try {
-                if (! isUidUnique(resourceNode, uid.getValue())) {
-                    throw new DuplicateUidException(uid.getValue());
-                }
-            } catch (RepositoryException e) {
-                throw new IOException(e.getMessage());
+            if (! isUidUnique(resourceNode, uid.getValue())) {
+                throw new DuplicateUidException(uid.getValue());
             }
 
             // 3) add caldav resource mixin type
-            try {
-                if (! resourceNode.
-                    isNodeType(CosmoJcrConstants.NT_CALDAV_RESOURCE)) {
-                    resourceNode.addMixin(CosmoJcrConstants.NT_CALDAV_RESOURCE);
-                }
-            } catch (RepositoryException e) {
-                throw new IOException(e.getMessage());
+            if (! resourceNode.
+                isNodeType(CosmoJcrConstants.NT_CALDAV_RESOURCE)) {
+                resourceNode.addMixin(CosmoJcrConstants.NT_CALDAV_RESOURCE);
             }
         } else if (cosmoContext.isCalendarCollection()) {
             // add caldav collection mixin type
-            try {
-                if (! resourceNode.
+            if (! resourceNode.
                 isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION)) {
-                    resourceNode.
-                        addMixin(CosmoJcrConstants.NT_CALDAV_COLLECTION);
-                }
-            } catch (RepositoryException e) {
-                throw new IOException(e.getMessage());
+                resourceNode.
+                    addMixin(CosmoJcrConstants.NT_CALDAV_COLLECTION);
             }
         }
 
-        return super.importContent(context, isCollection);
+        return true;
     }
 
     /**
@@ -249,18 +240,13 @@ public class CosmoHandler extends DefaultHandler {
 
     /**
      * Returns true if the content is being imported into a CalDAV
-     * collection. This implementation returns true if the import
-     * root's parent node is a <code>caldav:collection</code>.
+     * collection. This implementation returns true if the resource
+     * node's parent node is a <code>caldav:collection</code>.
      */
-    protected boolean inCaldavCollection(ImportContext context) {
-        try {
-            Node parentNode = (Node) context.getImportRoot().getParent();
-            return parentNode.
-                isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION);
-        } catch (RepositoryException e) {
-            // XXX: ugh swallowing
-            return false;
-        }
+    protected boolean inCaldavCollection(Node resourceNode)
+        throws RepositoryException {
+        return resourceNode.getParent().
+            isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION);
     }
 
     /**
@@ -305,27 +291,6 @@ public class CosmoHandler extends DefaultHandler {
     }
 
     /**
-     * A resource can only be exported if, in addition to
-     * the superclass method's checks, the export root has the
-     * <code>dav:resource</code> or <code>dav:collection</code> type.
-     */
-    public boolean canExport(ExportContext context,
-                             boolean isCollection) {
-        if (! super.canExport(context, isCollection)) {
-            return false;
-        }
-        try {
-            Node node = (Node) context.getExportRoot();
-            return isCollection ?
-                node.isNodeType(CosmoJcrConstants.NT_DAV_COLLECTION) :
-                node.isNodeType(CosmoJcrConstants.NT_DAV_RESOURCE);
-        } catch (RepositoryException e) {
-            log.error("failed to check node type", e);
-            return false;
-        }
-    }
-
-    /**
      * Extends the superclass method with the following logic:
      *
      * <ol>
@@ -343,7 +308,7 @@ public class CosmoHandler extends DefaultHandler {
         try {
             Node resourceNode = isCollection ?
                 contentNode : contentNode.getParent();
-            // set content language
+            // get content language
             if (resourceNode.
                 hasProperty(CosmoJcrConstants.NP_DAV_CONTENTLANGUAGE)) {
                 String contentLanguage = resourceNode.
@@ -352,6 +317,7 @@ public class CosmoHandler extends DefaultHandler {
                 context.setContentLanguage(contentLanguage);
             }
         } catch (RepositoryException e) {
+            log.error("error exporting dav properties", e);
             throw new IOException(e.getMessage());
         }
     }
