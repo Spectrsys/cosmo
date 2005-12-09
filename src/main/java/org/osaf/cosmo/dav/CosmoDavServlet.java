@@ -49,7 +49,6 @@ import org.osaf.cosmo.dav.impl.CosmoDavResponseImpl;
 import org.osaf.cosmo.dav.impl.CosmoDavSessionProviderImpl;
 import org.osaf.cosmo.io.CosmoInputContext;
 import org.osaf.cosmo.model.Ticket;
-import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 
 import org.springframework.beans.BeansException;
@@ -138,24 +137,6 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
         CosmoDavRequest cosmoRequest = (CosmoDavRequest) request;
         CosmoDavResponse cosmoResponse = (CosmoDavResponse)response;
         CosmoDavResourceImpl cosmoResource = (CosmoDavResourceImpl) resource;
-
-        if (ifNoneMatch(request, cosmoResource)) {
-            switch (method) {
-            case CosmoDavMethods.DAV_GET:
-            case CosmoDavMethods.DAV_HEAD:
-                response.setStatus(DavServletResponse.SC_NOT_MODIFIED);
-                response.setHeader("ETag", resource.getETag());
-                return true;
-            default:
-                response.setStatus(DavServletResponse.SC_PRECONDITION_FAILED);
-                return true;
-            }
-        }
-
-        if (ifMatch(request, cosmoResource)) {
-            response.setStatus(DavServletResponse.SC_PRECONDITION_FAILED);
-            return true;
-        }
 
         if (method > 0) {
             return super.execute(request, response, method, resource);
@@ -407,109 +388,6 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
     // our methods
 
     /**
-     * Checks if an <code>If-None-Match</code> header is present in
-     * the request; if so, compares the specified value to the entity
-     * tag of the resource and returns <code>true</code> if the
-     * request should fail.
-     *
-     * @param request
-     * @param resource
-     * @return
-     */
-    protected boolean ifNoneMatch(WebdavRequest request,
-                                  CosmoDavResource resource) {
-        String ifNoneMatch = request.getHeader("If-None-Match");
-        if (ifNoneMatch == null) {
-            return false;
-        }
-
-        // fail if it's "*" and the resource exists at all
-        if (ifNoneMatch.equals("*") && resource.exists()) {
-            return true;
-        }
-
-        // fail if the resource exists and the etags match
-        // XXX: account for multiple etags in the header
-        if (resource.exists()) {
-            if (request.getMethod().equals(CosmoDavMethods.METHOD_GET) ||
-                request.getMethod().equals(CosmoDavMethods.METHOD_HEAD)) {
-                return isWeakEtagMatch(ifNoneMatch, resource.getETag());
-            }
-            return isStrongEtagMatch(ifNoneMatch, resource.getETag());
-        }
-
-        return false;
-    }
-
-    /**
-     * Checks if an <code>If-Match</code> header is present in
-     * the request; if so, compares the specified value to the entity
-     * tag of the resource and returns <code>true</code> if the
-     * request should fail.
-     *
-     * @param request
-     * @param resource
-     * @return
-     */
-    protected boolean ifMatch(WebdavRequest request,
-                              CosmoDavResource resource) {
-        String ifMatch = request.getHeader("If-Match");
-        if (ifMatch == null) {
-            return false;
-        }
-
-        // fail if it's "*" and the resource does not exist
-        if (ifMatch.equals("*") && ! resource.exists()) {
-            return true;
-        }
-
-        // fail if the resource doesn't exist, or if the resource
-        // exists but there is no match
-        // XXX: account for multiple etags in the header
-        if (! resource.exists() ||
-            (resource.exists() &&
-             ! isStrongEtagMatch(ifMatch, resource.getETag()))) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Uses the strong comparison function to determine if two etags
-     * match.
-     */
-    protected boolean isStrongEtagMatch(String etag,
-                                        String test) {
-        if (etag == null || test == null) {
-            return false;
-        }
-        // both etags must be strong
-        return (! etag.startsWith("W/") &&
-                ! test.startsWith("W/") &&
-                etag.equals(test));
-    }
-
-    /**
-     * Uses the weak comparison function to determine if two etags
-     * match.
-     */
-    protected boolean isWeakEtagMatch(String etag,
-                                      String test) {
-        if (etag == null || test == null) {
-            return false;
-        }
-        // either etag may be weak or strong
-        if (etag.startsWith("W/")) {
-            etag = etag.substring(2);
-        }
-        if (test.startsWith("W/")) {
-            test = test.substring(2);
-        }
-        return etag.equals(test);
-    }
-
-    /**
      */
     protected void generateDirectoryListing(WebdavRequest request,
                                             WebdavResponse response,
@@ -541,17 +419,5 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
                                        " of type " + clazz +
                                        " from web application context", e);
         }
-    }
-
-    /**
-     */
-    public WebApplicationContext getWebApplicationContext() {
-        return wac;
-    }
-
-    // private methods
-
-    private User getLoggedInUser() {
-        return securityManager.getSecurityContext().getUser();
     }
 }
