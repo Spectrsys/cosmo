@@ -87,6 +87,7 @@ public class CosmoDavSessionProviderImpl
      * @param request
      */
     public void releaseSession(WebdavRequest request) {
+        request.getDavSession().getRepositorySession().logout();
         request.setDavSession(null);
     }
 
