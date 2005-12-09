@@ -15,6 +15,9 @@
  */
 package org.osaf.cosmo.jcr;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.xerces.util.XMLChar;
 
 /**
@@ -26,6 +29,7 @@ import org.apache.xerces.util.XMLChar;
  * Jackrabbit class {@link org.apache.jackrabbit.test.api.EscapeJCRUtil}.
  */
 public class JCREscapist {
+    private static final Log log = LogFactory.getLog(JCREscapist.class);
 
     private static final String utf16esc =
         "_x[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]_";
@@ -243,7 +247,6 @@ public class JCREscapist {
     }
 
     private static String hexUnescape(String str) {
-        
         StringBuffer buf = null;
         int length = str.length();
         int pos = 0;
@@ -251,6 +254,9 @@ public class JCREscapist {
             int ch = str.charAt(i);
             switch (ch) {
             case '%':
+                if (i+3 > length) {
+                    continue;
+                }
                 if (buf == null) {
                     buf = new StringBuffer();
                 }
@@ -263,9 +269,6 @@ public class JCREscapist {
                 continue;
             }
             if (ch == '%') {
-                if (i+3 >= length) {
-                    continue;
-                }
                 String hex = str.substring(i+1, i+3);
                 if (hex.equals("2e")) {
                     buf.append(".");
