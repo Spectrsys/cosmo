@@ -83,16 +83,7 @@ public class DavCollectionHandler implements IOHandler {
         if (importRoot == null || ! importRoot.isNode()) {
             return false;
         }
-        try {
-            Node importNode = (Node) importRoot;
-            if (! importNode.isNodeType(CosmoJcrConstants.NT_DAV_COLLECTION)) {
-                return false;
-            }
-            return true;
-        } catch (RepositoryException e) {
-            log.error("undetermined repository exception", e);
-            return false;
-        }
+        return true;
     }
 
     /**
@@ -126,7 +117,6 @@ public class DavCollectionHandler implements IOHandler {
             collectionNode.addMixin(CosmoJcrConstants.NT_TICKETABLE);
             collectionNode.setProperty(CosmoJcrConstants.NP_DAV_DISPLAYNAME,
                                        JCREscapist.hexUnescapeJCRNames(name));
-            String displayName = JCREscapist.hexUnescapeJCRNames(name);
             return true;
         } catch (RepositoryException e) {
             log.error("unable to import dav collection", e);
@@ -149,7 +139,8 @@ public class DavCollectionHandler implements IOHandler {
     }
 
     /**
-     * Returns true if the export root is a dav collection node.
+     * Returns true if the export root is a dav collection node or the
+     * repository root node.
      */
     public boolean canExport(ExportContext context,
                              boolean isCollection) {
@@ -162,7 +153,8 @@ public class DavCollectionHandler implements IOHandler {
         }
         try {
             Node exportNode = (Node) exportRoot;
-            if (! exportNode.isNodeType(CosmoJcrConstants.NT_DAV_COLLECTION)) {
+            if (! (exportNode.isNodeType(CosmoJcrConstants.NT_DAV_COLLECTION) ||
+                   exportRoot.getPath().equals("/"))) {
                 return false;
             }
             return true;
@@ -236,6 +228,7 @@ public class DavCollectionHandler implements IOHandler {
         writer.write("</ul>");
         writer.write("</body>");
         writer.write("</html>");
+        writer.write("\n");
         writer.close();
 
         return true;
