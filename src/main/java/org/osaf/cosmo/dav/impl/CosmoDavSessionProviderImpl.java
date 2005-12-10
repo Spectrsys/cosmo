@@ -27,7 +27,6 @@ import org.apache.jackrabbit.webdav.simple.DavSessionImpl;
 
 import org.apache.log4j.Logger;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.osaf.commons.spring.jcr.JCRSessionFactory;
 
 /**
@@ -37,23 +36,11 @@ import org.osaf.commons.spring.jcr.JCRSessionFactory;
  * {@link org.apache.jackrabbit.webdav.DavSession} to the request.
  */
 public class CosmoDavSessionProviderImpl
-    implements DavSessionProvider, InitializingBean {
+    implements DavSessionProvider {
     private static final Logger log =
         Logger.getLogger(CosmoDavSessionProviderImpl.class);
 
     private JCRSessionFactory sessionFactory;
-
-    /**
-     */
-    public CosmoDavSessionProviderImpl() {
-    }
-
-    /**
-     */
-    public CosmoDavSessionProviderImpl(JCRSessionFactory sessionFactory) {
-        setSessionFactory(sessionFactory);
-        afterPropertiesSet();
-    }
 
     // DavSessionProvider methods
 
@@ -89,17 +76,6 @@ public class CosmoDavSessionProviderImpl
     public void releaseSession(WebdavRequest request) {
         request.getDavSession().getRepositorySession().logout();
         request.setDavSession(null);
-    }
-
-    // InitializingBean methods
-
-    /**
-     * Sanity check the object's properties.
-     */
-    public void afterPropertiesSet() {
-        if (sessionFactory == null) {
-            throw new IllegalArgumentException("sessionFactory is required");
-        }
     }
 
     // our methods
