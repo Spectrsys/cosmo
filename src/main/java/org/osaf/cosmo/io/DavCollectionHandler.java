@@ -16,14 +16,29 @@
 package org.osaf.cosmo.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
+
+import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.data.CalendarOutputter;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.ValidationException;
+import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Version;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +51,9 @@ import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 
+import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.dav.CosmoDavConstants;
+import org.osaf.cosmo.dav.CosmoDavResource;
 import org.osaf.cosmo.jcr.CosmoJcrConstants;
 import org.osaf.cosmo.jcr.JCREscapist;
 
@@ -71,7 +89,8 @@ public class DavCollectionHandler implements IOHandler {
     }
 
     /**
-     * Returns true if the import root is a dav collection node.
+     * Returns true if the resource represents a collection and the
+     * import root is a node.
      */
     public boolean canImport(ImportContext context,
                              boolean isCollection) {
@@ -87,7 +106,7 @@ public class DavCollectionHandler implements IOHandler {
     }
 
     /**
-     * Returns true if the resource represents a collection.
+     * As {@link #canImport(context, isCollection)}
      */
     public boolean canImport(ImportContext context,
                              DavResource resource) {
@@ -112,11 +131,21 @@ public class DavCollectionHandler implements IOHandler {
             if (parentNode.hasNode(name)) {
                 return false;
             }
+            String displayName = JCREscapist.hexUnescapeJCRNames(name);
             Node collectionNode =
                 parentNode.addNode(name, CosmoJcrConstants.NT_DAV_COLLECTION);
             collectionNode.addMixin(CosmoJcrConstants.NT_TICKETABLE);
             collectionNode.setProperty(CosmoJcrConstants.NP_DAV_DISPLAYNAME,
-                                       JCREscapist.hexUnescapeJCRNames(name));
+                                       displayName);
+            if (context.getMimeType().
+                equals(CosmoDavConstants.CONTENT_TYPE_CALENDAR_COLLECTION)) {
+                collectionNode.addMixin(CosmoJcrConstants.NT_CALDAV_COLLECTION);
+                collectionNode.setProperty(CosmoJcrConstants.
+                                           NP_CALDAV_CALENDARDESCRIPTION,
+                                           displayName);
+                collectionNode.setProperty(CosmoJcrConstants.NP_XML_LANG,
+                                           Locale.getDefault().toString());
+            }
             return true;
         } catch (RepositoryException e) {
             log.error("unable to import dav collection", e);
@@ -126,8 +155,7 @@ public class DavCollectionHandler implements IOHandler {
     }
 
     /**
-     * Imports a dav collection node corresponding to the given
-     * resource.
+     * As {@link #importContent(context, isCollection)}
      */
     public boolean importContent(ImportContext context,
                                  DavResource resource)
@@ -165,7 +193,7 @@ public class DavCollectionHandler implements IOHandler {
     }
 
     /**
-     * Returns true if the resource represents a collection.
+     * As {@link #canExport(context, isCollection)}
      */
     public boolean canExport(ExportContext context,
                              DavResource resource) {
@@ -191,7 +219,43 @@ public class DavCollectionHandler implements IOHandler {
         if (! context.hasStream()) {
             return true;
         }
+        if (((CosmoDavResource) resource).isCalendarCollection()) {
+            return exportICalendarContent(context, resource);
+        }
+        return exportHtmlContent(context, resource);
+    }
+
+    /**
+     */
+    protected boolean exportICalendarContent(ExportContext context,
+                                             DavResource resource)
+        throws IOException {
+        try {
+            Calendar calendar =
+                getAggregateCalendarObject((Node) context.getExportRoot());
+            if (calendar.getComponents().isEmpty()) {
+                return true;
+            }
+
+            context.setContentType("text/icalendar", "UTF-8");
+            CalendarOutputter outputter = new CalendarOutputter();
+            outputter.output(calendar, context.getOutputStream());
+
+            return true;
+        } catch (Exception e) {
+            log.error("error exporting calendar collection", e);
+            throw new IOException("error exporting calendar collection: " +
+                                  e.getMessage());
+        }
+    }
+
+    /**
+     */
+    protected boolean exportHtmlContent(ExportContext context,
+                                        DavResource resource)
+        throws IOException {
         context.setContentType("text/html", "UTF-8");
+
         PrintWriter writer =
             new PrintWriter(new OutputStreamWriter(context.getOutputStream(),
                                                    "utf8"));
@@ -250,4 +314,64 @@ public class DavCollectionHandler implements IOHandler {
         return pos >= 0 ? path.substring(pos + 1) : "";
     }
 
+    private Calendar getAggregateCalendarObject(Node resourceNode)
+        throws Exception {
+        Calendar calendar = new Calendar();
+        calendar.getProperties().add(new ProdId(CosmoConstants.PRODUCT_ID));
+        calendar.getProperties().add(Version.VERSION_2_0);
+        calendar.getProperties().add(CalScale.GREGORIAN);
+
+        // extract the events and timezones for each child event and
+        // add them to the collection calendar object
+        // XXX: cache the built calendar as a property of the resource
+        // node
+        // index the timezones by tzid so that we only include each tz
+        // once. if for some reason different event resources have
+        // different tz definitions for a tzid, *shrug* last one wins
+        // for this same reason, we use a single calendar builder/time
+        // zone registry
+        HashMap tzIdx = new HashMap();
+        Node childNode = null;
+        Node contentNode = null;
+        InputStream data = null;
+        CalendarBuilder builder = new CalendarBuilder();
+        Calendar childCalendar = null;
+        Component tz = null;
+        Property tzId = null;
+        for (NodeIterator i=resourceNode.getNodes(); i.hasNext();) {
+            childNode = i.nextNode();
+            if (! childNode.
+                isNodeType(CosmoJcrConstants.NT_CALDAV_RESOURCE)) {
+                continue;
+            }
+
+            contentNode =
+                childNode.getNode(CosmoJcrConstants.NN_JCR_CONTENT);
+            data = contentNode.getProperty(CosmoJcrConstants.NP_JCR_DATA).
+                getStream();
+            childCalendar = builder.build(data);
+
+            for (Iterator j=childCalendar.getComponents().
+                     getComponents(Component.VEVENT).iterator();
+                 j.hasNext();) {
+                calendar.getComponents().add((Component) j.next());
+            }
+
+            for (Iterator j=childCalendar.getComponents().
+                     getComponents(Component.VTIMEZONE).iterator();
+                 j.hasNext();) {
+                tz = (Component) j.next();
+                tzId = tz.getProperties().getProperty(Property.TZID);
+                if (! tzIdx.containsKey(tzId.getValue())) {
+                    tzIdx.put(tzId.getValue(), tz);
+                }
+            }
+        }
+
+        for (Iterator i=tzIdx.values().iterator(); i.hasNext();) {
+            calendar.getComponents().add((Component) i.next());
+        }
+
+        return calendar;
+    }
 }

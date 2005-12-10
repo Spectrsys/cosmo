@@ -27,6 +27,7 @@ public class CosmoIOManager extends DefaultIOManager {
      * Overwrites the handler list to include the following handlers:
      *
      * <ol>
+     * <li> {@link DavCollectionHandler}</li>
      * <li> {@link CosmoHandler}</li>
      * </ol>
      */

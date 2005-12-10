@@ -143,13 +143,6 @@ public class CosmoHandler extends DefaultHandler {
                 isNodeType(CosmoJcrConstants.NT_CALDAV_RESOURCE)) {
                 resourceNode.addMixin(CosmoJcrConstants.NT_CALDAV_RESOURCE);
             }
-        } else if (cosmoContext.isCalendarCollection()) {
-            // add caldav collection mixin type
-            if (! resourceNode.
-                isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION)) {
-                resourceNode.
-                    addMixin(CosmoJcrConstants.NT_CALDAV_COLLECTION);
-            }
         }
 
         return true;
@@ -166,9 +159,6 @@ public class CosmoHandler extends DefaultHandler {
      * property.</li>
      * <li> If importing a calendar resource into a caldav collection,
      * set the resource node's <code>caldav:uid</code> property.</li>
-     * <li> If importing a caldav collection, set the
-     * <code>caldav:calendar-description</code> and
-     * <code>xml:lang</code> properties on the resource node.</li>
      *</ol>
      */
     protected boolean importProperties(ImportContext context,
@@ -209,19 +199,6 @@ public class CosmoHandler extends DefaultHandler {
                     event.getProperties().getProperty(Property.UID);
                 resourceNode.setProperty(CosmoJcrConstants.NP_CALDAV_UID,
                                          uid.getValue());
-            }
-
-            if (resourceNode.
-                isNodeType(CosmoJcrConstants.NT_CALDAV_COLLECTION)) {
-                // set caldav:calendar-description property on calendar
-                // collections
-                resourceNode.setProperty(CosmoJcrConstants.
-                                         NP_CALDAV_CALENDARDESCRIPTION,
-                                         displayName);
-
-                // set xml:lang property on calendar collections
-                resourceNode.setProperty(CosmoJcrConstants.NP_XML_LANG,
-                                         Locale.getDefault().toString());
             }
         } catch (IOException e) {
             // XXX ugh swallowing

@@ -16,14 +16,7 @@
 package org.osaf.cosmo.dav.impl;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.net.URLEncoder;
 import javax.servlet.http.HttpServletResponse;
-
-import net.fortuna.ical4j.data.CalendarOutputter;
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.ValidationException;
 
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
@@ -56,44 +49,6 @@ public class CosmoDavResponseImpl extends WebdavResponseImpl
      */
     public CosmoDavResponseImpl(HttpServletResponse response) {
         super(response);
-    }
-
-    // CosmoDavResponse methods
-
-    /**
-     * Send an iCalendar view of a calendar collection's contents in
-     * response to a <code>GET</code> request.
-     */
-    public void sendICalendarCollectionListingResponse(CosmoDavResource resource)
-        throws IOException {
-        if (! resource.isCalendarCollection()) {
-            throw new IllegalArgumentException("resource not a calendar collection");
-        }
-
-        Calendar calendar = null;
-        try {
-            calendar = resource.getCollectionCalendar();
-        } catch (DavException e) {
-            sendError(e);
-            return;
-        }
-
-        if (calendar.getComponents().isEmpty()) {
-            setStatus(SC_NO_CONTENT);
-            return;
-        }
-
-        setStatus(SC_OK);
-        setContentType("text/icalendar; charset=UTF-8");
-        Writer writer = getWriter();
-        CalendarOutputter outputter = new CalendarOutputter();
-        try {
-            outputter.output(calendar, writer);
-        } catch (ValidationException e) {
-            log.error("error outputting icalendar view of calendar collection",
-                      e);
-            setStatus(SC_INTERNAL_SERVER_ERROR);
-        }
     }
 
     // TicketDavResponse methods
@@ -131,11 +86,5 @@ public class CosmoDavResponseImpl extends WebdavResponseImpl
                                       String ticketId)
         throws DavException, IOException {
         setStatus(SC_NO_CONTENT);
-    }
-    // private methods
-
-    private String getName(String path) {
-        int pos = path.lastIndexOf('/');
-        return pos >= 0 ? path.substring(pos + 1) : "";
     }
 }

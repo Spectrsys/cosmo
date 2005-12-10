@@ -75,16 +75,6 @@ public class CosmoImportContext extends ImportContextImpl {
     }
 
     /**
-     * Returns true if the imported resource is a calendar
-     * collection. This implementation returns true if the context's
-     * mime type indicates that it is a calendar collection.
-     */
-    public boolean isCalendarCollection() {
-        return getMimeType().
-            equals(CosmoDavConstants.CONTENT_TYPE_CALENDAR_COLLECTION);
-    }
-
-    /**
      * If the imported content is calendar content, parses the input
      * stream and returns a {@link net.fortuna.ical4j.model.Calendar}
      * representing the content. If not calendar content, returns

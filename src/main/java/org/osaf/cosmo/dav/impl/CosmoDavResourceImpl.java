@@ -30,14 +30,6 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
-import net.fortuna.ical4j.data.CalendarBuilder;
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.Version;
-
 import org.apache.jackrabbit.server.io.ImportContext;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
@@ -158,85 +150,6 @@ public class CosmoDavResourceImpl extends DavResourceImpl
      */
     public void setIsCalendarCollection(boolean isCalendarCollection) {
         this.isCalendarCollection = isCalendarCollection;
-    }
-
-    /**
-     * For calendar collection resources, returns a
-     * <code>Calendar</code> representing the calendar objects
-     * contained within the collection.
-     */
-    public Calendar getCollectionCalendar()
-        throws DavException {
-        if (! isCalendarCollection()) {
-            return null;
-        }
-
-        Calendar calendar = new Calendar();
-        calendar.getProperties().add(new ProdId(CosmoConstants.PRODUCT_ID));
-        calendar.getProperties().add(Version.VERSION_2_0);
-        calendar.getProperties().add(CalScale.GREGORIAN);
-
-        // extract the events and timezones for each child event and
-        // add them to the collection calendar object
-        // XXX: cache the built calendar as a property of the resource
-        // node
-        // index the timezones by tzid so that we only include each tz
-        // once. if for some reason different event resources have
-        // different tz definitions for a tzid, *shrug* last one wins
-        // for this same reason, we use a single calendar builder/time
-        // zone registry
-        HashMap tzIdx = new HashMap();
-        Node childNode = null;
-        Node contentNode = null;
-        InputStream data = null;
-        CalendarBuilder builder = new CalendarBuilder();
-        Calendar childCalendar = null;
-        Component tz = null;
-        Property tzId = null;
-        try {
-            for (NodeIterator i=getNode().getNodes(); i.hasNext();) {
-                childNode = i.nextNode();
-                if (! childNode.
-                    isNodeType(CosmoJcrConstants.NT_CALDAV_RESOURCE)) {
-                    continue;
-                }
-
-                contentNode =
-                    childNode.getNode(CosmoJcrConstants.NN_JCR_CONTENT);
-                data = contentNode.getProperty(CosmoJcrConstants.NP_JCR_DATA).
-                    getStream();
-                childCalendar = builder.build(data);
-
-                for (Iterator j=childCalendar.getComponents().
-                         getComponents(Component.VEVENT).iterator();
-                     j.hasNext();) {
-                    calendar.getComponents().add((Component) j.next());
-                }
-
-                for (Iterator j=childCalendar.getComponents().
-                         getComponents(Component.VTIMEZONE).iterator();
-                     j.hasNext();) {
-                    tz = (Component) j.next();
-                    tzId = tz.getProperties().getProperty(Property.TZID);
-                    if (! tzIdx.containsKey(tzId.getValue())) {
-                        tzIdx.put(tzId.getValue(), tz);
-                    }
-                }
-            }
-
-            for (Iterator i=tzIdx.values().iterator(); i.hasNext();) {
-                calendar.getComponents().add((Component) i.next());
-            }
-
-            return calendar;
-        } catch (RepositoryException e) {
-            log.error("can't get collection calendar", e);
-            throw new JcrDavException(e);
-        } catch (Exception e) {
-            log.error("can't get collection calendar", e);
-            throw new DavException(CosmoDavResponse.SC_INTERNAL_SERVER_ERROR,
-                                   "can't get collection calendar");
-        }
     }
 
     /**
