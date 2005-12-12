@@ -262,6 +262,7 @@ public class CosmoApiServlet extends HttpServlet {
             provisioningManager.saveUser(user);
             resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.setHeader("Content-Location", resource.getHomedirUrl()); 
+            resp.setHeader("ETag", resource.getEntityTag());
         } catch (DuplicateUsernameException e) {
             log.error("Chosen username is already in use");
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
@@ -300,6 +301,7 @@ public class CosmoApiServlet extends HttpServlet {
             user.addRole(userRole);
             provisioningManager.saveUser(user);
             resp.setStatus(HttpServletResponse.SC_CREATED);
+            resp.setHeader("ETag", resource.getEntityTag());
         } catch (DuplicateUsernameException e) {
             log.error("Chosen username is already in use");
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
@@ -330,6 +332,7 @@ public class CosmoApiServlet extends HttpServlet {
                 new UserResource(user, getUrlBase(req), xmldoc);
             provisioningManager.updateUser(user);
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            resp.setHeader("ETag", resource.getEntityTag());
             if (! user.getUsername().
                 equals(usernameFromPathInfo(req.getPathInfo()))) {
                 resp.setHeader("Content-Location", resource.getUserUrl());
