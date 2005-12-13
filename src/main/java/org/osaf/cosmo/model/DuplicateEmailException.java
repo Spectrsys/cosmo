@@ -15,13 +15,11 @@
  */
 package org.osaf.cosmo.model;
 
-import org.springframework.dao.DataIntegrityViolationException;
-
 /**
  * An exception indicating that an existing user is already using the
  * specified email.
  */
-public class DuplicateEmailException extends DataIntegrityViolationException {
+public class DuplicateEmailException extends ModelValidationException {
 
     /**
      */

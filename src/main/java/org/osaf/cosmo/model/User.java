@@ -287,18 +287,18 @@ public class User extends BaseModelObject {
      */
     public void validateUsername() {
         if (username == null) {
-            throw new ModelValidationException("username is null");
+            throw new ModelValidationException("Username not specified");
         }
         if (username.length() < USERNAME_LEN_MIN ||
             username.length() > USERNAME_LEN_MAX) {
-            throw new ModelValidationException("username must be " +
+            throw new ModelValidationException("Username must be " +
                                                USERNAME_LEN_MIN + " to " +
                                                USERNAME_LEN_MAX +
                                                " characters in length");
         }
         Matcher m = USERNAME_PATTERN.matcher(username);
         if (! m.matches()) {
-            throw new ModelValidationException("username contains illegal characters");
+            throw new ModelValidationException("Username contains illegal characters");
         }
     }
 
@@ -306,11 +306,11 @@ public class User extends BaseModelObject {
      */
     public void validateRawPassword() {
         if (password == null) {
-            throw new ModelValidationException("password is null");
+            throw new ModelValidationException("Password not specified");
         }
         if (password.length() < PASSWORD_LEN_MIN ||
             password.length() > PASSWORD_LEN_MAX) {
-            throw new ModelValidationException("password must be " +
+            throw new ModelValidationException("Password must be " +
                                                PASSWORD_LEN_MIN + " to " +
                                                PASSWORD_LEN_MAX +
                                                " characters in length");
@@ -321,18 +321,18 @@ public class User extends BaseModelObject {
      */
     public void validateFirstName() {
         if (firstName == null) {
-            throw new ModelValidationException("firstName is null");
+            throw new ModelValidationException("First name not specified");
         }
         if (firstName.length() < FIRSTNAME_LEN_MIN ||
             firstName.length() > FIRSTNAME_LEN_MAX) {
-            throw new ModelValidationException("firstName must be " +
+            throw new ModelValidationException("First name must be " +
                                                FIRSTNAME_LEN_MIN + " to " + 
                                                FIRSTNAME_LEN_MAX +
                                                " characters in length");
         }
         Matcher m = PERSON_NAME_PATTERN.matcher(firstName);
         if (! m.matches()) {
-            throw new ModelValidationException("firstName contains illegal characters");
+            throw new ModelValidationException("First name contains illegal characters");
         }
     }
 
@@ -340,18 +340,18 @@ public class User extends BaseModelObject {
      */
     public void validateLastName() {
         if (lastName == null) {
-            throw new ModelValidationException("lastName is null");
+            throw new ModelValidationException("Last name not specified");
         }
         if (lastName.length() < LASTNAME_LEN_MIN ||
             lastName.length() > LASTNAME_LEN_MAX) {
-            throw new ModelValidationException("lastName must be " +
+            throw new ModelValidationException("Last name must be " +
                                                LASTNAME_LEN_MIN + " to " +
                                                LASTNAME_LEN_MAX +
                                                " characters in length");
         }
         Matcher m = PERSON_NAME_PATTERN.matcher(lastName);
         if (! m.matches()) {
-            throw new ModelValidationException("lastName contains illegal characters");
+            throw new ModelValidationException("Last name contains illegal characters");
         }
     }
 
@@ -359,11 +359,11 @@ public class User extends BaseModelObject {
      */
     public void validateEmail() {
         if (email == null) {
-            throw new ModelValidationException("email is null");
+            throw new ModelValidationException("Email not specified");
         }
         if (email.length() < EMAIL_LEN_MIN ||
             email.length() > EMAIL_LEN_MAX) {
-            throw new ModelValidationException("email must be " +
+            throw new ModelValidationException("Email must be " +
                                                EMAIL_LEN_MIN + " to " +
                                                EMAIL_LEN_MAX +
                                                " characters in length");

@@ -263,18 +263,11 @@ public class CosmoApiServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.setHeader("Content-Location", resource.getHomedirUrl()); 
             resp.setHeader("ETag", resource.getEntityTag());
-        } catch (DuplicateUsernameException e) {
-            log.error("Chosen username is already in use");
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
-        } catch (DuplicateEmailException e) {
-            log.error("Chosen email is already in use");
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
         } catch (CosmoApiException e) {
-            log.error("Error validating request body: " + e.getMessage());
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                           e.getMessage());
         } catch (ModelValidationException e) {
-            log.error("Error validating user: " + e.getMessage());
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            handleModelValidationError(resp, e);
         }
    }
 
@@ -290,10 +283,11 @@ public class CosmoApiServlet extends HttpServlet {
         try {
             UserResource resource = new UserResource(getUrlBase(req), xmldoc);
             User user = resource.getUser();
-            if (! user.getUsername().
+            if (user.getUsername() != null &&
+                ! user.getUsername().
                 equals(usernameFromPathInfo(req.getPathInfo()))) {
-                log.error("Username does not match request URI");
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                               "Username does not match request URI");
                 return;
             }
             Role userRole = provisioningManager.
@@ -302,18 +296,11 @@ public class CosmoApiServlet extends HttpServlet {
             provisioningManager.saveUser(user);
             resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.setHeader("ETag", resource.getEntityTag());
-        } catch (DuplicateUsernameException e) {
-            log.error("Chosen username is already in use");
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
-        } catch (DuplicateEmailException e) {
-            log.error("Chosen email is already in use");
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
         } catch (CosmoApiException e) {
-            log.error("Error validating request body: " + e.getMessage());
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                           e.getMessage());
         } catch (ModelValidationException e) {
-            log.error("Error validating user: " + e.getMessage());
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            handleModelValidationError(resp, e);
         }
     }
 
@@ -337,19 +324,38 @@ public class CosmoApiServlet extends HttpServlet {
                 equals(usernameFromPathInfo(req.getPathInfo()))) {
                 resp.setHeader("Content-Location", resource.getUserUrl());
             }
-        } catch (DuplicateUsernameException e) {
-            log.error("Chosen username is already in use");
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
-        } catch (DuplicateEmailException e) {
-            log.error("Chosen email is already in use");
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
         } catch (CosmoApiException e) {
-            log.error("Error validating request body: " + e.getMessage());
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                           e.getMessage());
         } catch (ModelValidationException e) {
-            log.error("Error validating user: " + e.getMessage());
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            handleModelValidationError(resp, e);
         }
+    }
+
+    /**
+     */
+    protected void handleModelValidationError(HttpServletResponse resp,
+                                              ModelValidationException e)
+        throws IOException {
+        if (e instanceof DuplicateUsernameException) {
+            sendApiError(resp, CosmoApiConstants.SC_USERNAME_IN_USE);
+            return;
+        }
+        if (e instanceof DuplicateEmailException) {
+            sendApiError(resp, CosmoApiConstants.SC_EMAIL_IN_USE);
+            return;
+        }
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                       e.getMessage());
+    }
+
+    /**
+     */
+    protected void sendApiError(HttpServletResponse resp,
+                                int errorCode)
+        throws IOException {
+        resp.sendError(errorCode,
+                       CosmoApiConstants.getReasonPhrase(errorCode));
     }
 
     /**
