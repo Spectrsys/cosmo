@@ -72,6 +72,15 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * <dd>Causes a user to be removed, with all associated side effects including home directory removal.</dd>
  * </dl>
  *
+ * The API defines the following authenticated operations:
+ *
+ * <dl>
+ * <dt><code>GET /account</code></td>
+ * <dd>Returns an XML representation of the authenticated user as per {@link UserResource}.</dd>
+ * <dt><code>PUT /account</code></dt>
+ * <dd>Includes an XML representation of the authenticated user as per {@link UserResource}, modifying the user's properties within Cosmo.</dd>
+ * </dl>
+ *
  * The API defines the following anonymous (unauthenticated)
  * operations:
  *
@@ -124,23 +133,18 @@ public class CosmoApiServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest req,
                             HttpServletResponse resp)
         throws ServletException, IOException {
-        String username = usernameFromPathInfo(req.getPathInfo());
-        if (username == null) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        if (req.getPathInfo().startsWith("/user/")) {
+            processUserDelete(req, resp);
             return;
         }
-        if (username.equals(CosmoSecurityManager.USER_ROOT)) {
-            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
-        provisioningManager.removeUserByUsername(username);
-        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     /**
      * Responds to the following operations:
      *
      * <ul>
+     * <li><code>GET /account</code></li>
      * <li><code>GET /users</code></li>
      * <li><code>GET /user/&lgt;username&gt;</code></li>
      * </ul>
@@ -148,34 +152,28 @@ public class CosmoApiServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req,
                          HttpServletResponse resp)
         throws ServletException, IOException {
+        if (req.getPathInfo().equals("/account")) {
+            processAccountGet(req, resp);
+            return;
+        }
         if (req.getPathInfo().equals("/users")) {
-            List users = provisioningManager.getUsers();
-            resp.setStatus(HttpServletResponse.SC_OK);
-            sendXmlResponse(resp, new UsersResource(users, getUrlBase(req)));
+            processUsersGet(req, resp);
             return;
         }
-        String username = usernameFromPathInfo(req.getPathInfo());
-        if (username == null) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        if (req.getPathInfo().startsWith("/user/")) {
+            processUserGet(req, resp);
             return;
         }
-        User user = null;
-        try {
-            user = provisioningManager.getUserByUsername(username);
-        } catch (ObjectRetrievalFailureException e) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        resp.setStatus(HttpServletResponse.SC_OK);
-        sendXmlResponse(resp, new UserResource(user, getUrlBase(req)));
+        resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     /**
      * Responds to the following operations:
      *
      * <ul>
-     * <li><code>PUT /user/&lgt;username&gt;</code></li>
      * <li><code>PUT /signup</code></li>
+     * <li><code>PUT /account</code></li>
+     * <li><code>PUT /user/&lgt;username&gt;</code></li>
      * </ul>
      */
     protected void doPut(HttpServletRequest req,
@@ -184,33 +182,30 @@ public class CosmoApiServlet extends HttpServlet {
         if (! checkPutPreconditions(req, resp)) {
             return;
         }
-
-        Document xmldoc = null;
-        try {
-            xmldoc = readXmlRequest(req);
-        } catch (JDOMException e) {
-            log.error("Error parsing request body: " + e.getMessage());
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
         if (req.getPathInfo().equals("/signup")) {
-            processSignup(req, resp, xmldoc);
+            processSignup(req, resp);
             return;
         }
-
-        String urlUsername = usernameFromPathInfo(req.getPathInfo());
-        if (urlUsername == null) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        if (req.getPathInfo().equals("/account")) {
+            processAccountUpdate(req, resp);
             return;
         }
-
-        try {
-            User user = provisioningManager.getUserByUsername(urlUsername);
-            processUserUpdate(req, resp, user, xmldoc);
-        } catch (ObjectRetrievalFailureException e) {
-            processUserCreate(req, resp, xmldoc);
+        if (req.getPathInfo().startsWith("/user/")) {
+            String urlUsername = usernameFromPathInfo(req.getPathInfo());
+            if (urlUsername == null) {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            try {
+                User user = provisioningManager.getUserByUsername(urlUsername);
+                processUserUpdate(req, resp, user);
+                return;
+            } catch (ObjectRetrievalFailureException e) {
+                processUserCreate(req, resp);
+                return;
+            }
         }
+        resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     // our methods
@@ -245,15 +240,89 @@ public class CosmoApiServlet extends HttpServlet {
     }
 
     /**
+     * Delegated to by {@link #doDelete} to handle user DELETE
+     * requests, removing the user and setting the response status and
+     * headers.
+     */
+    protected void processUserDelete(HttpServletRequest req,
+                                     HttpServletResponse resp)
+        throws ServletException, IOException {
+        String username = usernameFromPathInfo(req.getPathInfo());
+        if (username == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        if (username.equals(CosmoSecurityManager.USER_ROOT)) {
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+        provisioningManager.removeUserByUsername(username);
+        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+    }
+
+    /**
+     * Delegated to by {@link #doGet} to handle account GET
+     * requests, retrieving the account for the currently logged in
+     * user, setting the response status and headers, and writing the
+     * response content.
+     */
+    protected void processAccountGet(HttpServletRequest req,
+                                     HttpServletResponse resp)
+        throws ServletException, IOException {
+        User user = getLoggedInUser();
+        UserResource resource = new UserResource(user, getUrlBase(req));
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.setHeader("ETag", resource.getEntityTag());
+        sendXmlResponse(resp, resource);
+    }
+
+    /**
+     * Delegated to by {@link #doGet} to handle users GET
+     * requests, retrieving all user accounts, setting the response
+     * status and headers, and writing the response content.
+     */
+    protected void processUsersGet(HttpServletRequest req,
+                                   HttpServletResponse resp)
+        throws ServletException, IOException {
+        List users = provisioningManager.getUsers();
+        resp.setStatus(HttpServletResponse.SC_OK);
+        sendXmlResponse(resp, new UsersResource(users, getUrlBase(req)));
+    }
+
+    /**
+     * Delegated to by {@link #doGet} to handle user GET
+     * requests, retrieving the user account, setting the response
+     * status and headers, and writing the response content.
+     */
+    protected void processUserGet(HttpServletRequest req,
+                                  HttpServletResponse resp)
+        throws ServletException, IOException {
+        String username = usernameFromPathInfo(req.getPathInfo());
+        if (username == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        try {
+            User user = provisioningManager.getUserByUsername(username);
+            UserResource resource = new UserResource(user, getUrlBase(req));
+            resp.setHeader("ETag", resource.getEntityTag());
+            sendXmlResponse(resp, resource);
+        } catch (ObjectRetrievalFailureException e) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+    }
+
+    /**
      * Delegated to by {@link #doPut} to handle signup
      * requests, creating the user account and setting the response
      * status and headers.
      */
     protected void processSignup(HttpServletRequest req,
-                                 HttpServletResponse resp,
-                                 Document xmldoc)
+                                 HttpServletResponse resp)
         throws ServletException, IOException {
         try {
+            Document xmldoc = readXmlRequest(req);
             UserResource resource = new UserResource(getUrlBase(req), xmldoc);
             User user = resource.getUser();
             Role userRole = provisioningManager.
@@ -263,6 +332,10 @@ public class CosmoApiServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.setHeader("Content-Location", resource.getHomedirUrl()); 
             resp.setHeader("ETag", resource.getEntityTag());
+        } catch (JDOMException e) {
+            log.error("Error parsing request body: " + e.getMessage());
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         } catch (CosmoApiException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
                            e.getMessage());
@@ -272,20 +345,57 @@ public class CosmoApiServlet extends HttpServlet {
    }
 
     /**
-     * Delegated to by {@link #doPut} to handle account creation
+     * Delegated to by {@link #doPut} to handle account update
+     * requests for the currently logged in user, saving the modified
+     * account and setting the response status and headers.
+     */
+    protected void processAccountUpdate(HttpServletRequest req,
+                                        HttpServletResponse resp)
+        throws ServletException, IOException {
+        try {
+            Document xmldoc = readXmlRequest(req);
+            String urlUsername = usernameFromPathInfo(req.getPathInfo());
+            User user = getLoggedInUser();
+            String oldUsername = user.getUsername();
+            UserResource resource =
+                new UserResource(user, getUrlBase(req), xmldoc);
+            if (user.isUsernameChanged()) {
+                // reset logged in user's username
+                user.setUsername(oldUsername);
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                               "Username may not be changed");
+                return;
+            }
+            provisioningManager.updateUser(user);
+            resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            resp.setHeader("ETag", resource.getEntityTag());
+        } catch (JDOMException e) {
+            log.error("Error parsing request body: " + e.getMessage());
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        } catch (CosmoApiException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                           e.getMessage());
+        } catch (ModelValidationException e) {
+            handleModelValidationError(resp, e);
+        }
+    }
+
+    /**
+     * Delegated to by {@link #doPut} to handle user creation
      * requests, creating the user account and setting the response
      * status and headers.
      */
     protected void processUserCreate(HttpServletRequest req,
-                                     HttpServletResponse resp,
-                                     Document xmldoc)
+                                     HttpServletResponse resp)
         throws ServletException, IOException {
         try {
+            Document xmldoc = readXmlRequest(req);
+            String urlUsername = usernameFromPathInfo(req.getPathInfo());
             UserResource resource = new UserResource(getUrlBase(req), xmldoc);
             User user = resource.getUser();
             if (user.getUsername() != null &&
-                ! user.getUsername().
-                equals(usernameFromPathInfo(req.getPathInfo()))) {
+                ! user.getUsername().equals(urlUsername)) {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
                                "Username does not match request URI");
                 return;
@@ -296,6 +406,10 @@ public class CosmoApiServlet extends HttpServlet {
             provisioningManager.saveUser(user);
             resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.setHeader("ETag", resource.getEntityTag());
+        } catch (JDOMException e) {
+            log.error("Error parsing request body: " + e.getMessage());
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         } catch (CosmoApiException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
                            e.getMessage());
@@ -305,25 +419,29 @@ public class CosmoApiServlet extends HttpServlet {
     }
 
     /**
-     * Delegated to by {@link #doPut} to handle account update
+     * Delegated to by {@link #doPut} to handle user update
      * requests, saving the modified account and setting the response
      * status and headers.
      */
     protected void processUserUpdate(HttpServletRequest req,
                                      HttpServletResponse resp,
-                                     User user,
-                                     Document xmldoc)
+                                     User user)
         throws ServletException, IOException {
         try {
+            Document xmldoc = readXmlRequest(req);
+            String urlUsername = usernameFromPathInfo(req.getPathInfo());
             UserResource resource =
                 new UserResource(user, getUrlBase(req), xmldoc);
             provisioningManager.updateUser(user);
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             resp.setHeader("ETag", resource.getEntityTag());
-            if (! user.getUsername().
-                equals(usernameFromPathInfo(req.getPathInfo()))) {
+            if (! user.getUsername().equals(urlUsername)) {
                 resp.setHeader("Content-Location", resource.getUserUrl());
             }
+        } catch (JDOMException e) {
+            log.error("Error parsing request body: " + e.getMessage());
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         } catch (CosmoApiException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
                            e.getMessage());
@@ -382,13 +500,15 @@ public class CosmoApiServlet extends HttpServlet {
         return wac;
     }
 
-    // private methods
-
-    private User getLoggedInUser() {
+    /**
+     */
+    protected User getLoggedInUser() {
         return securityManager.getSecurityContext().getUser();
     }
 
-    private String usernameFromPathInfo(String pathInfo) {
+    /**
+     */
+    protected String usernameFromPathInfo(String pathInfo) {
         if (pathInfo.startsWith("/user/")) {
             String username = pathInfo.substring(6);
             if (! (username.equals("") ||
@@ -399,7 +519,9 @@ public class CosmoApiServlet extends HttpServlet {
         return null;
     }
 
-    private Document readXmlRequest(HttpServletRequest req)
+    /**
+     */
+    protected Document readXmlRequest(HttpServletRequest req)
         throws JDOMException, IOException {
         InputStream in = req.getInputStream();
         if (in == null) {
@@ -409,8 +531,10 @@ public class CosmoApiServlet extends HttpServlet {
         return builder.build(in);
     }
 
-    private void sendXmlResponse(HttpServletResponse resp,
-                                 CosmoApiResource resource)
+    /**
+     */
+    protected void sendXmlResponse(HttpServletResponse resp,
+                                   CosmoApiResource resource)
         throws IOException {
         // pretty format is easier for api scripters to read
         XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
@@ -424,9 +548,11 @@ public class CosmoApiServlet extends HttpServlet {
         resp.getOutputStream().write(bytes);
     }
 
-    // like response.encodeUrl() except does not include servlet path
-    // or session id
-    private String getUrlBase(HttpServletRequest req) {
+    /**
+     */
+    protected String getUrlBase(HttpServletRequest req) {
+        // like response.encodeUrl() except does not include servlet
+        // path or session id
         StringBuffer buf = new StringBuffer();
         buf.append(req.getScheme()).
             append("://").

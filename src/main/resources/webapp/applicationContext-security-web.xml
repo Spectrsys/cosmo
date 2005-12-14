@@ -62,6 +62,7 @@
          /api/users=ROLE_ROOT
          /api/user/*=ROLE_ROOT
          /api/signup=ROLE_ANONYMOUS
+         /api/account=ROLE_USER
          /**=ROLE_ROOT
        </value>
      </property>
