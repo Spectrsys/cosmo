@@ -51,13 +51,13 @@ public class User extends BaseModelObject {
     public static final int FIRSTNAME_LEN_MIN = 1;
     /**
      */
-    public static final int FIRSTNAME_LEN_MAX = 32;
+    public static final int FIRSTNAME_LEN_MAX = 128;
     /**
      */
     public static final int LASTNAME_LEN_MIN = 1;
     /**
      */
-    public static final int LASTNAME_LEN_MAX = 32;
+    public static final int LASTNAME_LEN_MAX = 128;
     /**
      */
     public static final Pattern PERSON_NAME_PATTERN =
@@ -67,7 +67,7 @@ public class User extends BaseModelObject {
     public static final int EMAIL_LEN_MIN = 1;
     /**
      */
-    public static final int EMAIL_LEN_MAX = 32;
+    public static final int EMAIL_LEN_MAX = 128;
 
     private Long id;
     private String username;

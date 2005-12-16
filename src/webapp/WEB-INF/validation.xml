@@ -75,7 +75,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="lastName"
@@ -98,7 +98,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="email"
@@ -113,7 +113,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="password"
@@ -165,7 +165,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="lastName"
@@ -188,7 +188,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="email"
@@ -203,7 +203,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="password"
@@ -245,7 +245,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
      </form>
@@ -293,7 +293,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="lastName"
@@ -316,7 +316,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="email"
@@ -331,7 +331,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="password"
@@ -406,7 +406,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="lastName"
@@ -429,7 +429,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="email"
@@ -444,7 +444,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="password"
@@ -486,7 +486,7 @@
          </var>
          <var>
            <var-name>maxlength</var-name>
-           <var-value>32</var-value>
+           <var-value>128</var-value>
          </var>
        </field>
        <field property="password"
