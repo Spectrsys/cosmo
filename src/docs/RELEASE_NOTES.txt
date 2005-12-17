@@ -25,6 +25,7 @@ NEW FEATURES
       their account information
 4854: User first name, last name and email may now be up to 128 bytes
       long.
+4864: Avoid NPE when PROPPATCHing a dav displayname with no value
 
 
 BUGS FIXED
