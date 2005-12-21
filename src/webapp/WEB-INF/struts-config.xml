@@ -74,6 +74,7 @@
             input="/forgot.do"
             type="org.osaf.cosmo.ui.CredentialsReminderAction">
       <forward name="ok" path="forgot"/>
+      <forward name="failure" path="/forgot.do"/>
     </action>
 
     <action path="/logout"

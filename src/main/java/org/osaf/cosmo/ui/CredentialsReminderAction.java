@@ -26,6 +26,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
+import org.springframework.orm.ObjectRetrievalFailureException;
+
 /**
  * A {@link CosmoAction} that generates email reminders for forgotten
  * usernames and passwords.
@@ -37,6 +39,8 @@ public class CredentialsReminderAction extends CosmoAction {
     private static final String FORM_EMAIL = "email";
     private static final String FORM_BUTTON_USERNAME = "username";
     private static final String FORM_BUTTON_PASSWORD = "password";
+    private static final String MSG_ERROR_EMAIL_NOT_FOUND =
+        "Forgot.Error.EmailNotFound";
     private static final String MSG_CONFIRM_USERNAME =
         "Forgot.Confirm.Username";
     private static final String MSG_CONFIRM_PASSWORD =
@@ -89,7 +93,13 @@ public class CredentialsReminderAction extends CosmoAction {
         throws Exception {
         BeanValidatorForm forgotForm = (BeanValidatorForm) form;
         String email = (String) forgotForm.get(FORM_EMAIL);
-        User user = mgr.getUserByEmail(email);
+        User user = null;
+        try {
+            user = mgr.getUserByEmail(email);
+        } catch (ObjectRetrievalFailureException e) {
+            saveErrorMessage(request, MSG_ERROR_EMAIL_NOT_FOUND);
+            return mapping.findForward(OSAFStrutsConstants.FWD_FAILURE);
+        }
 
         if (wasUsernameButtonClicked(forgotForm)) {
             sendUsernameReminderMessage(request, response, user);
