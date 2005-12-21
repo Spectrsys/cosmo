@@ -43,12 +43,9 @@
   <action-mappings>
     <action path="/error"
             type="org.osaf.cosmo.ui.CosmoErrorAction">
-      <forward name="error.general" path="error.general"
-               redirect="false"/>
-      <forward name="error.connect" path="error.connect"
-               redirect="false"/>
-      <forward name="error.notfound" path="error.notfound"
-               redirect="false"/>
+      <forward name="error.general" path="error.general"/>
+      <forward name="error.messaging" path="error.messaging"/>
+      <forward name="error.notfound" path="error.notfound"/>
     </action>
 
     <!-- Help and About pages -->
