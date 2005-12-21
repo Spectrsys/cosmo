@@ -80,7 +80,7 @@
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         PATTERN_TYPE_APACHE_ANT
-        /**=httpSessionContextIntegrationFilterWithASCTrue,formBasedProcessingFilter,anonymousProcessingFilter,uiSecurityEnforcementFilter
+        /**=httpSessionContextIntegrationFilter,formBasedProcessingFilter,anonymousProcessingFilter,uiSecurityEnforcementFilter
       </value>
     </property>
   </bean>
@@ -91,7 +91,7 @@
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         PATTERN_TYPE_APACHE_ANT
-        /**=httpSessionContextIntegrationFilterWithASCFalse,ticketProcessingFilter,basicProcessingFilter,davSecurityEnforcementFilter
+        /**=ticketProcessingFilter,basicProcessingFilter,davSecurityEnforcementFilter
       </value>
     </property>
   </bean>
@@ -102,7 +102,7 @@
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         PATTERN_TYPE_APACHE_ANT
-        /**=httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,anonymousProcessingFilter,apiSecurityEnforcementFilter
+        /**=basicProcessingFilter,anonymousProcessingFilter,apiSecurityEnforcementFilter
       </value>
     </property>
   </bean>
@@ -135,21 +135,10 @@
     </property>
   </bean>
 
-  <!-- filters that integrate SecurityContext into HTTP Session -->
+  <!-- filter that integrates SecurityContext into HTTP Session -->
 
-  <bean id="httpSessionContextIntegrationFilterWithASCTrue"
-        class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
-    <property name="allowSessionCreation">
-      <value>true</value>
-    </property>
-  </bean>
-
-  <bean id="httpSessionContextIntegrationFilterWithASCFalse"
-        class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
-    <property name="allowSessionCreation">
-      <value>false</value>
-    </property>
-  </bean>
+  <bean id="httpSessionContextIntegrationFilter"
+        class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter"/>
 
    <!-- filter that performs form-based authentication -->
 
