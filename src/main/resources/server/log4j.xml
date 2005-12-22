@@ -62,18 +62,6 @@
     <level value="WARN"/>
   </logger>
 
-  <logger name="org.osaf.cosmo.io">
-    <level value="DEBUG"/>
-  </logger>
-
-  <logger name="org.osaf.cosmo.jcr">
-    <level value="DEBUG"/>
-  </logger>
-
-  <logger name="org.osaf.cosmo.dav">
-    <level value="DEBUG"/>
-  </logger>
-
   <logger name="org.osaf.cosmo.ui.LifecycleLoggerListener">
     <level value="INFO"/>
   </logger>

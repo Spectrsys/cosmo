@@ -56,12 +56,12 @@
         <cosmo:fullName var="fullName" user="${user}"/>
         <tr>
           <td class="smTableData" style="text-align:center; white-space:nowrap;">
-            <html:link page="/user/${user.username}">
+            <html:link page="/console/user/${user.username}">
               <fmt:message key="User.List.EditControl"/>
             </html:link>
             <c:choose>
               <c:when test="${not cosmoui:isRoot(user)}">
-                <html:link page="/user/remove.do?id=${user.id}">
+                <html:link page="/console/user/remove?id=${user.id}">
                   <fmt:message key="User.List.RemoveControl"/>
                 </html:link>
               </c:when>
