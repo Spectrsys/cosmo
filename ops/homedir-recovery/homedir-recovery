@@ -35,24 +35,61 @@ done
 
 RECOVERY_DIR=`dirname "$PRG"`
 SQLTOOL_RC="$RECOVERY_DIR/sqltool.rc"
+RECOVERY_REPO="$RECOVERY_DIR/initialized-repository.tar.gz"
 
 COSMO_HOME=`pwd`
+TOMCAT=tomcat
+TOMCATLIB=$TOMCAT/common/lib
+DATA=data
+REPOSITORY=$DATA/repository
+REPCFG=etc/repository.xml
 
 USERFILE="cosmo-homedir-recovery-users.txt"
 
-if [ ! -d "$COSMO_HOME"/data ]; then
+if [ ! -d "$DATA" ]; then
     echo "This script must be run in the Cosmo installation directory."
     exit 1
 fi
-if [ ! -d "$COSMO_HOME"/tomcat ]; then
+if [ ! -d "$TOMCAT" ]; then
     echo "This script must be run in the Cosmo installation directory."
     exit 1
 fi
 
-java -jar tomcat/common/lib/hsqldb-1.7.3.3.jar \
-    --rcfile "$SQLTOOL_RC" --noinput --sql 'select username from user;' \
+# generate the list of users in the user db
+
+echo "Writing list of user accounts to $USERFILE"
+java -jar $TOMCATLIB/hsqldb-1.7.3.3.jar \
+    --rcfile "$SQLTOOL_RC" --noinput \
+    --sql 'select username from user order by upper(username);' \
     cosmo-0.2 > "$USERFILE"
 
-CLASSPATH="$RECOVERY_DIR/target/homedir-recovery-0.2.6-1.jar;tomcat/common/lib/commons-logging-1.0.4.jar"
+# back up the old repository directory
 
-java -cp $CLASSPATH org.osaf.cosmo.ops.HomeDirectoryRecoverer "$USERFILE"
+if [ -d $REPOSITORY ]; then
+    timestamp=`date +"%Y%m%d%k%M%S"`
+    backupfile="$REPOSITORY.$timestamp"
+    echo "Backing up existing repository to $backupfile"
+    mv $REPOSITORY $backupfile
+fi
+
+# untar the initialized repository
+
+echo "Unpacking initialized repository"
+tar xzf $RECOVERY_REPO
+
+# run the recoverer, which creates a new repository and creates home
+# directories for every user in the user db
+
+os=`uname -o`
+if [ $os == 'Cygwin' ]; then
+    sep=";"
+else
+    sep=":"
+fi
+CLASSPATH="$RECOVERY_DIR/target/homedir-recovery-0.2.6-1.jar"
+for jar in `ls $TOMCATLIB`; do
+    CLASSPATH="${CLASSPATH}${sep}$TOMCATLIB/${jar}"
+done
+
+echo "Running home directory recovery tool"
+java -cp $CLASSPATH org.osaf.cosmo.ops.HomeDirectoryRecoverer "$USERFILE" $REPCFG $REPOSITORY
