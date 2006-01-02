@@ -1,0 +1,11 @@
+
+urlid cosmo-0.2
+url jdbc:hsqldb:file:data/db/userdb
+username sa
+password
+
+#
+# java -jar tomcat/common/lib/hsqldb-1.7.3.3.jar \
+#      --rcfile sqltool.rc --noinput --sql 'select username from user;' \
+#      cosmo-0.2 > usernames.txt
+#
