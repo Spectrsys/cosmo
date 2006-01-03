@@ -40,6 +40,11 @@
       <artifactId>jackrabbit-commons</artifactId>
       <version>osaf-20051216</version>
     </dependency>
+    <dependency>
+      <groupId>osaf-commons</groupId>
+      <artifactId>osaf-commons-jackrabbit</artifactId>
+      <version>0.3</version>
+    </dependency>
   </dependencies>
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>

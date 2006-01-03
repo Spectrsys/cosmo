@@ -22,37 +22,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
-import javax.jcr.Credentials;
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.core.RepositoryImpl;
-import org.apache.jackrabbit.core.config.RepositoryConfig;
+import org.osaf.commons.jackrabbit.RepositoryClient;
 
 /**
  * A tool that reads a list of usernames from a supplied file and
  * creates a home directory for each one.
  */
-public class HomeDirectoryRecoverer {
+public class HomeDirectoryRecoverer extends RepositoryClient {
     private static final Log log =
         LogFactory.getLog(HomeDirectoryRecoverer.class);
-
-    private String repositoryConfigFilePath;
-    private String repositoryHomedirPath;
-
-    /**
-     */
-    public HomeDirectoryRecoverer(String repositoryConfigFilePath,
-                                  String repositoryHomedirPath) {
-        this.repositoryConfigFilePath = repositoryConfigFilePath;
-        this.repositoryHomedirPath = repositoryHomedirPath;
-    }
 
     /**
      */
@@ -91,19 +79,6 @@ public class HomeDirectoryRecoverer {
         return usernames;
     }
 
-    private Repository openRepository()
-        throws RepositoryException {
-        RepositoryConfig config =
-            RepositoryConfig.create(repositoryConfigFilePath,
-                                    repositoryHomedirPath);
-        return RepositoryImpl.create(config);
-    }
-
-    private Credentials getCredentials() {
-        // any credentials will do other than "anonymous"
-        return new SimpleCredentials("cosmo_repository", "".toCharArray());
-    }
-
     private void createHomeDirectories(Session session,
                                        List usernames)
         throws RepositoryException {
@@ -121,11 +96,62 @@ public class HomeDirectoryRecoverer {
                                      String username)
         throws RepositoryException {
         log.info("Creating home directory for " + username);
+        Node rootNode = session.getRootNode();
+        Node homedirNode = rootNode.addNode(hexEscape(username),
+                                            "dav:collection");
+        homedirNode.addMixin("caldav:home");
+        homedirNode.addMixin("mix:ticketable");
+        homedirNode.setProperty("dav:displayname", username);
+        homedirNode.setProperty("caldav:calendar-description", username);
+        homedirNode.setProperty("xml:lang", Locale.getDefault().toString());
+        rootNode.save();
     }
 
-    private void closeRepository(Repository repository)
-        throws RepositoryException {
-        ((RepositoryImpl) repository).shutdown();
+    // copied from JCREscapist in order to avoid direct cosmo
+    // dependency
+    private static String hexEscape(String str) {
+        StringBuffer buf = null;
+        int length = str.length();
+        int pos = 0;
+        for (int i = 0; i < length; i++) {
+            int ch = str.charAt(i);
+            switch (ch) {
+            case '.':
+                if (i >= 2) {
+                    // . only needs to be escaped if it's the first or
+                    // second character
+                    continue;
+                }
+            case '/':
+            case ':':
+            case '[':
+            case ']':
+            case '*':
+            case '"':
+            case '|':
+            case '\'':
+                if (buf == null) {
+                    buf = new StringBuffer();
+                }
+                if (i > 0) {
+                    buf.append(str.substring(pos, i));
+                }
+                pos = i + 1;
+                break;
+            default:
+                continue;
+            }
+            buf.append("%").append(Integer.toHexString(ch));
+        }
+        
+        if (buf == null) {
+            return str;
+        }
+
+        if (pos < length) {
+            buf.append(str.substring(pos));
+        }
+        return buf.toString();
     }
 
     /**
@@ -138,8 +164,10 @@ public class HomeDirectoryRecoverer {
             System.exit(1);
         }
 
-        HomeDirectoryRecoverer recoverer =
-            new HomeDirectoryRecoverer(args[1], args[2]);
+        HomeDirectoryRecoverer recoverer = new HomeDirectoryRecoverer();
+        recoverer.setConfigFilePath(args[1]);
+        recoverer.setRepositoryHomedirPath(args[2]);
+        recoverer.setCredentials("cosmo_repository", "");
 
         try {
             recoverer.createHomeDirectoriesFromFile(args[0]);

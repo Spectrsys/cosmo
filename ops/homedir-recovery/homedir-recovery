@@ -34,6 +34,8 @@ while [ -h "$PRG" ] ; do
 done
 
 RECOVERY_DIR=`dirname "$PRG"`
+#RECOVERYLIB="$RECOVERY_DIR/lib"
+RECOVERYLIB="$RECOVERY_DIR/target"
 SQLTOOL_RC="$RECOVERY_DIR/sqltool.rc"
 RECOVERY_REPO="$RECOVERY_DIR/initialized-repository.tar.gz"
 
@@ -60,7 +62,7 @@ fi
 echo "Writing list of user accounts to $USERFILE"
 java -jar $TOMCATLIB/hsqldb-1.7.3.3.jar \
     --rcfile "$SQLTOOL_RC" --noinput \
-    --sql 'select username from user order by upper(username);' \
+    --sql 'select limit 0 1180 username from user order by upper(username);' \
     cosmo-0.2 > "$USERFILE"
 
 # back up the old repository directory
@@ -77,6 +79,8 @@ fi
 echo "Unpacking initialized repository"
 tar xzf $RECOVERY_REPO
 
+exit;
+
 # run the recoverer, which creates a new repository and creates home
 # directories for every user in the user db
 
@@ -86,10 +90,13 @@ if [ $os == 'Cygwin' ]; then
 else
     sep=":"
 fi
-CLASSPATH="$RECOVERY_DIR/target/homedir-recovery-0.2.6-1.jar"
+CLASSPATH=""
+for jar in `ls $RECOVERYLIB`; do
+    CLASSPATH="${CLASSPATH}${sep}$RECOVERYLIB/${jar}"
+done
 for jar in `ls $TOMCATLIB`; do
     CLASSPATH="${CLASSPATH}${sep}$TOMCATLIB/${jar}"
 done
 
-echo "Running home directory recovery tool"
+echo "Running home directory recovery tool against $REPOSITORY with config $REPCFG"
 java -cp $CLASSPATH org.osaf.cosmo.ops.HomeDirectoryRecoverer "$USERFILE" $REPCFG $REPOSITORY
