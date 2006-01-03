@@ -19,6 +19,11 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +48,13 @@ public class HomeDirectoryRecoverer extends RepositoryClient {
     private static final Log log =
         LogFactory.getLog(HomeDirectoryRecoverer.class);
 
+    private static final String DB_DRIVER = "org.hsqldb.jdbcDriver";
+    private static final String DB_USERNAME = "sa";
+    private static final String DB_PASSWORD = "";
+    private static final String SQL_LOAD_USERNAMES =
+        "SELECT LIMIT 0 0 username FROM user ORDER BY UPPER(username)";
+    private static final String SQL_SHUTDOWN = "SHUTDOWN";
+
     /**
      * Returns a list of usernames from the named file in the order
      * they were specified in the file. Expects each line to contain a
@@ -50,6 +62,7 @@ public class HomeDirectoryRecoverer extends RepositoryClient {
      */
     public List loadUsernamesFromFile(String filename)
         throws FileNotFoundException, IOException {
+        log.info("Loading user accounts from " + filename);
         ArrayList usernames = new ArrayList();
         BufferedReader in = new BufferedReader(new FileReader(filename));
         try {
@@ -73,8 +86,26 @@ public class HomeDirectoryRecoverer extends RepositoryClient {
      * Returns a list of usernames from the specified user database
      * ordered by username.
      */
-    public List loadUsernamesFromDatabase(String url) {
-        return null;
+    public List loadUsernamesFromDatabase(String url)
+        throws ClassNotFoundException, SQLException {
+        log.info("Loading user accounts from " + url);
+        ArrayList usernames = new ArrayList();
+        Class.forName(DB_DRIVER);
+        Connection conn = DriverManager.getConnection(url, DB_USERNAME,
+                                                      DB_PASSWORD);
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(SQL_LOAD_USERNAMES);
+            for (; rs.next();) {
+                usernames.add(rs.getString(1));
+            }
+            st.close();
+        } finally {
+            Statement st = conn.createStatement();
+            st.execute(SQL_SHUTDOWN);
+            conn.close();
+        }
+        return usernames;
     }
 
     /**
@@ -194,14 +225,23 @@ public class HomeDirectoryRecoverer extends RepositoryClient {
             }
         }
         else {
-            usernames = recoverer.loadUsernamesFromDatabase(args[1]);
+            try {
+                usernames = recoverer.loadUsernamesFromDatabase(args[1]);
+            } catch (ClassNotFoundException e) {
+                log.error("Can't find HSQL driver: " + e.getMessage());
+                System.exit(4);
+            } catch (SQLException e) {
+                log.error("Can't load usernames from database: " +
+                          e.getMessage());
+                System.exit(5);
+            }
         }
 
         try {
             recoverer.createHomeDirectories(usernames);
         } catch (RepositoryException e) {
             log.error("Repository error", e);
-            System.exit(4);
+            System.exit(999);
         }
     }
 }

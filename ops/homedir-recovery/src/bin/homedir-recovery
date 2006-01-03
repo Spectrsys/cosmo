@@ -40,12 +40,11 @@ RECOVERY_REPO="$RECOVERY_DIR/initialized-repository.tar.gz"
 
 COSMO_HOME=`pwd`
 TOMCAT=tomcat
-TOMCATLIB=$TOMCAT/common/lib
+TOMCATLIB="$TOMCAT/common/lib"
 DATA=data
-REPOSITORY=$DATA/repository
+DBURL="jdbc:hsqldb:file:$DATA/db/userdb"
+REPOSITORY="$DATA/repository"
 REPCFG=etc/repository.xml
-
-USERFILE="cosmo-homedir-recovery-users.txt"
 
 if [ ! -d "$DATA" ]; then
     echo "This script must be run in the Cosmo installation directory."
@@ -55,14 +54,6 @@ if [ ! -d "$TOMCAT" ]; then
     echo "This script must be run in the Cosmo installation directory."
     exit 1
 fi
-
-# generate the list of users in the user db
-
-echo "Writing list of user accounts to $USERFILE"
-java -jar $TOMCATLIB/hsqldb-1.7.3.3.jar \
-    --rcfile "$SQLTOOL_RC" --noinput \
-    --sql 'select limit 0 0 username from user order by upper(username);' \
-    cosmo-0.2 > "$USERFILE"
 
 # back up the old repository directory
 
@@ -96,4 +87,4 @@ for jar in `ls $TOMCATLIB`; do
 done
 
 echo "Running home directory recovery tool against $REPOSITORY with config $REPCFG"
-java -cp $CLASSPATH org.osaf.cosmo.ops.HomeDirectoryRecoverer -file "$USERFILE" $REPCFG $REPOSITORY
+java -cp $CLASSPATH org.osaf.cosmo.ops.HomeDirectoryRecoverer -db "$DBURL" $REPCFG $REPOSITORY
