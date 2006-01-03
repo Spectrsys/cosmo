@@ -115,6 +115,8 @@ public class HomeDirectoryRecoverer extends RepositoryClient {
      */
     public void createHomeDirectories(List usernames)
         throws RepositoryException {
+        log.info("Opening repository at " + getRepositoryHomedirPath() +
+                 " with config " + getConfigFilePath());
         Repository repository = openRepository();
         try {
             Session session = repository.login(getCredentials());

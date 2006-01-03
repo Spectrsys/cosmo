@@ -35,23 +35,29 @@ done
 
 RECOVERY_DIR=`dirname "$PRG"`
 RECOVERYLIB="$RECOVERY_DIR/lib"
-SQLTOOL_RC="$RECOVERY_DIR/sqltool.rc"
 RECOVERY_REPO="$RECOVERY_DIR/initialized-repository.tar.gz"
 
+# cd into $COSMO_HOME and use relative paths to account for Cygwin
+
 COSMO_HOME=`pwd`
-TOMCAT=tomcat
+TOMCAT="tomcat"
+DATA="data"
+ETC="etc"
 TOMCATLIB="$TOMCAT/common/lib"
-DATA=data
 DBURL="jdbc:hsqldb:file:$DATA/db/userdb"
 REPOSITORY="$DATA/repository"
-REPCFG=etc/repository.xml
+REPCFG="$ETC/repository.xml"
 
-if [ ! -d "$DATA" ]; then
-    echo "This script must be run in the Cosmo installation directory."
+if [ ! -d "$TOMCAT" ]; then
+    echo "Cannot find Tomcat directory $TOMCAT."
     exit 1
 fi
-if [ ! -d "$TOMCAT" ]; then
-    echo "This script must be run in the Cosmo installation directory."
+if [ ! -d "$DATA" ]; then
+    echo "Cannot find data directory $DATA".
+    exit 1
+fi
+if [ ! -d "$ETC" ]; then
+    echo "Cannot find configuration directory $ETC".
     exit 1
 fi
 
@@ -86,5 +92,4 @@ for jar in `ls $TOMCATLIB`; do
     CLASSPATH="${CLASSPATH}${sep}$TOMCATLIB/${jar}"
 done
 
-echo "Running home directory recovery tool against $REPOSITORY with config $REPCFG"
 java -cp $CLASSPATH org.osaf.cosmo.ops.HomeDirectoryRecoverer -db "$DBURL" $REPCFG $REPOSITORY
