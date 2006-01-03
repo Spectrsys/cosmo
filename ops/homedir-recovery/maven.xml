@@ -17,9 +17,10 @@
 <project xmlns:j="jelly:core" xmlns:ant="jelly:ant">
 
   <goal name="dist">
+    <attainGoal name="jar:jar"/>
     <mkdir dir="${recovery.dist.version}"/>
     <copy todir="${recovery.dist.version}">
-      <fileset dir="${basedir}/">
+      <fileset dir="${basedir}/src/bin">
         <include name="homedir-recovery"/>
       </fileset>
       <fileset dir="${basedir}/src/main/resources">
