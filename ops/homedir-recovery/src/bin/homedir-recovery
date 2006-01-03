@@ -96,4 +96,4 @@ for jar in `ls $TOMCATLIB`; do
 done
 
 echo "Running home directory recovery tool against $REPOSITORY with config $REPCFG"
-java -cp $CLASSPATH org.osaf.cosmo.ops.HomeDirectoryRecoverer "$USERFILE" $REPCFG $REPOSITORY
+java -cp $CLASSPATH org.osaf.cosmo.ops.HomeDirectoryRecoverer -file "$USERFILE" $REPCFG $REPOSITORY

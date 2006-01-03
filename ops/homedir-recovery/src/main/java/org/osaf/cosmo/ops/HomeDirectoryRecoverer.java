@@ -35,30 +35,20 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.commons.jackrabbit.RepositoryClient;
 
 /**
- * A tool that reads a list of usernames from a supplied file and
- * creates a home directory for each one.
+ * A tool that reads a list of usernames either from a file or
+ * directly from the user database and creates a home directory for
+ * each one.
  */
 public class HomeDirectoryRecoverer extends RepositoryClient {
     private static final Log log =
         LogFactory.getLog(HomeDirectoryRecoverer.class);
 
     /**
+     * Returns a list of usernames from the named file in the order
+     * they were specified in the file. Expects each line to contain a
+     * single username. Terminates upon reaching a blank line.
      */
-    public void createHomeDirectoriesFromFile(String filename)
-        throws FileNotFoundException, IOException, RepositoryException {
-        List usernames = loadUsernames(filename);
-
-        Repository repository = openRepository();
-        try {
-            Session session = repository.login(getCredentials());
-            createHomeDirectories(session, usernames);
-            session.logout();
-        } finally {
-            closeRepository(repository);
-        }
-    }
-
-    private List loadUsernames(String filename)
+    public List loadUsernamesFromFile(String filename)
         throws FileNotFoundException, IOException {
         ArrayList usernames = new ArrayList();
         BufferedReader in = new BufferedReader(new FileReader(filename));
@@ -79,16 +69,35 @@ public class HomeDirectoryRecoverer extends RepositoryClient {
         return usernames;
     }
 
-    private void createHomeDirectories(Session session,
-                                       List usernames)
+    /**
+     * Returns a list of usernames from the specified user database
+     * ordered by username.
+     */
+    public List loadUsernamesFromDatabase(String url) {
+        return null;
+    }
+
+    /**
+     * Creates a home directory node in the repository for each
+     * specified username. Ignores <code>root</code> if that username
+     * is in the list.
+     */
+    public void createHomeDirectories(List usernames)
         throws RepositoryException {
-        for (Iterator i=usernames.iterator(); i.hasNext();) {
-            String username = (String) i.next();
-            // root doesn't get a home directory
-            if (username.equals("root")) {
-                continue;
+        Repository repository = openRepository();
+        try {
+            Session session = repository.login(getCredentials());
+            for (Iterator i=usernames.iterator(); i.hasNext();) {
+                String username = (String) i.next();
+                // root doesn't get a home directory
+                if (username.equals("root")) {
+                    continue;
+                }
+                createHomeDirectory(session, username);
             }
-            createHomeDirectory(session, username);
+            session.logout();
+        } finally {
+            closeRepository(repository);
         }
     }
 
@@ -157,26 +166,39 @@ public class HomeDirectoryRecoverer extends RepositoryClient {
     /**
      */
     public static void main(String[] args) {
-        if (args.length != 3) {
+        if (args.length != 4 ||
+            ! (args[0].equals("-file") ||
+               args[0].equals("-db"))) {
             log.error("Usage: " + HomeDirectoryRecoverer.class.getName() +
-                      " <input file> <repository config file path> " +
-                      " <repository home dir path>");
+                      " (-file <input file> | -db <jdbc url>) " +
+                      "<repository config file path> " +
+                      "<repository home dir path>");
             System.exit(1);
         }
 
         HomeDirectoryRecoverer recoverer = new HomeDirectoryRecoverer();
-        recoverer.setConfigFilePath(args[1]);
-        recoverer.setRepositoryHomedirPath(args[2]);
+        recoverer.setConfigFilePath(args[2]);
+        recoverer.setRepositoryHomedirPath(args[3]);
         recoverer.setCredentials("cosmo_repository", "");
 
+        List usernames = null;
+        if (args[0].equals("-file")) {
+            try {
+                usernames = recoverer.loadUsernamesFromFile(args[1]);
+            } catch (FileNotFoundException e) {
+                log.error("Can't open input file: " + e.getMessage());
+                System.exit(2);
+            } catch (IOException e) {
+                log.error("Can't read input file: " + e.getMessage());
+                System.exit(3);
+            }
+        }
+        else {
+            usernames = recoverer.loadUsernamesFromDatabase(args[1]);
+        }
+
         try {
-            recoverer.createHomeDirectoriesFromFile(args[0]);
-        } catch (FileNotFoundException e) {
-            log.error("Can't open input file: " + e.getMessage());
-            System.exit(2);
-        } catch (IOException e) {
-            log.error("Can't read input file: " + e.getMessage());
-            System.exit(3);
+            recoverer.createHomeDirectories(usernames);
         } catch (RepositoryException e) {
             log.error("Repository error", e);
             System.exit(4);
