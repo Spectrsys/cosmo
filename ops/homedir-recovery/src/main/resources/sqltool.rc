@@ -1,0 +1,5 @@
+
+urlid cosmo-0.2
+url jdbc:hsqldb:file:data/db/userdb
+username sa
+password

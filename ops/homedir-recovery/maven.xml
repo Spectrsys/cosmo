@@ -1,0 +1,64 @@
+<!--
+   Copyright 2005 Open Source Applications Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<project xmlns:j="jelly:core" xmlns:ant="jelly:ant">
+
+  <goal name="dist">
+    <mkdir dir="${recovery.dist.version}"/>
+    <copy todir="${recovery.dist.version}">
+      <fileset dir="${basedir}/">
+        <include name="homedir-recovery"/>
+      </fileset>
+      <fileset dir="${basedir}/src/main/resources">
+        <include name="initialized-repository.tar.gz"/>
+        <include name="sqltool.rc"/>
+        <exclude name="*.xml"/>
+      </fileset>
+    </copy>
+    <mkdir dir="${recovery.dist.version}/lib"/>
+    <copy todir="${recovery.dist.version}/lib">
+      <fileset dir="${maven.build.dir}/">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+    <j:forEach var="lib" items="${pom.artifacts}">
+      <j:set var="dep" value="${lib.dependency}"/>     
+      <copy todir="${recovery.dist.version}/lib"
+            file="${lib.path}"/>  
+    </j:forEach>
+  </goal>
+
+  <goal name="dist:release">
+    <attainGoal name="dist:clean"/>
+    <attainGoal name="dist"/>
+    <tar destfile="${recovery.dist.version}.tar.gz"
+         compression="gzip" longfile="gnu">
+      <tarfileset dir="${recovery.dist.version}" mode="755"
+                  prefix="recovery-${pom.currentVersion}">
+        <include name="homedir-recovery"/>
+      </tarfileset>
+      <tarfileset dir="${recovery.dist.version}"
+                  prefix="recovery-${pom.currentVersion}">
+        <exclude name="homedir-recovery"/>
+      </tarfileset>
+    </tar>
+  </goal>
+
+  <goal name="dist:clean">
+    <delete file="${recovery.dist.version}.tar.gz"/>
+    <delete dir="${recovery.dist.version}"/>
+  </goal>
+</project>

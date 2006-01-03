@@ -34,8 +34,7 @@ while [ -h "$PRG" ] ; do
 done
 
 RECOVERY_DIR=`dirname "$PRG"`
-#RECOVERYLIB="$RECOVERY_DIR/lib"
-RECOVERYLIB="$RECOVERY_DIR/target"
+RECOVERYLIB="$RECOVERY_DIR/lib"
 SQLTOOL_RC="$RECOVERY_DIR/sqltool.rc"
 RECOVERY_REPO="$RECOVERY_DIR/initialized-repository.tar.gz"
 
@@ -62,13 +61,13 @@ fi
 echo "Writing list of user accounts to $USERFILE"
 java -jar $TOMCATLIB/hsqldb-1.7.3.3.jar \
     --rcfile "$SQLTOOL_RC" --noinput \
-    --sql 'select limit 0 1180 username from user order by upper(username);' \
+    --sql 'select limit 0 0 username from user order by upper(username);' \
     cosmo-0.2 > "$USERFILE"
 
 # back up the old repository directory
 
 if [ -d $REPOSITORY ]; then
-    timestamp=`date +"%Y%m%d%k%M%S"`
+    timestamp=`date +"%Y%m%d%H%M%S"`
     backupfile="$REPOSITORY.$timestamp"
     echo "Backing up existing repository to $backupfile"
     mv $REPOSITORY $backupfile
@@ -78,8 +77,6 @@ fi
 
 echo "Unpacking initialized repository"
 tar xzf $RECOVERY_REPO
-
-exit;
 
 # run the recoverer, which creates a new repository and creates home
 # directories for every user in the user db
