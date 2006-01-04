@@ -29,6 +29,7 @@ import org.osaf.commons.spring.jcr.JCRCallback;
 import org.osaf.commons.spring.jcr.support.JCRDaoSupport;
 import org.osaf.cosmo.dao.ShareDAO;
 import org.osaf.cosmo.jcr.CosmoJcrConstants;
+import org.osaf.cosmo.jcr.JCREscapist;
 
 /**
  * JCR implementation of ShareDAO.
@@ -48,8 +49,9 @@ public class ContentStoreDAOJCR extends JCRDaoSupport implements ShareDAO {
                 public Object doInJCR(Session session)
                     throws RepositoryException {
                     Node rootNode = session.getRootNode();
+                    String name = JCREscapist.hexEscapeJCRNames(username);
                     Node homedirNode =
-                        rootNode.addNode(username,
+                        rootNode.addNode(name,
                                          CosmoJcrConstants.NT_DAV_COLLECTION);
                     homedirNode.addMixin(CosmoJcrConstants.NT_CALDAV_HOME);
                     homedirNode.addMixin(CosmoJcrConstants.NT_TICKETABLE);
@@ -75,7 +77,8 @@ public class ContentStoreDAOJCR extends JCRDaoSupport implements ShareDAO {
         Boolean rv = (Boolean) getTemplate().execute(new JCRCallback() {
                 public Object doInJCR(Session session)
                     throws RepositoryException {
-                    return new Boolean(session.itemExists("/" + username));
+                    String name = JCREscapist.hexEscapeJCRNames(username);
+                    return new Boolean(session.itemExists("/" + name));
                 }
             });
         return rv.booleanValue();
@@ -92,8 +95,12 @@ public class ContentStoreDAOJCR extends JCRDaoSupport implements ShareDAO {
         getTemplate().execute(new JCRCallback() {
                 public Object doInJCR(Session session)
                     throws RepositoryException {
-                    session.move("/" + oldUsername,
-                                 "/" + newUsername);
+                    String oldname =
+                        JCREscapist.hexEscapeJCRNames(oldUsername);
+                    String newname =
+                        JCREscapist.hexEscapeJCRNames(newUsername);
+                    session.move("/" + oldname,
+                                 "/" + newname);
                     session.save();
                     return null;
                 }
@@ -109,7 +116,8 @@ public class ContentStoreDAOJCR extends JCRDaoSupport implements ShareDAO {
         getTemplate().execute(new JCRCallback() {
                 public Object doInJCR(Session session)
                     throws RepositoryException {
-                    Item homedir = session.getItem("/" + username);
+                    String name = JCREscapist.hexEscapeJCRNames(username);
+                    Item homedir = session.getItem("/" + name);
                     homedir.remove();
                     session.save();
                     return null;
