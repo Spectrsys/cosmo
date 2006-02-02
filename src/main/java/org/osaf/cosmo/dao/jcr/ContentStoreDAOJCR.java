@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osaf.commons.spring.jcr.JCRCallback;
+import org.osaf.commons.spring.jcr.JCRTemplate;
 import org.osaf.commons.spring.jcr.support.JCRDaoSupport;
 import org.osaf.cosmo.dao.ShareDAO;
 import org.osaf.cosmo.jcr.CosmoJcrConstants;
@@ -45,7 +46,15 @@ public class ContentStoreDAOJCR extends JCRDaoSupport implements ShareDAO {
         if (log.isDebugEnabled()) {
             log.debug("creating homedir for " + username);
         }
-        getTemplate().execute(new JCRCallback() {
+        // bug 5095: synchronize access to the template so that only
+        // one thread (and therefore jcr session) is modifying the
+        // root node at any given time. a better solution might be to
+        // use intermediary nodes between the root node and the
+        // homedir node, but even then there is still the possibility,
+        // however low, of concurrent modification of a parent node.
+        JCRTemplate template = getTemplate();
+        synchronized (template) {
+            template.execute(new JCRCallback() {
                 public Object doInJCR(Session session)
                     throws RepositoryException {
                     Node rootNode = session.getRootNode();
@@ -66,6 +75,7 @@ public class ContentStoreDAOJCR extends JCRDaoSupport implements ShareDAO {
                     return null;
                 }
             });
+        }
     }
 
     /**
