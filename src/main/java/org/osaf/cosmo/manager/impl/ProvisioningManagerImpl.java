@@ -183,7 +183,15 @@ public class ProvisioningManagerImpl
     public void removeUserByUsername(String username) {
         User user = getUserByUsername(username);
         if (! user.getUsername().equals(CosmoSecurityManager.USER_ROOT)) {
-            shareDao.deleteHomedir(user.getUsername());
+            try {
+                shareDao.deleteHomedir(user.getUsername());
+            } catch (DataRetrievalFailureException e) {
+                // the account may be in an inconsistent state where
+                // the homedir doesn't exist but the user record does;
+                // we'll go ahead and ignore this exception and let
+                // userDao throw an exception if the user record
+                // doesn't exist either
+            }
         }
         userDao.removeUser(user);
     }
