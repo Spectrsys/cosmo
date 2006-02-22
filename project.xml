@@ -18,7 +18,7 @@
   <name>Cosmo</name>
   <groupId>cosmo</groupId>
   <artifactId>cosmo</artifactId>
-  <currentVersion>0.2.7</currentVersion>
+  <currentVersion>0.2.8-SNAPSHOT</currentVersion>
   <organization>
     <name>OSAF</name>
     <url>http://osafoundation.org/</url>
@@ -329,14 +329,6 @@
       <version>1.3.2</version>
       <properties>
         <tomcat.bundle>true</tomcat.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>jdom</groupId>
-      <artifactId>jdom</artifactId>
-      <version>1.0</version>
-      <properties>
-        <war.bundle>true</war.bundle>
       </properties>
     </dependency>
     <dependency>

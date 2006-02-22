@@ -97,7 +97,7 @@ public class UserResource implements CosmoApiResource {
 
     /**
      * Returns an XML representation of the resource in the form of a
-     * {@link org.jdom.Document}.
+     * {@link org.w3c.dom.Element}.
      *
      * The XML is structured like so:
      *
