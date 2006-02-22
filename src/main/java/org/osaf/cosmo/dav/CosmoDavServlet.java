@@ -360,8 +360,9 @@ public class CosmoDavServlet extends SimpleWebdavServlet {
 
     /**
      */
-    protected WebdavResponse createWebdavResponse(HttpServletResponse response) {
-        return new CosmoDavResponseImpl(response);
+    protected WebdavResponse createWebdavResponse(HttpServletResponse response,
+                                                  boolean noCache) {
+        return new CosmoDavResponseImpl(response, noCache);
     }
 
     /**

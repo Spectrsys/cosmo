@@ -19,64 +19,57 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.jackrabbit.webdav.property.AbstractDavProperty;
-
-import org.jdom.Element;
+import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
 import org.osaf.cosmo.dav.CosmoDavConstants;
 import org.osaf.cosmo.dav.property.CosmoDavPropertyName;
 import org.osaf.cosmo.icalendar.CosmoICalendarConstants;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Document;
 
 /**
  * Represents the CalDAV calendar-restrictions property.
  */
 public class CalendarRestrictions extends AbstractDavProperty {
 
-    private boolean dataOnly;
-
-    /**
-     */
-    public CalendarRestrictions(boolean dataOnly) {
-        super(CosmoDavPropertyName.CALENDARRESTRICTIONS, true);
-        this.dataOnly = dataOnly;
-    }
-
     /**
      */
     public CalendarRestrictions() {
-        this(false);
+        super(CosmoDavPropertyName.CALENDARRESTRICTIONS, true);
     }
 
     /**
-     * Returns an <code>Element</code> representing this property.
-     */
-    public Element toXml() {
-        Element element = getName().toXml();
-        if (getValue() != null) {
-            element.addContent((Set) getValue());
-        }
-        return element;
-    }
-
-    /**
-     * (Returns a <code>Set</code> of <code>Element</code>s
-     * representing the restrictions of this property.
+     * (Returns a
+     * <code>CalendarRestrictions.CalendarRestrictionsInfo</code>
+     * for this property.
      */
     public Object getValue() {
-        Set elements = new HashSet();
-        if (dataOnly) {
-            Element element =
-                new Element(CosmoDavConstants.ELEMENT_CALDAV_CALENDAR_DATA_ONLY,
-                            CosmoDavConstants.NAMESPACE_CALDAV);
-            elements.add(element);
+        return new CalendarRestrictionsInfo();
+    }
+
+    /**
+     */
+    public class CalendarRestrictionsInfo implements XmlSerializable {
+
+        /**
+         */
+        public Element toXml(Document document) {
+            Element element = DomUtil.
+                createElement(document,
+                              CosmoDavConstants.ELEMENT_CALDAV_CALENDAR_DATA,
+                              CosmoDavConstants.NAMESPACE_CALDAV);
+            DomUtil.setAttribute(element,
+                                 CosmoDavConstants.ATTR_CALDAV_CONTENT_TYPE,
+                                 CosmoDavConstants.NAMESPACE_CALDAV,
+                                 CosmoICalendarConstants.CONTENT_TYPE);
+            DomUtil.setAttribute(element,
+                                 CosmoDavConstants.ATTR_CALDAV_VERSION,
+                                 CosmoDavConstants.NAMESPACE_CALDAV,
+                                 CosmoICalendarConstants.VERSION);
+            return element;
         }
-        Element element =
-            new Element(CosmoDavConstants.ELEMENT_CALDAV_CALENDAR_DATA,
-                        CosmoDavConstants.NAMESPACE_CALDAV);
-        element.setAttribute(CosmoDavConstants.ATTR_CALDAV_CONTENT_TYPE,
-                             CosmoICalendarConstants.CONTENT_TYPE);
-        element.setAttribute(CosmoDavConstants.ATTR_CALDAV_VERSION,
-                             CosmoICalendarConstants.VERSION);
-        elements.add(element);
-        return elements;
     }
 }
