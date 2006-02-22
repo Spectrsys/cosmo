@@ -18,21 +18,25 @@ package org.osaf.cosmo.api;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.w3c.dom.Document;
+
+import org.xml.sax.SAXException;
 
 import org.osaf.cosmo.manager.ProvisioningManager;
 import org.osaf.cosmo.model.ModelValidationException;
@@ -92,6 +96,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 public class CosmoApiServlet extends HttpServlet {
     private static final Log log = LogFactory.getLog(CosmoApiServlet.class);
+    private static final DocumentBuilderFactory BUILDER_FACTORY =
+        DocumentBuilderFactory.newInstance();
 
     private static final String BEAN_PROVISIONING_MANAGER =
         "provisioningManager";
@@ -332,7 +338,7 @@ public class CosmoApiServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.setHeader("Content-Location", resource.getHomedirUrl()); 
             resp.setHeader("ETag", resource.getEntityTag());
-        } catch (JDOMException e) {
+        } catch (SAXException e) {
             log.warn("Error parsing request body: " + e.getMessage());
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -372,7 +378,7 @@ public class CosmoApiServlet extends HttpServlet {
             provisioningManager.updateUser(user);
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             resp.setHeader("ETag", resource.getEntityTag());
-        } catch (JDOMException e) {
+        } catch (SAXException e) {
             log.warn("Error parsing request body: " + e.getMessage());
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -412,7 +418,7 @@ public class CosmoApiServlet extends HttpServlet {
             provisioningManager.saveUser(user);
             resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.setHeader("ETag", resource.getEntityTag());
-        } catch (JDOMException e) {
+        } catch (SAXException e) {
             log.warn("Error parsing request body: " + e.getMessage());
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -445,7 +451,7 @@ public class CosmoApiServlet extends HttpServlet {
             if (! user.getUsername().equals(urlUsername)) {
                 resp.setHeader("Content-Location", resource.getUserUrl());
             }
-        } catch (JDOMException e) {
+        } catch (SAXException e) {
             log.warn("Error parsing request body: " + e.getMessage());
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -530,26 +536,54 @@ public class CosmoApiServlet extends HttpServlet {
     /**
      */
     protected Document readXmlRequest(HttpServletRequest req)
-        throws JDOMException, IOException {
+        throws SAXException, IOException {
+        if (req.getContentLength() == 0) {
+            return null;
+        }
         InputStream in = req.getInputStream();
         if (in == null) {
             return null;
         }
-        SAXBuilder builder = new SAXBuilder(false);
-        return builder.build(in);
+
+        // check to see if there's any data to read
+        PushbackInputStream filtered =
+            new PushbackInputStream(in, 1);
+        int read = filtered.read();
+        if (read == -1) {
+            return null;
+        }
+        filtered.unread(read);
+
+        // there is data, so read the stream
+        try {
+            BUILDER_FACTORY.setNamespaceAware(true);
+            DocumentBuilder docBuilder = BUILDER_FACTORY.newDocumentBuilder();
+            return docBuilder.parse(filtered);
+        } catch (ParserConfigurationException e) {
+            throw new CosmoApiException("error configuring xml builder", e);
+        }
     }
 
     /**
      */
     protected void sendXmlResponse(HttpServletResponse resp,
                                    CosmoApiResource resource)
-        throws IOException {
-        // pretty format is easier for api scripters to read
-        XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
-        // write xml into a byte array so we can calculate length
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        outputter.output(resource.toXml(), buf);
-        byte[] bytes = buf.toByteArray();
+        throws ServletException, IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            Document doc =
+                BUILDER_FACTORY.newDocumentBuilder().newDocument();
+            doc.appendChild(resource.toXml(doc));
+            OutputFormat format = new OutputFormat("xml", "UTF-8", true);
+            XMLSerializer serializer = new XMLSerializer(out, format);
+            serializer.setNamespaces(true);
+            serializer.asDOMSerializer().serialize(doc);
+        } catch (ParserConfigurationException e) {
+            throw new CosmoApiException("error configuring xml builder", e);
+        }
+
+        byte[] bytes = out.toByteArray();
         resp.setContentType("text/xml");
         resp.setCharacterEncoding("UTF-8");
         resp.setContentLength(bytes.length);

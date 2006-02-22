@@ -18,8 +18,10 @@ package org.osaf.cosmo.api;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jdom.Document;
-import org.jdom.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import org.apache.jackrabbit.webdav.xml.DomUtil;
 
 import org.osaf.cosmo.model.User;
 
@@ -51,7 +53,7 @@ public class UsersResource implements CosmoApiResource {
 
     /**
      * Returns an XML representation of the resource in the form of a
-     * {@link org.jdom.Document}.
+     * {@link org.w3c.dom.Element}.
      *
      * The XML is structured like so:
      *
@@ -66,14 +68,13 @@ public class UsersResource implements CosmoApiResource {
      * where the structure of the <code>user</code> element is defined
      * by {@link UserResource}.
      */
-    public Document toXml() {
-        Element e = new Element(EL_USERS, NS_COSMO);
+    public Element toXml(Document doc) {
+        Element e = DomUtil.createElement(doc, EL_USERS, NS_COSMO);
         for (Iterator i=users.iterator(); i.hasNext();) {
             User user = (User) i.next();
-            Element ue = (Element)
-                (new UserResource(user, urlBase)).toXml().getContent(0).clone();
-            e.addContent(ue);
+            UserResource ur = new UserResource(user, urlBase);
+            e.appendChild(ur.toXml(doc));
         }
-        return new Document(e);
+        return e;
     }
 }

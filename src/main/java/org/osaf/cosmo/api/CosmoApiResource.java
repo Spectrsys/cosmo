@@ -10,18 +10,21 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License for the specific language governing permissions and!
  * limitations under the License.
  */
 package org.osaf.cosmo.api;
 
-import org.jdom.Document;
-import org.jdom.Namespace;
+import org.apache.jackrabbit.webdav.xml.Namespace;
+import org.apache.jackrabbit.webdav.xml.XmlSerializable;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * An interface for Cosmo API resources.
  */
-public interface CosmoApiResource {
+public interface CosmoApiResource extends XmlSerializable {
 
     /**
      */
@@ -32,10 +35,4 @@ public interface CosmoApiResource {
      * Returns the entity instance that backs this resource.
      */
     public Object getEntity();
-
-    /**
-     * Returns an XML representation of the resource in the form of a
-     * {@link org.jdom.Document}.
-     */
-    public Document toXml();
 }
