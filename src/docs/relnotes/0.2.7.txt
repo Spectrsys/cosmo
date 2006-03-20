@@ -1,5 +1,5 @@
 
-Cosmo Sharing Server 0.2.8
+Cosmo Sharing Server 0.2.7
 Release Notes
         
 
@@ -27,10 +27,22 @@ None.
 BUGS FIXED
 ==========
 
-5245: Cosmo no longer exhibits an exponential slowdown in signup times
 
-5011, 5012: Cosmo now uses the standard org.w3c.dom APIs for XML
-      processing instead of the JDOM library
+5078: PUT requests must now provide a Content-Length header with a
+      positive value unless the request specifies the chunked
+      transfer-coding. Furthermore, Cosmo returns a 500 response if a
+      Content-Length header is provided but it does not read that
+      exact number of bytes for the request body.
+
+5095: Home directory creation is now serialized to ensure that
+      multiple signup requests do not cause concurrency failures.
+
+5096: When a CMP request results in a 400 response, a warning is
+      logged containing more information about the bad request.
+
+5108: The Web Console now attempts to create a user when receiving a
+      request for /console/user/create rather than generating a
+      misleading error page.
 
 
 
