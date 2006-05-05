@@ -464,17 +464,28 @@ public class Migration03 extends CopyBasedMigration {
         return home;
     }
 
+    String calculateOldHomePath(String username) {
+        String escapedUsername = HexEscaper.escape(username);
+        // bug 5825: explicitly escape periods in the first or second
+        // characters of the username when calculating the old path
+        String periodEscaped =
+            escapedUsername.substring(0, 2).replaceAll("\\.", "%2e");
+        return "/" + periodEscaped + escapedUsername.substring(2);
+    }
+
+    String calculateNewHomePath(String username) {
+        String n1 = HexEscaper.escape(username.substring(0, 1));
+        String n2 = HexEscaper.escape(username.substring(0, 2));
+        return "/" + n1 + "/" + n2 + "/" + HexEscaper.escape(username);
+    }
+
     Node copyHome(HashMap user,
                   Session previous,
                   Session current)
         throws RepositoryException {
         String username = (String) user.get("username");
-        String oldHomePath = "/" + HexEscaper.escape(username);
 
-        String n1 = HexEscaper.escape(username.substring(0, 1));
-        String n2 = HexEscaper.escape(username.substring(0, 2));
-        String newHomePath = "/" + n1 + "/" + n2 + oldHomePath;
-
+        String newHomePath = calculateNewHomePath(username);
         if (current.itemExists(newHomePath)) {
             // looks like a previous migration run already copied this
             // user's home.
@@ -482,14 +493,18 @@ public class Migration03 extends CopyBasedMigration {
         }
 
         // find old home node
+        String oldHomePath = calculateOldHomePath(username);
         Node oldHomeNode = (Node) previous.getItem(oldHomePath);
 
         // create structural nodes
+        String[] segments = newHomePath.substring(1).split("/");
         Node root = current.getRootNode();
-        Node l1 = root.hasNode(n1) ?
-            root.getNode(n1) : root.addNode(n1, "nt:unstructured");
-        Node l2 = l1.hasNode(n2) ?
-            l1.getNode(n2) : l1.addNode(n2, "nt:unstructured");
+        Node l1 = root.hasNode(segments[0]) ?
+            root.getNode(segments[0]) :
+            root.addNode(segments[0], "nt:unstructured");
+        Node l2 = l1.hasNode(segments[1]) ?
+            l1.getNode(segments[1]) :
+            l1.addNode(segments[1], "nt:unstructured");
 
         // copy home node
         Node home = copyNode(oldHomeNode, l2, "cosmo:homecollection");

@@ -208,6 +208,16 @@ public class Migration03Test extends TestCase {
 
     /**
      */
+    public void testBug5825() throws Exception {
+        String username = "b.cm";
+        String oldHomePath = migration.calculateOldHomePath(username);
+        assertEquals("/b%2ecm", oldHomePath);
+        String newHomePath = migration.calculateNewHomePath(username);
+        assertEquals("/b/b./b.cm", newHomePath);
+    }
+
+    /**
+     */
     public void testAlreadyCopiedHome() throws Exception {
         HashMap user = loadOldUser(3);
         String username = (String) user.get("username");
