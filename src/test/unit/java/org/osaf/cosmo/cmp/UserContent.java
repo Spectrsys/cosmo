@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.apache.jackrabbit.webdav.xml.Namespace;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
 import org.osaf.cosmo.cmp.UserResource;
@@ -45,14 +46,20 @@ public class UserContent implements XmlSerializable {
 
     /**
      */
+    public Namespace getNamespace() {
+        return UserResource.NS_CMP;
+    }
+
+    /**
+     */
     public Element toXml(Document doc) {
         Element e = DomUtil.createElement(doc, UserResource.EL_USER,
-                                          UserResource.NS_CMP);
+                                          getNamespace());
 
         if (user.getUsername() != null) {
             Element username =
                 DomUtil.createElement(doc, UserResource.EL_USERNAME,
-                                      UserResource.NS_CMP);
+                                      getNamespace());
             DomUtil.setText(username, user.getUsername());
                 e.appendChild(username);
         }
@@ -60,7 +67,7 @@ public class UserContent implements XmlSerializable {
         if (user.getPassword() != null) {
             Element password =
                 DomUtil.createElement(doc, UserResource.EL_PASSWORD,
-                                      UserResource.NS_CMP);
+                                      getNamespace());
             DomUtil.setText(password, user.getPassword());
             e.appendChild(password);
         }
@@ -68,7 +75,7 @@ public class UserContent implements XmlSerializable {
         if (user.getFirstName() != null) {
             Element firstName =
                 DomUtil.createElement(doc, UserResource.EL_FIRSTNAME,
-                                      UserResource.NS_CMP);
+                                      getNamespace());
             DomUtil.setText(firstName, user.getFirstName());
             e.appendChild(firstName);
         }
@@ -76,7 +83,7 @@ public class UserContent implements XmlSerializable {
         if (user.getLastName() != null) {
             Element lastName =
                 DomUtil.createElement(doc, UserResource.EL_LASTNAME,
-                                      UserResource.NS_CMP);
+                                      getNamespace());
             DomUtil.setText(lastName, user.getLastName());
             e.appendChild(lastName);
         }
@@ -84,7 +91,7 @@ public class UserContent implements XmlSerializable {
         if (user.getEmail() != null) {
             Element email =
                 DomUtil.createElement(doc, UserResource.EL_EMAIL,
-                                      UserResource.NS_CMP);
+                                      getNamespace());
             DomUtil.setText(email, user.getEmail());
             e.appendChild(email);
         }

@@ -57,6 +57,24 @@ public class CmpPutTest extends BaseCmpServletTestCase {
 
     /**
      */
+    public void testOldNamespaceSignup() throws Exception {
+        User u1 = testHelper.makeDummyUser();
+
+        MockHttpServletRequest request = createMockRequest("PUT", "/signup");
+        sendXmlRequest(request, new UserContent0(u1));
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        servlet.service(request, response);
+
+        assertEquals("incorrect status", MockHttpServletResponse.SC_CREATED,
+                     response.getStatus());
+        assertNotNull("null Content-Location",
+                      response.getHeader("Content-Location"));
+        assertNotNull("null ETag", response.getHeader("ETag"));
+    }
+
+    /**
+     */
     public void testBadlyFormattedSignup() throws Exception {
         Document doc = BUILDER_FACTORY.newDocumentBuilder().newDocument();
         Element e = DomUtil.createElement(doc, "deadbeef", UserResource.NS_CMP);

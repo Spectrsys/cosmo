@@ -199,12 +199,18 @@ public class UserResource implements CmpResource {
             return;
         }
 
+        // NS_CMP0 is deprecated in 0.3 - remove in 0.4
+
         Element root = doc.getDocumentElement();
-        if (! DomUtil.matches(root, EL_USER, NS_CMP)) {
+        if (! DomUtil.matches(root, EL_USER, NS_CMP) &&
+            ! DomUtil.matches(root, EL_USER, NS_CMP0)) {
             throw new CmpException("root element not user");
         }
 
         Element e = DomUtil.getChildElement(root, EL_USERNAME, NS_CMP);
+        if (e == null) {
+            e = DomUtil.getChildElement(root, EL_USERNAME, NS_CMP0);
+        }
         if (e != null) {
             if (user.getUsername() != null &&
                 user.getUsername().equals(User.USERNAME_OVERLORD)) {
@@ -215,11 +221,17 @@ public class UserResource implements CmpResource {
         }
 
         e = DomUtil.getChildElement(root, EL_PASSWORD, NS_CMP);
+        if (e == null) {
+            e = DomUtil.getChildElement(root, EL_PASSWORD, NS_CMP0);
+        }
         if (e != null) {
             user.setPassword(DomUtil.getTextTrim(e));
         }
 
         e = DomUtil.getChildElement(root, EL_FIRSTNAME, NS_CMP);
+        if (e == null) {
+            e = DomUtil.getChildElement(root, EL_FIRSTNAME, NS_CMP0);
+        }
         if (e != null) {
             if (user.getUsername() != null &&
                 user.getUsername().equals(User.USERNAME_OVERLORD)) {
@@ -230,6 +242,9 @@ public class UserResource implements CmpResource {
         }
 
         e = DomUtil.getChildElement(root, EL_LASTNAME, NS_CMP);
+        if (e == null) {
+            e = DomUtil.getChildElement(root, EL_LASTNAME, NS_CMP0);
+        }
         if (e != null) {
             if (user.getUsername() != null &&
                 user.getUsername().equals(User.USERNAME_OVERLORD)) {
@@ -240,6 +255,9 @@ public class UserResource implements CmpResource {
         }
 
         e = DomUtil.getChildElement(root, EL_EMAIL, NS_CMP);
+        if (e == null) {
+            e = DomUtil.getChildElement(root, EL_EMAIL, NS_CMP0);
+        }
         if (e != null) {
             user.setEmail(DomUtil.getTextTrim(e));
         }

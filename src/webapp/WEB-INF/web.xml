@@ -128,6 +128,11 @@
     <filter-name>cmp-security</filter-name>
     <url-pattern>/cmp/*</url-pattern>
   </filter-mapping>
+  <!-- back compat - remove after 0.3 -->
+  <filter-mapping>
+    <filter-name>cmp-security</filter-name>
+    <url-pattern>/api/*</url-pattern>
+  </filter-mapping>
   <!-- url rewriting has to happen after security -->
   <filter-mapping>
     <filter-name>url-rewrite</filter-name>
@@ -192,6 +197,11 @@
   <servlet-mapping>
     <servlet-name>cmp</servlet-name>
     <url-pattern>/cmp/*</url-pattern>
+  </servlet-mapping>
+  <!-- back compat - remove after 0.3 -->
+  <servlet-mapping>
+    <servlet-name>cmp</servlet-name>
+    <url-pattern>/api/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>feed</servlet-name>

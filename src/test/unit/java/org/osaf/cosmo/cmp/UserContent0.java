@@ -15,29 +15,31 @@
  */
 package org.osaf.cosmo.cmp;
 
-import org.apache.jackrabbit.webdav.xml.Namespace;
-import org.apache.jackrabbit.webdav.xml.XmlSerializable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import org.w3c.dom.Document;
+import org.apache.jackrabbit.webdav.xml.Namespace;
+
 import org.w3c.dom.Element;
 
+import org.osaf.cosmo.model.User;
+
 /**
- * An interface for CMP resources.
+ * Extends {@link UserContent} to use the {@link UserResource.NS_CMP0}
+ * XML namespace.
  */
-public interface CmpResource extends XmlSerializable {
+public class UserContent0 extends UserContent {
+    private static final Log log = LogFactory.getLog(UserContent0.class);
 
     /**
      */
-    public static final Namespace NS_CMP =
-        Namespace.getNamespace("http://osafoundation.org/cosmo/CMP");
+    public UserContent0(User user) {
+        super(user);
+    }
 
     /**
      */
-    public static final Namespace NS_CMP0 =
-        Namespace.getNamespace("http://osafoundation.org/cosmo");
-
-    /**
-     * Returns the entity instance that backs this resource.
-     */
-    public Object getEntity();
+    public Namespace getNamespace() {
+        return UserResource.NS_CMP0;
+    }
 }
