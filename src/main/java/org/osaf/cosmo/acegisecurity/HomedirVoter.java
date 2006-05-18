@@ -40,6 +40,7 @@ public class HomedirVoter implements AccessDecisionVoter {
         "/home/browse",
         "/home/view",
         "/home/download",
+        "/home/remove",
         "/home/ticket",
         "/atom/1.0",
     };
