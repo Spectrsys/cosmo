@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
@@ -187,23 +188,23 @@ public class Migration03Test extends TestCase {
     /**
      */
     public void testLoadUsers() throws Exception {
-        HashMap users = migration.loadUsers();
+        List<HashMap> users = migration.loadUsers();
         assertNotNull(users);
-        assertEquals(2, users.keySet().size());
+        assertEquals(2, users.size());
 
-        HashMap user2 = (HashMap) users.get(new Integer(2));
-        assertNotNull("user 2 not found", user2);
-        assertEquals("user 2 wrong username", "bcm",
-                     (String) user2.get("username"));
-        assertEquals("user 2 not admin", Boolean.TRUE,
-                     (Boolean) user2.get("admin"));
+        HashMap user0 = users.get(0);
+        assertNotNull("user 0 not found", user0);
+        assertEquals("user 0 wrong username", "bcm",
+                     (String) user0.get("username"));
+        assertEquals("user 0 not admin", Boolean.TRUE,
+                     (Boolean) user0.get("admin"));
 
-        HashMap user3 = (HashMap) users.get(new Integer(3));
-        assertNotNull("user 3 not found", user3);
-        assertEquals("user 3 wrong username", "ixjonez",
-                     (String) user3.get("username"));
-        assertEquals("user 3 not admin", Boolean.FALSE,
-                     (Boolean) user3.get("admin"));
+        HashMap user1 = users.get(1);
+        assertNotNull("user 1 not found", user1);
+        assertEquals("user 1 wrong username", "ixjonez",
+                     (String) user1.get("username"));
+        assertEquals("user 1 not admin", Boolean.FALSE,
+                     (Boolean) user1.get("admin"));
     }
 
     /**

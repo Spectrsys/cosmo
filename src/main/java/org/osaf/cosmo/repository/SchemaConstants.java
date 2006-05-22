@@ -29,8 +29,11 @@ public interface SchemaConstants {
     public static final String PREFIX_COSMO = "cosmo";
 
     // node names
+    public static final String NN_JCR_SYSTEM = "jcr:system";
     public static final String NN_JCR_CONTENT = "jcr:content";
     public static final String NN_JCR_DATA = "jcr:data";
+
+    public static final String NN_COSMO_SYSTEM = "cosmo:system";
 
     public static final String NN_TICKET = "ticket:ticket";
 

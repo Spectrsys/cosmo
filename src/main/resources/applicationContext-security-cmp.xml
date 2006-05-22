@@ -40,6 +40,8 @@
          /cmp/user/*=ROLE_ROOT
          /cmp/signup=ROLE_ANONYMOUS
          /cmp/account=ROLE_USER
+         /api/signup=ROLE_ANONYMOUS
+         /api/account=ROLE_USER
          /**=ROLE_ROOT
        </value>
      </property>

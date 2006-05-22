@@ -21,11 +21,14 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
@@ -240,14 +243,14 @@ public class Migration03 extends CopyBasedMigration {
             }
         }
 
-        HashMap usersById = loadUsers();
-        HashMap[] users = sortUsers(usersById);
+        List<HashMap> users = loadUsers();
+        System.out.println("Loaded " + users.size() + " users");
 
         int skipped = 0;
         int copied = 0;
         long startTime = System.currentTimeMillis();
-        for (int i=0; i<users.length; i++) {
-            HashMap user = users[i];
+        for (Iterator<HashMap> i=users.iterator(); i.hasNext();) {
+            HashMap user = i.next();
             String username = (String) user.get("username");
             try {
                 // only save if the home directory was actually copied
@@ -391,43 +394,52 @@ public class Migration03 extends CopyBasedMigration {
         return overlord;
     }
 
-    HashMap loadUsers()
+    List<HashMap> loadUsers()
         throws MigrationException {
-        HashMap users = new HashMap();
-
-        if (log.isDebugEnabled()) {
-            log.debug("Loading users");
-        }
-        try {
-            Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery(SQL_LOAD_USERS);
-            for (; rs.next();) {
-                users.put(rs.getInt("id"), resultSetToUser(rs));
-            }
-            st.close();
-        } catch (Exception e) {
-            throw new MigrationException("Cannot load users", e);
-        }
-
         if (log.isDebugEnabled()) {
             log.debug("Loading administrator associations");
         }
+        HashSet rootIds = new HashSet();
         try {
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(SQL_LOAD_ROOT_IDS);
             for (; rs.next();) {
                 Integer id = (Integer) rs.getInt("userid");
-                HashMap user = (HashMap) users.get(id);
-                if (user == null) {
-                    System.err.println("Nonexistent user with id " + id + " marked as having root role in userdb... skipping:");
-                    continue;
-                }
-                user.put("admin", Boolean.TRUE);
+                rootIds.add(id);
             }
             st.close();
         } catch (Exception e) {
             throw new MigrationException("Cannot load users", e);
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Loading users");
+        }
+        ArrayList users = new ArrayList<HashMap>();
+        try {
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(SQL_LOAD_USERS);
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                HashMap user = resultSetToUser(rs);
+                if (rootIds.contains(id)) {
+                    user.put("admin", Boolean.TRUE);
+                }
+                users.add(user);
+            }
+            st.close();
+        } catch (Exception e) {
+            throw new MigrationException("Cannot load users", e);
+        }
+
+        // sort case insensitively
+        Collections.sort(users, new Comparator<HashMap>() {
+            public int compare(HashMap o1, HashMap o2) {
+                String u1 = (String) o1.get("username");
+                String u2 = (String) o2.get("username");
+                return u1.compareToIgnoreCase(u2);
+            }
+        });
 
         return users;
     }
@@ -786,19 +798,6 @@ public class Migration03 extends CopyBasedMigration {
             return "calendar:language";
         }
         return original;
-    }
-
-    private HashMap[] sortUsers(HashMap usersById) {
-        HashMap[] users = (HashMap[])
-            usersById.values().toArray(new HashMap[0]);
-        Arrays.sort(users, new Comparator<HashMap>() {
-                        public int compare(HashMap o1, HashMap o2) {
-                            String u1 = (String) o1.get("username");
-                            String u2 = (String) o2.get("username");
-                            return u1.compareToIgnoreCase(u2);
-                        }
-                    });
-        return users;
     }
 
     private String formatElapsedHours(long elapsedTime) {
