@@ -85,7 +85,7 @@ function CalEvent(id, block) {
             // Changing recurrence
             else if (curr && orig) {
                 if ((curr.frequency != orig.frequency) ||
-                    (curr.endDate != orig.endDate)) {
+                    (curr.endDate.getTime() != orig.endDate.getTime())) {
                     return true;
                 }
                 else {
