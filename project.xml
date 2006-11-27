@@ -18,7 +18,7 @@
   <name>Cosmo</name>
   <groupId>org.osaf.cosmo</groupId>
   <artifactId>cosmo</artifactId>
-  <currentVersion>0.6-SNAPSHOT</currentVersion>
+  <currentVersion>0.6-CP-r2918-20061127</currentVersion>
   <dependencies>
     <!--
         dependencies with the war.bundle property are included in the
