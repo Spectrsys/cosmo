@@ -18,7 +18,7 @@
   <name>Cosmo</name>
   <groupId>org.osaf.cosmo</groupId>
   <artifactId>cosmo-docs</artifactId>
-  <currentVersion>0.6-SNAPSHOT</currentVersion>
+  <currentVersion>0.6-CP-r2989-20061204</currentVersion>
   <dependencies>
   </dependencies>
   <build>
