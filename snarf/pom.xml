@@ -19,7 +19,7 @@
     <name>OSAF Server Bundle</name>
     <groupId>org.osaf.server</groupId>
     <artifactId>osaf-server-bundle</artifactId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.6-CP-r3246-20070108</version>
     <url>http://cosmo.osafoundation.org</url>
     <repositories>
         <repository>
@@ -79,7 +79,7 @@
           <!-- when you update this version, you must also update it in
                src/main/config/server.xml -->
 <!--
-          <version>0.6-SNAPSHOT</version>
+          <version>0.6-CP-r3246-20070108</version>
           <type>war</type>
         </dependency>
  -->
