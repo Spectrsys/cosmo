@@ -72,11 +72,12 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
             xmlReader = XML_INPUT_FACTORY.createXMLStreamReader(in);
             if (! xmlReader.hasNext())
                 throw new EimmlStreamException("Input stream has no data");
-            readDocumentHeader();
 
             documentEncoding = xmlReader.getCharacterEncodingScheme();
             if (documentEncoding == null)
                 documentEncoding = "UTF-8";
+
+            readCollection();
         } catch (XMLStreamException e) {
             throw new EimmlStreamException("Unable to read EIM records", e);
         }
@@ -121,20 +122,6 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
         }
     }
 
-    /**
-     * Returns the next record in the stream. Returns null if the
-     * stream has no more data.
-     */
-    public EimRecord nextRecord()
-        throws EimmlStreamException {
-        try {
-            return readNextRecord();
-        } catch (XMLStreamException e) {
-            close();
-            throw new EimmlStreamException("Error reading next record", e);
-        }
-    }
-
     /** */
     public void close() {
         try {
@@ -144,26 +131,26 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
         }
     }
 
-    private void readDocumentHeader()
+    private int nextTag()
+        throws XMLStreamException {
+        int rc = xmlReader.nextTag();
+        if (log.isDebugEnabled())
+            log.debug("read tag: " + xmlReader.getName());
+        return rc;
+    }
+
+    private void readCollection()
         throws XMLStreamException, EimmlStreamException {
-        while (xmlReader.hasNext()) {
-            xmlReader.nextTag();
-            if (xmlReader.next() != START_DOCUMENT)
-                continue;
+        nextTag();
+        if (! xmlReader.isStartElement() &&
+            xmlReader.getName().equals(QN_COLLECTION))
+            throw new EimmlStreamException("Outermost element must be " + QN_COLLECTION);
 
-            xmlReader.nextTag();
-            if (! xmlReader.isStartElement() &&
-                xmlReader.getName().equals(QN_COLLECTION))
-                throw new EimmlStreamException("Outermost element must be " + QN_COLLECTION);
+        uuid = xmlReader.getAttributeValue(null, ATTR_UUID);
 
-            uuid = xmlReader.getAttributeValue(null, ATTR_UUID);
-
-            name = xmlReader.getAttributeValue(null, ATTR_NAME);
-            if (StringUtils.isBlank(name))
-                name = null;
-
-            return;
-        }
+        name = xmlReader.getAttributeValue(null, ATTR_NAME);
+        if (StringUtils.isBlank(name))
+            name = null;
     }
 
     private EimRecordSet readNextRecordSet()
@@ -171,42 +158,33 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
         if (! xmlReader.hasNext())
             return null;
 
-        boolean found = false;
-        while (xmlReader.hasNext()) {
-            xmlReader.nextTag();
-            if (xmlReader.isStartElement() &&
-                xmlReader.getName().equals(QN_RECORDSET)) {
-                found = true;
-                break;
-            }
-        }
-        if (! found)
-            return null;
+        nextTag();
+        if (! (xmlReader.isStartElement() &&
+               xmlReader.getName().equals(QN_RECORDSET)))
+            throw new EimmlStreamException("Expected element " + QN_RECORDSET);
 
         EimRecordSet recordset = new EimRecordSet();
 
+        String uuid = xmlReader.getAttributeValue(null, ATTR_UUID);
+        if (StringUtils.isBlank(uuid))
+            throw new EimmlStreamException("Recordset element requires " + ATTR_UUID + " attribute");
+        recordset.setUuid(uuid);
+
         while (xmlReader.hasNext()) {
-            xmlReader.nextTag();
+            nextTag();
 
-            if (xmlReader.isStartElement()) {
-                String uuid = xmlReader.getAttributeValue(null, ATTR_UUID);
-                if (StringUtils.isBlank(uuid))
-                    throw new EimmlStreamException("Recordset element requires " + ATTR_UUID + " attribute");
-                recordset.setUuid(uuid);
+            if (xmlReader.isEndElement())
+                break;
 
-                if (! xmlReader.getLocalName().equals(EL_RECORD))
-                    throw new EimmlStreamException("Recordset element may only contain " + EL_RECORD + " elements");
+            if (! (xmlReader.isStartElement() &&
+                   xmlReader.getLocalName().equals(EL_RECORD)))
+                throw new EimmlStreamException("Expected element " + EL_RECORD);
 
-                EimRecord record = nextRecord();
-                if (record == null)
-                    throw new EimmlStreamException("Premature end of stream");
+            EimRecord record = readNextRecord();
+            if (record == null)
+                throw new EimmlStreamException("Premature end of stream");
 
-                recordset.addRecord(record);
-                continue;
-            }
-
-            if (! xmlReader.getName().equals(QN_RECORDSET))
-                throw new EimmlStreamException("Mismatched end element " + xmlReader.getName());
+            recordset.addRecord(record);
         }
 
         return recordset;
@@ -214,22 +192,8 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
 
     private EimRecord readNextRecord()
         throws EimmlStreamException, XMLStreamException {
-        if (! xmlReader.hasNext())
-            return null;
-
-        boolean found = false;
-        while (xmlReader.hasNext()) {
-            xmlReader.nextTag();
-            if (xmlReader.isStartElement() &&
-                xmlReader.getLocalName().equals(EL_RECORD)) {
-                found = true;
-                break;
-            }
-        }
-        if (! found)
-            return null;
-
         EimRecord record = new EimRecord();
+
         record.setPrefix(xmlReader.getPrefix());
         record.setNamespace(xmlReader.getNamespaceURI());
 
@@ -242,13 +206,16 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
         }
 
         while (xmlReader.hasNext()) {
-            xmlReader.nextTag();
+            nextTag();
 
             if (xmlReader.isEndElement())
                 break;
 
             String name = xmlReader.getLocalName();
             EimRecordField field = null;
+
+            boolean isKey = BooleanUtils.
+                toBoolean(xmlReader.getAttributeValue(NS_CORE, ATTR_TYPE));
 
             String type = xmlReader.getAttributeValue(NS_CORE, ATTR_TYPE);
             if (StringUtils.isBlank(type))
@@ -285,8 +252,6 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
                 throw new EimmlStreamException("Unrecognized field type");
             }
 
-            boolean isKey = BooleanUtils.
-                toBoolean(xmlReader.getAttributeValue(NS_CORE, ATTR_TYPE));
             if (isKey)
                 record.addKeyField(field);
             else
