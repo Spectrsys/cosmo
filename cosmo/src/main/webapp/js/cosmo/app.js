@@ -61,7 +61,8 @@ cosmo.app = new function () {
         var msg = '';
         var currErr = '';
         var but = null;
-
+        var secondaryMessage = !e ? null : e instanceof Error ? e.message : e instanceof String ? e : null;
+        
         // If the error dialog is already showing, add this message to the error queue
         if (this.modalDialog.isDisplayed) {
             this.errorList.push(str);
@@ -79,7 +80,7 @@ cosmo.app = new function () {
             else {
                 msg = '<div class="errText">' + str + '</div>';
                 if (e) {
-                    msg += '<div>' + e.message + '</div>'
+                    msg += '<div>' + secondaryMessage + '</div>'
                 }
             }
             this.modalDialog.type = this.modalDialog.ERROR;
