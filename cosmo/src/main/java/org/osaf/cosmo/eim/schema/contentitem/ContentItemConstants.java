@@ -33,7 +33,7 @@ public interface ContentItemConstants {
     public static final String FIELD_TRIAGE_STATUS_CHANGED =
         "triageStatusChanged";
     /** */
-    public static final int DIGITS_TRIAGE_STATUS_CHANGED = 11;
+    public static final int DIGITS_TRIAGE_STATUS_CHANGED = 12;
     /** */
     public static final int DEC_TRIAGE_STATUS_CHANGED = 2;
     /** */
