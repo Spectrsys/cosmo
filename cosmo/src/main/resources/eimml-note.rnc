@@ -32,7 +32,7 @@ noteIcalUid =
    
 noteReminderTime =
    element note:reminderTime {
-      eimTimeStampFieldContent
+      eimDecimalFieldContent
    }
 
 anyNoteField =
@@ -41,7 +41,6 @@ anyNoteField =
        | eimDecimalFieldContent
        | eimIntegerFieldContent
        | eimDateTimeFieldContent
-       | eimTimeStampFieldContent
        | eimBytesFieldContent
        | eimBlobFieldContent
        | eimClobFieldContent)*

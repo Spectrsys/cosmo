@@ -40,13 +40,6 @@ eimDateTimeFieldContent = {
    xsd:dateTime
 }
 
-eimTimeStampFieldContent = {
-   eimKey,
-   attribute eim:type { "timestamp" },
-   # the number of milliseconds since the epoch
-   xsd:decimal { totalDigits = "20", fractionDigits = "0" }
-}
-
 eimBytesFieldContent = {
    eimKey,
    attribute eim:type { "bytes" },
@@ -100,7 +93,6 @@ anyField =
        | eimDecimalFieldContent
        | eimIntegerFieldContent
        | eimDateTimeFieldContent
-       | eimTimeStampFieldContent
        | eimBytesFieldContent
        | eimBlobFieldContent
        | eimClobFieldContent)*
