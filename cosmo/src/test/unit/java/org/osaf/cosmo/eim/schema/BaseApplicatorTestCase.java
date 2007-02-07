@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.TextField;
-import org.osaf.cosmo.eim.TimeStampField;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.QName;
@@ -56,7 +55,8 @@ public class BaseApplicatorTestCase extends TestCase
     /** */
     protected void checkTimeStampValue(EimRecordField field,
                                        Date value) {
-        Date expected = ((TimeStampField)field).getTimeStamp();
+        Date expected =
+            new Date(((DecimalField)field).getDecimal().longValue());
         assertEquals("incorrect timestamp value", expected, value);
     }
 

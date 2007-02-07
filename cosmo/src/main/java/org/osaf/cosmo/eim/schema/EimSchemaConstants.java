@@ -65,4 +65,9 @@ public interface EimSchemaConstants {
 
     /** */
     public static final String FIELD_UUID = "uuid";
+
+    /** */
+    public static final int DIGITS_TIMESTAMP = 20;
+    /** */
+    public static final int DEC_TIMESTAMP = 0;
 }

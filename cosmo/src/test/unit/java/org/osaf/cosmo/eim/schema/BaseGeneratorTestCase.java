@@ -29,7 +29,6 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.EimRecordKey;
 import org.osaf.cosmo.eim.TextField;
-import org.osaf.cosmo.eim.TimeStampField;
 
 /**
  * Base class for record generator tests.
@@ -101,10 +100,8 @@ public class BaseGeneratorTestCase extends TestCase
     protected void checkTimeStampField(EimRecordField field,
                                        String expectedName,
                                        Date expectedValue) {
-        assertTrue("not a timestamp field", field instanceof TimeStampField);
-        TimeStampField tsf = (TimeStampField) field;
-        assertEquals("incorrect field name", expectedName, tsf.getName());
-        assertEquals("incorrect field value", expectedValue,
-                     tsf.getTimeStamp());
+        BigDecimal bd = new BigDecimal(expectedValue.getTime());
+        checkDecimalField(field, expectedName, bd, DIGITS_TIMESTAMP,
+                          DEC_TIMESTAMP);
     }
 }

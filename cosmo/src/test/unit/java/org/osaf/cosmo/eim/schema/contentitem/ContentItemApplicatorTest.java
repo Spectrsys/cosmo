@@ -25,7 +25,6 @@ import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.TextField;
-import org.osaf.cosmo.eim.TimeStampField;
 import org.osaf.cosmo.eim.schema.BaseApplicatorTestCase;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.ContentItem;
@@ -67,13 +66,14 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
         record.addField(new TextField(FIELD_TITLE, "The Bangs"));
         record.addField(new TextField(FIELD_TRIAGE_STATUS, "IN PROGRESS"));
         record.addField(new DecimalField(FIELD_TRIAGE_STATUS_CHANGED,
-                                         new BigDecimal("123456789.00"),
+                                         new BigDecimal("1234567890.00"),
                                          DIGITS_TRIAGE_STATUS_CHANGED,
                                          DEC_TRIAGE_STATUS_CHANGED));
         record.addField(new TextField(FIELD_LAST_MODIFIED_BY,
                                       "bcm@osafoundation.org"));
-        record.addField(new TimeStampField(FIELD_CREATED_ON,
-                                           Calendar.getInstance().getTime()));
+        BigDecimal createdOn =
+            new BigDecimal(Calendar.getInstance().getTime().getTime());
+        record.addField(new DecimalField(FIELD_CREATED_ON, createdOn));
         record.addField(new TextField("Phish", "The Lizzards"));
 
         return record;

@@ -15,13 +15,14 @@
  */
 package org.osaf.cosmo.eim.schema.contentitem;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.TextField;
-import org.osaf.cosmo.eim.TimeStampField;
 import org.osaf.cosmo.eim.schema.BaseItemGenerator;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
@@ -67,8 +68,12 @@ public class ContentItemGenerator extends BaseItemGenerator
                                          DEC_TRIAGE_STATUS_CHANGED));
         record.addField(new TextField(FIELD_LAST_MODIFIED_BY,
                                       contentItem.getLastModifiedBy()));
-        record.addField(new TimeStampField(FIELD_CREATED_ON,
-                                           contentItem.getClientCreationDate()));
+        Date d = contentItem.getClientCreationDate();
+        BigDecimal createdOn = d != null ?
+            new BigDecimal(d.getTime()) :
+            null;
+        record.addField(new DecimalField(FIELD_CREATED_ON, createdOn,
+                                         DIGITS_TIMESTAMP, DEC_TIMESTAMP));
 
         record.addFields(generateUnknownFields());
 

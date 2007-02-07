@@ -16,13 +16,15 @@
 package org.osaf.cosmo.eim.schema.note;
 
 import java.io.StringReader;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.ClobField;
+import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.TextField;
-import org.osaf.cosmo.eim.TimeStampField;
 import org.osaf.cosmo.eim.schema.BaseItemGenerator;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Item;
@@ -60,8 +62,12 @@ public class NoteGenerator extends BaseItemGenerator
         record.addField(new ClobField(FIELD_BODY,
                                       new StringReader(note.getBody())));
         record.addField(new TextField(FIELD_ICALUID, note.getIcalUid()));
-        record.addField(new TimeStampField(FIELD_REMINDER_TIME,
-                note.getReminderTime()));
+        Date d = note.getReminderTime();
+        BigDecimal reminderTime = d != null ?
+            new BigDecimal(d.getTime()) :
+            null;
+        record.addField(new DecimalField(FIELD_REMINDER_TIME, reminderTime,
+                                         DIGITS_TIMESTAMP, DEC_TIMESTAMP));
 
         record.addFields(generateUnknownFields());
 

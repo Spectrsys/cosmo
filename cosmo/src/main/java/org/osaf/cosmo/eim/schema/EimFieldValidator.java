@@ -30,7 +30,6 @@ import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.TextField;
-import org.osaf.cosmo.eim.TimeStampField;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,12 +82,12 @@ public class EimFieldValidator implements EimSchemaConstants {
             throw new EimValidationException("Field " + field.getName() + " is not a decimal field");
         BigDecimal value = ((DecimalField)field).getDecimal();
         if (numDigits > 0) {
-            if (value.precision() != numDigits)
-                throw new EimValidationException("Field " + field.getName() + " decimal value has " + value.precision() + " digits which is not the same as the specified number " + numDigits);
+            if (value.precision() > numDigits)
+                throw new EimValidationException("Field " + field.getName() + " decimal value has " + value.precision() + " digits which is more than the maximum of " + numDigits);
         }
         if (numDecimalPlaces > 0) {
-            if (value.scale() != numDecimalPlaces)
-                throw new EimValidationException("Field " + field.getName() + " decimal value has " + value.scale() + " decimal places which is not the same as the specified number " + numDecimalPlaces);
+            if (value.scale() > numDecimalPlaces)
+                throw new EimValidationException("Field " + field.getName() + " decimal value has " + value.scale() + " decimal places which is more than the maximum of " + numDecimalPlaces);
         }
         return value;
     }
@@ -123,9 +122,9 @@ public class EimFieldValidator implements EimSchemaConstants {
      */
     public static Date validateTimeStamp(EimRecordField field)
         throws EimValidationException {
-        if (! (field instanceof TimeStampField))
-            throw new EimValidationException("Field " + field.getName() + " is not a timestamp field");
-        Date value = ((TimeStampField)field).getTimeStamp();
+        BigDecimal bd =
+            validateDecimal(field, DIGITS_TIMESTAMP, DEC_TIMESTAMP);
+        Date value = new Date(bd.longValue());
         return value;
     }
 

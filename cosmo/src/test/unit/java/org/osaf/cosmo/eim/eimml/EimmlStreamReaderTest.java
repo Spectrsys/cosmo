@@ -53,7 +53,5 @@ public class EimmlStreamReaderTest extends TestCase
 
         EimRecordSet recordset = reader.nextRecordSet();
         assertNotNull("Next recordset is null", recordset);
-
-
     }
 }
