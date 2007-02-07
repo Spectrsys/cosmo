@@ -100,12 +100,13 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
     /** */
     public boolean hasNext()
         throws EimmlStreamException {
-        try {
-            return xmlReader.hasNext();
-        } catch (XMLStreamException e) { 
-            close();
-            throw new EimmlStreamException("Error checking hasNext", e);
-        }
+        if (xmlReader.isEndElement() &&
+            xmlReader.getName().equals(QN_COLLECTION))
+            return false;
+        if (xmlReader.isStartElement() &&
+            xmlReader.getName().equals(QN_RECORDSET))
+            return true;
+        throw new EimmlStreamException("hasNext called at illegal cursor position " + xmlReader.getName());
     }
 
     /**
@@ -134,13 +135,19 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
     private int nextTag()
         throws XMLStreamException {
         int rc = xmlReader.nextTag();
-        if (log.isDebugEnabled())
-            log.debug("read tag: " + xmlReader.getName());
+        if (log.isDebugEnabled()) {
+            if (xmlReader.isStartElement())
+                log.debug("read start tag: " + xmlReader.getName());
+            else
+                log.debug("read end tag: " + xmlReader.getName());
+        }
         return rc;
     }
 
+    // leaves the cursor positioned at the first recordset element
     private void readCollection()
         throws XMLStreamException, EimmlStreamException {
+        // move to <collection>
         nextTag();
         if (! xmlReader.isStartElement() &&
             xmlReader.getName().equals(QN_COLLECTION))
@@ -151,17 +158,24 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
         name = xmlReader.getAttributeValue(null, ATTR_NAME);
         if (StringUtils.isBlank(name))
             name = null;
+
+        // move to first <recordset> or </collection>
+        nextTag();
     }
 
+    // leaves the cursor positioned at either the next recordset
+    // element or the collection end element
     private EimRecordSet readNextRecordSet()
         throws EimmlStreamException, XMLStreamException {
-        if (! xmlReader.hasNext())
+        // finish stream on </collection>
+        if (xmlReader.isEndElement() &&
+            xmlReader.getName().equals(QN_COLLECTION))
             return null;
 
-        nextTag();
+        // begin at <recordset>
         if (! (xmlReader.isStartElement() &&
                xmlReader.getName().equals(QN_RECORDSET)))
-            throw new EimmlStreamException("Expected element " + QN_RECORDSET);
+            throw new EimmlStreamException("Expected start element " + QN_RECORDSET + " but got " + xmlReader.getName());
 
         EimRecordSet recordset = new EimRecordSet();
 
@@ -170,28 +184,39 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
             throw new EimmlStreamException("Recordset element requires " + ATTR_UUID + " attribute");
         recordset.setUuid(uuid);
 
+        // move to next <record> or </recordset>
+        nextTag();
+
         while (xmlReader.hasNext()) {
-            nextTag();
-
-            if (xmlReader.isEndElement())
+            // complete on </recordset>
+            if (xmlReader.isEndElement() &&
+                xmlReader.getName().equals(QN_RECORDSET))
                 break;
-
-            if (! (xmlReader.isStartElement() &&
-                   xmlReader.getLocalName().equals(EL_RECORD)))
-                throw new EimmlStreamException("Expected element " + EL_RECORD);
 
             EimRecord record = readNextRecord();
             if (record == null)
                 throw new EimmlStreamException("Premature end of stream");
 
             recordset.addRecord(record);
+
+            // move to next <record> or </recordset>
+            nextTag();
         }
+
+        // move to next <recordset> or </collection>
+        nextTag();
 
         return recordset;
     }
 
+    // leaves cursor on </record>
     private EimRecord readNextRecord()
         throws EimmlStreamException, XMLStreamException {
+        // begin at <record>
+        if (! (xmlReader.isStartElement() &&
+               xmlReader.getLocalName().equals(EL_RECORD)))
+            throw new EimmlStreamException("Expected start element " + EL_RECORD + " but got " + xmlReader.getName());
+
         EimRecord record = new EimRecord();
 
         record.setPrefix(xmlReader.getPrefix());
@@ -205,11 +230,19 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
                          xmlReader.getAttributeName(i));
         }
 
-        while (xmlReader.hasNext()) {
-            nextTag();
+        // move to next field element or </record>
+        nextTag();
 
-            if (xmlReader.isEndElement())
+        while (xmlReader.hasNext()) {
+            // complete on </record>
+            if (xmlReader.isEndElement() &&
+                xmlReader.getLocalName().equals(EL_RECORD))
                 break;
+
+            if (! xmlReader.isStartElement())
+                throw new EimmlStreamException("Expected field element but got " + xmlReader.getName());
+
+            // consume entire field element
 
             String name = xmlReader.getLocalName();
             EimRecordField field = null;
@@ -256,6 +289,9 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
                 record.addKeyField(field);
             else
                 record.addField(field);
+
+            // move to next field element or </record>
+            nextTag();
         }
 
         return record;
