@@ -107,7 +107,7 @@ public class EimFieldValidator implements EimSchemaConstants {
             try {
                 int len = value.getBytes("UTF-8").length;
                 if (len > maxLength)
-                    throw new EimValidationException("Field " + field.getName() + " text value is " + len + " bytes which is greater than the allowable length of " + len + " bytes");
+                    throw new EimValidationException("Field " + field.getName() + " text value is " + len + " bytes which is greater than the allowable length of " + maxLength + " bytes");
             } catch (UnsupportedEncodingException e) {
                 // will never happen
             }
