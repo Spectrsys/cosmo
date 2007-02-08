@@ -86,18 +86,21 @@ public class EventApplicator extends BaseStampApplicator
             String value = EimFieldValidator.validateText(field, MAXLEN_RRULE);
             event.setRecurrenceRules(EimValueConverter.toICalRecurs(value));
         } else if (field.getName().equals(FIELD_EXRULE)) {
-            String value = EimFieldValidator.validateText(field, MAXLEN_EXRULE);
+            String value =
+                EimFieldValidator.validateText(field, MAXLEN_EXRULE);
             event.setExceptionRules(EimValueConverter.toICalRecurs(value));
         } else if (field.getName().equals(FIELD_RDATE)) {
             String value = EimFieldValidator.validateText(field, MAXLEN_RDATE);
-            event.setRecurrenceDates(EimValueConverter.toICalDate(value).
-                                     getDateList());
+            ICalDate icd = EimValueConverter.toICalDate(value);
+            event.setRecurrenceDates(icd != null ? icd.getDateList() : null);
         } else if (field.getName().equals(FIELD_EXDATE)) {
-            String value = EimFieldValidator.validateText(field, MAXLEN_EXDATE);
-            event.setExceptionDates(EimValueConverter.toICalDate(value).
-                                    getDateList());
+            String value =
+                EimFieldValidator.validateText(field, MAXLEN_EXDATE);
+            ICalDate icd = EimValueConverter.toICalDate(value);
+            event.setExceptionDates(icd != null ? icd.getDateList() : null);
         } else if (field.getName().equals(FIELD_STATUS)) {
-            String value = EimFieldValidator.validateText(field, MAXLEN_STATUS);
+            String value =
+                EimFieldValidator.validateText(field, MAXLEN_STATUS);
             event.setStatus(value);
         } else {
             applyUnknownField(field);

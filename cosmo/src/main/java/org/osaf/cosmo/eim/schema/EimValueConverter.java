@@ -59,11 +59,13 @@ public class EimValueConverter implements EimSchemaConstants {
     public static List<Recur> toICalRecurs(String text)
         throws EimConversionException {
         ArrayList<Recur> recurs = new ArrayList<Recur>();
-        for (String s : text.split(":")) {
-            try {
-                recurs.add(new Recur(s));
-            } catch (ParseException e) {
-                throw new EimConversionException("Invalid iCalendar recurrence rule " + s);
+        if (text != null) {
+            for (String s : text.split(":")) {
+                try {
+                    recurs.add(new Recur(s));
+                } catch (ParseException e) {
+                    throw new EimConversionException("Invalid iCalendar recurrence rule " + s);
+                }
             }
         }
         return recurs;
@@ -92,6 +94,8 @@ public class EimValueConverter implements EimSchemaConstants {
      */
     public static ICalDate toICalDate(String text)
         throws EimConversionException {
+        if (text == null)
+            return null;
         return new ICalDate(text);
     }
 
@@ -171,6 +175,9 @@ public class EimValueConverter implements EimSchemaConstants {
      */
     public static Trigger toIcalTrigger(String text)
             throws EimConversionException {
+        if (text == null)
+            return null;
+
         Value value = null;
         Related related = null;
         String propVal = null;
@@ -216,6 +223,9 @@ public class EimValueConverter implements EimSchemaConstants {
      * @throws EimConversionException
      */
     public static Dur toICalDur(String value) throws EimConversionException {
+        if (value == null)
+            return null;
+
         if(validateDuration(value)==false)
             throw new EimConversionException("invalid duration " + value);
         
