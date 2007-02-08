@@ -118,14 +118,12 @@ public class StandardMorseCodeController implements MorseCodeController {
             if (user == null)
                 throw new IllegalArgumentException("Parent uid must be provided if authentication principal is not a user");
             parent = contentService.getRootItem(user);
-            log.debug("parent is root item for " + user.getUsername());
         }
         else {
             Item parentItem = contentService.findItemByUid(parentUid);
             if (! (parentItem instanceof CollectionItem))
                 throw new NotCollectionException("Parent item not a collection");
             parent = (CollectionItem) parentItem;
-            log.debug("parent is collection " + parent.getName());
         }
 
         CollectionItem collection = new CollectionItem();
@@ -144,6 +142,7 @@ public class StandardMorseCodeController implements MorseCodeController {
             EimRecordSet recordset = records.getRecordSets().next();
             try {
                 ContentItem child = createChildItem(collection, recordset);
+                children.add(child);
                 translator = new EimTranslator(child);
                 translator.applyRecords(recordset);
             } catch (EimValidationException e) {
@@ -284,11 +283,13 @@ public class StandardMorseCodeController implements MorseCodeController {
             EimRecordSet recordset = records.getRecordSets().next();
             try {
                 Item child = collection.getChild(recordset.getUuid());
-                if (child == null)
+                if (child == null) {
                     child = createChildItem(collection, recordset);
-                else
+                    children.add(child);
+                } else {
                     if (! (child instanceof ContentItem))
                         throw new ValidationException("Child item " + recordset.getUuid() + " is not a content item");
+                }
                 translator = new EimTranslator((ContentItem)child);
                 translator.applyRecords(recordset);
             } catch (EimValidationException e) {
