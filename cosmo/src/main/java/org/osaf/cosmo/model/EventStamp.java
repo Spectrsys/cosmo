@@ -516,18 +516,16 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public void setStatus(String text) {
+        // ical4j Status value is immutable, so if there's any change
+        // at all, we have to remove the old status and add a new
+        // one.
         Status status = (Status)
             getMasterEvent().getProperties().getProperty(Property.STATUS);
-        if (text == null) {
-            if (status != null)
-                getMasterEvent().getProperties().remove(status);
+        if (status != null)
+            getMasterEvent().getProperties().remove(status);
+        if (text == null)
             return;
-        }                
-        if (status == null) {
-            status = new Status();
-            getMasterEvent().getProperties().add(status);
-        }
-        status.setValue(text);
+        getMasterEvent().getProperties().add(new Status(text));
     }
     
     /**
