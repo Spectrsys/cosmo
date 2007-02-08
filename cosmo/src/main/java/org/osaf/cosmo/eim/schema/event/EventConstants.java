@@ -24,11 +24,11 @@ public interface EventConstants {
     /** */
     public static final String FIELD_DTSTART = "dtstart";
     /** */
-    public static final int MAXLEN_DTSTART = 20;
+    public static final int MAXLEN_DTSTART = 256;
     /** */
     public static final String FIELD_DTEND = "dtend";
     /** */
-    public static final int MAXLEN_DTEND = 20;
+    public static final int MAXLEN_DTEND = 256;
     /** */
     public static final String FIELD_LOCATION = "location";
     /** */
