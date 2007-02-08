@@ -61,6 +61,10 @@ public interface EimmlConstants {
     public static final String ATTR_KEY = "key";
     /** */
     public static final QName QN_KEY = new QName(NS_CORE, ATTR_KEY);
+    /** */
+    public static final String ATTR_EMPTY = "empty";
+    /** */
+    public static final QName QN_EMPTY = new QName(NS_CORE, ATTR_EMPTY);
 
     /** */
     public static final String TYPE_BYTES = "bytes";

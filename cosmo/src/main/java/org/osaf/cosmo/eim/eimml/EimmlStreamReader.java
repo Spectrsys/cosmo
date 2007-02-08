@@ -242,44 +242,45 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
             if (! xmlReader.isStartElement())
                 throw new EimmlStreamException("Expected field element but got " + xmlReader.getName());
 
-            // consume entire field element
-
             String name = xmlReader.getLocalName();
-            EimRecordField field = null;
 
             boolean isKey = BooleanUtils.
-                toBoolean(xmlReader.getAttributeValue(NS_CORE, ATTR_TYPE));
-
+                toBoolean(xmlReader.getAttributeValue(NS_CORE, ATTR_KEY));
+            boolean isEmpty = BooleanUtils.
+                toBoolean(xmlReader.getAttributeValue(NS_CORE, ATTR_EMPTY));
             String type = xmlReader.getAttributeValue(NS_CORE, ATTR_TYPE);
             if (StringUtils.isBlank(type))
                 throw new EimmlStreamException(xmlReader.getName() + " element requires " + ATTR_TYPE + " attribute");
+
+            String text = xmlReader.getElementText();
+            if (isEmpty)
+                text = "";
+            else if (text.equals(""))
+                text = null;
+            log.debug("element " + name + "=" + text);
+
+            EimRecordField field = null;
             if (type.equals(TYPE_BYTES)) {
-                byte[] value = EimmlTypeConverter.
-                    toBytes(xmlReader.getElementText());
+                byte[] value = EimmlTypeConverter.toBytes(text);
                 field = new BytesField(name, value);
             } else if (type.equals(TYPE_TEXT)) {
-                String value = EimmlTypeConverter.
-                    toText(xmlReader.getElementText(), documentEncoding);
+                String value = EimmlTypeConverter.toText(text,
+                                                         documentEncoding);
                 field = new TextField(name, value);
             } else if (type.equals(TYPE_BLOB)) {
-                InputStream value = EimmlTypeConverter.
-                    toBlob(xmlReader.getElementText());
+                InputStream value = EimmlTypeConverter.toBlob(text);
                 field = new BlobField(name, value);
             } else if (type.equals(TYPE_CLOB)) {
-                Reader value = EimmlTypeConverter.
-                    toClob(xmlReader.getElementText());
+                Reader value = EimmlTypeConverter.toClob(text);
                 field = new ClobField(name, value);
             } else if (type.equals(TYPE_INTEGER)) {
-                Integer value = EimmlTypeConverter.
-                    toInteger(xmlReader.getElementText());
+                Integer value = EimmlTypeConverter.toInteger(text);
                 field = new IntegerField(name, value);
             } else if (type.equals(TYPE_DATETIME)) {
-                Calendar value = EimmlTypeConverter.
-                    toDateTime(xmlReader.getElementText());
+                Calendar value = EimmlTypeConverter.toDateTime(text);
                 field = new DateTimeField(name, value);
             } else if (type.equals(TYPE_DECIMAL)) {
-                BigDecimal value = EimmlTypeConverter.
-                    toDecimal(xmlReader.getElementText());
+                BigDecimal value = EimmlTypeConverter.toDecimal(text);
                 field = new DecimalField(name, value);
             } else {
                 throw new EimmlStreamException("Unrecognized field type");
