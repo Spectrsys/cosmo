@@ -47,6 +47,7 @@ import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.DtEnd;
 import net.fortuna.ical4j.model.property.DtStart;
+import net.fortuna.ical4j.model.property.Duration;
 import net.fortuna.ical4j.model.property.ExDate;
 import net.fortuna.ical4j.model.property.ExRule;
 import net.fortuna.ical4j.model.property.Location;
@@ -263,7 +264,11 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public void setStartDate(Date date) {
-        getMasterEvent().getStartDate().setDate(date);
+        DtStart dtStart = getMasterEvent().getStartDate();
+        if (dtStart != null)
+            dtStart.setDate(date);
+        else
+            getMasterEvent().getProperties().add(new DtStart(date));
     }
 
     /**
@@ -286,7 +291,17 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public void setEndDate(Date date) {
-        getMasterEvent().getEndDate().setDate(date);
+        DtEnd dtEnd = getMasterEvent().getEndDate();
+        if (dtEnd != null)
+            dtEnd.setDate(date);
+        else {
+            // remove the duration if there was one
+            Duration duration = (Duration) getMasterEvent().getProperties().
+                getProperty(Property.DURATION);
+            if (duration != null)
+                getMasterEvent().getProperties().remove(duration);
+            getMasterEvent().getProperties().add(new DtEnd(date));
+        }
     }
 
     /**
@@ -344,6 +359,8 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public void setRecurrenceRules(List<Recur> recurs) {
+        if (recurs == null)
+            return;
         PropertyList pl = getMasterEvent().getProperties();
         for (RRule rrule : (List<RRule>) pl.getProperties(Property.RRULE))
             pl.remove(rrule);
@@ -372,6 +389,8 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public void setExceptionRules(List<Recur> recurs) {
+        if (recurs == null)
+            return;
         PropertyList pl = getMasterEvent().getProperties();
         for (ExRule exrule : (List<ExRule>) pl.getProperties(Property.EXRULE))
             pl.remove(exrule);
@@ -400,6 +419,8 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public void setRecurrenceDates(DateList dates) {
+        if (dates == null)
+            return;
         PropertyList pl = getMasterEvent().getProperties();
         for (RDate rdate : (List<RDate>) pl.getProperties(Property.RDATE))
             pl.remove(rdate);
@@ -454,6 +475,8 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public void setExceptionDates(DateList dates) {
+        if (dates == null)
+            return;
         PropertyList pl = getMasterEvent().getProperties();
         for (ExDate exdate : (List<ExDate>) pl.getProperties(Property.EXDATE))
             pl.remove(exdate);
@@ -534,7 +557,6 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public VEvent getModification(Date date) {
-        
         // require override date
         if(date==null)
             throw new IllegalArgumentException("override date required");
@@ -598,7 +620,6 @@ public class EventStamp extends Stamp implements
      * @param modification event modification to add
      */
     public void addModification(VEvent modification) {
-        
         // modification requires RECURRENCE-ID
         if(modification.getReccurrenceId()==null)
             throw new IllegalArgumentException("date cannot be null");
@@ -623,8 +644,11 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public boolean isAnyTime() {
-        Parameter parameter = getMasterEvent().getStartDate().getParameters()
-                .getParameter(ICalendarConstants.PARAM_X_OSAF_ANYTIME);
+        DtStart dtStart = getMasterEvent().getStartDate();
+        if (dtStart == null)
+            return false;
+        Parameter parameter = dtStart.getParameters()
+            .getParameter(ICalendarConstants.PARAM_X_OSAF_ANYTIME);
         if (parameter == null) {
             return false;
         }
@@ -637,13 +661,15 @@ public class EventStamp extends Stamp implements
      * @param isAnyTime true if the event occurs anytime
      */
     public void setAnyTime(boolean isAnyTime) {
-        DtStart dtstart = getMasterEvent().getStartDate();
-        Parameter parameter = dtstart.getParameters().getParameter(
+        DtStart dtStart = getMasterEvent().getStartDate();
+        if (dtStart == null)
+            throw new IllegalStateException("event has no start date");
+        Parameter parameter = dtStart.getParameters().getParameter(
                 ICalendarConstants.PARAM_X_OSAF_ANYTIME);
 
         // add X-OSAF-ANYTIME if it doesn't exist
         if (parameter == null && isAnyTime) {
-            dtstart.getParameters().add(getAnyTimeXParam());
+            dtStart.getParameters().add(getAnyTimeXParam());
             return;
         }
 
@@ -652,10 +678,10 @@ public class EventStamp extends Stamp implements
             String value = parameter.getValue();
             boolean currIsAnyTime = ICalendarConstants.VALUE_TRUE.equals(value);
             if (currIsAnyTime && !isAnyTime)
-                dtstart.getParameters().remove(parameter);
+                dtStart.getParameters().remove(parameter);
             else if (!currIsAnyTime && isAnyTime) {
-                dtstart.getParameters().remove(parameter);
-                dtstart.getParameters().add(getAnyTimeXParam());
+                dtStart.getParameters().remove(parameter);
+                dtStart.getParameters().add(getAnyTimeXParam());
             }
         }
     }
@@ -674,7 +700,6 @@ public class EventStamp extends Stamp implements
      * displayName and body.
      */
     public void createCalendar() {
-        
         Calendar cal = new Calendar();
         cal.getProperties().add(new ProdId(CosmoConstants.PRODUCT_ID));
         cal.getProperties().add(Version.VERSION_2_0);
