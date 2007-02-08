@@ -35,7 +35,7 @@
 <div style="margin-top:12px;">
 <c:choose>
 <c:when test="${Item.stampMap['event'] != null}">
-<a href='<c:url value="/browse/download${Path}" />'>
+<a href='<c:url value="/browse/download/item/${Item.uid}/${Item.displayName}.ics" />'>
   [download as iCalendar]
 </a>
 <a href='<c:url value="/browse/view${Path}" />'>

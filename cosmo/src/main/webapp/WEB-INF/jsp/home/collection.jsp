@@ -34,7 +34,7 @@
 
 <div style="margin-top:12px;">
 <c:if test="${Collection.stampMap['calendar'] != null}">
-<a href='<c:url value="/browse/download${Path}" />'>
+<a href='<c:url value="/browse/download/collection/${Collection.uid}/${Collection.displayName}.ics" />'>
   [download as iCalendar]
 </a>
 <a href='<c:url value="/browse/view${Path}" />'>
