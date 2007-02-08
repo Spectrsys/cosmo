@@ -234,7 +234,7 @@ cosmo.view.cal = new function () {
                     else {
                         h = function (evData, err) {
                             if (err) {
-                                cosmo.app.showErr('Could not retrieve master event for this recurrence.', err);
+                                cosmo.app.showErr('Could not retrieve master event for this recurrence.', getErrDetailMessage(err));
                                 // Broadcast failure
                                 dojo.event.topic.publish('/calEvent', { 'action': 'saveFailed',
                                     'qualifier': 'editExisting', 'data': ev });
@@ -525,7 +525,7 @@ cosmo.view.cal = new function () {
                 errMsg = _('Main.Error.EventNewSaveFailed');
                 qual.newEvent = true;
             }
-            cosmo.app.showErr(errMsg, err);
+            cosmo.app.showErr(errMsg, getErrDetailMessage(err));
         }
         // Success
         // ============
@@ -671,7 +671,7 @@ cosmo.view.cal = new function () {
                     else {
                         h = function (evData, err) {
                             if (err) {
-                                cosmo.app.showErr('Could not retrieve master event for this recurrence.', err);
+                                cosmo.app.showErr('Could not retrieve master event for this recurrence.', getErrDetailMessage(err));
                                 // Broadcast failure
                                 dojo.event.topic.publish('/calEvent', { 'action': 'removeFailed',
                                     'data': ev });
@@ -697,7 +697,7 @@ cosmo.view.cal = new function () {
                         // Have to go get the recurrence rule -- this means two chained async calls
                         h = function (hashMap, err) {
                             if (err) {
-                                cosmo.app.showErr('Could not retrieve recurrence rule for this recurrence.', err);
+                                cosmo.app.showErr('Could not retrieve recurrence rule for this recurrence.', getErrDetailMessage(err));
                                 // Broadcast failure
                                 dojo.event.topic.publish('/calEvent', { 'action': 'removeFailed',
                                     'data': ev });
@@ -785,7 +785,7 @@ cosmo.view.cal = new function () {
         var errMsg = _('Main.Error.EventRemoveFailed');
         if (err) {
             act = 'removeFailed';
-            cosmo.app.showErr(errMsg, err);
+            cosmo.app.showErr(errMsg, getErrDetailMessage(err));
         }
         else {
             act = 'removeSuccess';
@@ -842,7 +842,7 @@ cosmo.view.cal = new function () {
 
         if (err) {
             act = opts.saveAction + 'Failed';
-            cosmo.app.showErr(errMsg, err);
+            cosmo.app.showErr(errMsg, getErrDetailMessage(err));
         }
         else {
             act = opts.saveAction + 'Success';
@@ -894,6 +894,22 @@ cosmo.view.cal = new function () {
         var evReg = cosmo.view.cal.canvas.eventRegistry;
         evReg.each(f);
         return true;
+    }
+    function getErrDetailMessage(err) {
+        var msg = '';
+        switch (true) {
+            case (err instanceof cosmo.service.exception.ConcurrencyException):
+                msg = _('Main.Error.Concurrency');
+                break;
+            // FIXME: Check against type of exception when that gets implemented
+            case (err.name && err.name.indexOf('NullPointerException') > -1):
+                msg = _('Main.Error.ItemDoesNotExist');
+                break;
+            default:
+               msg = err.message;
+               break;
+        }
+        return msg;
     }
     /**
      * Loads the recurrence expansion for a group of
@@ -1117,7 +1133,7 @@ cosmo.view.cal = new function () {
 
         }
         catch(e) {
-            cosmo.app.showErr(_('Main.Error.LoadEventsFailed'), e);
+            cosmo.app.showErr(_('Main.Error.LoadEventsFailed'), getErrDetailMessage(e));
             return false;
         }
 
