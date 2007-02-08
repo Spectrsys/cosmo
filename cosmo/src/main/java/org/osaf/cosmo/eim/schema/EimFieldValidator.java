@@ -81,6 +81,8 @@ public class EimFieldValidator implements EimSchemaConstants {
         if (! (field instanceof DecimalField))
             throw new EimValidationException("Field " + field.getName() + " is not a decimal field");
         BigDecimal value = ((DecimalField)field).getDecimal();
+        if (value == null)
+            return value;
         if (numDigits > 0) {
             if (value.precision() > numDigits)
                 throw new EimValidationException("Field " + field.getName() + " decimal value has " + value.precision() + " digits which is more than the maximum of " + numDigits);
@@ -103,6 +105,8 @@ public class EimFieldValidator implements EimSchemaConstants {
         if (! (field instanceof TextField))
             throw new EimValidationException("Field " + field.getName() + " is not a text field");
         String value = ((TextField)field).getText();
+        if (value == null)
+            return value;
         if (maxLength > 0) {
             try {
                 int len = value.getBytes("UTF-8").length;
@@ -124,6 +128,8 @@ public class EimFieldValidator implements EimSchemaConstants {
         throws EimValidationException {
         BigDecimal bd =
             validateDecimal(field, DIGITS_TIMESTAMP, DEC_TIMESTAMP);
+        if (bd == null)
+            return null;
         Date value = new Date(bd.longValue());
         return value;
     }
