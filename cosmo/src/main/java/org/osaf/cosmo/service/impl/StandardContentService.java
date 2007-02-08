@@ -90,6 +90,22 @@ public class StandardContentService implements ContentService {
     }
     
     /**
+     * Find content item by path relative to the identified parent
+     * item.
+     *
+     * @throws NoSuchItemException if a item does not exist at
+     * the specified path
+     */
+    public Item findItemByPath(String path,
+                               String parentUid) {
+        if (log.isDebugEnabled())
+            log.debug("finding item at path " + path + " below parent " +
+                      parentUid);
+        String parentPath = contentDao.getItemPath(parentUid);
+        return contentDao.findItemByPath(parentPath + path);
+    }
+    
+    /**
      * Find content item's parent by path. Path is of the format:
      * /username/parent1/parent2/itemname.  In this example,
      * the item at /username/parent1/parent2 would be returned.

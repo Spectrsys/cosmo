@@ -123,10 +123,10 @@ public class ItemPath {
         if (urlPath == null)
             return null;
         try {
-            ItemPath up = new ItemPath(urlPath);
-            if (! allowPathInfo && up.getPathInfo() != null)
+            ItemPath ip = new ItemPath(urlPath);
+            if (! allowPathInfo && ip.getPathInfo() != null)
                 return null;
-            return up;
+            return ip;
         } catch (IllegalStateException e) {
             return null;
         }

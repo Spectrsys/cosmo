@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.acegisecurity.userdetails.CosmoUserDetails;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.server.CollectionPath;
+import org.osaf.cosmo.server.ItemPath;
 import org.osaf.cosmo.service.ContentService;
 import org.osaf.cosmo.util.PathUtil;
 
@@ -125,17 +126,31 @@ public class OwnerVoter implements AccessDecisionVoter {
 
     private Item findItem(String path,
                           boolean checkParent) {
-        CollectionPath cp = CollectionPath.parse(path);
+        Item item = null;
+
+        CollectionPath cp = CollectionPath.parse(path, true);
         if (cp != null) {
-            return contentService.findItemByUid(cp.getUid());
+            item = cp.getPathInfo() != null ?
+                contentService.findItemByPath(cp.getPathInfo(), cp.getUid()) :
+                contentService.findItemByUid(cp.getUid());
         } else {
-            Item item = contentService.findItemByPath(path);
-            if (item == null)
-                // this might be a PUT - if so, check to see if there
-                // is a parent that the user owns
-                if (checkParent)
-                    return findItem(PathUtil.getParentPath(path), false);
-            return item;
+            ItemPath ip = ItemPath.parse(path, true);
+            if (ip != null) {
+                item = ip.getPathInfo() != null ?
+                    contentService.findItemByPath(ip.getPathInfo(),
+                                                  ip.getUid()) :
+                    contentService.findItemByUid(ip.getUid());
+            } else {
+                item = contentService.findItemByPath(path);
+            }
         }
+
+        if (item == null)
+            // this might be a PUT - if so, check to see if there
+            // is a parent that the user owns
+            if (checkParent)
+                return findItem(PathUtil.getParentPath(path), false);
+
+        return item;
     }
 }

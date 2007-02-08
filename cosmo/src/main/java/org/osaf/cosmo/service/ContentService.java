@@ -58,6 +58,16 @@ public interface ContentService extends Service {
     public Item findItemByPath(String path);
     
     /**
+     * Find content item by path relative to the identified parent
+     * item.
+     *
+     * @throws NoSuchItemException if a item does not exist at
+     * the specified path
+     */
+    public Item findItemByPath(String path,
+                               String parentUid);
+    
+    /**
      * Find content item's parent by path. Path is of the format:
      * /username/parent1/parent2/itemname.  In this example,
      * the item at /username/parent1/parent2 would be returned.
