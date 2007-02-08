@@ -48,6 +48,8 @@ public class EimmlTypeConverter implements EimmlConstants {
      */
     public static byte[] toBytes(String value)
         throws EimmlConversionException {
+        if (value == null)
+            return null;
         return decodeBase64String(value);
     }
 
@@ -70,6 +72,8 @@ public class EimmlTypeConverter implements EimmlConstants {
         throws EimmlConversionException {
         if (encoding == null)
             throw new IllegalArgumentException("no original encoding specified");
+        if (value == null)
+            return null;
         if (encoding.equals("UTF-8"))
             return value;
         try {
@@ -85,6 +89,8 @@ public class EimmlTypeConverter implements EimmlConstants {
      */
     public static Reader toClob(String value)
         throws EimmlConversionException {
+        if (value == null)
+            return null;
         return new StringReader(value);
     }
 
@@ -112,6 +118,8 @@ public class EimmlTypeConverter implements EimmlConstants {
      */
     public static InputStream toBlob(String value)
         throws EimmlConversionException {
+        if (value == null)
+            return null;
         return new ByteArrayInputStream(decodeBase64String(value));
     }
 
@@ -137,6 +145,8 @@ public class EimmlTypeConverter implements EimmlConstants {
      */
     public static Integer toInteger(String value)
         throws EimmlConversionException {
+        if (value == null)
+            return null;
         try {
             return new Integer(value);
         } catch (NumberFormatException e) {
@@ -160,6 +170,8 @@ public class EimmlTypeConverter implements EimmlConstants {
      */
     public static Calendar toDateTime(String value)
         throws EimmlConversionException {
+        if (value == null)
+            return null;
         try {
             return DateUtil.parseRfc3339Calendar(value);
         } catch (ParseException e) {
@@ -182,6 +194,8 @@ public class EimmlTypeConverter implements EimmlConstants {
      */
     public static BigDecimal toDecimal(String value)
         throws EimmlConversionException {
+        if (value == null)
+            return null;
         try {
             return new BigDecimal(value);
         } catch (NumberFormatException e) {

@@ -59,9 +59,13 @@ public class NoteGenerator extends BaseItemGenerator
 
         record.addKeyField(new TextField(FIELD_UUID, note.getUid()));
 
-        record.addField(new ClobField(FIELD_BODY,
-                                      new StringReader(note.getBody())));
+        StringReader body = note.getBody() != null ?
+            new StringReader(note.getBody()) :
+            null;
+        record.addField(new ClobField(FIELD_BODY, body));
+
         record.addField(new TextField(FIELD_ICALUID, note.getIcalUid()));
+
         Date d = note.getReminderTime();
         BigDecimal reminderTime = d != null ?
             new BigDecimal(d.getTime()) :
