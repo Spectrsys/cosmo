@@ -52,15 +52,17 @@ public abstract class BaseItemApplicator extends BaseApplicator {
      * not match this translator's namespace
      * @throws EimValidationException if the record contains an
      * invalid field value
-     * @throws EimSchemaException if the record is improperly
-     * constructed or cannot otherwise be applied to the item 
+     * @throws EimSchemaException if the record is marked deleted,
+     * improperly constructed or cannot otherwise be applied to the
+     * item
      */
     public void applyRecord(EimRecord record)
         throws EimSchemaException {
-        if (getNamespace() != null &&
-            ! record.getNamespace().equals(getNamespace()))
+        if (! (getNamespace() != null &&
+               record.getNamespace() != null &&
+               record.getNamespace().equals(getNamespace())))
             throw new IllegalArgumentException("Record namespace " + record.getNamespace() + " does not match " + getNamespace());
-        
+            
         if (record.isDeleted())
             throw new EimSchemaException("Item-based records cannot be marked deleted");
 
