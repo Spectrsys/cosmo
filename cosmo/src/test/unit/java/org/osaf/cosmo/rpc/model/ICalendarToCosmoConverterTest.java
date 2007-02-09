@@ -190,7 +190,7 @@ public class ICalendarToCosmoConverterTest extends TestCase {
         assertNotNull("Should have endate", endDate);
         assertEquals(endDate.getMonth(), 0);
         assertEquals(endDate.getYear(), 2006);
-        assertEquals(endDate.getDate(), 30);
+        assertEquals(endDate.getDate(), 31);
         assertTrue("Recurrence Rule should be Daily", rrule.getFrequency()
                 .equals(RecurrenceRule.FREQUENCY_DAILY));
     }
