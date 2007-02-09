@@ -19,6 +19,7 @@ eimDeleted =
 eimTextFieldContent = {
    eimKey,
    attribute eim:type { "text" },
+   attribute empty { xsd:boolean }?
    xsd:string { maxLength = "1024" }
 }
 

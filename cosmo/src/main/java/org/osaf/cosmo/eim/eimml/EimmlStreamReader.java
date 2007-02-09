@@ -247,7 +247,7 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
             boolean isKey = BooleanUtils.
                 toBoolean(xmlReader.getAttributeValue(NS_CORE, ATTR_KEY));
             boolean isEmpty = BooleanUtils.
-                toBoolean(xmlReader.getAttributeValue(NS_CORE, ATTR_EMPTY));
+                toBoolean(xmlReader.getAttributeValue(null, ATTR_EMPTY));
             String type = xmlReader.getAttributeValue(NS_CORE, ATTR_TYPE);
             if (StringUtils.isBlank(type))
                 throw new EimmlStreamException(xmlReader.getName() + " element requires " + ATTR_TYPE + " attribute");
@@ -257,7 +257,6 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
                 text = "";
             else if (text.equals(""))
                 text = null;
-            log.debug("element " + name + "=" + text);
 
             EimRecordField field = null;
             if (type.equals(TYPE_BYTES)) {
