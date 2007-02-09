@@ -79,9 +79,6 @@
                 <c:url var="homeUrl" value="/browse/${user.username}"/>
                 <a href="${homeUrl}"><fmt:message key="Layout.Nav.Main.Home"/></a>
                 |
-                <c:url var="accountUrl" value="/account/view"/>
-                <a href="${accountUrl}"><fmt:message key="Layout.Nav.Main.Account"/></a>
-                |
                 <c:url var="calendarUrl" value="/pim"/>
                 <a href="${calendarUrl}"><fmt:message key="Layout.Nav.Main.Calendar"/></a>
               </authz:authorize>
