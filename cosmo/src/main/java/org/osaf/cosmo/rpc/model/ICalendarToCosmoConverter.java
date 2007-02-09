@@ -594,7 +594,7 @@ public class ICalendarToCosmoConverter {
                 DateTime untilDateTime = until instanceof DateTime ? (DateTime) until : new DateTime(until.getTime()); 
                 
                 //the until is normally in UTC, but we need it in local time for our purposes.
-                if (startDateTime.getTimeZone() == null){
+                if (startDateTime.getTimeZone() != null){
                     untilDateTime.setTimeZone(startDateTime.getTimeZone());
                 }
                 
