@@ -138,7 +138,7 @@ public class ICalendarToCosmoConverter {
                     endCalendar.setTime(endDate);
                     endCalendar.add(Calendar.DATE, -1);
                     endDate = new net.fortuna.ical4j.model.Date(endCalendar.getTimeInMillis());
-                    event.setEnd(createCosmoDate((net.fortuna.ical4j.model.Date)endDate, calendar, null));
+                    event.setEnd(createCosmoDate(endDate, calendar, null));
                 }
                 break;
             case ANYTIME:
@@ -621,10 +621,10 @@ public class ICalendarToCosmoConverter {
                 tempCalendar.set(Calendar.MINUTE, startDateCalendar.get(Calendar.MINUTE));
                 tempCalendar.set(Calendar.SECOND, startDateCalendar.get(Calendar.SECOND));
                 
-                CosmoDate cosmoRecurEndDate = createCosmoDate(untilDateTime, calendar, null);
-                if (untilCalendar.getTimeInMillis() > tempCalendar.getTimeInMillis()){
+                if (untilCalendar.getTimeInMillis() < tempCalendar.getTimeInMillis()){
                     untilCalendar.add(Calendar.DATE, -1);
                 }
+                CosmoDate cosmoRecurEndDate = createCosmoDate(untilCalendar,null, false, false);
                 cosmoRecurEndDate.setHours(0);
                 cosmoRecurEndDate.setMinutes(0);
                 cosmoRecurEndDate.setSeconds(0);
@@ -632,7 +632,6 @@ public class ICalendarToCosmoConverter {
             } else {
                 Calendar untilCalendar = Calendar.getInstance();
                 untilCalendar.setTime(until);
-                //untilCalendar.add(Calendar.DATE, -1);
                 net.fortuna.ical4j.model.Date date = new net.fortuna.ical4j.model.Date(untilCalendar.getTimeInMillis());
                 CosmoDate scoobyDate = createCosmoDate(date , calendar, null);
                 recurrenceRule.setEndDate(scoobyDate);
@@ -836,38 +835,38 @@ public class ICalendarToCosmoConverter {
     private CosmoDate createCosmoDate(net.fortuna.ical4j.model.Date date,
             net.fortuna.ical4j.model.Calendar calendar, String tzid) {
 
-        CosmoDate scoobyDate = new CosmoDate();
         Calendar jCalendar = null;
-        boolean hasTime = false;
-
+        boolean isUtc = false;
         if (tzid != null && date instanceof DateTime){
-            hasTime = true;
-            DateTime dateTime = (DateTime) date;
-            scoobyDate.setTzId(tzid);
             VTimeZone vtimeZone = getVTimeZone(tzid, calendar);
             jCalendar = Calendar.getInstance(new TimeZone(vtimeZone));
-            jCalendar.setTime(dateTime);
         } else if (isUtc(date)) {
-            hasTime = true;
-            DateTime dateTime = (DateTime) date;
-            scoobyDate.setUtc(true);
+            isUtc = true;
             jCalendar = Calendar.getInstance(java.util.TimeZone.getTimeZone("GMT"));
-            jCalendar.setTime(dateTime);
         } else {
-            hasTime = date instanceof DateTime;
             jCalendar = Calendar.getInstance();
-            jCalendar.setTime(date);
         }
+        
+        jCalendar.setTime(date);
 
-        scoobyDate.setYear(jCalendar.get(Calendar.YEAR));
-        scoobyDate.setMonth(jCalendar.get(Calendar.MONTH));
-        scoobyDate.setDate(jCalendar.get(Calendar.DATE));
+        return createCosmoDate(jCalendar, tzid, isUtc, date instanceof DateTime);
+    }
+    
+    private CosmoDate createCosmoDate(Calendar calendar, String tzId,
+            boolean utc, boolean hasTime) {
+        CosmoDate cosmoDate = new CosmoDate();
+
+        cosmoDate.setUtc(utc);
+        cosmoDate.setTzId(tzId);
+        cosmoDate.setYear(calendar.get(Calendar.YEAR));
+        cosmoDate.setMonth(calendar.get(Calendar.MONTH));
+        cosmoDate.setDate(calendar.get(Calendar.DATE));
         if (hasTime) {
-            scoobyDate.setHours(jCalendar.get(Calendar.HOUR_OF_DAY));
-            scoobyDate.setMinutes(jCalendar.get(Calendar.MINUTE));
-            scoobyDate.setSeconds(jCalendar.get(Calendar.SECOND));
+            cosmoDate.setHours(calendar.get(Calendar.HOUR_OF_DAY));
+            cosmoDate.setMinutes(calendar.get(Calendar.MINUTE));
+            cosmoDate.setSeconds(calendar.get(Calendar.SECOND));
         }
-        return scoobyDate;
+        return cosmoDate;
     }
 
     private CosmoDate createCosmoDate(DateProperty dateProperty,
