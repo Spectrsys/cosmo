@@ -67,8 +67,9 @@ public abstract class BaseStampApplicator extends BaseApplicator {
      */
     public void applyRecord(EimRecord record)
         throws EimSchemaException {
-        if (getNamespace() != null &&
-            ! record.getNamespace().equals(getNamespace()))
+        if (! (getNamespace() != null &&
+               record.getNamespace() != null &&
+               record.getNamespace().equals(getNamespace())))
             throw new IllegalArgumentException("Record namespace " + record.getNamespace() + " does not match " + getNamespace());
         
         if (record.isDeleted()) {
@@ -78,7 +79,8 @@ public abstract class BaseStampApplicator extends BaseApplicator {
 
         if (stamp == null) {
             stamp = createStamp();
-            getItem().addStamp(stamp);
+            if (getItem() != null)
+                getItem().addStamp(stamp);
         }
 
         for (EimRecordField field : record.getFields()) {
@@ -102,7 +104,7 @@ public abstract class BaseStampApplicator extends BaseApplicator {
      */
     protected void applyDeletion(EimRecord record)
         throws EimSchemaException {
-        if (stamp != null)
+        if (stamp != null && getItem() != null)
             getItem().removeStamp(stamp);
     }
 

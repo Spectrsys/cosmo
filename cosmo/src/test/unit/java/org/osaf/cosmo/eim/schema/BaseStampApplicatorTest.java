@@ -25,21 +25,22 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseApplicatorTestCase;
+import org.osaf.cosmo.model.Stamp;
 
 /**
- * Test Case for {@link BaseItemApplicator}.
+ * Test Case for {@link BaseStampApplicator}.
  */
-public class BaseItemApplicatorTest extends BaseApplicatorTestCase {
+public class BaseStampApplicatorTest extends BaseApplicatorTestCase {
     private static final Log log =
-        LogFactory.getLog(BaseItemApplicatorTest.class);
+        LogFactory.getLog(BaseStampApplicatorTest.class);
 
     private static final String PREFIX = "cosmo";
     private static final String NAMESPACE = "cosmo";
 
-    private TestItemApplicator applicator;
+    private TestStampApplicator applicator;
 
     protected void setUp() throws Exception {
-        applicator = new TestItemApplicator(PREFIX, NAMESPACE);
+        applicator = new TestStampApplicator(PREFIX, NAMESPACE);
     }
 
     public void testApplyRecordNullNamespace() throws Exception {
@@ -62,10 +63,9 @@ public class BaseItemApplicatorTest extends BaseApplicatorTestCase {
         record.addField(field);
 
         record.setDeleted(true);
-        try {
-            applicator.applyRecord(record);
-            fail("Did not apply deletion");
-        } catch (EimSchemaException e) {}
+        applicator.applyRecord(record);
+        assertTrue("Did not apply deletion", applicator.isDeletionApplied());
+        assertFalse("Erroneously created stamp", applicator.isStampCreated());
         assertFalse("Erroneously applied field " + field,
                     applicator.isFieldApplied(field));
     }
@@ -75,27 +75,44 @@ public class BaseItemApplicatorTest extends BaseApplicatorTestCase {
         TextField field = new TextField("foo", "bar");
         record.addField(field);
 
-        try {
-            applicator.applyRecord(record);
-        } catch (EimSchemaException e) {
-            fail("Erroneously applied deletion");
-        }
+        applicator.applyRecord(record);
+        assertFalse("Erroneously applied deletion",
+                    applicator.isDeletionApplied());
+        assertTrue("Did not create stamp", applicator.isStampCreated());
         assertTrue("Did not apply field " + field,
                    applicator.isFieldApplied(field));
     }
 
-    private class TestItemApplicator extends BaseItemApplicator {
+    private class TestStampApplicator extends BaseStampApplicator {
+        private boolean stampCreated;
+        private boolean deletionApplied;
         private HashSet<EimRecordField> appliedFields;
 
-        public TestItemApplicator(String prefix,
+        public TestStampApplicator(String prefix,
                                    String namespace) {
             super(prefix, namespace, null);
+            stampCreated = false;
+            deletionApplied = false;
             appliedFields = new HashSet<EimRecordField>();
+        }
+
+        protected Stamp createStamp() {
+            stampCreated = true;
+            return null;
+        }
+
+        protected void applyDeletion(EimRecord record)
+            throws EimSchemaException {
+            deletionApplied = true;
         }
 
         protected void applyField(EimRecordField field)
             throws EimSchemaException {
             appliedFields.add(field);
+        }
+
+        public boolean isDeletionApplied() {
+            return deletionApplied;
         }
 
         public Set<EimRecordField> getAppliedFields() {
@@ -104,6 +121,10 @@ public class BaseItemApplicatorTest extends BaseApplicatorTestCase {
 
         public boolean isFieldApplied(EimRecordField field) {
             return appliedFields.contains(field);
+        }
+
+        public boolean isStampCreated() {
+            return stampCreated;
         }
     }
 }
