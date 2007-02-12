@@ -74,18 +74,20 @@ public class EimTranslator implements EimSchemaConstants {
         contentItemApplicator = new ContentItemApplicator(item);
         contentItemGenerator = new ContentItemGenerator(item);
 
-        noteApplicator = new NoteApplicator(item);
-        noteGenerator = new NoteGenerator(item);
+        if (item instanceof NoteItem) {
+            noteApplicator = new NoteApplicator(item);
+            noteGenerator = new NoteGenerator(item);
 
-        eventApplicator = new EventApplicator(item);
-        eventGenerator = new EventGenerator(item);
-        eventModApplicator = new EventModificationApplicator(item);
+            eventApplicator = new EventApplicator(item);
+            eventGenerator = new EventGenerator(item);
+            eventModApplicator = new EventModificationApplicator(item);
         
-        taskApplicator = new TaskApplicator(item);
-        taskGenerator = new TaskGenerator(item);
+            taskApplicator = new TaskApplicator(item);
+            taskGenerator = new TaskGenerator(item);
 
-        messageApplicator = new MessageApplicator(item);
-        messageGenerator = new MessageGenerator(item);
+            messageApplicator = new MessageApplicator(item);
+            messageGenerator = new MessageGenerator(item);
+        }
 
         unknownApplicator = new UnknownApplicator(item);
         unknownGenerator = new UnknownGenerator(item);
@@ -112,20 +114,32 @@ public class EimTranslator implements EimSchemaConstants {
         }
 
         for (EimRecord record : recordset.getRecords()) {
-            if (record.getNamespace().equals(NS_ITEM))
+            if (record.getNamespace().equals(NS_ITEM)) {
                 contentItemApplicator.applyRecord(record);
-            else if (record.getNamespace().equals(NS_NOTE))
-                noteApplicator.applyRecord(record);
-            else if (record.getNamespace().equals(NS_EVENT))
-                eventApplicator.applyRecord(record);
-            else if(record.getNamespace().equals(NS_EVENT_MODIFICATION))
-                eventModApplicator.applyRecord(record);
-            else if (record.getNamespace().equals(NS_TASK))
-                taskApplicator.applyRecord(record);
-            else if (record.getNamespace().equals(NS_MESSAGE))
-                messageApplicator.applyRecord(record);
-            else
-                unknownApplicator.applyRecord(record);
+                continue;
+            }
+
+            if (item instanceof NoteItem) {
+                if (record.getNamespace().equals(NS_NOTE)) {
+                    noteApplicator.applyRecord(record);
+                    continue;
+                } else if (record.getNamespace().equals(NS_EVENT)) {
+                    eventApplicator.applyRecord(record);
+                    continue;
+                } else if(record.getNamespace().
+                          equals(NS_EVENT_MODIFICATION)) {
+                    eventModApplicator.applyRecord(record);
+                    continue;
+                } else if (record.getNamespace().equals(NS_TASK)) {
+                    taskApplicator.applyRecord(record);
+                    continue;
+                } else if (record.getNamespace().equals(NS_MESSAGE)) {
+                    messageApplicator.applyRecord(record);
+                    continue;
+                }
+            }
+
+            unknownApplicator.applyRecord(record);
         }
     }
 
@@ -157,10 +171,14 @@ public class EimTranslator implements EimSchemaConstants {
         }
 
         recordset.addRecords(contentItemGenerator.generateRecords());
-        recordset.addRecords(noteGenerator.generateRecords());
-        recordset.addRecords(eventGenerator.generateRecords(timestamp));
-        recordset.addRecords(taskGenerator.generateRecords(timestamp));
-        recordset.addRecords(messageGenerator.generateRecords(timestamp));
+
+        if (item instanceof NoteItem) {
+            recordset.addRecords(noteGenerator.generateRecords());
+            recordset.addRecords(eventGenerator.generateRecords(timestamp));
+            recordset.addRecords(taskGenerator.generateRecords(timestamp));
+            recordset.addRecords(messageGenerator.generateRecords(timestamp));
+        }
+
         recordset.addRecords(unknownGenerator.generateRecords());
 
         return recordset;

@@ -23,6 +23,7 @@ import org.osaf.cosmo.eim.schema.EimRecordTranslationIterator;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
 
 /**
  * Bean class that aggregates all of the EIM records for a subscribe
@@ -96,7 +97,7 @@ public class SubRecords {
             return;
 
         for (Item child : collection.getChildren()) {
-            if (! (child instanceof ContentItem))
+            if (! isShareableItem(child))
                 continue;
             if (prevToken.hasItemChanged(child))
                 items.add((ContentItem)child);
@@ -106,9 +107,15 @@ public class SubRecords {
 
     private void addAllContentItems(ArrayList<ContentItem> items) {
         for (Item child : collection.getChildren()) {
-            if (! (child instanceof ContentItem))
+            if (! isShareableItem(child))
                 continue;
             items.add((ContentItem)child);
         }
+    }
+
+    private boolean isShareableItem(Item item) {
+        // only share NoteItems until Chandler and Cosmo UI can cope
+        // with non-Note items
+        return item instanceof NoteItem;
     }
 }
