@@ -237,6 +237,6 @@ ScoobyService.prototype = {
      * Changes the display name for a collection. Must be a collection
      * owned by the user
      */
-    saveDisplayName: function(cid, displayName){}, 
+    saveDisplayName: function(cid, displayName){} 
     
 }
