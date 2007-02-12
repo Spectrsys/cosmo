@@ -901,10 +901,6 @@ cosmo.view.cal = new function () {
             case (err instanceof cosmo.service.exception.ConcurrencyException):
                 msg = _('Main.Error.Concurrency');
                 break;
-            // FIXME: Check against type of exception when that gets implemented
-            case (err.name && err.name.indexOf('NullPointerException') > -1):
-                msg = _('Main.Error.ItemDoesNotExist');
-                break;
             default:
                msg = err.message;
                break;
