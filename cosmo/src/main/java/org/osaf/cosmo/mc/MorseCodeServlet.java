@@ -219,11 +219,13 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                                "Missing sync token");
                 return;
             }
+
+            if (! checkWritePreconditions(req, resp))
+                return;
+
             EimmlStreamReader reader = null;
             try {
                 SyncToken token = SyncToken.deserialize(tokenStr);
-
-                // XXX: check update preconditions
 
                 reader = new EimmlStreamReader(req.getInputStream());
                 if (! reader.getCollectionUuid().equals(cp.getUid())) {
@@ -303,7 +305,8 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                 parentUid = null;
             EimmlStreamReader reader = null;
             try {
-                // XXX: check publish preconditions
+                if (! checkWritePreconditions(req, resp))
+                    return;
 
                 reader = new EimmlStreamReader(req.getInputStream());
                 if (! reader.getCollectionUuid().equals(cp.getUid())) {
@@ -408,7 +411,8 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
 
     // private methods
 
-    private Object getBean(String name, Class clazz)
+    private Object getBean(String name,
+                           Class clazz)
         throws ServletException {
         try {
             return wac.getBean(name, clazz);
@@ -417,6 +421,32 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                                        " of type " + clazz +
                                        " from web application context", e);
         }
+    }
+
+    private boolean checkWritePreconditions(HttpServletRequest req,
+                                            HttpServletResponse resp) {
+        if (req.getContentLength() <= 0) {
+            resp.setStatus(HttpServletResponse.SC_LENGTH_REQUIRED);
+            return false;
+        }
+
+        if (req.getContentType() == null ||
+            ! req.getContentType().startsWith(MEDIA_TYPE_EIMML)) {
+            resp.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+            return false;
+        }
+
+        if (req.getHeader("Content-Transfer-Encoding") != null ||
+            req.getHeader("Content-Encoding") != null ||
+            req.getHeader("Content-Base") != null ||
+            req.getHeader("Content-Location") != null ||
+            req.getHeader("Content-MD5") != null ||
+            req.getHeader("Content-Range") != null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+            return false;
+        }
+
+        return true;
     }
 
     private class EimmlStreamReaderIterator implements Iterator {
