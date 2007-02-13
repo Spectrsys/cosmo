@@ -44,7 +44,7 @@ import org.hibernate.annotations.Type;
 // Unique constraint for stamptype and itemid to prevent items
 // having more than one of the same stamp
 @Table(name = "stamp", uniqueConstraints = { 
-        @UniqueConstraint(columnNames = { "itemid", "stamptype" }) })
+        @UniqueConstraint(columnNames = { "itemid", "stamptype", "isactive" }) })
 // Define index on discriminator
 @org.hibernate.annotations.Table(appliesTo = "stamp", 
         indexes = { @Index(name = "idx_stamptype", columnNames = { "stamptype" }) })
