@@ -1,8 +1,8 @@
 # -*- rnc -*-
 # RELAX NG Compact Syntax Grammar for the
-# EIMML item record type Version 1
+# EIMML item record type Version 0
 
-namespace item = "http://osafoundation.org/eim/item"
+namespace item = "http://osafoundation.org/eim/item/0"
 
 include "eimml-core.rnc"
 

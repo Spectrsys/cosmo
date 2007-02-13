@@ -1,8 +1,8 @@
 # -*- rnc -*-
 # RELAX NG Compact Syntax Grammar for the
-# EIMML core schema Version 1
+# EIMML core schema Version 0
 
-namespace eim = "http://osafoundation.org/eim"
+namespace eim = "http://osafoundation.org/eim/0"
 
 start = eimCollection
 

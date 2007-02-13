@@ -1,8 +1,9 @@
 # -*- rnc -*-
 # RELAX NG Compact Syntax Grammar for the
-# EIMML override record type Version 1
+# EIMML override record type Version 0
 
-namespace eventModification = "http://osafoundation.org/eim/eventModification"
+namespace eventModification =
+   "http://osafoundation.org/eim/eventModification/0"
 
 include "eimml-core.rnc"
 

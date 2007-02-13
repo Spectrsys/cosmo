@@ -24,27 +24,27 @@ public interface EimSchemaConstants {
 
     /** */
     public static final String NS_ITEM =
-        "http://osafoundation.org/eim/item";
+        "http://osafoundation.org/eim/item/0";
     /** */
     public static final String PREFIX_ITEM = "item";
     /** */
     public static final String NS_EVENT =
-        "http://osafoundation.org/eim/event"; 
+        "http://osafoundation.org/eim/event/0"; 
     /** */
     public static final String PREFIX_EVENT = "event";
     /** */
     public static final String NS_EVENT_MODIFICATION =
-        "http://osafoundation.org/eim/eventModification"; 
+        "http://osafoundation.org/eim/eventModification/0"; 
     /** */
     public static final String PREFIX_EVENT_MODIFICATION = "eventModification";
     /** */
     public static final String NS_DISPLAY_ALARM =
-        "http://osafoundation.org/eim/displayAlarm"; 
+        "http://osafoundation.org/eim/displayAlarm/0"; 
     /** */
     public static final String PREFIX_DISPLAY_ALARM = "displayAlarm";
     /** */
     public static final String NS_TASK =
-        "http://osafoundation.org/eim/task";
+        "http://osafoundation.org/eim/task/0";
     /** */
     public static final String PREFIX_TASK = "task";
     /** */
@@ -54,12 +54,12 @@ public interface EimSchemaConstants {
     public static final String PREFIX_MESSAGE = "message";
     /** */
     public static final String NS_NOTE =
-        "http://osafoundation.org/eim/note";
+        "http://osafoundation.org/eim/note/0";
     /** */
     public static final String PREFIX_NOTE = "note";
     /** */
     public static final String NS_ICALEXT =
-        "http://osafoundation.org/eim/icalext";
+        "http://osafoundation.org/eim/icalext/0";
     /** */
     public static final String PREFIX_ICALEXT = "icalext";
 

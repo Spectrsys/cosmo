@@ -27,7 +27,7 @@ public interface EimmlConstants {
 
     /** */
     public static final String NS_CORE =
-        "http://osafoundation.org/eim";
+        "http://osafoundation.org/eim/0";
     /** */
     public static final String PRE_CORE = "eim";
 
