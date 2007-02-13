@@ -55,6 +55,13 @@ public class ContentItem extends Item {
     // size
     public static final long MAX_CONTENT_SIZE = 10 * 1024 * 1024;
 
+    /** */
+    public static final String TRIAGE_STATUS_NOW = "NOW";
+    /** */
+    public static final String TRIAGE_STATUS_LATER = "LATER";
+    /** */
+    public static final String TRIAGE_STATUS_DONE = "DONE";
+
     private String contentType = null;
     private String contentLanguage = null;
     private String contentEncoding = null;
@@ -199,6 +206,11 @@ public class ContentItem extends Item {
 
     public void setTriageStatusUpdated(BigDecimal triageStatusUpdated) {
         this.triageStatusUpdated = triageStatusUpdated;
+    }
+
+    @Transient
+    public void setTriageStatusUpdated(long millis) {
+        this.triageStatusUpdated = new BigDecimal(millis);
     }
 
     /**
