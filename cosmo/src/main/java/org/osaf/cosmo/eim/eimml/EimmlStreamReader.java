@@ -154,11 +154,21 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
             xmlReader.getName().equals(QN_COLLECTION))
             throw new EimmlStreamException("Outermost element must be " + QN_COLLECTION);
 
-        uuid = xmlReader.getAttributeValue(null, ATTR_UUID);
-
-        name = xmlReader.getAttributeValue(null, ATTR_NAME);
-        if (StringUtils.isBlank(name))
-            name = null;
+        for (int i=0; i<xmlReader.getAttributeCount(); i++) {
+            QName attr = xmlReader.getAttributeName(i);
+            if (log.isDebugEnabled())
+                log.debug("read attr: " + attr);
+            String value = xmlReader.getAttributeValue(i);
+            if (attr.equals(QN_UUID)) {
+                if (StringUtils.isBlank(value))
+                    throw new EimmlStreamException("Collection element requires " + ATTR_UUID + " attribute");
+                uuid = value;
+            } else if (attr.equals(QN_NAME)) {
+                name = ! StringUtils.isBlank(value) ? value : null;
+            } else {
+                log.warn("skipped unrecognized collection attribute " + attr);
+            }
+        }
 
         // move to first <recordset> or </collection>
         nextTag();
@@ -181,17 +191,19 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
         EimRecordSet recordset = new EimRecordSet();
 
         for (int i=0; i<xmlReader.getAttributeCount(); i++) {
-            QName name = xmlReader.getAttributeName(i);
+            QName attr = xmlReader.getAttributeName(i);
+            if (log.isDebugEnabled())
+                log.debug("read attr: " + attr);
             String value = xmlReader.getAttributeValue(i);
-            if (name.equals(QN_UUID)) {
+            if (attr.equals(QN_UUID)) {
                 if (StringUtils.isBlank(value))
                     throw new EimmlStreamException("Recordset element requires " + ATTR_UUID + " attribute");
                 recordset.setUuid(value);
-            } else if (name.equals(QN_DELETED)) {
+            } else if (attr.equals(QN_DELETED)) {
                 if (BooleanUtils.toBoolean(value))
                     recordset.setDeleted(true);
             } else {
-                log.warn("skipped unrecognized recordset attribute " + name);
+                log.warn("skipped unrecognized recordset attribute " + attr);
             }
         }
 
@@ -234,11 +246,13 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
         record.setNamespace(xmlReader.getNamespaceURI());
 
         for (int i=0; i<xmlReader.getAttributeCount(); i++) {
-            if (xmlReader.getAttributeName(i).equals(QN_DELETED))
+            QName attr = xmlReader.getAttributeName(i);
+            if (log.isDebugEnabled())
+                log.debug("read attr: " + attr);
+            if (attr.equals(QN_DELETED))
                 record.setDeleted(true);
             else
-                log.warn("skipped unrecognized record attribute " +
-                         xmlReader.getAttributeName(i));
+                log.warn("skipped unrecognized record attribute " + attr);
         }
 
         // move to next field element or </record>
