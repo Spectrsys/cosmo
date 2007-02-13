@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.dav.impl;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -613,6 +614,9 @@ public abstract class DavResourceBase
             owner = ticket.getOwner();
         }
         item.setOwner(owner);
+
+        if (item.getUid() == null)
+            item.setClientCreationDate(Calendar.getInstance().getTime());
     }
 
     /**

@@ -46,6 +46,7 @@ import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.DataSizeException;
 import org.osaf.cosmo.model.ModelValidationException;
+import org.osaf.cosmo.model.User;
 
 /**
  * Extends <code>DavResourceBase</code> to adapt the Cosmo
@@ -253,6 +254,14 @@ public class DavFile extends DavResourceBase {
                 content.setContentEncoding(contentEncoding);
         } catch (DataSizeException e) {
             throw new DavException(DavServletResponse.SC_FORBIDDEN, "Cannot store resource attribute: " + e.getMessage());
+        }
+
+        User user = getSecurityManager().getSecurityContext().getUser();
+        content.setLastModifiedBy(user != null ? user.getEmail() : "");
+
+        if (content.getUid() == null) {
+            content.setTriageStatus(ContentItem.TRIAGE_STATUS_NOW);
+            content.setTriageStatusUpdated(System.currentTimeMillis());
         }
     }
 
