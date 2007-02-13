@@ -61,7 +61,7 @@ public class NoteApplicator extends BaseItemApplicator
         if (field.getName().equals(FIELD_BODY)) {
             Reader value = EimFieldValidator.validateClob(field);
             note.setBody(value);
-            
+
             // NoteItem.body == EventStamp.getDescription()
             // For now, we have to keep the NoteItem and
             // EventStamp in sync, otherwise an update by Chander

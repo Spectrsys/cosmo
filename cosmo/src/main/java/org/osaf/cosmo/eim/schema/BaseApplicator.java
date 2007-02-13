@@ -79,7 +79,11 @@ public abstract class BaseApplicator implements EimSchemaConstants {
      */
     protected void applyUnknownField(EimRecordField field)
         throws EimSchemaException {
-        QName qn = new QName(field.getRecord().getNamespace(), field.getName());
+        QName qn =
+            new QName(field.getRecord().getNamespace(), field.getName());
+        if (log.isDebugEnabled())
+            log.debug("applying unknown field " + qn);
+
         if (field instanceof BlobField) {
             InputStream value = ((BlobField)field).getBlob();
             item.addAttribute(new BinaryAttribute(qn, value));

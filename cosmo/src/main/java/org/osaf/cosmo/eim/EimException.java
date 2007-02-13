@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.eim.eimml;
-
-import org.osaf.cosmo.eim.EimException;
+package org.osaf.cosmo.eim;
 
 /**
- * The base exception for unexpected EIMML processing errors.
+ * The base exception for EIM processing errors.
  */
-public class EimmlStreamException extends EimException {
+public class EimException extends Exception {
 
     /**
      */
-    public EimmlStreamException(String message) {
+    public EimException(String message) {
         super(message);
     }
 
     /**
      */
-    public EimmlStreamException(String message,
-                                Throwable cause) {
+    public EimException(String message,
+                        Throwable cause) {
         super(message, cause);
     }
 }

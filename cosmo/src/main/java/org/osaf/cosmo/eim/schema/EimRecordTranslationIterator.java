@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package org.osaf.cosmo.eim.schema;
 import java.util.Iterator;
 import java.util.List;
 
+import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecordSet;
+import org.osaf.cosmo.eim.EimRecordSetIterator;
 import org.osaf.cosmo.eim.schema.EimTranslator;
 import org.osaf.cosmo.model.ContentItem;
 
@@ -28,35 +30,28 @@ import org.osaf.cosmo.model.ContentItem;
  * @see Item
  * @see EimRecord
  */
-public class EimRecordTranslationIterator implements Iterator {
+public class EimRecordTranslationIterator implements EimRecordSetIterator {
 
     private Iterator<ContentItem> decorated;
     private long timestamp;
 
-    /** */
     public EimRecordTranslationIterator(List<ContentItem> items) {
         this(items, -1);
     }
 
-    /** */
     public EimRecordTranslationIterator(List<ContentItem> items,
                                         long timestamp) {
         this.decorated = items.iterator();
         this.timestamp = timestamp;
     }
 
-    /** */
-    public boolean hasNext() {
+    public boolean hasNext()
+        throws EimException {
         return decorated.hasNext();
     }
 
-    /** */
-    public EimRecordSet next() {
+    public EimRecordSet next()
+        throws EimException {
         return new EimTranslator(decorated.next()).generateRecords(timestamp);
-    }
-
-    /** */
-    public void remove() {
-        throw new UnsupportedOperationException("remove method not supported");
     }
 }

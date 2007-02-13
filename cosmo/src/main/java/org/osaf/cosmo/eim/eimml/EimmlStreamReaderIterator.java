@@ -16,22 +16,29 @@
 package org.osaf.cosmo.eim.eimml;
 
 import org.osaf.cosmo.eim.EimException;
+import org.osaf.cosmo.eim.EimRecordSet;
+import org.osaf.cosmo.eim.EimRecordSetIterator;
 
 /**
- * The base exception for unexpected EIMML processing errors.
+ * Iterator that reads EIM recordsets off of an EIMML stream.
+ *
+ * @see EimRecordSet
  */
-public class EimmlStreamException extends EimException {
+public class EimmlStreamReaderIterator implements EimRecordSetIterator {
 
-    /**
-     */
-    public EimmlStreamException(String message) {
-        super(message);
+    private EimmlStreamReader reader;
+
+    public EimmlStreamReaderIterator(EimmlStreamReader reader) {
+        this.reader = reader;
     }
 
-    /**
-     */
-    public EimmlStreamException(String message,
-                                Throwable cause) {
-        super(message, cause);
+    public boolean hasNext()
+        throws EimException {
+        return reader.hasNext();
+    }
+
+    public EimRecordSet next()
+        throws EimException {
+        return reader.nextRecordSet();
     }
 }

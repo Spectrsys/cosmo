@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.eim.eimml;
-
-import org.osaf.cosmo.eim.EimException;
+package org.osaf.cosmo.eim;
 
 /**
- * The base exception for unexpected EIMML processing errors.
+ * Interface for classes that iterate over a collection of EIM
+ * recordsets.
+ * <p>
+ * The collection is considered to be immutable, so the iterator does
+ * not provide a method to remove items from the collection.
+ *
+ * @see EimRecordSet
  */
-public class EimmlStreamException extends EimException {
+public interface EimRecordSetIterator {
 
-    /**
-     */
-    public EimmlStreamException(String message) {
-        super(message);
-    }
+    public boolean hasNext()
+        throws EimException;
 
-    /**
-     */
-    public EimmlStreamException(String message,
-                                Throwable cause) {
-        super(message, cause);
-    }
+    public EimRecordSet next()
+        throws EimException;
 }
