@@ -362,6 +362,8 @@ public class StandardMorseCodeController implements MorseCodeController {
         child.setDisplayName(recordset.getUuid());
         child.setUid(recordset.getUuid());
         child.setOwner(collection.getOwner());
+        // temp fix - should be moved inside model layer
+        child.setContentLength(new Long(0));
         collection.getChildren().add(child);
         return child;
     }
