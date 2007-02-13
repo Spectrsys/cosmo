@@ -12,14 +12,17 @@ eimKey =
 eimDeleted =
    attribute eim:deleted { xsd:boolean }?
 
+eimEmpty =
+   attribute empty { xsd:boolean }?
+
 # These patterns define the allowable content of the elements
 # representing EIM record fields. Field types not defined in this
 # schema are not permitted in EIMML.
 
 eimTextFieldContent = {
    eimKey,
+   eimEmpty,
    attribute eim:type { "text" },
-   attribute empty { xsd:boolean }?
    xsd:string { maxLength = "1024" }
 }
 
@@ -49,12 +52,14 @@ eimBytesFieldContent = {
 
 eimBlobFieldContent = {
    eimKey,
+   eimEmpty,
    attribute eim:type { "blob" },
    xsd:base64Binary
 }
 
 eimClobFieldContent = {
    eimKey,
+   eimEmpty,
    attribute eim:type { "clob" },
    xsd:string
 }
