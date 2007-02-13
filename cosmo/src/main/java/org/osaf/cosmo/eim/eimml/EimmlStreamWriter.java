@@ -254,11 +254,17 @@ public class EimmlStreamWriter implements EimmlConstants, XMLStreamConstants {
         if (isKey)
             xmlWriter.writeAttribute(NS_CORE, ATTR_KEY, "true");
         if (value != null) {
-            if (value.equals(""))
+            if (isEmptyableType(type) && value.equals(""))
                 xmlWriter.writeAttribute(ATTR_EMPTY, "true");
             xmlWriter.writeCData(value);
         }
 
         xmlWriter.writeEndElement();
+    }
+
+    private boolean isEmptyableType(String type) {
+        return (type.equals(TYPE_TEXT) ||
+                type.equals(TYPE_CLOB) ||
+                type.equals(TYPE_BLOB));
     }
 }
