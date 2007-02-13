@@ -256,7 +256,8 @@ public class EimmlStreamWriter implements EimmlConstants, XMLStreamConstants {
         if (value != null) {
             if (isEmptyableType(type) && value.equals(""))
                 xmlWriter.writeAttribute(ATTR_EMPTY, "true");
-            xmlWriter.writeCData(value);
+            else
+                xmlWriter.writeCData(value);
         }
 
         xmlWriter.writeEndElement();
