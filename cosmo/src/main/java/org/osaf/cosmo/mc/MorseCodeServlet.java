@@ -16,7 +16,6 @@
 package org.osaf.cosmo.mc;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -28,10 +27,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.eimml.EimmlConstants;
 import org.osaf.cosmo.eim.eimml.EimmlStreamReader;
+import org.osaf.cosmo.eim.eimml.EimmlStreamReaderIterator;
 import org.osaf.cosmo.eim.eimml.EimmlStreamWriter;
 import org.osaf.cosmo.eim.eimml.EimmlStreamException;
 import org.osaf.cosmo.model.CollectionLockedException;
@@ -165,9 +166,8 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                 if (records.isDeleted()) {
                     writer.writeDeleted();
                 } else {
-                    Iterator<EimRecordSet> i = records.getRecordSets();
-                    while (i.hasNext())
-                        writer.writeRecordSet(i.next());
+                    while (records.getRecordSets().hasNext())
+                        writer.writeRecordSet(records.getRecordSets().next());
                 }
 
                 writer.close();
@@ -186,6 +186,11 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                                "Item not a collection");
             } catch (EimmlStreamException e) {
                 String msg = "Error writing EIMML stream";
+                log.error(msg, e);
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                               msg + ": " + e.getMessage());
+            } catch (EimException e) {
+                String msg = "Error translating items to EIM records";
                 log.error(msg, e);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                                msg + ": " + e.getMessage());
@@ -237,7 +242,7 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                     return;
                 }
 
-                Iterator<EimRecordSet> i =
+                EimmlStreamReaderIterator i =
                     new EimmlStreamReaderIterator(reader);
                 PubRecords records =
                     new PubRecords(i, reader.getCollectionName());
@@ -277,6 +282,14 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                                "Recordset contains invalid data");
                 return;
             } catch (MorseCodeException e) {
+                Throwable root = e.getCause();
+                if (root != null && root instanceof EimmlStreamException) {
+                    log.warn("Unable to read EIM stream", root);
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                                   "Unable to read EIM stream: " +
+                                   root.getMessage());
+                    return;
+                }
                 log.error("Error updating collection " + cp.getUid(), e);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                                "Error updating collection: " + e.getMessage());
@@ -318,7 +331,7 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                     return;
                 }
 
-                Iterator<EimRecordSet> i =
+                EimmlStreamReaderIterator i =
                     new EimmlStreamReaderIterator(reader);
                 PubRecords records =
                     new PubRecords(i, reader.getCollectionName());
@@ -356,6 +369,14 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                                "Recordset contains invalid data");
                 return;
             } catch (MorseCodeException e) {
+                Throwable root = e.getCause();
+                if (root != null && root instanceof EimmlStreamException) {
+                    log.warn("Unable to read EIM stream", root);
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                                   "Unable to read EIM stream: " +
+                                   root.getMessage());
+                    return;
+                }
                 log.error("Error publishing collection " + cp.getUid(), e);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                                "Error publishing collection: " +
@@ -447,33 +468,5 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
         }
 
         return true;
-    }
-
-    private class EimmlStreamReaderIterator implements Iterator {
-        private EimmlStreamReader reader;
-
-        public EimmlStreamReaderIterator(EimmlStreamReader reader) {
-            this.reader = reader;
-        }
-
-        public boolean hasNext() {
-            try {
-                return reader.hasNext();
-            } catch (EimmlStreamException e) {
-                throw new RuntimeException("Error checking next recordset", e);
-            }
-        }
-
-        public EimRecordSet next() {
-            try {
-                return reader.nextRecordSet();
-            } catch (EimmlStreamException e) {
-                throw new RuntimeException("Error returning next recordset", e);
-            }
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException("remove method not supported");
-        }
     }
 }

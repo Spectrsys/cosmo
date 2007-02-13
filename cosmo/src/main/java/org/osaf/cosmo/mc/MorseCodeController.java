@@ -15,10 +15,6 @@
  */
 package org.osaf.cosmo.mc;
 
-import java.util.Iterator;
-
-import org.osaf.cosmo.eim.EimRecordSet;
-
 /**
  * Interface for controllers that implement the operations specified
  * by Morse Code.

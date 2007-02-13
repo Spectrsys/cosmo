@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.osaf.cosmo.eim.EimRecordSet;
+import org.osaf.cosmo.eim.EimRecordSetIterator;
 import org.osaf.cosmo.eim.schema.EimRecordTranslationIterator;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
@@ -35,7 +36,7 @@ import org.osaf.cosmo.model.NoteItem;
 public class SubRecords {
 
     private SyncToken token;
-    private EimRecordTranslationIterator iterator;
+    private EimRecordSetIterator iterator;
     private CollectionItem collection;
     private SyncToken prevToken;
 
@@ -54,7 +55,7 @@ public class SubRecords {
     }
 
     /** */
-    public Iterator<EimRecordSet> getRecordSets() {
+    public EimRecordSetIterator getRecordSets() {
         return iterator;
     }
 
@@ -79,7 +80,7 @@ public class SubRecords {
     }
 
     /** */
-    protected EimRecordTranslationIterator createIterator() {
+    protected EimRecordSetIterator createIterator() {
         ArrayList<ContentItem> items = new ArrayList<ContentItem>();
 
         if (prevToken != null) {
