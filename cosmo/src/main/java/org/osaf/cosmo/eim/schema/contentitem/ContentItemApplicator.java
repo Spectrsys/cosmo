@@ -72,7 +72,8 @@ public class ContentItemApplicator extends BaseItemApplicator
         } else if (field.getName().equals(FIELD_TRIAGE_STATUS)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_TRIAGE_STATUS);
-            contentItem.setTriageStatus(value);
+            String ts = value != null ? value.toUpperCase() : null;
+            contentItem.setTriageStatus(ts);
         } else if (field.getName().equals(FIELD_TRIAGE_STATUS_CHANGED)) {
             BigDecimal value =
                 EimFieldValidator.validateDecimal(field,

@@ -60,12 +60,13 @@ public class ContentItemGenerator extends BaseItemGenerator
 
         record.addField(new TextField(FIELD_TITLE,
                                       contentItem.getDisplayName()));
-        record.addField(new TextField(FIELD_TRIAGE_STATUS,
-                                      contentItem.getTriageStatus()));
+        String ts = contentItem.getTriageStatus();
+        if (ts != null)
+            ts = ts.toLowerCase();
+        record.addField(new TextField(FIELD_TRIAGE_STATUS, ts));
         record.addField(new DecimalField(FIELD_TRIAGE_STATUS_CHANGED,
                                          contentItem.getTriageStatusUpdated(),
-                                         DIGITS_TRIAGE_STATUS_CHANGED,
-                                         DEC_TRIAGE_STATUS_CHANGED));
+                                         DIGITS_TIMESTAMP, DEC_TIMESTAMP));
         record.addField(new TextField(FIELD_LAST_MODIFIED_BY,
                                       contentItem.getLastModifiedBy()));
         Date d = contentItem.getClientCreationDate();
