@@ -25,6 +25,7 @@ import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.schema.EimTranslator;
 import org.osaf.cosmo.eim.schema.EimValidationException;
+import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
@@ -134,6 +135,10 @@ public class StandardMorseCodeController implements MorseCodeController {
             collection.setDisplayName(records.getName());
         else
             collection.setDisplayName(uid);
+
+        // stamp it as a calendar
+        CalendarCollectionStamp ccs = new CalendarCollectionStamp(collection);
+        collection.addStamp(ccs);
 
         HashSet<Item> children = new HashSet<Item>();
         try {
