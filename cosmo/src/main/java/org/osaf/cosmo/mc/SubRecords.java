@@ -97,7 +97,7 @@ public class SubRecords {
         if (prevToken.isValid(collection))
             return;
 
-        for (Item child : collection.getChildren()) {
+        for (Item child : collection.getAllChildren()) {
             if (! isShareableItem(child))
                 continue;
             if (prevToken.hasItemChanged(child))
@@ -107,7 +107,7 @@ public class SubRecords {
     }
 
     private void addAllContentItems(ArrayList<ContentItem> items) {
-        for (Item child : collection.getChildren()) {
+        for (Item child : collection.getAllChildren()) {
             if (! isShareableItem(child))
                 continue;
             items.add((ContentItem)child);
