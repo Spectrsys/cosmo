@@ -26,6 +26,9 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.hibernate.annotations.Type;
 
 
@@ -38,6 +41,7 @@ import org.hibernate.annotations.Type;
 @DiscriminatorValue("text")
 public class TextAttribute extends Attribute implements
         java.io.Serializable {
+    private static final Log log = LogFactory.getLog(TextAttribute.class);
     
     /**
      * 
@@ -62,6 +66,7 @@ public class TextAttribute extends Attribute implements
      * @param reader
      */
     public TextAttribute(QName qname, Reader reader) {
+        setQName(qname);
         this.value = read(reader);
     }
 
