@@ -133,8 +133,10 @@ public class EventGenerator extends BaseStampGenerator
 
             prop = override.getProperties().getProperty(Property.DESCRIPTION);
             value = (prop == null) ? null : prop.getValue();
-            overrideRec.addField(new ClobField(FIELD_BODY, new StringReader(
-                    value)));
+            StringReader body = value != null ?
+                new StringReader(value) :
+                null;
+            overrideRec.addField(new ClobField(FIELD_BODY, body));
 
             records.add(overrideRec);
             Date recurrenceId = override.getReccurrenceId().getDate();
