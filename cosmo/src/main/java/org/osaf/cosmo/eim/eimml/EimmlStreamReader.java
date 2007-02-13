@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -179,10 +180,20 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
 
         EimRecordSet recordset = new EimRecordSet();
 
-        String uuid = xmlReader.getAttributeValue(null, ATTR_UUID);
-        if (StringUtils.isBlank(uuid))
-            throw new EimmlStreamException("Recordset element requires " + ATTR_UUID + " attribute");
-        recordset.setUuid(uuid);
+        for (int i=0; i<xmlReader.getAttributeCount(); i++) {
+            QName name = xmlReader.getAttributeName(i);
+            String value = xmlReader.getAttributeValue(i);
+            if (name.equals(QN_UUID)) {
+                if (StringUtils.isBlank(value))
+                    throw new EimmlStreamException("Recordset element requires " + ATTR_UUID + " attribute");
+                recordset.setUuid(value);
+            } else if (name.equals(QN_DELETED)) {
+                if (BooleanUtils.toBoolean(value))
+                    recordset.setDeleted(true);
+            } else {
+                log.warn("skipped unrecognized recordset attribute " + name);
+            }
+        }
 
         // move to next <record> or </recordset>
         nextTag();

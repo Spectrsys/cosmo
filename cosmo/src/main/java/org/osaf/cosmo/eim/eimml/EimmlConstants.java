@@ -45,10 +45,12 @@ public interface EimmlConstants {
 
     /** */
     public static final String ATTR_NAME = "name";
-    // no namespace for name, which is only valid on collection
+    /** */
+    public static final QName QN_NAME = new QName(ATTR_NAME);
     /** */
     public static final String ATTR_UUID = "uuid";
-    // no namespace for uuid, which is only valid on recordset
+    /** */
+    public static final QName QN_UUID = new QName(ATTR_UUID);
     /** */
     public static final String ATTR_DELETED = "deleted";
     /** */
@@ -64,7 +66,7 @@ public interface EimmlConstants {
     /** */
     public static final String ATTR_EMPTY = "empty";
     /** */
-    public static final QName QN_EMPTY = new QName(NS_CORE, ATTR_EMPTY);
+    public static final QName QN_EMPTY = new QName(ATTR_EMPTY);
 
     /** */
     public static final String TYPE_BYTES = "bytes";
