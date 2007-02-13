@@ -224,9 +224,11 @@ public class EimmlTypeConverter implements EimmlConstants {
         StringBuffer pattern = new StringBuffer();
         for (int i=1; i<= digits; i++)
             pattern.append("#");
-        pattern.append(".");
-        for (int i=1; i<=decimalPlaces; i++)
-            pattern.append("#");
+        if (decimalPlaces > 0) {
+            pattern.append(".");
+            for (int i=1; i<=decimalPlaces; i++)
+                pattern.append("#");
+        }
 
         if (log.isDebugEnabled())
             log.debug("formatting decimal value " + value + " with pattern " +
