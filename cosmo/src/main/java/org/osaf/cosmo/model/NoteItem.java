@@ -62,6 +62,7 @@ public class NoteItem extends ContentItem {
         if(bodyAttr==null && body!=null) {
             bodyAttr = new TextAttribute(ATTR_NOTE_BODY,body);
             addAttribute(bodyAttr);
+            return;
         }
         if(body==null)
             removeAttribute(ATTR_NOTE_BODY);
@@ -99,6 +100,7 @@ public class NoteItem extends ContentItem {
         if(bodyAttr==null && body!=null) {
             bodyAttr = new TextAttribute(ATTR_NOTE_BODY,body);
             addAttribute(bodyAttr);
+            return;
         }
         if(body==null)
             removeAttribute(ATTR_NOTE_BODY);
