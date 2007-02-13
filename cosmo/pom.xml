@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.osaf.cosmo</groupId>
         <artifactId>osaf-server</artifactId>
-        <version>0.6-SNAPSHOT</version>
+        <version>0.6.0-RC3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cosmo</artifactId>
@@ -474,7 +474,7 @@
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.1</version>
+                                    <version>0.4.1-060RC3</version>
                                     <type>jar</type>
                                   </artifactItem>
                                   <artifactItem>
@@ -520,7 +520,7 @@
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.1</version>
+                                    <version>0.4.1-060RC3</version>
                                     <type>jar</type>
                                   </artifactItem>
                                   <artifactItem>
