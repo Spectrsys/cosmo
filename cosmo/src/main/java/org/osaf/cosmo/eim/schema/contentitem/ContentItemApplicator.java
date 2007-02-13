@@ -76,9 +76,8 @@ public class ContentItemApplicator extends BaseItemApplicator
             contentItem.setTriageStatus(ts);
         } else if (field.getName().equals(FIELD_TRIAGE_STATUS_CHANGED)) {
             BigDecimal value =
-                EimFieldValidator.validateDecimal(field,
-                                                  DIGITS_TRIAGE_STATUS_CHANGED,
-                                                  DEC_TRIAGE_STATUS_CHANGED);
+                EimFieldValidator.validateDecimal(field, DIGITS_TIMESTAMP,
+                                                  DEC_TIMESTAMP);
             contentItem.setTriageStatusUpdated(value);
         } else if (field.getName().equals(FIELD_LAST_MODIFIED_BY)) {
             String value =
