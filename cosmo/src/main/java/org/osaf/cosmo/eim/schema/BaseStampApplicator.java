@@ -71,7 +71,10 @@ public abstract class BaseStampApplicator extends BaseApplicator {
                record.getNamespace() != null &&
                record.getNamespace().equals(getNamespace())))
             throw new IllegalArgumentException("Record namespace " + record.getNamespace() + " does not match " + getNamespace());
-        
+
+        if (log.isDebugEnabled())
+            log.debug("applying record " + getNamespace());
+
         if (record.isDeleted()) {
             applyDeletion(record);
             return;

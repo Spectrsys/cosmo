@@ -63,6 +63,9 @@ public abstract class BaseItemApplicator extends BaseApplicator {
                record.getNamespace().equals(getNamespace())))
             throw new IllegalArgumentException("Record namespace " + record.getNamespace() + " does not match " + getNamespace());
             
+        if (log.isDebugEnabled())
+            log.debug("applying record " + getNamespace());
+
         if (record.isDeleted())
             throw new EimSchemaException("Item-based records cannot be marked deleted");
 
