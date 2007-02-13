@@ -253,9 +253,15 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
                 throw new EimmlStreamException(xmlReader.getName() + " element requires " + ATTR_TYPE + " attribute");
 
             String text = xmlReader.getElementText();
-            if (isEmpty)
+            if (isEmpty) {
+                if (! (type.equals(TYPE_TEXT) || type.equals(TYPE_CLOB) ||
+                       type.equals(TYPE_BLOB)))
+                    throw new EimmlStreamException("Invalid empty attribute on field element " + xmlReader.getName());
+                if (text != null)
+                    if (log.isDebugEnabled())
+                        log.debug("emptying non-null text for field " + xmlReader.getName());
                 text = "";
-            else if (text.equals(""))
+            } else if (text.equals(""))
                 text = null;
 
             EimRecordField field = null;
