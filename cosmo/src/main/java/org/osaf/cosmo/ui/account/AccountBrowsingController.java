@@ -373,7 +373,9 @@ public class AccountBrowsingController extends MultiActionController
                            makeContentDisposition(item));
 
         // spool data
-        IOUtils.copy(item.getContentInputStream(), response.getOutputStream());
+        if (item.getContentLength() > 0)
+            IOUtils.copy(item.getContentInputStream(),
+                         response.getOutputStream());
         response.flushBuffer();
     }
 
