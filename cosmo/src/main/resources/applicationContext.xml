@@ -162,13 +162,13 @@
   <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
-        <entry key="cosmo:name=hibernate" value-ref="hibernateStatsBean"/>
+        <entry key="cosmo:name=hibernateStatistics" value-ref="hibernateStatsBean"/>
       </map>
     </property>
   </bean>
 
   <!-- Hibernate statistics MBean -->
-  <bean id="hibernateStatsBean" class="org.hibernate.jmx.StatisticsService">
+  <bean id="hibernateStatsBean" class="org.osaf.cosmo.hibernate.jmx.CosmoHibernateService">
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>  
     </property>
