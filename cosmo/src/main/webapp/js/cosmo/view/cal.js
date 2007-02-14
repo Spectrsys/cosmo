@@ -211,7 +211,7 @@ cosmo.view.cal = new function () {
                 // Adding recurrence to a normal one-shot
                 case 'singleEventAddRecurrence':
                     f = function () { doSaveEvent(ev, { 'saveType': 'singleEventAddRecurrence',
-                        'originalEvent': ev } ) };
+                        'instanceEvent': ev } ) };
                     break;
 
                 // Removing recurrence from a recurring event (along with other possible edits)
@@ -369,7 +369,7 @@ cosmo.view.cal = new function () {
 
                     f = function () { doSaveEventBreakRecurrence(newEv, masterEventDataId,
                         recurEnd, { 'saveType': 'instanceAllFuture',
-                        'originalEvent': ev, 'masterEventDataId': masterEventDataId, 'recurEnd': recurEnd }); };
+                        'instanceEvent': ev, 'masterEventDataId': masterEventDataId, 'recurEnd': recurEnd }); };
                     break;
 
                 // Modifications
@@ -407,7 +407,7 @@ cosmo.view.cal = new function () {
                     rrule.modifications.push(mod);
 
                     f = function () { doSaveRecurrenceRule(ev, rrule, { 'saveAction': 'save',
-                        'saveType': 'instanceOnlyThisEvent' }) };
+                        'saveType': 'instanceOnlyThisEvent', opts: { instanceEvent: ev } }) };
                     break;
 
                 // Default -- nothing to do
@@ -508,7 +508,7 @@ cosmo.view.cal = new function () {
         var errMsg = '';
         var act = '';
         var qual = {};
-
+        
         qual.saveType = opts.saveType || 'singleEvent'; // Default to single event
 
         // Failure -- display exception info
@@ -516,7 +516,9 @@ cosmo.view.cal = new function () {
         if (err) {
             act = 'saveFailed';
             // Failed update
-            if (saveEv.dataOrig) {
+            if ((qual.saveType == 'singleEvent' && saveEv.dataOrig) || 
+                qual.saveType == 'instanceAllFuture' ||
+                qual.saveType == 'recurrenceMaster') {
                 errMsg = _('Main.Error.EventEditSaveFailed');
                 qual.newEvent = false;
             }
@@ -537,7 +539,7 @@ cosmo.view.cal = new function () {
             // (2) new recurring events created by the 'All Future Events'
             // option -- note that newEvId is actually set for these
             // events down below after updating the saved event to
-            // point to opts.originalEvent
+            // point to opts.instanceEvent
             if (!saveEv.data.id || opts.saveType == 'instanceAllFuture') {
                 qual.newEvent = true;
                 saveEv.data.id = newEvId;
@@ -588,7 +590,7 @@ cosmo.view.cal = new function () {
                 // from the server
                 // FIXME: Assigning newEvId should probably be done above
                 // like it is for normal new events
-                saveEv = opts.originalEvent;
+                saveEv = opts.instanceEvent;
                 saveEv.data.id = newEvId;
                 dojo.event.topic.publish('/calEvent', { 'action': 'eventsAddSuccess',
                    'data': { 'saveEvent': saveEv, 'eventRegistry': null,
@@ -805,7 +807,7 @@ cosmo.view.cal = new function () {
     /**
      * Call the service to save a recurrence rule -- creates an anonymous
      * function to pass as the callback for the async service call.
-     * Response to the async request is handled by handleSaveRecurrenceRuleResult.
+     * Response to the async request is handled by handleSaveRecurrenceRule.
      * @param ev A CalEvent object, the event originally clicked on.
      * @param rrule A RecurrenceRule, the updated rule for saving.
      * @param opts A JS Object, options for the remove operation.
@@ -814,7 +816,7 @@ cosmo.view.cal = new function () {
         // Pass the original event and opts object to the handler function
         // along with the original params passed back in from the async response
         var f = function (ret, err, reqId) {
-            handleSaveRecurrenceRuleResult(ev, err, reqId, opts); };
+            handleSaveRecurrenceRule(ev, err, reqId, opts); };
         var requestId = Cal.currentCollection.conduit.saveRecurrenceRule(
             Cal.currentCollection.collection.uid,
             ev.data.id, rrule,
@@ -830,7 +832,8 @@ cosmo.view.cal = new function () {
      * @param reqId Number, the id of the async request.
      * @param opts A JS Object, options for the save operation.
      */
-    function handleSaveRecurrenceRuleResult(ev, err, reqId, opts) {
+    function handleSaveRecurrenceRule(ev, err, reqId, opts) {
+        
         var rruleEv = ev;
         // Saving the RecurrenceRule can be part of a 'remove'
         // or 'save' -- set the message for an error appropriately
