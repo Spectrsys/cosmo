@@ -589,6 +589,7 @@ public class ICalendarToCosmoConverter {
         // If this is a datetime, we must convert from UTC to the appropriate
         // timezone
         if (until != null) {
+            until = ICalendarUtils.clone(until);
             if (startDate instanceof DateTime){            
                 DateTime startDateTime = (DateTime) startDate;
                 DateTime untilDateTime = until instanceof DateTime ? (DateTime) until : new DateTime(until.getTime()); 
