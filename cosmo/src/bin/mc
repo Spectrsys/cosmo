@@ -105,12 +105,20 @@ sub alias_exit { ("quit") }
 sub run_subscribe {
     my $self = shift;
     my $uid = shift or do {
-        print "Uid required\n";
+        print "Uid required.\n";
         return;
     };
 
     warn "Subscribing to collection $uid\n" if $self->{debug};
-    $self->{mc}->subscribe($uid);
+    eval {
+        $self->{mc}->subscribe($uid);
+    };
+    if ($@) {
+        print "Failed: $@\n";
+        return;
+    }
+
+    # XXX do something with the response content
 }
 
 sub help_subscribe { return "Subscribe to a collection by providing its uid" }

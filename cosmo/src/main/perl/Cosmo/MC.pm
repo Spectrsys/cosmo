@@ -69,11 +69,17 @@ sub synchronize {
 sub delete {
 }
 
+sub mc_url {
+    my $self = shift;
+
+    return sprintf("%s/mc", $self->server_url);
+}
+
 sub collection_url {
     my $self = shift;
     my $uid = shift;
 
-    return sprintf("%s/collection/%s", $self->server_url, $uid);
+    return sprintf("%s/collection/%s", $self->mc_url, $uid);
 }
 
 1;
