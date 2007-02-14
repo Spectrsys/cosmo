@@ -314,9 +314,8 @@ public class CosmoToICalendarConverter {
                     rule += "UNTIL=" + dateString;
                 } else {
                     if (!StringUtils.isEmpty(event.getStart().getTzId())){
-                        java.util.Calendar endDateCalendar = java.util.Calendar
-                                .getInstance(((DateTime) dtStart.getDate())
-                                        .getTimeZone());
+                        java.util.Calendar endDateCalendar = getCalendar(((DateTime) dtStart
+                                .getDate()).getTimeZone());
                         endDateCalendar.set(java.util.Calendar.YEAR, rruleEndDate.getYear());
                         endDateCalendar.set(java.util.Calendar.MONTH, rruleEndDate.getMonth());
                         endDateCalendar.set(java.util.Calendar.DATE, rruleEndDate.getDate());
@@ -703,5 +702,13 @@ public class CosmoToICalendarConverter {
             }
         }
     }
+    
+   private java.util.Calendar getCalendar(java.util.TimeZone tz){
+       if (tz == null){
+           return java.util.Calendar.getInstance();
+       } else {
+           return java.util.Calendar.getInstance(tz);
+       }
+   }
     
 }
