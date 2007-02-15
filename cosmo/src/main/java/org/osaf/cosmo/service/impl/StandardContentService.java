@@ -28,6 +28,7 @@ import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.ItemNotFoundException;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.service.ContentService;
@@ -197,14 +198,37 @@ public class StandardContentService implements ContentService {
         
         CollectionItem oldParent = (CollectionItem) contentDao
                 .findItemParentByPath(fromPath);
+        
+        if(oldParent==null | !(oldParent instanceof CollectionItem))
+            throw new ItemNotFoundException("no item found for " + fromPath);
+        
         CollectionItem newParent = (CollectionItem) contentDao
                 .findItemParentByPath(toPath);
+
+        if(newParent==null || !(newParent instanceof CollectionItem) )
+            throw new ItemNotFoundException("no collection found for " + toPath + " found");
         
-        // FIXME:  Need to add locking
-        //         Locking strategy:
-        //            1. If fromPath is a ContentItem, then lock oldParent, newParent
-        //            2. If fromPath is a CollectionItem, then no locking required
-        contentDao.moveItem(fromPath, toPath);
+        Item fromItem = contentDao.findItemByPath(fromPath);
+        
+        if(fromItem==null)
+            throw new ItemNotFoundException("no item found for " + fromPath);
+        
+        // Only need locking for ContentItem for now
+        if(fromItem instanceof ContentItem) {
+            Set<CollectionItem> locks = acquireLocks(newParent, fromItem);
+            try {
+                contentDao.moveItem(fromPath, toPath);
+                // update collections involved
+                for(CollectionItem parent : locks)
+                    contentDao.updateCollection(parent);
+                
+            } finally {
+                releaseLocks(locks);
+            }
+        } else {
+            contentDao.moveItem(fromPath, toPath);
+        }
+        
     }
     
     /**
@@ -737,6 +761,13 @@ public class StandardContentService implements ContentService {
             releaseLocks(locks);
             throw e;
         }
+    }
+    
+    private Set<CollectionItem> acquireLocks(CollectionItem collection, Item item) {
+        HashSet<Item> items = new HashSet<Item>();
+        items.add(item);
+        
+        return acquireLocks(collection, items);
     }
     
     private Set<CollectionItem> acquireLocks(Item item) {
