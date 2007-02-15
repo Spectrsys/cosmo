@@ -148,7 +148,6 @@ public class User extends BaseModelObject {
     private Boolean oldAdmin;
     private Date dateCreated;
     private Date dateModified;
-    private Set<Item> items = new HashSet<Item>(0);
     private Map<String, String> preferences = new HashMap<String, String>(0);
     private Set<CollectionSubscription> subscriptions = 
         new HashSet<CollectionSubscription>(0);
@@ -500,15 +499,6 @@ public class User extends BaseModelObject {
         }
     }
 
-    @OneToMany(mappedBy="owner", fetch=FetchType.LAZY)
-    @Cascade( {CascadeType.DELETE })
-    public Set<Item> getItems() {
-        return items;
-    }
-
-    public void setItems(Set<Item> items) {
-        this.items = items;
-    }
     
     @CollectionOfElements
     @JoinTable(

@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
@@ -46,6 +47,7 @@ public class CollectionItem extends Item {
 
     private Set<Item> children = new HashSet<Item>(0);
     private Set<Item> allChildren = new HashSet<Item>(0);
+    private Set<Tombstone> tombstones = new HashSet<Tombstone>(0);
     
     public CollectionItem() {
     };
@@ -54,7 +56,7 @@ public class CollectionItem extends Item {
      * Return active children items (those with isActive=true).
      * @return active children items
      */
-    @OneToMany(mappedBy="parent", fetch=FetchType.LAZY)
+    @ManyToMany(mappedBy="parents",fetch=FetchType.LAZY)
     @Where(clause = "isactive=1")
     public Set<Item> getChildren() {
         return children;
@@ -69,8 +71,7 @@ public class CollectionItem extends Item {
      * Rarely used.
      * @return all children items
      */
-    @OneToMany(mappedBy="parent", fetch=FetchType.LAZY)
-    @Cascade( {CascadeType.DELETE }) 
+    @ManyToMany(mappedBy="parents",fetch=FetchType.LAZY) 
     public Set<Item> getAllChildren() {
         return allChildren;
     }
@@ -79,7 +80,31 @@ public class CollectionItem extends Item {
     private void setAllChildren(Set<Item> allChildren) {
         this.allChildren = allChildren;
     }
+    
+    @OneToMany(mappedBy="collection", fetch=FetchType.LAZY)
+    @Cascade( {CascadeType.ALL, CascadeType.DELETE_ORPHAN }) 
+    public Set<Tombstone> getTombstones() {
+        return tombstones;
+    }
 
+    private void setTombstones(Set<Tombstone> tombstones) {
+        this.tombstones = tombstones;
+    }
+
+    public void addTombstone(Tombstone tombstone) {
+        tombstone.setCollection(this);
+        tombstones.add(tombstone);
+    }
+    
+    public void removeTombstone(Item item) {
+        for(Tombstone ts: tombstones) {
+            if(ts.getItemUid().equals(item.getUid())) {
+                tombstones.remove(ts);
+                return;
+            }
+        }
+    }
+    
     /**
      * Return child item with matching uid
      * @return identified child item, or null if no child with that
@@ -114,11 +139,6 @@ public class CollectionItem extends Item {
      * @return
      */
     public int generateHash() {
-        int hash = getVersion();
-        for(Item item : getAllChildren()) {
-            // account for version starting with 0
-            hash += (item.getVersion() + 1);
-        }
-        return hash;
+        return getVersion();
     }
 }

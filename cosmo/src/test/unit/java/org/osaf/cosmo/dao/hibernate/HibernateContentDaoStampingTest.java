@@ -193,6 +193,16 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         Assert.assertTrue(
                 queryItem.getStamps().iterator().next() instanceof EventStamp);
         
+        event = new EventStamp();
+        event.setCalendar(helper.getCalendar(baseDir + "/cal1.ics"));
+        queryItem.addStamp(event);
+        
+        contentDao.updateContent(queryItem);
+        clearSession();
+        
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        Assert.assertEquals(1, queryItem.getStamps().size());
+        Assert.assertEquals(1, queryItem.getActiveStamps().size());
     }
     
     public void testCalendarCollectionStamp() throws Exception {

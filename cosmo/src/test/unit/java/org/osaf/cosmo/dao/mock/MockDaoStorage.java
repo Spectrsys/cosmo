@@ -25,17 +25,12 @@ import java.util.Set;
 import org.apache.commons.id.random.SessionIdGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.osaf.cosmo.dao.ItemDao;
-import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.DuplicateItemNameException;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.ItemNotFoundException;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.PathUtil;
 
 /**
  * Simple in-memory storage system for mock data access objects.

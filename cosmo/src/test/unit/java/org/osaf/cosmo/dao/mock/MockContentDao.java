@@ -62,7 +62,7 @@ public class MockContentDao extends MockItemDao implements ContentDao {
         if (collection == null)
             throw new IllegalArgumentException("collection cannot be null");
 
-        collection.setParent(parent);
+        collection.getParents().add(parent);
 
         getStorage().storeItem((Item) collection);
 
@@ -159,7 +159,7 @@ public class MockContentDao extends MockItemDao implements ContentDao {
         if(THROW_CONCURRENT_EXCEPTION)
             throw new ConcurrencyFailureException("fail!");
         
-        content.setParent(parent);
+        content.getParents().add(parent);
         
         // Set mock id
         if(content instanceof MockContentItem)
@@ -208,7 +208,7 @@ public class MockContentDao extends MockItemDao implements ContentDao {
         if (item == null)
             throw new IllegalArgumentException("item cannot be null");
 
-        item.setParent(parent);
+        item.getParents().add(parent);
         getStorage().updateItem(item);
     }
 

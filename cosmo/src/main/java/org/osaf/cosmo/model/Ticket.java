@@ -173,14 +173,20 @@ public class Ticket extends BaseModelObject {
      * item or one of its ancestors.
      */
     public boolean isGranted(Item item) {
-        Item test = item;
-        while (test != null) {
-            for (Ticket ticket : test.getTickets()) {
-                if (ticket.equals(this))
-                    return true;
-            }
-            test = test.getParent();
+        
+        if(item==null)
+            return false;
+        
+        for (Ticket ticket : item.getTickets()) {
+            if (ticket.equals(this))
+                return true;
         }
+        
+        for(Item parent: item.getParents()) {
+            if(isGranted(parent))
+                return true;
+        }
+            
         return false;
     }
 

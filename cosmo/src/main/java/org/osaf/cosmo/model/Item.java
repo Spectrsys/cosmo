@@ -30,6 +30,8 @@ import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -80,7 +82,7 @@ public abstract class Item extends AuditableObject {
     private Set<Stamp> activeStamps = null;
     private Map<String, Stamp> stampMap = null;
     
-    private CollectionItem parent = null;
+    private Set<CollectionItem> parents = new HashSet<CollectionItem>(0);
     private User owner;
   
     /**
@@ -129,7 +131,7 @@ public abstract class Item extends AuditableObject {
             stampMap = new HashMap<String, Stamp>();
             for(Stamp stamp : stamps) {
                 // Only care about active stamps
-                if(stamp.getIsActive())
+                if(stamp.getIsActive()==true)
                     stampMap.put(stamp.getType(), stamp);
             }
         }
@@ -150,11 +152,12 @@ public abstract class Item extends AuditableObject {
                 // If there is already an active stamp of this type,
                 // throw an exception, otherwise remove inactive stamp
                 // to make way for a new active one
-                if(s.getIsActive())
+                if(s.getIsActive()==true)
                     throw new ModelValidationException(
                         "Item already has stamp of type " + s.getClass());
-                else
+                else {
                     stamps.remove(s);
+                }
             }
         }
         
@@ -187,7 +190,7 @@ public abstract class Item extends AuditableObject {
     public Stamp getStamp(Class clazz) {
         for(Stamp stamp : stamps)
             // only return stamp if it matches class and is active
-            if(clazz.isInstance(stamp) && stamp.getIsActive())
+            if(clazz.isInstance(stamp) && (stamp.getIsActive()==true))
                 return stamp;
         
         return null;
@@ -201,7 +204,7 @@ public abstract class Item extends AuditableObject {
     public Stamp getStamp(String type) {
         for(Stamp stamp : stamps)
             // only return stamp if it matches class and is active
-            if(stamp.getType().equals(type) && stamp.getIsActive())
+            if(stamp.getType().equals(type) && (stamp.getIsActive()==true))
                 return stamp;
         
         return null;
@@ -565,14 +568,26 @@ public abstract class Item extends AuditableObject {
         this.version = version;
     }
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="parentid")
-    public CollectionItem getParent() {
-        return parent;
+    @ManyToMany(fetch=FetchType.LAZY) 
+    @JoinTable(
+        name="collection_item",
+        joinColumns={@JoinColumn(name="itemid")},
+        inverseJoinColumns={@JoinColumn(name="collectionid")}
+    )
+    public Set<CollectionItem> getParents() {
+        return parents;
     }
 
-    public void setParent(CollectionItem parent) {
-        this.parent = parent;
+    public void setParents(Set<CollectionItem> parents) {
+        this.parents = parents;
+    }
+    
+    @Transient
+    public CollectionItem getParent() {
+        if(parents.size()==0)
+            return null;
+        
+        return parents.iterator().next();
     }
 
     @Column(name="isactive", nullable=false)

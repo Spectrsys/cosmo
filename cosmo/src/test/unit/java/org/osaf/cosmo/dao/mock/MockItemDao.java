@@ -15,18 +15,14 @@
  */
 package org.osaf.cosmo.dao.mock;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.dao.ItemDao;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.CollectionItem;
-import org.osaf.cosmo.model.DuplicateItemNameException;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
@@ -42,6 +38,7 @@ import org.osaf.cosmo.util.PathUtil;
  * @see Item
  */
 public class MockItemDao implements ItemDao {
+   
     private static final Log log = LogFactory.getLog(MockItemDao.class);
 
     private MockDaoStorage storage;
@@ -209,7 +206,7 @@ public class MockItemDao implements ItemDao {
         if (copyName == null)
             copyName = item.getName();
         copy.setName(copyName);
-        copy.setParent(parent);
+        copy.getParents().add(parent);
         copy.setOwner(item.getOwner());
 
         for(Map.Entry<QName, Attribute> entry :
@@ -232,15 +229,15 @@ public class MockItemDao implements ItemDao {
   
     /**
      * Move item to the given path
-     * @param item item to move
-     * @param path path to move item to
+     * @param fromPath item to move
+     * @param toPath path to move item to
      * @throws org.osaf.cosmo.model.ItemNotFoundException
      *         if parent item specified by path does not exist
      * @throws org.osaf.cosmo.model.DuplicateItemNameException
      *         if path points to an item with the same path
      */
-    public void moveItem(Item item,
-                         String path) {
+    public void moveItem(String fromPath,
+                         String toPath) {
         throw new UnsupportedOperationException();
     }
     
@@ -331,6 +328,12 @@ public class MockItemDao implements ItemDao {
         return;
     }
 
+    
+    public Item findItemByPath(String path, String parentUid) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public void removeItemByPath(String path) {
         removeItem(findItemByPath(path));
     }
@@ -339,8 +342,21 @@ public class MockItemDao implements ItemDao {
         removeItem(findItemByUid(uid));
     }
     
+    public void addItemToCollection(Item item, CollectionItem collection) {
+        item.getParents().add(collection);
+    }
+    
+    public void removeItemFromCollection(Item item, CollectionItem collection) {
+        item.getParents().remove(collection);
+    }
+    
+    public void refreshItem(Item item) {
+        // do nothing
+    }
+
     // Dao methods
 
+   
     /**
      * Initializes the DAO, sanity checking required properties
      * and defaulting optional properties.

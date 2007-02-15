@@ -20,7 +20,6 @@ import java.util.Set;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.User;
 
 /**
@@ -116,18 +115,7 @@ public interface ContentDao extends ItemDao {
      */
     public ContentItem updateContent(ContentItem content);
 
-    /**
-     * Move an Item to a different collection
-     * 
-     * @param parent
-     *            collection to add item to
-     * @param item
-     *            item to move
-     * @throws ModelValidationException
-     *             if parent is invalid
-     */
-    public void moveContent(CollectionItem parent, Item item);
-
+   
     /**
      * Find content item by path. Path is of the format:
      * /username/parent1/parent2/itemname.

@@ -101,14 +101,14 @@ public interface ContentService extends Service {
   
     /**
      * Move item to the given path
-     * @param item item to move
-     * @param path path to move item to
+     * @param fromPath path of item to move
+     * @param toPath path of item to move
      * @throws org.osaf.cosmo.model.ItemNotFoundException
      *         if parent item specified by path does not exist
      * @throws org.osaf.cosmo.model.DuplicateItemNameException
      *         if path points to an item with the same path
      */
-    public void moveItem(Item item, String path);
+    public void moveItem(String fromPath, String toPath);
     
     /**
      * Remove an item.
@@ -139,7 +139,11 @@ public interface ContentService extends Service {
                                            CollectionItem collection);
 
     /**
-     * Create a new collection.
+     * Create a new collection with an initial set of items.
+     * The initial set of items can include new items and
+     * existing items.  New items will be created and associated
+     * to the new collection and existing items will be updated
+     * and associated to the new collection.
      * 
      * @param parent
      *            parent of collection.
@@ -154,11 +158,14 @@ public interface ContentService extends Service {
                                            Set<Item> children);
     
     /**
-     * Update a collection and set of children.  The set of
-     * children to be updated can include updates to existing
+     * Update a collection and set child items.  The set of
+     * child items to be updated can include updates to existing
      * children, new children, and removed children.  A removal
      * of a child Item is accomplished by setting Item.isActive
-     * to false to an existing Item.
+     * to false to an existing Item.  When an item is marked
+     * for removal, it is removed from the collection and
+     * removed from the server only if the item has no parent
+     * collections.
      * 
      * @param collection
      *             collection to update

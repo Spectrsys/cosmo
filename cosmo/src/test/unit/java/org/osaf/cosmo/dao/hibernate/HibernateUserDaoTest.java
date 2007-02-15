@@ -22,7 +22,6 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.hibernate.validator.InvalidStateException;
 import org.osaf.cosmo.model.DuplicateEmailException;
 import org.osaf.cosmo.model.DuplicateUsernameException;
 import org.osaf.cosmo.model.User;

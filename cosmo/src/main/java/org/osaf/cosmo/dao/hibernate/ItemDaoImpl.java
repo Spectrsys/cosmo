@@ -36,6 +36,7 @@ import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.DuplicateItemNameException;
+import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
@@ -53,7 +54,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * Implementation of ItemDao using Hibernate persistent objects.
  *
  */
-public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
+public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
 
     private static final Log log = LogFactory.getLog(ItemDaoImpl.class);
 
@@ -75,7 +76,21 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
         }
     }
     
-    
+  
+    /* (non-Javadoc)
+     * @see org.osaf.cosmo.dao.ItemDao#findItemByPath(java.lang.String, java.lang.String)
+     */
+    public Item findItemByPath(String path, String parentUid) {
+        try {
+            Item parent = findItemByUid(parentUid);
+            Item item = itemPathTranslator.findItemByPath(path, (CollectionItem) parent);
+            return item;
+        } catch (HibernateException e) {
+            throw SessionFactoryUtils.convertHibernateAccessException(e);
+        }
+    }
+
+
     /* (non-Javadoc)
      * @see org.osaf.cosmo.dao.ItemDao#findItemParentByPath(java.lang.String)
      */
@@ -148,33 +163,7 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osaf.cosmo.dao.ItemDao#getItemPath(org.osaf.cosmo.model.Item)
-     */
-    public String getItemPath(Item item) {
-        try {
-            return itemPathTranslator.getItemPath(item);
-        } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osaf.cosmo.dao.ItemDao#getItemPath(java.lang.String)
-     */
-    public String getItemPath(String uid) {
-        try {
-            Item dbItem = findItemByUid(uid);
-            return itemPathTranslator.getItemPath(dbItem);
-        } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
-        }
-    }
-
+    
     /*
      * (non-Javadoc)
      *
@@ -204,7 +193,6 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
             HomeCollectionItem newItem = new HomeCollectionItem();
 
             newItem.setOwner(user);
-            newItem.setParent(null);
             newItem.setName(user.getUsername());
             newItem.setDisplayName(newItem.getName());
             setBaseItemProps(newItem);
@@ -215,7 +203,39 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
         }
     }
+    
+    public void addItemToCollection(Item item, CollectionItem collection) {
+        try {
+            collection.removeTombstone(item);
+            item.getParents().add(collection);
+            getSession().save(item);
+            getSession().save(collection);
+            getSession().flush();
+        } catch (HibernateException e) {
+            throw SessionFactoryUtils.convertHibernateAccessException(e);
+        }
+    }
+    
+    public void removeItemFromCollection(Item item, CollectionItem collection) {
+        try {
+            collection.addTombstone(new Tombstone(collection, item));
+            getSession().update(collection);
 
+            item.getParents().remove(collection);
+            
+            // If the item belongs to no collection, then it should
+            // be purged.
+            if(item.getParents().size()==0)
+                getSession().delete(item);
+            else
+                getSession().update(item);
+            
+            getSession().flush();
+        } catch (HibernateException e) {
+            throw SessionFactoryUtils.convertHibernateAccessException(e);
+        }
+    }
+    
     /* (non-Javadoc)
      * @see org.osaf.cosmo.dao.TicketDao#getTicket(java.lang.String, java.lang.String)
      */
@@ -233,18 +253,7 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
                 throw new ItemNotFoundException("item at " + path
                         + " not found");
 
-            // look for the ticket on the item itself and then on each
-            // of its ancestors
-            Item testItem = item;
-            while (testItem != null) {
-                for (Ticket ticket : testItem.getTickets()) {
-                    if (ticket.getKey().equals(key))
-                        return ticket;
-                }
-                testItem = testItem.getParent();
-            }
-
-            return null;
+            return getTicketRecursive(item, key);
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
         }
@@ -349,18 +358,7 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
         try {
             getSession().refresh(item);
 
-            // look for the ticket on the item itself and then on each
-            // of its ancestors
-            Item testItem = item;
-            while (testItem != null) {
-                for (Ticket ticket : testItem.getTickets()) {
-                    if (ticket.getKey().equals(key))
-                        return ticket;
-                }
-                testItem = testItem.getParent();
-            }
-
-            return null;
+            return getTicketRecursive(item, key);
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
         }
@@ -419,7 +417,7 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
             if(copyName==null || "".equals(copyName))
                 throw new IllegalArgumentException("path must include name");
             
-            if(item.getParent()==null)
+            if(item instanceof HomeCollectionItem)
                 throw new IllegalArgumentException("cannot copy root collection");
             
             CollectionItem parent = (CollectionItem) itemPathTranslator.findItemParent(path);
@@ -442,26 +440,36 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
         }
     }
     
+    
     /* (non-Javadoc)
-     * @see org.osaf.cosmo.dao.ItemDao#moveItem(org.osaf.cosmo.model.Item, java.lang.String)
+     * @see org.osaf.cosmo.dao.ItemDao#moveItem(java.lang.String, java.lang.String)
      */
-    public void moveItem(Item item, String path) {
+    public void moveItem(String fromPath, String toPath) {
         try {
             
+            // Get current item
+            Item item = itemPathTranslator.findItemByPath(fromPath);
+            
+            if(item==null)
+                throw new ItemNotFoundException("item " + fromPath + " not found");
+            
+            if(item instanceof HomeCollectionItem)
+                throw new IllegalArgumentException("cannot move root collection");
+            
             // Name of moved item
-            String moveName = itemPathTranslator.getItemName(path);
+            String moveName = itemPathTranslator.getItemName(toPath);
             
             if(moveName==null || "".equals(moveName))
                 throw new IllegalArgumentException("path must include name");
             
             // Parent of moved item
-            CollectionItem parent = (CollectionItem) itemPathTranslator.findItemParent(path);
+            CollectionItem parent = (CollectionItem) itemPathTranslator.findItemParent(toPath);
             
             if(parent==null)
                 throw new ItemNotFoundException("parent collecion not found");
             
-            if(item.getParent()==null)
-                throw new IllegalArgumentException("cannot move root collection");
+            // Current parent
+            CollectionItem oldParent = (CollectionItem) itemPathTranslator.findItemParent(fromPath);
             
             checkForDuplicateItemName(item.getOwner().getId(), 
                     parent.getId(), moveName);
@@ -469,7 +477,14 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
             verifyNotInLoop(item, parent);
             
             item.setName(moveName);
-            item.setParent(parent);
+            if(!parent.getUid().equals(oldParent.getUid())) {
+                parent.removeTombstone(item);
+                item.getParents().add(parent);
+                oldParent.addTombstone(new Tombstone(oldParent, item));
+                item.getParents().remove(oldParent);
+                getSession().update(oldParent);
+                getSession().update(parent);
+            }
             getSession().update(item);
             getSession().flush();
             
@@ -477,6 +492,20 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
         }
     }
+
+    
+    
+    /* (non-Javadoc)
+     * @see org.osaf.cosmo.dao.ItemDao#refreshItem(org.osaf.cosmo.model.Item)
+     */
+    public void refreshItem(Item item) {
+        try {
+            getSession().refresh(item);
+        } catch (HibernateException e) {
+            throw SessionFactoryUtils.convertHibernateAccessException(e);
+        }
+    }
+
 
     /**
      * Set the unique ID generator for new items
@@ -559,7 +588,7 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
         }
         
         // copy base Item fields
-        item2.setParent(parent);
+        item2.getParents().add(parent);
         item2.setOwner(item.getOwner());
         item2.setName(item.getName());
         setBaseItemProps(item2);
@@ -731,10 +760,39 @@ public class ItemDaoImpl extends HibernateDaoSupport implements ItemDao {
             throw new DuplicateItemNameException(name);
     }
     
+
+    protected void checkForDuplicateItemNameMinusItem(Long userDbId,
+            Set<CollectionItem> parents, String name, Long itemId) {
+
+        for (CollectionItem parent : parents) {
+            if (findItemByParentAndNameMinusItem(userDbId, parent.getId(),
+                    name, itemId) != null)
+                throw new DuplicateItemNameException(name);
+        }
+    }
+    
     protected void checkForDuplicateItemNameMinusItem(Long userDbId, Long parentDbId,
             String name, Long itemId) {
         if (findItemByParentAndNameMinusItem(userDbId, parentDbId, name, itemId) != null)
             throw new DuplicateItemNameException(name);
     }
-
+    
+    protected Ticket getTicketRecursive(Item item, String key) {
+        if(item==null)
+            return null;
+        
+        for (Ticket ticket : item.getTickets()) {
+            if (ticket.getKey().equals(key))
+                return ticket;
+        }
+        
+        for(Item parent: item.getParents()) {
+            Ticket ticket = getTicketRecursive(parent, key);
+            if(ticket!=null)
+                return ticket;
+        }
+        
+        return null;
+    }
+    
 }

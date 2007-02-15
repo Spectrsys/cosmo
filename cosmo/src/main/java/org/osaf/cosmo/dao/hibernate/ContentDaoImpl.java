@@ -29,9 +29,11 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.DuplicateEventUidException;
 import org.osaf.cosmo.model.EventStamp;
+import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ModelConversionException;
 import org.osaf.cosmo.model.ModelValidationException;
+import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.User;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
@@ -88,7 +90,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                     .getName());
             
             setBaseItemProps(collection);
-            collection.setParent(parent);
+            collection.getParents().add(parent);
             
             getSession().save(collection);
             getSession().flush();
@@ -131,7 +133,9 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             checkForDuplicateItemName(owner.getId(), parent.getId(), content.getName());
 
             setBaseItemProps(content);
-            content.setParent(parent);
+            content.getParents().add(parent);
+            parent.removeTombstone(content);
+            getSession().update(parent);
             
             boolean isEvent = content.getStamp(EventStamp.class) != null;
             
@@ -157,6 +161,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
         } 
     }
+    
 
     /*
      * (non-Javadoc)
@@ -249,9 +254,9 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             
             // In a hierarchy, can't have two items with same name with
             // same parent
-            if (collection.getParent() != null)
+            if (collection.getParents().size() > 0)
                 checkForDuplicateItemNameMinusItem(collection.getOwner().getId(), 
-                    collection.getParent().getId(), collection.getName(), collection.getId());
+                    collection.getParents(), collection.getName(), collection.getId());
             
             collection.setModifiedDate(new Date());
             
@@ -275,13 +280,13 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             if (content == null)
                 throw new IllegalArgumentException("content cannot be null");
             
-            if(content.getParent()==null)
-                throw new IllegalArgumentException("parent cannot be null");
+            if(content.getParents().size()==0)
+                throw new IllegalArgumentException("item must have at least one parent");
                         
             // In a hierarchy, can't have two items with same name with
             // same parent
             checkForDuplicateItemNameMinusItem(content.getOwner().getId(), 
-                    content.getParent().getId(), content.getName(), content.getId());
+                    content.getParents(), content.getName(), content.getId());
             
             boolean isEvent = content.getStamp(EventStamp.class) != null;
             
@@ -317,7 +322,32 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
      * @see org.osaf.cosmo.dao.ContentDao#removeCollection(org.osaf.cosmo.model.CollectionItem)
      */
     public void removeCollection(CollectionItem collection) {
-        removeItem(collection);
+        
+        if(collection==null)
+            throw new IllegalArgumentException("item cannot be null");
+        
+        try {
+            // Removing a collection does  not automatically remove
+            // its children.  Instead, the association to all the
+            // children is removed, and any children who have no
+            // parent collection are then removed.
+            for(Item item: collection.getChildren()) {
+                if(item instanceof CollectionItem) {
+                    removeCollection((CollectionItem) item);
+                } else if(item instanceof ContentItem) {
+                    item.getParents().remove(collection);
+                    if(item.getParents().size()==0)
+                        getSession().delete(item);
+                } else {
+                    getSession().delete(item);
+                }
+            }
+            
+            getSession().delete(collection);
+            getSession().flush();
+        } catch (HibernateException e) {
+            throw SessionFactoryUtils.convertHibernateAccessException(e);
+        }
     }
 
     /*
@@ -326,13 +356,18 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
      * @see org.osaf.cosmo.dao.ContentDao#removeContent(org.osaf.cosmo.model.ContentItem)
      */
     public void removeContent(ContentItem content) {
+        
+        if(content==null)
+            throw new IllegalArgumentException("item cannot be null");
+        
         try {
-            content.setIsActive(false);
-            content.setName("DELETED:" + content.getName());
-            content.clearContent();
-            content.getAttributes().clear();
-            content.getStamps().clear();
-            getSession().update(content);
+            // Add a tombstone to each parent collection to track
+            // when the removal occurred.
+            for(CollectionItem parent : content.getParents()) {
+                parent.addTombstone(new Tombstone(parent, content));
+                getSession().update(parent);
+            }
+            getSession().delete(content);
             getSession().flush();
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
@@ -356,45 +391,13 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
         }
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.osaf.cosmo.dao.ContentDao#moveContent(org.osaf.cosmo.model.CollectionItem,
-     *      org.osaf.cosmo.model.Item)
-     */
-    public void moveContent(CollectionItem parent, Item content) {
-        try {
-            
-            if (parent == null)
-                throw new IllegalArgumentException("Invalid parent collection");
-
-            if (content == null)
-                throw new IllegalArgumentException("Invalid Item");
-
-            Item item = findItemByUid(content.getUid());
-
-            Item currentParent = item.getParent();
-
-            // can't move root collection
-            if (currentParent == null)
-                throw new IllegalArgumentException("Invalid parent collection");
-
-            // need to verify we aren't creating a loop
-            verifyNotInLoop(item, parent);
-
-            content.setParent(parent);
-            getSession().update(content);
-            getSession().flush();
-        } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
-        } 
-    }
     
     @Override
     public void removeItem(Item item) {
         if(item instanceof ContentItem)
             removeContent((ContentItem) item);
+        else if(item instanceof CollectionItem)
+            removeCollection((CollectionItem) item);
         else
             super.removeItem(item);
     }
@@ -404,6 +407,8 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         Item item = this.findItemByPath(path);
         if(item instanceof ContentItem)
             removeContent((ContentItem) item);
+        else if(item instanceof CollectionItem)
+            removeCollection((CollectionItem) item);
         else
             super.removeItem(item);
     }
@@ -413,6 +418,8 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         Item item = this.findItemByUid(uid);
         if(item instanceof ContentItem)
             removeContent((ContentItem) item);
+        else if(item instanceof CollectionItem)
+            removeCollection((CollectionItem) item);
         else
             super.removeItem(item);
     }

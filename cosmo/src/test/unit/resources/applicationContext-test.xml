@@ -89,6 +89,7 @@
             <value>org.osaf.cosmo.model.TextAttribute</value>
             <value>org.osaf.cosmo.model.Ticket</value>
             <value>org.osaf.cosmo.model.TimestampAttribute</value>
+            <value>org.osaf.cosmo.model.Tombstone</value>
             <value>org.osaf.cosmo.model.User</value>
         </list>
     </property>

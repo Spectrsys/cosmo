@@ -353,7 +353,7 @@ public abstract class DavResourceBase
                       destination.getResourcePath());
 
         try {
-            getContentService().moveItem(item, destination.getResourcePath());
+            getContentService().moveItem(getResourcePath(), destination.getResourcePath());
         } catch (ItemNotFoundException e) {
             throw new DavException(DavServletResponse.SC_CONFLICT);
         } catch (DuplicateItemNameException e) {

@@ -98,7 +98,8 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         // test add event
         ContentItem event = generateEvent("test.ics", "cal1.ics",
                 "testuser");
-
+        
+        calendar = contentDao.findCollectionByUid(calendar.getUid());
         ContentItem newEvent = contentDao.createContent(calendar, event);
         
         clearSession();

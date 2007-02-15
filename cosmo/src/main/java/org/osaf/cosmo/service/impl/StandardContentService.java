@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.service.impl;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -27,7 +28,6 @@ import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.service.ContentService;
@@ -101,8 +101,7 @@ public class StandardContentService implements ContentService {
         if (log.isDebugEnabled())
             log.debug("finding item at path " + path + " below parent " +
                       parentUid);
-        String parentPath = contentDao.getItemPath(parentUid);
-        return contentDao.findItemByPath(parentPath + path);
+        return contentDao.findItemByPath(path, parentUid);
     }
     
     /**
@@ -184,8 +183,8 @@ public class StandardContentService implements ContentService {
   
     /**
      * Move item to the given path
-     * @param item item to move
-     * @param path path to move item to
+     * @param fromPath path of item to move
+     * @param toPath path of item to move
      * @throws org.osaf.cosmo.model.ItemNotFoundException
      *         if parent item specified by path does not exist
      * @throws org.osaf.cosmo.model.DuplicateItemNameException
@@ -194,54 +193,18 @@ public class StandardContentService implements ContentService {
      *         if Item is a ContentItem and source or destination 
      *         CollectionItem is lockecd.
      */
-    public void moveItem(Item item, String path) {
+    public void moveItem(String fromPath, String toPath) {
         
-        // handle case of moving NoteItem 
-        // (need to synch on src and dest collections)
-        if(item != null && item instanceof NoteItem) {
-            
-            // need to get exclusive lock to source and destination parent
-            CollectionItem destParent = 
-                (CollectionItem) contentDao.findItemParentByPath(path);
-            CollectionItem srcParent = item.getParent();
-            
-            // only attempt to lock if source and destination exist
-            if(srcParent != null && destParent != null) {
-                
-                // lock destination first
-                if (! lockManager.lockCollection(destParent, lockTimeout))
-                    throw new CollectionLockedException("unable to obtain collection lock");
-               
-                // lock source
-                try {
-                    if (! lockManager.lockCollection(srcParent, lockTimeout))
-                            throw new CollectionLockedException("unable to obtain collection lock");
-                } catch (RuntimeException e) {
-                    lockManager.unlockCollection(destParent);
-                    throw e;
-                } 
-                
-                // now we have exclusive locks to both collections
-                try {
-                    // copy Item to destination collection
-                    contentDao.copyItem(item, path, false);
-                    
-                    // remove item from source collection
-                    contentDao.removeContent((ContentItem) item);
-                    
-                } finally {
-                    lockManager.unlockCollection(srcParent);
-                    lockManager.unlockCollection(destParent);
-                }
-                
-            } else {
-                // let dao throw errors
-                contentDao.moveItem(item, path);
-            }
-        } else {
-            // no need to sync
-            contentDao.moveItem(item, path);
-        }
+        CollectionItem oldParent = (CollectionItem) contentDao
+                .findItemParentByPath(fromPath);
+        CollectionItem newParent = (CollectionItem) contentDao
+                .findItemParentByPath(toPath);
+        
+        // FIXME:  Need to add locking
+        //         Locking strategy:
+        //            1. If fromPath is a ContentItem, then lock oldParent, newParent
+        //            2. If fromPath is a CollectionItem, then no locking required
+        contentDao.moveItem(fromPath, toPath);
     }
     
     /**
@@ -321,17 +284,43 @@ public class StandardContentService implements ContentService {
                     + parent.getName());
         }
 
-        CollectionItem newCollection = contentDao.createCollection(parent,
-                collection);
-        for (Item item : children) {
-            if (item instanceof ContentItem) {
-                ContentItem newItem = contentDao.createContent(collection,
-                        (ContentItem) item);
-                newCollection.getChildren().add(newItem);
-            }
-        }
+        // Obtain locks to all collections involved.  A collection is involved
+        // if it is the parent of one of the children.  If all children are new
+        // items, then no locks are obtained.
+        Set<CollectionItem> locks = acquireLocks(collection, children);
         
-        return contentDao.updateCollection(collection);
+        try {
+            // Create the new collection
+            CollectionItem newCollection = contentDao.createCollection(parent,
+                    collection);
+            
+            // Either create or update each item
+            for (Item item : children) {
+                if (item instanceof ContentItem) {
+                    
+                    // create item
+                    if(item.getId()==-1) {
+                        item = contentDao.createContent(collection,
+                            (ContentItem) item);
+                    } 
+                    // update item
+                    else {
+                        contentDao.addItemToCollection(item, collection);
+                        contentDao.updateContent((ContentItem) item);
+                    }
+                }
+            }
+            
+            // update collections involved
+            for(CollectionItem lockedCollection : locks)
+                contentDao.updateCollection(lockedCollection);
+            
+            contentDao.refreshItem(collection);
+            return collection;
+            
+        } finally {
+           releaseLocks(locks);
+        }
     }
     
     /**
@@ -355,6 +344,7 @@ public class StandardContentService implements ContentService {
         }
     }
 
+    
     /**
      * Update a collection and set of children.  The set of
      * children to be updated can include updates to existing
@@ -376,41 +366,49 @@ public class StandardContentService implements ContentService {
      *         currently locked for an update.
      */
     public CollectionItem updateCollection(CollectionItem collection,
-                                           Set<Item> children) {
+                                           Set<Item> updates) {
         if (log.isDebugEnabled()) {
             log.debug("updating collection " + collection.getName());
         }
 
-        if (! lockManager.lockCollection(collection, lockTimeout))
-            throw new CollectionLockedException("unable to obtain collection lock");
-
+        // Obtain locks to all collections involved.  A collection is involved
+        // if it is the parent of one of updated items.
+        Set<CollectionItem> locks = acquireLocks(collection, updates);
+        
         try {
-            for(Item item : children) {
+            for(Item item : updates) {
                 // for now, only process ContentItems
                 if(item instanceof ContentItem) {
-                    // deletion
-                    if(item.getIsActive()==false)
-                        contentDao.removeContent((ContentItem) item);
                     // addition
-                    else  if(item.getId()==-1) {
+                    if(item.getId()==-1) {
                         ContentItem newItem = contentDao.createContent(collection,
                                                  (ContentItem) item);
-                        collection.getChildren().add(newItem);
+                    }
+                    // deletion
+                    else if(item.getIsActive()==false) {
+                        
+                        contentDao.removeItem(item);
                     }
                     // update
-                    else
+                    else {
+                        
+                        // Add item to collection if necessary
+                        if(!item.getParents().contains(collection))
+                            contentDao.addItemToCollection(item, collection);
                         contentDao.updateContent((ContentItem) item);
+                    }
                 }
             }
-
-            // update collection
-            collection = contentDao.updateCollection(collection);
             
+            // update collections
+            for(CollectionItem parent : locks)
+                contentDao.updateCollection(parent);
+            
+            contentDao.refreshItem(collection);
             return collection;
         } finally {
-            lockManager.unlockCollection(collection);
+            releaseLocks(locks);
         }
-
     }
 
     /**
@@ -467,7 +465,9 @@ public class StandardContentService implements ContentService {
             throw new CollectionLockedException("unable to obtain collection lock");
         
         try {
-            return contentDao.createContent(parent, content);
+            content = contentDao.createContent(parent, content);
+            contentDao.updateCollection(parent);
+            return content;
         } finally {
             lockManager.unlockCollection(parent);
         }   
@@ -487,15 +487,18 @@ public class StandardContentService implements ContentService {
             log.debug("updating content item " + content.getName());
         }
         
-        CollectionItem parent = content.getParent();
-        
-        if (! lockManager.lockCollection(parent, lockTimeout))
-            throw new CollectionLockedException("unable to obtain collection lock");
+        Set<CollectionItem> locks = acquireLocks(content);
         
         try {
-            return contentDao.updateContent(content);
+            content = contentDao.updateContent(content);
+            
+            // update collections
+            for(CollectionItem parent : locks)
+                contentDao.updateCollection(parent);
+            
+            return content;
         } finally {
-            lockManager.unlockCollection(parent);
+            releaseLocks(locks);
         }
     }
 
@@ -512,15 +515,12 @@ public class StandardContentService implements ContentService {
             log.debug("removing content item " + content.getName());
         }
         
-        CollectionItem parent = content.getParent();
-        
-        if (! lockManager.lockCollection(parent, lockTimeout))
-            throw new CollectionLockedException("unable to obtain collection lock");
+        Set<CollectionItem> locks = acquireLocks(content);
         
         try {
             contentDao.removeContent(content);
         } finally {
-            lockManager.unlockCollection(parent);
+            releaseLocks(locks);
         }
     }
 
@@ -708,5 +708,57 @@ public class StandardContentService implements ContentService {
      */
     public void setLockTimeout(long lockTimeout) {
         this.lockTimeout = lockTimeout;
+    }
+    
+    /**
+     * Given a collection and a set of items, aquire a lock on the collection and
+     * all 
+     */
+    private Set<CollectionItem> acquireLocks(CollectionItem collection, Set<Item> children) {
+        
+        HashSet<CollectionItem> locks = new HashSet<CollectionItem>();
+        
+        // Get locks for all collections involved
+        try {
+
+            if (! lockManager.lockCollection(collection, lockTimeout))
+                throw new CollectionLockedException("unable to obtain collection lock");
+            
+            locks.add(collection);
+            
+            for(Item child : children)
+                acquireLocks(locks, child);
+           
+            return locks;
+        } catch (RuntimeException e) {
+            releaseLocks(locks);
+            throw e;
+        }
+    }
+    
+    private Set<CollectionItem> acquireLocks(Item item) {
+        HashSet<CollectionItem> locks = new HashSet<CollectionItem>();
+        try {
+            acquireLocks(locks,item);
+            return locks;
+        } catch (RuntimeException e) {
+            releaseLocks(locks);
+            throw e;
+        }
+    }
+    
+    private void acquireLocks(Set<CollectionItem> locks, Item item) {
+        for(CollectionItem parent: item.getParents()) {
+            if(locks.contains(parent))
+                continue;
+            if (! lockManager.lockCollection(parent, lockTimeout))
+                throw new CollectionLockedException("unable to obtain collection lock");
+            locks.add(parent);
+        }
+    }
+    
+    private void releaseLocks(Set<CollectionItem> locks) {
+        for(CollectionItem lock : locks)
+            lockManager.unlockCollection(lock);
     }
 }

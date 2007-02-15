@@ -28,7 +28,6 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.hibernate.PropertyValueException;
 import org.hibernate.validator.InvalidStateException;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.Attribute;
@@ -363,16 +362,6 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         }
     }
 
-    public void testDeleteRootItem() throws Exception {
-        User testuser = getUser(userDao, "testuser");
-        Item root = contentDao.getRootItem(testuser);
-        try {
-            contentDao.removeItem(root);
-            Assert.fail("able to delete root item");
-        } catch (IllegalArgumentException iae) {
-        }
-    }
-
     public void testFindItem() throws Exception {
         User testuser2 = getUser(userDao, "testuser2");
 
@@ -396,7 +385,8 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         Assert.assertTrue(queryItem instanceof CollectionItem);
 
         ContentItem item = generateTestContent();
-
+        
+        a = contentDao.findCollectionByUid(a.getUid());
         item = contentDao.createContent(a, item);
 
         clearSession();
@@ -540,7 +530,7 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         Assert.assertNull(queryItem);
     }
     
-    public void testLogicalDeleteContent() throws Exception {
+    public void testTombstoneDeleteContent() throws Exception {
         User user = getUser(userDao, "testuser");
         CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
 
@@ -562,10 +552,9 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         queryItem = contentDao.findContentByUid(newItem.getUid());
         Assert.assertNull(queryItem);
         
-        queryItem = (ContentItem) contentDao.findAnyItemByUid(newItem.getUid());
-        Assert.assertNotNull(queryItem);
-        Assert.assertFalse(queryItem.getIsActive());
-        Assert.assertTrue(queryItem.getVersion().equals(1));
+        root = (CollectionItem) contentDao.getRootItem(user);
+        Assert.assertEquals(root.getTombstones().size(), 1);
+        Assert.assertEquals(root.getTombstones().iterator().next().getItemUid(), newItem.getUid());
         
         item = generateTestContent();
         item.setUid(newItem.getUid());
@@ -577,7 +566,9 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         queryItem = contentDao.findContentByUid(newItem.getUid());
         
         Assert.assertNotNull(queryItem);
-        Assert.assertTrue(queryItem.getVersion().equals(2));
+        
+        root = (CollectionItem) contentDao.getRootItem(user);
+        Assert.assertEquals(root.getTombstones().size(), 0);
     }
 
     public void testContentDaoCreateCollection() throws Exception {
@@ -724,13 +715,6 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
                         .getContent());
         Assert.assertEquals("c", queryC.getName());
 
-        // test get path
-        String cPath1 = contentDao.getItemPath(c);
-        String cPath2 = contentDao.getItemPath(c.getUid());
-
-        Assert.assertEquals("/testuser2/a/b/c", cPath1);
-        Assert.assertEquals(cPath1, cPath2);
-
         // test get path/uid abstract
         Item queryItem = contentDao.findItemByPath("/testuser2/a/b/c");
         Assert.assertNotNull(queryItem);
@@ -754,76 +738,7 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         Assert.assertNull(queryD);
     }
 
-    public void testContentDaoMove() throws Exception {
-        User testuser2 = getUser(userDao, "testuser2");
-        CollectionItem root = (CollectionItem) contentDao
-                .getRootItem(testuser2);
-
-        CollectionItem a = new CollectionItem();
-        a.setName("a");
-        a.setOwner(getUser(userDao, "testuser2"));
-
-        a = contentDao.createCollection(root, a);
-
-        CollectionItem b = new CollectionItem();
-        b.setName("b");
-        b.setOwner(getUser(userDao, "testuser2"));
-
-        b = contentDao.createCollection(a, b);
-
-        CollectionItem c = new CollectionItem();
-        c.setName("c");
-        c.setOwner(getUser(userDao, "testuser2"));
-
-        c = contentDao.createCollection(b, c);
-
-        ContentItem d = generateTestContent("d", "testuser2");
-
-        d = contentDao.createContent(c, d);
-
-        CollectionItem e = new CollectionItem();
-        e.setName("e");
-        e.setOwner(getUser(userDao, "testuser2"));
-
-        e = contentDao.createCollection(a, e);
-
-        clearSession();
-
-        // verify can't move root collection
-        try {
-            contentDao.moveContent(a, root);
-            Assert.fail("able to move root collection");
-        } catch (IllegalArgumentException iae) {
-        }
-
-        // verify can't move to root collection
-        try {
-            contentDao.moveContent(null, e);
-            Assert.fail("able to move to root collection");
-        } catch (IllegalArgumentException iae) {
-        }
-
-        // verify can't create loop
-        try {
-            contentDao.moveContent(c, b);
-            Assert.fail("able to create loop");
-        } catch (ModelValidationException iae) {
-        }
-
-        // verify that move works
-        e = contentDao.findCollectionByUid(e.getUid());
-        b = contentDao.findCollectionByPath("/testuser2/a/b");
-        Assert.assertNotNull(b);
-
-        contentDao.moveContent(e, b);
-
-        clearSession();
-
-        CollectionItem queryCollection = contentDao
-                .findCollectionByPath("/testuser2/a/e/b");
-        Assert.assertNotNull(queryCollection);
-    }
-
+  
     public void testHomeCollection() throws Exception {
         User testuser2 = getUser(userDao, "testuser2");
         HomeCollectionItem root = contentDao.getRootItem(testuser2);
@@ -875,21 +790,21 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
 
         // verify can't move root collection
         try {
-            contentDao.moveItem(root, "/testuser2/a/blah");
+            contentDao.moveItem("/testuser2", "/testuser2/a/blah");
             Assert.fail("able to move root collection");
         } catch (IllegalArgumentException iae) {
         }
 
         // verify can't move to root collection
         try {
-            contentDao.moveItem(e, "/testuser2");
+            contentDao.moveItem("/testuser2/a/e", "/testuser2");
             Assert.fail("able to move to root collection");
         } catch (ItemNotFoundException infe) {
         }
 
         // verify can't create loop
         try {
-            contentDao.moveItem(b, "/testuser2/a/b/c/new");
+            contentDao.moveItem("/testuser2/a/b", "/testuser2/a/b/c/new");
             Assert.fail("able to create loop");
         } catch (ModelValidationException iae) {
         }
@@ -899,7 +814,7 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         // verify that move works
         b = contentDao.findCollectionByPath("/testuser2/a/b");
 
-        contentDao.moveItem(b, "/testuser2/a/e/b");
+        contentDao.moveItem("/testuser2/a/b", "/testuser2/a/e/b");
 
         clearSession();
 
@@ -907,7 +822,7 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
                 .findCollectionByPath("/testuser2/a/e/b");
         Assert.assertNotNull(queryCollection);
 
-        contentDao.moveItem(queryCollection, "/testuser2/a/e/bnew");
+        contentDao.moveItem("/testuser2/a/e/b", "/testuser2/a/e/bnew");
 
         clearSession();
         queryCollection = contentDao
@@ -1092,6 +1007,102 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
 
         tickets = contentDao.getTickets("/testuser/" + name);
         Assert.assertEquals(0, tickets.size());
+    }
+    
+    public void testItemInMutipleCollections() throws Exception {
+        User user = getUser(userDao, "testuser");
+        CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
+
+        CollectionItem a = new CollectionItem();
+        a.setName("a");
+        a.setOwner(user);
+
+        a = contentDao.createCollection(root, a);
+        
+        ContentItem item = generateTestContent();
+        item.setName("test");
+
+        ContentItem newItem = contentDao.createContent(a, item);
+
+        clearSession();
+
+        ContentItem queryItem = contentDao.findContentByUid(newItem.getUid());
+        Assert.assertEquals(queryItem.getParents().size(), 1);
+        
+        CollectionItem b = new CollectionItem();
+        b.setName("b");
+        b.setOwner(user);
+        
+        b = contentDao.createCollection(root, b);
+        
+        contentDao.addItemToCollection(queryItem, b);
+        
+        clearSession();
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        Assert.assertEquals(queryItem.getParents().size(), 2);
+        
+        b = contentDao.findCollectionByUid(b.getUid());
+        contentDao.removeItemFromCollection(queryItem, b);
+        clearSession();
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        Assert.assertEquals(queryItem.getParents().size(), 1);
+        
+        a = contentDao.findCollectionByUid(a.getUid());
+        contentDao.removeItemFromCollection(queryItem, a);
+        clearSession();
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        Assert.assertNull(queryItem);
+    }
+    
+    public void testItemInMutipleCollectionsDeleteCollection() throws Exception {
+        User user = getUser(userDao, "testuser");
+        CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
+
+        CollectionItem a = new CollectionItem();
+        a.setName("a");
+        a.setOwner(user);
+
+        a = contentDao.createCollection(root, a);
+        
+        ContentItem item = generateTestContent();
+        item.setName("test");
+
+        ContentItem newItem = contentDao.createContent(a, item);
+
+        clearSession();
+
+        ContentItem queryItem = contentDao.findContentByUid(newItem.getUid());
+        Assert.assertEquals(queryItem.getParents().size(), 1);
+        
+        CollectionItem b = new CollectionItem();
+        b.setName("b");
+        b.setOwner(user);
+        
+        b = contentDao.createCollection(root, b);
+        
+        contentDao.addItemToCollection(queryItem, b);
+        
+        clearSession();
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        Assert.assertEquals(queryItem.getParents().size(), 2);
+        
+        b = contentDao.findCollectionByUid(b.getUid());
+        contentDao.removeCollection(b);
+        
+        clearSession();
+        b = contentDao.findCollectionByUid(b.getUid());
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        Assert.assertNull(b);
+        Assert.assertEquals(queryItem.getParents().size(), 1);
+        
+        a = contentDao.findCollectionByUid(a.getUid());
+        contentDao.removeCollection(a);
+        clearSession();
+        
+        a = contentDao.findCollectionByUid(a.getUid());
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        Assert.assertNull(a);
+        Assert.assertNull(queryItem);
     }
     
     private void verifyTicket(Ticket ticket1, Ticket ticket2) {
