@@ -22,6 +22,8 @@ use Cosmo::ClientBase ();
 use strict;
 use base qw(Cosmo::ClientBase);
 
+use constant HEADER_SYNC_TOKEN => 'X-MorseCode-SyncToken';
+
 sub new {
     my $class = shift;
     my $self = Cosmo::ClientBase->new(@_);
@@ -58,7 +60,7 @@ sub publish {
     warn "Success code " . $res->code . " not recognized\n"
         unless $res->code == 201;
 
-    return $res->header('X-MorseCode-SyncToken');
+    return $res->header(HEADER_SYNC_TOKEN);
 }
 
 sub update {
@@ -68,9 +70,18 @@ sub subscribe {
     my $self = shift;
     my $uuid = shift;
 
+    return $self->synchronize($uuid, undef);
+}
+
+sub synchronize {
+    my $self = shift;
+    my $uuid = shift;
+    my $token = shift;
+
     my $url = $self->collection_url($uuid);
 
     my $req = HTTP::Request->new(GET => $url);
+    $req->header(HEADER_SYNC_TOKEN, $token) if $token;
     print $req->as_string . "\n" if $self->{debug};
 
     my $res = $self->request($req);
@@ -86,10 +97,7 @@ sub subscribe {
     warn "Success code " . $res->code . " not recognized\n"
         unless $res->code == 200;
 
-    return ($res->content, $res->header('X-MorseCode-SyncToken'));
-}
-
-sub synchronize {
+    return ($res->content, $res->header(HEADER_SYNC_TOKEN));
 }
 
 sub delete {

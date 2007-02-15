@@ -157,6 +157,38 @@ sub run_subscribe {
 sub help_subscribe { "Subscribes to the collection specified by the working uuid.\n" }
 sub smry_subscribe { "subscribe to the working collection" }
 
+sub run_synchronize {
+    my $self = shift;
+
+    do {
+        print "Working collection uuid not set.\n";
+        return;
+    } unless $self->{uuid};
+
+    do {
+        print "Working sync token not set - use subscribe instead.\n";
+        return;
+    } unless $self->{token};
+
+    warn "Synchronizing collection $self->{uuid}.\n" if $self->{debug};
+    my ($xml, $token) =
+        eval { $self->{mc}->synchronize($self->{uuid}, $self->{token}); };
+    if ($@) {
+        print "Failed: $@\n";
+        return;
+    }
+
+    my $xpath = XML::XPath->new(xml => $xml);
+    my $recordsets = $xpath->findnodes('/eim:collection/eim:recordset');
+    print "Found ", ($recordsets->size() == 1 ? "1 recordset.\n" :
+                     $recordsets->size() . " recordsets.\n");
+
+    $self->{token} = $token;
+    print "Received token $token.\n";
+}
+sub help_synchronize { "Synchronizes the collection specified by the working uuid.\n" }
+sub smry_synchronize { "synchronize the working collection" }
+
 sub run_publish {
     my $self = shift;
     my $filename = shift or do {
