@@ -219,7 +219,46 @@ sub run_publish {
     $self->{token} = $token;
     print "Received token $token.\n";
 }
-sub help_publish { "Publishes a collection based on the contents of an EIMML file and sets its uuid as the working uuid. The file's location is given as an argument.\n" }
+sub help_publish { "Publishes a collection based on the contents of an EIMML file. The file's location is given as an argument.\n" }
 sub smry_publish { "publish a collection" }
+
+sub run_update {
+    my $self = shift;
+    my $filename = shift or do {
+        print "Name of EIMML file must be specified.\n";
+        return;
+    };
+
+    do {
+        print "Working collection uuid not set.\n";
+        return;
+    } unless $self->{uuid};
+
+    do {
+        print "Working sync token not set - subscribe to the collection first.\n";
+        return;
+    } unless $self->{token};
+
+    my $fh = IO::File->new($filename) or do {
+        print "Cannot open $filename: $!\n";
+        return;
+    };
+
+    warn "Updating collection $self->{uuid} from $filename.\n"
+        if $self->{debug};
+    my $token =
+        eval { $self->{mc}->update($self->{uuid}, $fh, $self->{token}); };
+    if ($@) {
+        print "Failed: $@\n";
+        return;
+    }
+
+    $fh->close();
+
+    $self->{token} = $token;
+    print "Received token $token.\n";
+}
+sub help_update { "Updates a collection based on the contents of an EIMML file. The file's location is given as an argument.\n" }
+sub smry_update { "update a collection" }
 
 1;

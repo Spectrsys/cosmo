@@ -64,6 +64,45 @@ sub publish {
 }
 
 sub update {
+    my $self = shift;
+    my $uuid = shift;
+    my $fh = shift;
+    my $token = shift;
+
+    my $url = $self->collection_url($uuid);
+
+    my $req = HTTP::Request->new(POST => $url);
+    $req->content_type(Cosmo::Constants::MEDIA_TYPE_EIMML);
+    $req->header(HEADER_SYNC_TOKEN, $token);
+    while (defined($_ = $fh->getline())) {
+        $req->add_content($_);
+    }
+    print $req->as_string . "\n" if $self->{debug};
+
+    my $res = $self->request($req);
+    print $res->as_string . "\n" if $self->{debug};
+
+    if (! $res->is_success) {
+        if ($res->code == 423) {
+            print "The collection is locked for an in-progress update. Try again momentarily.\n";
+            return;
+        }
+
+        die "Bad username or password\n" if $res->code == 401;
+        die "Collection $uuid does not exist\n" if $res->code == 404;
+        die "Parent item is not a collection\n" if $res->code == 412;
+        die $res->status_line . "\n";
+    }
+
+    if ($res->code == 205) {
+        print "The collection has been updated since you last synchronized. You must re-synchronize again before updating.\n";
+        return;
+    }
+
+    warn "Success code " . $res->code . " not recognized\n"
+        unless $res->code == 204;
+
+    return $res->header(HEADER_SYNC_TOKEN);
 }
 
 sub subscribe {
