@@ -519,6 +519,9 @@ public class StandardContentService implements ContentService {
         
         try {
             contentDao.removeContent(content);
+            // update collections
+            for(CollectionItem parent : locks)
+                contentDao.updateCollection(parent);
         } finally {
             releaseLocks(locks);
         }
