@@ -980,32 +980,39 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
 
         clearSession();
 
-        Ticket queryTicket1 = contentDao.getTicket("/testuser/" + name,
-                "ticket1");
+        newItem = contentDao.findContentByUid(newItem.getUid());
+        
+        Ticket queryTicket1 = contentDao.getTicket(newItem,"ticket1");
         Assert.assertNotNull(queryTicket1);
         verifyTicket(queryTicket1, ticket1);
 
-        Collection tickets = contentDao.getTickets("/testuser/" + name);
+        Collection tickets = contentDao.getTickets(newItem);
         Assert.assertEquals(2, tickets.size());
         verifyTicketInCollection(tickets, ticket1.getKey());
         verifyTicketInCollection(tickets, ticket2.getKey());
 
-        contentDao.removeTicket("/testuser/" + name, ticket1);
-        tickets = contentDao.getTickets("/testuser/" + name);
+        contentDao.removeTicket(newItem, ticket1);
+        clearSession();
+        
+        newItem = contentDao.findContentByUid(newItem.getUid());
+        
+        tickets = contentDao.getTickets(newItem);
         Assert.assertEquals(1, tickets.size());
         verifyTicketInCollection(tickets, ticket2.getKey());
 
-        queryTicket1 = contentDao.getTicket("/testuser/" + name, "ticket1");
+        queryTicket1 = contentDao.getTicket(newItem, "ticket1");
         Assert.assertNull(queryTicket1);
 
-        Ticket queryTicket2 = contentDao.getTicket("/testuser/" + name,
-                "ticket2");
+        Ticket queryTicket2 = contentDao.getTicket(newItem, "ticket2");
         Assert.assertNotNull(queryTicket2);
         verifyTicket(queryTicket2, ticket2);
 
-        contentDao.removeTicket("/testuser/" + name, ticket2);
+        contentDao.removeTicket(newItem, ticket2);
+        
+        clearSession();
+        newItem = contentDao.findContentByUid(newItem.getUid());
 
-        tickets = contentDao.getTickets("/testuser/" + name);
+        tickets = contentDao.getTickets(newItem);
         Assert.assertEquals(0, tickets.size());
     }
     
