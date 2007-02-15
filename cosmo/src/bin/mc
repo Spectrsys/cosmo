@@ -114,7 +114,14 @@ sub run_uuid {
     my $self = shift;
     my $uuid = shift;
 
-    $self->{uuid} = ($uuid ne "clear" ? $uuid : undef) if $uuid;
+    if ($uuid) {
+        if ($uuid eq "clear") {
+            $self->{uuid} = undef;
+            $self->{token} = undef;
+        } else {
+            $self->{uuid} = $uuid;
+        }
+    }
 
     print "Working uuid: $self->{uuid}\n" if $self->{uuid};
     print "No working uuid set.\n" unless $self->{uuid};
@@ -154,7 +161,7 @@ sub run_subscribe {
     $self->{token} = $token;
     print "Received token $token.\n";
 }
-sub help_subscribe { "Subscribes to the collection specified by the working uuid.\n" }
+sub help_subscribe { "Subscribes to the wrrking collection.\n" }
 sub smry_subscribe { "subscribe to the working collection" }
 
 sub run_synchronize {
@@ -186,7 +193,7 @@ sub run_synchronize {
     $self->{token} = $token;
     print "Received token $token.\n";
 }
-sub help_synchronize { "Synchronizes the collection specified by the working uuid.\n" }
+sub help_synchronize { "Synchronizes the working collection.\n" }
 sub smry_synchronize { "synchronize the working collection" }
 
 sub run_publish {
@@ -219,7 +226,7 @@ sub run_publish {
     $self->{token} = $token;
     print "Received token $token.\n";
 }
-sub help_publish { "Publishes a collection based on the contents of an EIMML file. The file's location is given as an argument.\n" }
+sub help_publish { "Publishes the working collection based on the contents of an EIMML file. The file's location is given as an argument.\n" }
 sub smry_publish { "publish a collection" }
 
 sub run_update {
@@ -258,7 +265,28 @@ sub run_update {
     $self->{token} = $token;
     print "Received token $token.\n";
 }
-sub help_update { "Updates a collection based on the contents of an EIMML file. The file's location is given as an argument.\n" }
+sub help_update { "Updates the working collection based on the contents of an EIMML file. The file's location is given as an argument.\n" }
 sub smry_update { "update a collection" }
+
+sub run_delete {
+    my $self = shift;
+
+    do {
+        print "Working collection uuid not set.\n";
+        return;
+    } unless $self->{uuid};
+
+    warn "Deleting collection $self->{uuid}.\n" if $self->{debug};
+    eval { $self->{mc}->delete($self->{uuid}); };
+    if ($@) {
+        print "Failed: $@\n";
+        return;
+    }
+
+    $self->{uuid} = undef;
+    $self->{token} = undef;
+}
+sub help_delete { "Deletes the working collection. This unsets the working uuid and token.\n" }
+sub smry_delete { "delete a collection" }
 
 1;

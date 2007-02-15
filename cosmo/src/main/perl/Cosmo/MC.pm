@@ -140,6 +140,28 @@ sub synchronize {
 }
 
 sub delete {
+    my $self = shift;
+    my $uuid = shift;
+
+    my $url = $self->collection_url($uuid);
+
+    my $req = HTTP::Request->new(DELETE => $url);
+    print $req->as_string . "\n" if $self->{debug};
+
+    my $res = $self->request($req);
+    print $res->as_string . "\n" if $self->{debug};
+
+    if (! $res->is_success) {
+        die "Bad username or password\n" if $res->code == 401;
+        die "Collection $uuid does not exist\n" if $res->code == 404;
+        die "Item $uuid is not a collection\n" if $res->code == 412;
+        die $res->status_line . "\n";
+    }
+
+    warn "Success code " . $res->code . " not recognized\n"
+        unless $res->code == 204;
+
+    return 1;
 }
 
 sub mc_url {
