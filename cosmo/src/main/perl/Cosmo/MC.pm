@@ -29,6 +29,36 @@ sub new {
 }
 
 sub publish {
+    my $self = shift;
+    my $uuid = shift;
+    my $fh = shift;
+    my $parentUuid = shift;
+
+    my $url = $self->collection_url($uuid);
+    $url = sprintf("%s?parent=%s", $url, $parentUuid) if $parentUuid;
+
+    my $req = HTTP::Request->new(PUT => $url);
+    $req->content_type(Cosmo::Constants::MEDIA_TYPE_EIMML);
+    while (defined($_ = $fh->getline())) {
+        $req->add_content($_);
+    }
+    print $req->as_string . "\n" if $self->{debug};
+
+    my $res = $self->request($req);
+    print $res->as_string . "\n" if $self->{debug};
+
+    if (! $res->is_success) {
+        die "Bad username or password\n" if $res->code == 401;
+        die "Collection $uuid does not exist\n" if $res->code == 404;
+        die "UUID $uuid is already in use\n" if $res->code == 409;
+        die "Parent item is not a collection\n" if $res->code == 412;
+        die $res->status_line . "\n";
+    }
+
+    warn "Success code " . $res->code . " not recognized\n"
+        unless $res->code == 201;
+
+    return $res->header('X-MorseCode-SyncToken');
 }
 
 sub update {
@@ -36,11 +66,9 @@ sub update {
 
 sub subscribe {
     my $self = shift;
-    my $uid = shift;
-    my $parentUid = shift;
+    my $uuid = shift;
 
-    my $url = $self->collection_url($uid);
-    $url = sprintf("%s?parent=%s", $url, $parentUid) if $parentUid;
+    my $url = $self->collection_url($uuid);
 
     my $req = HTTP::Request->new(GET => $url);
     print $req->as_string . "\n" if $self->{debug};
@@ -50,17 +78,15 @@ sub subscribe {
 
     if (! $res->is_success) {
         die "Bad username or password\n" if $res->code == 401;
-        die "Collection $uid does not exist\n" if $res->code == 404;
-        die "UID $uid is already in use\n" if $res->code == 409;
-        die "Parent item is not a collection\n" if $res->code == 412;
+        die "Collection $uuid does not exist\n" if $res->code == 404;
+        die "Item $uuid is not a collection\n" if $res->code == 412;
         die $res->status_line . "\n";
     }
 
-    if (! $res->code == 201) {
-        warn "Success code " . $res->code . " not recognized\n";
-    }
+    warn "Success code " . $res->code . " not recognized\n"
+        unless $res->code == 200;
 
-    # XXX return collection
+    return ($res->content, $res->header('X-MorseCode-SyncToken'));
 }
 
 sub synchronize {
@@ -77,9 +103,9 @@ sub mc_url {
 
 sub collection_url {
     my $self = shift;
-    my $uid = shift;
+    my $uuid = shift;
 
-    return sprintf("%s/collection/%s", $self->mc_url, $uid);
+    return sprintf("%s/collection/%s", $self->mc_url, $uuid);
 }
 
 1;

@@ -34,6 +34,7 @@ Options:
   -s [url]         server root URL (defaults to http://localhost:8080)
   -u [username]    username of user making the request
   -p [password]    password of user making the request
+  -i [uuid]         uuid of the working collection
   -d               print debugging information to STDOUT
   -h               list available command line options (this page)
   -v               print version information and exit
@@ -43,13 +44,14 @@ EOT
 
 use constant DEFAULT_SERVER_URL => 'http://localhost:8080/cosmo';
 
-my ($ServerUrl, $Username, $Password, $Debug, $opt_help, $opt_version);
+my ($ServerUrl, $Username, $Password, $Uuid, $Debug, $opt_help, $opt_version);
 
 # process command line options
 Getopt::Long::GetOptions(
     "s=s" => \$ServerUrl,
     "u=s" => \$Username,
     "p=s" => \$Password,
+    "i=s" => \$Uuid,
     "d"   => \$Debug,
     "h"   => \$opt_help,
     "v"   => \$opt_version,
@@ -62,13 +64,16 @@ Getopt::Long::GetOptions(
 $ServerUrl ||= DEFAULT_SERVER_URL;
 chop($ServerUrl) if $ServerUrl =~ m|/$|;
 
-Cosmo::MC::Shell->new($ServerUrl, $Username, $Password, $Debug)->cmdloop();
+Cosmo::MC::Shell->new($ServerUrl, $Username, $Password, $Uuid, $Debug)->
+    cmdloop();
 
 exit;
 
 package Cosmo::MC::Shell;
 
+use IO::File ();
 use Term::Shell ();
+use XML::XPath ();
 
 use base qw(Term::Shell);
 
@@ -78,13 +83,16 @@ sub init {
     my $serverUrl = $self->{API}{args}[0];
     my $username = $self->{API}{args}[1];
     my $password = $self->{API}{args}[2];
-    my $debug = $self->{API}{args}[3];
+    my $uuid = $self->{API}{args}[3];
+    my $debug = $self->{API}{args}[4];
 
     print "Morse Code command shell v", main::VERSION, "\n";
     print "Debugging enabled.\n" if $debug;
 
     $self->{mc} = Cosmo::MC->new($serverUrl, $username, $password, $debug);
     $self->{debug} = $debug;
+    $self->{uuid} = $uuid;
+    $self->{token} = undef;
 
     $self->{mc}->agent(main::PROGRAM . "/" . main::VERSION);
 
@@ -102,26 +110,84 @@ sub init {
 sub prompt_str { "mc> " }
 sub alias_exit { ("quit") }
 
+sub run_uuid {
+    my $self = shift;
+    my $uuid = shift;
+
+    $self->{uuid} = ($uuid ne "clear" ? $uuid : undef) if $uuid;
+
+    print "Working uuid: $self->{uuid}\n" if $self->{uuid};
+    print "No working uuid set.\n" unless $self->{uuid};
+}
+sub help_uuid { "Displays the working collection uuid. If an argument is provided, sets the working uuid, unless the argument is 'clear', which unsets the working uuid..\n" }
+sub smry_uuid { "get/set the working collection uuid" }
+
+sub run_token {
+    my $self = shift;
+
+    print "Working token: $self->{token}\n" if $self->{token};
+    print "No working token set.\n" unless $self->{token};
+}
+sub help_token { "Displays the working sync token.\n" }
+sub smry_token { "get the working sync token" }
+
 sub run_subscribe {
     my $self = shift;
-    my $uid = shift or do {
-        print "Uid required.\n";
-        return;
-    };
 
-    warn "Subscribing to collection $uid\n" if $self->{debug};
-    eval {
-        $self->{mc}->subscribe($uid);
-    };
+    do {
+        print "Working collection uuid not set.\n";
+        return;
+    } unless $self->{uuid};
+
+    warn "Subscribing to collection $self->{uuid}.\n" if $self->{debug};
+    my ($xml, $token) = eval { $self->{mc}->subscribe($self->{uuid}); };
     if ($@) {
         print "Failed: $@\n";
         return;
     }
 
-    # XXX do something with the response content
-}
+    my $xpath = XML::XPath->new(xml => $xml);
+    my $recordsets = $xpath->findnodes('/eim:collection/eim:recordset');
+    print "Found ", ($recordsets->size() == 1 ? "1 recordset.\n" :
+                     $recordsets->size() . " recordsets.\n");
 
-sub help_subscribe { return "Subscribe to a collection by providing its uid" }
-sub smry_subscribe { return "Subscribe to collection <uid>" }
+    $self->{token} = $token;
+    print "Received token $token.\n";
+}
+sub help_subscribe { "Subscribes to the collection specified by the working uuid.\n" }
+sub smry_subscribe { "subscribe to the working collection" }
+
+sub run_publish {
+    my $self = shift;
+    my $filename = shift or do {
+        print "Name of EIMML file must be specified.\n";
+        return;
+    };
+
+    do {
+        print "Working collection uuid not set.\n";
+        return;
+    } unless $self->{uuid};
+
+    my $fh = IO::File->new($filename) or do {
+        print "Cannot open $filename: $!\n";
+        return;
+    };
+
+    warn "Publishing collection $self->{uuid} from $filename.\n"
+        if $self->{debug};
+    my $token = eval { $self->{mc}->publish($self->{uuid}, $fh); };
+    if ($@) {
+        print "Failed: $@\n";
+        return;
+    }
+
+    $fh->close();
+
+    $self->{token} = $token;
+    print "Received token $token.\n";
+}
+sub help_publish { "Publishes a collection based on the contents of an EIMML file and sets its uuid as the working uuid. The file's location is given as an argument.\n" }
+sub smry_publish { "publish a collection" }
 
 1;
