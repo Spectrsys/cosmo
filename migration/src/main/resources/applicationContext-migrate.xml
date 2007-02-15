@@ -40,6 +40,10 @@
         class="org.osaf.cosmo.migrate.ZeroPointFiveToZeroPointSixMigration">
     </bean>
 
+    <bean id="zeroPointSixToZeroPointSixOne"
+        class="org.osaf.cosmo.migrate.ZeroPointSixToZeroPointSixOneMigration">
+    </bean>
+
     <bean id="propertyPlaceHolderConfigurer"
         class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     </bean>
@@ -54,6 +58,7 @@
         <property name="migrations">
             <list>
                 <ref local="zeroPointFiveToZeroPointSix"/>
+                <ref local="zeroPointSixToZeroPointSixOne"/>
             </list>
         </property>
     </bean>
