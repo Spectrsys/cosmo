@@ -422,6 +422,8 @@ public class StandardUserService implements UserService {
      * collection of all the user's items.
      */
     private void removeUserAndItems(User user) {
+        if(user==null)
+            return;
         HomeCollectionItem home = contentDao.getRootItem(user);
         contentDao.removeCollection(home);
         userDao.removeUser(user);

@@ -40,7 +40,7 @@ public class MockDaoStorage {
 
     private HashMap<String, Item> itemsByPath;
     private HashMap<String, Item> itemsByUid;
-    private HashMap<Long, String> rootUids;
+    private HashMap<String, String> rootUids;
     private HashMap<String, Set> tickets;
     private SessionIdGenerator idGenerator;
 
@@ -48,7 +48,7 @@ public class MockDaoStorage {
     public MockDaoStorage() {
         itemsByPath = new HashMap<String, Item>();
         itemsByUid = new HashMap<String, Item>();
-        rootUids = new HashMap<Long, String>();
+        rootUids = new HashMap<String, String>();
         tickets = new HashMap<String, Set>();
         idGenerator = new SessionIdGenerator();
     }
@@ -85,12 +85,12 @@ public class MockDaoStorage {
     }
 
     /** */
-    public String getRootUid(Long userId) {
+    public String getRootUid(String userId) {
         return rootUids.get(userId);
     }
 
     /** */
-    public void setRootUid(Long userId, String uid) {
+    public void setRootUid(String userId, String uid) {
         rootUids.put(userId, uid);
     }
 
@@ -100,7 +100,7 @@ public class MockDaoStorage {
     }
 
     /** */
-    public HomeCollectionItem getRootItem(Long userId) {
+    public HomeCollectionItem getRootItem(String userId) {
         String rootUid = rootUids.get(userId);
         if (rootUid == null) {
             throw new IllegalStateException("user does not have a root item");
@@ -119,7 +119,7 @@ public class MockDaoStorage {
 
         itemsByUid.put(rootCollection.getUid(), rootCollection);
         itemsByPath.put("/" + rootCollection.getName(), rootCollection);
-        rootUids.put(user.getId(), rootCollection.getUid());
+        rootUids.put(user.getUid(), rootCollection.getUid());
 
         return rootCollection;
     }

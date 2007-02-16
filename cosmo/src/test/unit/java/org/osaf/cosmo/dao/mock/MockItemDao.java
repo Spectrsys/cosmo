@@ -138,7 +138,7 @@ public class MockItemDao implements ItemDao {
             log.debug("getting root item for user " + user.getUsername());
         }
 
-        return getStorage().getRootItem(user.getId());
+        return getStorage().getRootItem(user.getUid());
     }
 
     /**
@@ -253,7 +253,7 @@ public class MockItemDao implements ItemDao {
 
         storage.removeItemByUid(item.getUid());
         storage.removeItemByPath(getItemPath(item));
-        if (storage.getRootUid(item.getOwner().getId()).
+        if (storage.getRootUid(item.getOwner().getUid()).
             equals(item.getUid())) {
             storage.removeRootUid(item.getOwner().getId());
         }
@@ -381,6 +381,6 @@ public class MockItemDao implements ItemDao {
 
     /** */
     protected Set findRootChildren(User user) {
-        return storage.findItemChildren(storage.getRootItem(user.getId()));
+        return storage.findItemChildren(storage.getRootItem(user.getUid()));
     }
 }
