@@ -676,11 +676,13 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
     }
     
     protected void logInvalidStateException(InvalidStateException ise) {
-        log.error(ise.getLocalizedMessage(), ise);
-        for (InvalidValue iv : ise.getInvalidValues())
-            log.error("property name: " + iv.getPropertyName() + " value: "
-                    + iv.getValue());
-        
+        // log more info about the invalid state
+        if(log.isDebugEnabled()) {
+            log.debug(ise.getLocalizedMessage());
+            for (InvalidValue iv : ise.getInvalidValues())
+                log.debug("property name: " + iv.getPropertyName() + " value: "
+                        + iv.getValue());
+        }
     }
     
 }
