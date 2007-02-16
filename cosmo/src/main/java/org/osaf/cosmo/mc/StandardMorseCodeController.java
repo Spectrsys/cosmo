@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecordSet;
-import org.osaf.cosmo.eim.schema.EimTranslator;
+import org.osaf.cosmo.eim.schema.ItemTranslator;
 import org.osaf.cosmo.eim.schema.EimValidationException;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
@@ -142,13 +142,13 @@ public class StandardMorseCodeController implements MorseCodeController {
 
         HashSet<Item> children = new HashSet<Item>();
         try {
-            EimTranslator translator = null;
+            ItemTranslator translator = null;
             while (records.getRecordSets().hasNext()) {
                 EimRecordSet recordset = records.getRecordSets().next();
                 try {
                     ContentItem child = createChildItem(collection, recordset);
                     children.add(child);
-                    translator = new EimTranslator(child);
+                    translator = new ItemTranslator(child);
                     translator.applyRecords(recordset);
                 } catch (EimValidationException e) {
                     throw new ValidationException("could not apply EIM recordset " + recordset.getUuid() + " due to invalid data", e);
@@ -285,7 +285,7 @@ public class StandardMorseCodeController implements MorseCodeController {
 
         HashSet<Item> children = new HashSet<Item>();
         try {
-            EimTranslator translator = null;
+            ItemTranslator translator = null;
             while (records.getRecordSets().hasNext()) {
                 EimRecordSet recordset = records.getRecordSets().next();
                 try {
@@ -297,7 +297,7 @@ public class StandardMorseCodeController implements MorseCodeController {
                         if (! (child instanceof ContentItem))
                             throw new ValidationException("Child item " + recordset.getUuid() + " is not a content item");
                     }
-                    translator = new EimTranslator((ContentItem)child);
+                    translator = new ItemTranslator((ContentItem)child);
                     translator.applyRecords(recordset);
                 } catch (EimValidationException e) {
                     throw new ValidationException("could not apply EIM recordset " + recordset.getUuid() + " due to invalid data", e);

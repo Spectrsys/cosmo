@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordSet;
+import org.osaf.cosmo.eim.EimRecordSetIterator;
 import org.osaf.cosmo.eim.eimml.EimmlConstants;
 import org.osaf.cosmo.eim.eimml.EimmlStreamReader;
 import org.osaf.cosmo.eim.eimml.EimmlStreamReaderIterator;
@@ -166,8 +167,12 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                 if (records.isDeleted()) {
                     writer.writeDeleted();
                 } else {
-                    while (records.getRecordSets().hasNext())
-                        writer.writeRecordSet(records.getRecordSets().next());
+                    EimRecordSetIterator i = records.getItemRecordSets();
+                    while (i.hasNext())
+                        writer.writeRecordSet(i.next());
+                    i = records.getTombstoneRecordSets();
+                    while (i.hasNext())
+                        writer.writeRecordSet(i.next());
                 }
 
                 writer.close();

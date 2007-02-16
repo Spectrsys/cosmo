@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,8 +49,8 @@ import org.apache.commons.logging.LogFactory;
  * @see EimRecordSet
  * @see Item
  */
-public class EimTranslator implements EimSchemaConstants {
-    private static final Log log = LogFactory.getLog(EimTranslator.class);
+public class ItemTranslator implements EimSchemaConstants {
+    private static final Log log = LogFactory.getLog(ItemTranslator.class);
 
     private Item item;
     private ContentItemApplicator contentItemApplicator;
@@ -68,7 +68,7 @@ public class EimTranslator implements EimSchemaConstants {
     private UnknownGenerator unknownGenerator;
 
     /** */
-    public EimTranslator(Item item) {
+    public ItemTranslator(Item item) {
         this.item = item;
 
         contentItemApplicator = new ContentItemApplicator(item);

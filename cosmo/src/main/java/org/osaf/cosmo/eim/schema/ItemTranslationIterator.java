@@ -21,7 +21,6 @@ import java.util.List;
 import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.EimRecordSetIterator;
-import org.osaf.cosmo.eim.schema.EimTranslator;
 import org.osaf.cosmo.model.ContentItem;
 
 /**
@@ -30,17 +29,17 @@ import org.osaf.cosmo.model.ContentItem;
  * @see Item
  * @see EimRecord
  */
-public class EimRecordTranslationIterator implements EimRecordSetIterator {
+public class ItemTranslationIterator implements EimRecordSetIterator {
 
     private Iterator<ContentItem> decorated;
     private long timestamp;
 
-    public EimRecordTranslationIterator(List<ContentItem> items) {
+    public ItemTranslationIterator(List<ContentItem> items) {
         this(items, -1);
     }
 
-    public EimRecordTranslationIterator(List<ContentItem> items,
-                                        long timestamp) {
+    public ItemTranslationIterator(List<ContentItem> items,
+                                   long timestamp) {
         this.decorated = items.iterator();
         this.timestamp = timestamp;
     }
@@ -52,6 +51,6 @@ public class EimRecordTranslationIterator implements EimRecordSetIterator {
 
     public EimRecordSet next()
         throws EimException {
-        return new EimTranslator(decorated.next()).generateRecords(timestamp);
+        return new ItemTranslator(decorated.next()).generateRecords(timestamp);
     }
 }

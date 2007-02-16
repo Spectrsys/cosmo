@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.Tombstone;
 
 /**
  * Bean class that represents a synchronization token.
@@ -57,7 +58,10 @@ public class SyncToken {
      * @return true or false
      */
     public boolean isValid(CollectionItem collection) {
-        boolean isValid = hashcode == collection.generateHash();
+        int collectionHashcode = collection.generateHash();
+        log.debug("token hash: " + hashcode);
+        log.debug("collection hash: " + collectionHashcode);
+        boolean isValid = hashcode == collectionHashcode;
         if (log.isDebugEnabled())
             log.debug("token valid for collection " + collection.getUid() +
                       "? " + isValid);
@@ -71,10 +75,32 @@ public class SyncToken {
      * @return true or false
      */
     public boolean hasItemChanged(Item item) {
-        boolean hasChanged = item.getModifiedDate().getTime() > timestamp;
+        long itemTimestamp = item.getModifiedDate().getTime();
+        log.debug("token timestamp: " + timestamp);
+        log.debug("item timestamp: " + itemTimestamp);
+        boolean hasChanged = itemTimestamp > timestamp;
         if (log.isDebugEnabled())
             log.debug("item " + item.getUid() + " changed since " +
                       item.getModifiedDate() + "? " + hasChanged);
+        return hasChanged;
+    }
+
+    /**
+     * Determines whether or not the given tombstone represents an
+     * item that was removed since the millisecond when the sync token
+     * was generated.
+     *
+     * @return true or false
+     */
+    public boolean isTombstoneRecent(Tombstone tombstone) {
+        long tombstoneTimestamp = tombstone.getTimestamp().getTime();
+        log.debug("token timestamp: " + timestamp);
+        log.debug("tombstone timestamp: " + tombstoneTimestamp);
+        boolean hasChanged = tombstoneTimestamp > timestamp;
+        if (log.isDebugEnabled())
+            log.debug("tombstone " + tombstone.getItemUid() +
+                      " removed since " + tombstone.getTimestamp() + "? " +
+                      hasChanged);
         return hasChanged;
     }
 
