@@ -81,7 +81,7 @@ cosmo.ui.event.handlers.init = function () {
 
 <c:if test="${not ticketedView}">
     cosmo.topics.publish(cosmo.topics.PreferencesUpdatedMessage, 
-  						 [cosmo.account.preferences.getPreferences()]);
+                           [cosmo.account.preferences.getPreferences()]);
 </c:if>
 }
 
@@ -89,15 +89,15 @@ dojo.require("cosmo.ui.event.listeners");
 cosmo.ui.event.listeners.hookUpListeners();
 
 function updateUIFromPrefs(/*cosmo.topics.PreferencesUpdatedMessage*/ message){
-	if (message.preferences[cosmo.account.preferences.SHOW_ACCOUNT_BROWSER_LINK] == 'true'){
-		$('accountBrowserLink').style.display = 'inline';
-	} else {
-		$('accountBrowserLink').style.display = 'none';
-	}
+    if (message.preferences[cosmo.account.preferences.SHOW_ACCOUNT_BROWSER_LINK] == 'true'){
+        $('accountBrowserLink').style.display = 'inline';
+    } else {
+        $('accountBrowserLink').style.display = 'none';
+    }
 }
 
 dojo.event.topic.subscribe(
-	cosmo.topics.PreferencesUpdatedMessage.topicName, this, updateUIFromPrefs);
+    cosmo.topics.PreferencesUpdatedMessage.topicName, this, updateUIFromPrefs);
 
 </script>
 
@@ -110,7 +110,7 @@ dojo.event.topic.subscribe(
             <div id="menuNavItems">
             <c:choose>
               <c:when test="${not ticketedView}">
-              	<%-- Start non-ticketed links --%>
+                  <%-- Start non-ticketed links --%>
                 <authz:authorize ifAnyGranted="ROLE_USER">
                 <fmt:message key="Main.Welcome"><fmt:param value="${user.username}"/></fmt:message>
                   <span class="menuBarDivider">|</span>
@@ -135,7 +135,7 @@ dojo.event.topic.subscribe(
                 <%-- End non-ticketed links --%>
               </c:when>
               <c:otherwise>
-              	<%-- 
+                  <%-- 
                     Ticketed version of links
                     Add divs for subscribeSelector, signupGraphic via JavaScript DOM
                     so we can get accurate offsetWidth as code executes
@@ -144,7 +144,7 @@ dojo.event.topic.subscribe(
             </c:choose>
               
             <c:url var="helpUrl" 
-                value="http://wiki.osafoundation.org/bin/view/Projects/CosmoHelpPortal"/>
+                value="http://wiki.osafoundation.org/Projects/CosmoHelpRel0dot6"/>
             <a href="${helpUrl}" 
                 onclick="window.open('${helpUrl}'); 
                 return false;"><fmt:message key="Main.Help"/></a>
