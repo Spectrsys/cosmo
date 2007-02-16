@@ -69,7 +69,7 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
 
         EimRecordField triageStatus = fields.get(1);
         checkTextField(triageStatus, FIELD_TRIAGE_STATUS,
-                       contentItem.getTriageStatus());
+                       contentItem.getTriageStatus().toLowerCase());
 
         EimRecordField triageStatusChanged = fields.get(2);
         checkDecimalField(triageStatusChanged, FIELD_TRIAGE_STATUS_CHANGED,
