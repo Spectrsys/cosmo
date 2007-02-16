@@ -74,8 +74,7 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         EimRecordField triageStatusChanged = fields.get(2);
         checkDecimalField(triageStatusChanged, FIELD_TRIAGE_STATUS_CHANGED,
                           contentItem.getTriageStatusUpdated(),
-                          DIGITS_TRIAGE_STATUS_CHANGED,
-                          DEC_TRIAGE_STATUS_CHANGED);
+                          DIGITS_TIMESTAMP, DEC_TIMESTAMP);
 
         EimRecordField lastModifiedBy = fields.get(3);
         checkTextField(lastModifiedBy, FIELD_LAST_MODIFIED_BY,

@@ -67,8 +67,7 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
         record.addField(new TextField(FIELD_TRIAGE_STATUS, "IN PROGRESS"));
         record.addField(new DecimalField(FIELD_TRIAGE_STATUS_CHANGED,
                                          new BigDecimal("1234567890.00"),
-                                         DIGITS_TRIAGE_STATUS_CHANGED,
-                                         DEC_TRIAGE_STATUS_CHANGED));
+                                         DIGITS_TIMESTAMP, DEC_TIMESTAMP));
         record.addField(new TextField(FIELD_LAST_MODIFIED_BY,
                                       "bcm@osafoundation.org"));
         BigDecimal createdOn =
