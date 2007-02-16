@@ -17,12 +17,14 @@ package org.osaf.cosmo.mc;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecordSet;
+import org.osaf.cosmo.eim.EimRecordSetIterator;
 import org.osaf.cosmo.eim.schema.ItemTranslator;
 import org.osaf.cosmo.eim.schema.EimValidationException;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
@@ -140,23 +142,8 @@ public class StandardMorseCodeController implements MorseCodeController {
         CalendarCollectionStamp ccs = new CalendarCollectionStamp(collection);
         collection.addStamp(ccs);
 
-        HashSet<Item> children = new HashSet<Item>();
-        try {
-            ItemTranslator translator = null;
-            while (records.getRecordSets().hasNext()) {
-                EimRecordSet recordset = records.getRecordSets().next();
-                try {
-                    ContentItem child = createChildItem(collection, recordset);
-                    children.add(child);
-                    translator = new ItemTranslator(child);
-                    translator.applyRecords(recordset);
-                } catch (EimValidationException e) {
-                    throw new ValidationException("could not apply EIM recordset " + recordset.getUuid() + " due to invalid data", e);
-                }
-            }
-        } catch (EimException e) {
-            throw new MorseCodeException("unknown EIM translation problem", e);
-        }
+        Set<Item> children = recordsToItems(records.getRecordSets(),
+                                            collection);
 
         // throws UidinUseException
         collection =
@@ -283,29 +270,8 @@ public class StandardMorseCodeController implements MorseCodeController {
         if (records.getName() != null)
             collection.setDisplayName(records.getName());
 
-        HashSet<Item> children = new HashSet<Item>();
-        try {
-            ItemTranslator translator = null;
-            while (records.getRecordSets().hasNext()) {
-                EimRecordSet recordset = records.getRecordSets().next();
-                try {
-                    Item child = collection.getChild(recordset.getUuid());
-                    if (child == null) {
-                        child = createChildItem(collection, recordset);
-                        children.add(child);
-                    } else {
-                        if (! (child instanceof ContentItem))
-                            throw new ValidationException("Child item " + recordset.getUuid() + " is not a content item");
-                    }
-                    translator = new ItemTranslator((ContentItem)child);
-                    translator.applyRecords(recordset);
-                } catch (EimValidationException e) {
-                    throw new ValidationException("could not apply EIM recordset " + recordset.getUuid() + " due to invalid data", e);
-                }
-            }
-        } catch (EimException e) {
-            throw new MorseCodeException("unknown EIM translation problem", e);
-        }
+        Set<Item> children = recordsToItems(records.getRecordSets(),
+                                            collection);
 
         // throws CollectionLockedException
         collection = contentService.updateCollection(collection, children);
@@ -353,6 +319,33 @@ public class StandardMorseCodeController implements MorseCodeController {
         throw new MorseCodeException("authenticated principal neither user nor ticket");
     }
 
+    private Set<Item> recordsToItems(EimRecordSetIterator i,
+                                     CollectionItem collection) {
+        HashSet<Item> children = new HashSet<Item>();
+
+        try {
+            while (i.hasNext()) {
+                EimRecordSet recordset = i.next();
+                try {
+                    Item item =
+                        contentService.findItemByUid(recordset.getUuid());
+                    if (item != null && ! (item instanceof ContentItem))
+                        throw new ValidationException("Child item " + recordset.getUuid() + " is not a content item");
+                    ContentItem child = item != null ?
+                        (ContentItem) item :
+                        createChildItem(collection, recordset);
+                    children.add(child);
+                    new ItemTranslator(child).applyRecords(recordset);
+                } catch (EimValidationException e) {
+                    throw new ValidationException("could not apply EIM recordset " + recordset.getUuid() + " due to invalid data", e);
+                }
+            }
+        } catch (EimException e) {
+            throw new MorseCodeException("unknown EIM translation problem", e);
+        }
+
+        return children;
+    }
 
     // creates a new item and adds it as a child of the collection
     private ContentItem createChildItem(CollectionItem collection,
