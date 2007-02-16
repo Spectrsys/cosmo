@@ -248,7 +248,8 @@ public class MockItemDao implements ItemDao {
      *            item to remove
      */
     public void removeItem(Item item) {
-        item.getParent().getChildren().remove(item);
+        if(item.getParent()!=null)
+            item.getParent().getChildren().remove(item);
 
         storage.removeItemByUid(item.getUid());
         storage.removeItemByPath(getItemPath(item));

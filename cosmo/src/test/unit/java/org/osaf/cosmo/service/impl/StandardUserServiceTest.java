@@ -23,14 +23,11 @@ import junit.framework.TestCase;
 import org.apache.commons.id.random.SessionIdGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.TestHelper;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
 import org.osaf.cosmo.dao.mock.MockUserDao;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.service.account.AutomaticAccountActivator;
-
 import org.springframework.dao.DataRetrievalFailureException;
 
 /**
@@ -154,7 +151,7 @@ public class StandardUserServiceTest extends TestCase {
      */
     public void testRemoveUser() throws Exception {
         User u1 = testHelper.makeDummyUser();
-        userDao.createUser(u1);
+        service.createUser(u1);
 
         service.removeUser(u1);
 
@@ -165,7 +162,7 @@ public class StandardUserServiceTest extends TestCase {
      */
     public void testRemoveUserByUsername() throws Exception {
         User u1 = testHelper.makeDummyUser();
-        userDao.createUser(u1);
+        service.createUser(u1);
 
         service.removeUser(u1.getUsername());
 
