@@ -153,10 +153,7 @@ sub run_subscribe {
         return;
     }
 
-    my $xpath = XML::XPath->new(xml => $xml);
-    my $recordsets = $xpath->findnodes('/eim:collection/eim:recordset');
-    print "Found ", ($recordsets->size() == 1 ? "1 recordset.\n" :
-                     $recordsets->size() . " recordsets.\n");
+    $self->print_summary($xml);
 
     $self->{token} = $token;
     print "Received token $token.\n";
@@ -185,10 +182,7 @@ sub run_synchronize {
         return;
     }
 
-    my $xpath = XML::XPath->new(xml => $xml);
-    my $recordsets = $xpath->findnodes('/eim:collection/eim:recordset');
-    print "Found ", ($recordsets->size() == 1 ? "1 recordset.\n" :
-                     $recordsets->size() . " recordsets.\n");
+    $self->print_summary($xml);
 
     $self->{token} = $token;
     print "Received token $token.\n";
@@ -288,5 +282,22 @@ sub run_delete {
 }
 sub help_delete { "Deletes the working collection. This unsets the working uuid and token.\n" }
 sub smry_delete { "delete a collection" }
+
+sub print_summary {
+    my $self = shift;
+    my $xml = shift;
+
+    my $xpath = XML::XPath->new(xml => $xml);
+    my $recordsets = $xpath->findnodes('/eim:collection/eim:recordset');
+
+    my $deleted = 0;
+    for my $recordset ($recordsets->get_nodelist) {
+        $deleted++ if $recordset->getAttribute('eim:deleted');
+    }
+
+    print "Found ",
+    ($recordsets->size() == 1 ? "1 recordset ($deleted deleted).\n" :
+     $recordsets->size() . " recordsets ($deleted deleted).\n");
+}
 
 1;
