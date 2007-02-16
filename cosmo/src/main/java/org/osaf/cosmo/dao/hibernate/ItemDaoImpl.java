@@ -18,8 +18,6 @@ package org.osaf.cosmo.dao.hibernate;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -31,12 +29,13 @@ import org.hibernate.ObjectDeletedException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.UnresolvableObjectException;
+import org.hibernate.validator.InvalidStateException;
+import org.hibernate.validator.InvalidValue;
 import org.osaf.cosmo.dao.ItemDao;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.DuplicateItemNameException;
-import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
@@ -45,6 +44,7 @@ import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.Stamp;
 import org.osaf.cosmo.model.Ticket;
+import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
@@ -83,6 +83,8 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
     public Item findItemByPath(String path, String parentUid) {
         try {
             Item parent = findItemByUid(parentUid);
+            if(parent==null)
+                throw new ItemNotFoundException("parent with uid " + parentUid + " not found");
             Item item = itemPathTranslator.findItemByPath(path, (CollectionItem) parent);
             return item;
         } catch (HibernateException e) {
@@ -201,6 +203,9 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             return newItem;
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
         }
     }
     
@@ -233,7 +238,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             getSession().flush();
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
-        }
+        } 
     }
     
     public Set<Ticket> getTickets(Item item) {
@@ -269,6 +274,9 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             getSession().flush();
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
         }
     }
 
@@ -355,6 +363,9 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
         }
     }
     
@@ -408,6 +419,9 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
         }
     }
 
@@ -711,6 +725,14 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
         }
         
         return null;
+    }
+    
+    protected void logInvalidStateException(InvalidStateException ise) {
+        log.error(ise.getLocalizedMessage(), ise);
+        for (InvalidValue iv : ise.getInvalidValues())
+            log.error("property name: " + iv.getPropertyName() + " value: "
+                    + iv.getValue());
+        
     }
     
 }

@@ -24,12 +24,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.validator.InvalidStateException;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.DuplicateEventUidException;
 import org.osaf.cosmo.model.EventStamp;
-import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ModelConversionException;
 import org.osaf.cosmo.model.ModelValidationException;
@@ -98,7 +98,10 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             return collection;
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
-        } 
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
+        }
     }
 
     /*
@@ -159,7 +162,10 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             return content;
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
-        } 
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
+        }
     }
     
 
@@ -266,7 +272,10 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             return collection;
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
-        } 
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
+        }
     }
 
     /*
@@ -313,6 +322,9 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             return content;
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
         }
     }
 
