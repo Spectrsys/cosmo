@@ -717,7 +717,7 @@ cosmo.ui.cal_form.CalForm = function () {
         var recur = ev.data.recurrenceRule;
         var status = ev.data.status;
         form.eventtitle.value = ev.data.title;
-        form.eventlocation.value = ev.data.location;
+        form.eventlocation.value = ev.data.location || "";
         form.eventdescr.value = ev.data.description ?
             ev.data.description : '';
         form.status.value = ev.data.statusBar ? ev.data.status : '';
