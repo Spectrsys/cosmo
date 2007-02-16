@@ -116,4 +116,24 @@ public class NoteItem extends ContentItem {
     public void setIcalUid(String icalUid) {
         this.icalUid = icalUid;
     }
+    
+    public Item copy() {
+        NoteItem copy = new NoteItem();
+        copyToItem(copy);
+        return copy;
+    }
+    
+    @Override
+    protected void copyToItem(Item item) {
+        
+        if(!(item instanceof NoteItem))
+            return;
+        
+        super.copyToItem(item);
+        
+        NoteItem noteItem = (NoteItem) item;
+        noteItem.setBody(getBody());
+        noteItem.setIcalUid(getIcalUid());
+        noteItem.setReminderTime(getReminderTime());
+    }
 }

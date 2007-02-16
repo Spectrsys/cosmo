@@ -213,6 +213,37 @@ public class ContentItem extends Item {
         this.triageStatusUpdated = new BigDecimal(millis);
     }
 
+        
+    public Item copy() {
+        ContentItem copy = new ContentItem();
+        copyToItem(copy);
+        return copy;
+    }
+    
+    @Override
+    protected void copyToItem(Item item) {
+        if(!(item instanceof ContentItem))
+            return;
+        
+        super.copyToItem(item);
+        
+        ContentItem contentItem = (ContentItem) item;
+        
+        try {
+            InputStream contentStream = getContentInputStream();
+            if(contentStream!=null) {
+                contentItem.setContent(contentStream);
+                contentStream.close();
+            }
+            contentItem.setContentEncoding(getContentEncoding());
+            contentItem.setContentLanguage(getContentLanguage());
+            contentItem.setContentType(getContentType());
+            contentItem.setContentLength(getContentLength());
+        } catch (IOException e) {
+            throw new RuntimeException("Error copying content");
+        }
+    }
+
     /**
      */
     public String toString() {

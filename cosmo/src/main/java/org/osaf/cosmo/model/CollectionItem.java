@@ -141,4 +141,10 @@ public class CollectionItem extends Item {
     public int generateHash() {
         return getVersion();
     }
+    
+    public Item copy() {
+        CollectionItem copy = new CollectionItem();
+        copyToItem(copy);
+        return copy;
+    }
 }

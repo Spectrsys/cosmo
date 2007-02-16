@@ -633,5 +633,19 @@ public abstract class Item extends AuditableObject {
             return uid.hashCode();
     }
     
+    public abstract Item copy();
     
+    protected void copyToItem(Item item) {
+        item.setOwner(getOwner());
+        item.setName(getName());
+        item.setDisplayName(getDisplayName());
+        
+        // copy attributes
+        for(Entry<QName, Attribute> entry: getAttributes().entrySet())
+            item.addAttribute(entry.getValue().copy());
+        
+        // copy stamps
+        for(Stamp stamp: getActiveStamps())
+            item.addStamp(stamp.copy(item));
+    }
 }

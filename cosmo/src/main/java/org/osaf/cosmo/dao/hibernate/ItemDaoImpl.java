@@ -15,11 +15,8 @@
  */
 package org.osaf.cosmo.dao.hibernate;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.commons.id.IdentifierGenerator;
 import org.apache.commons.logging.Log;
@@ -32,17 +29,12 @@ import org.hibernate.UnresolvableObjectException;
 import org.hibernate.validator.InvalidStateException;
 import org.hibernate.validator.InvalidValue;
 import org.osaf.cosmo.dao.ItemDao;
-import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.CollectionItem;
-import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.DuplicateItemNameException;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
 import org.osaf.cosmo.model.ModelValidationException;
-import org.osaf.cosmo.model.NoteItem;
-import org.osaf.cosmo.model.QName;
-import org.osaf.cosmo.model.Stamp;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.UidInUseException;
@@ -510,56 +502,12 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
 
     protected Item copyItem(Item item, CollectionItem parent, boolean deepCopy) {
         
-        Item item2 = null;
-        
-        // create new item instance (can be any subclass of item)
-        try {
-            item2 = item.getClass().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("unable to construct new item instance");
-        }
+        Item item2 = item.copy();
         
         // copy base Item fields
         item2.getParents().add(parent);
-        item2.setOwner(item.getOwner());
-        item2.setName(item.getName());
         setBaseItemProps(item2);
         
-        // copy attributes
-        for(Entry<QName, Attribute> entry: item.getAttributes().entrySet())
-            item2.addAttribute(entry.getValue().copy());
-        
-        // copy stamps
-        for(Stamp stamp: item.getActiveStamps())
-            item2.addStamp(stamp.copy(item2));
-        
-        // copy content
-        if(item instanceof ContentItem) {
-            ContentItem contentItem = (ContentItem) item;
-            ContentItem newContentItem = (ContentItem) item2;
-            try {
-                InputStream contentStream = contentItem.getContentInputStream();
-                if(contentStream!=null) {
-                    newContentItem.setContent(contentStream);
-                    contentStream.close();
-                }
-                newContentItem.setContentEncoding(contentItem.getContentEncoding());
-                newContentItem.setContentLanguage(contentItem.getContentLanguage());
-                newContentItem.setContentType(contentItem.getContentType());
-            } catch (IOException e) {
-                throw new RuntimeException("Error copying content");
-            }
-        }
-        
-        // copy note
-        if(item instanceof NoteItem) {
-            NoteItem noteItem = (NoteItem) item;
-            NoteItem newNoteItem = (NoteItem) item2;
-            newNoteItem.setBody(noteItem.getBody());
-            newNoteItem.setIcalUid(noteItem.getIcalUid());
-            newNoteItem.setContentLength(noteItem.getContentLength());
-        }
-            
         // save Item before attempting deep copy
         getSession().save(item2);
         getSession().flush();
