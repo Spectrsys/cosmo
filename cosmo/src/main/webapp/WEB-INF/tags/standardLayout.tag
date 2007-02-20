@@ -83,7 +83,7 @@
                 <a href="${calendarUrl}"><fmt:message key="Layout.Nav.Main.Calendar"/></a>
               </authz:authorize>
               |
-              <a href="<c:url value="http://wiki.osafoundation.org/bin/view/Projects/CosmoHelpPortal"/>"><fmt:message key="Layout.Nav.Main.Help"/></a>
+              <a href="<c:url value="http://wiki.osafoundation.org/Projects/CosmoHelpRel0dot6"/>"><fmt:message key="Layout.Nav.Main.Help"/></a>
               |
               <a href="<c:url value="/logout"/>">
                 <fmt:message key="Layout.Nav.Main.LogOut"/>
