@@ -71,7 +71,7 @@ public class ContentItemGenerator extends BaseItemGenerator
                                       contentItem.getLastModifiedBy()));
         Date d = contentItem.getClientCreationDate();
         BigDecimal createdOn = d != null ?
-            new BigDecimal(d.getTime()) :
+            new BigDecimal(d.getTime() / 1000) :
             null;
         record.addField(new DecimalField(FIELD_CREATED_ON, createdOn,
                                          DIGITS_TIMESTAMP, DEC_TIMESTAMP));

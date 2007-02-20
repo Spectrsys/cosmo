@@ -100,7 +100,7 @@ public class BaseGeneratorTestCase extends TestCase
     protected void checkTimeStampField(EimRecordField field,
                                        String expectedName,
                                        Date expectedValue) {
-        BigDecimal bd = new BigDecimal(expectedValue.getTime());
+        BigDecimal bd = new BigDecimal(expectedValue.getTime() / 1000);
         checkDecimalField(field, expectedName, bd, DIGITS_TIMESTAMP,
                           DEC_TIMESTAMP);
     }

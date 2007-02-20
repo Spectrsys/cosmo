@@ -130,7 +130,9 @@ public class EimFieldValidator implements EimSchemaConstants {
             validateDecimal(field, DIGITS_TIMESTAMP, DEC_TIMESTAMP);
         if (bd == null)
             return null;
-        Date value = new Date(bd.longValue());
+        // a unix timestamp is the number of seconds since the epoch,
+        // but Date wants milliseconds
+        Date value = new Date(bd.longValue() * 1000);
         return value;
     }
 

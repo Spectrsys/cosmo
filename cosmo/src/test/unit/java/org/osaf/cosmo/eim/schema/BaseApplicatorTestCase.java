@@ -56,7 +56,7 @@ public class BaseApplicatorTestCase extends TestCase
     protected void checkTimeStampValue(EimRecordField field,
                                        Date value) {
         Date expected =
-            new Date(((DecimalField)field).getDecimal().longValue());
+            new Date(((DecimalField)field).getDecimal().longValue() * 1000);
         assertEquals("incorrect timestamp value", expected, value);
     }
 

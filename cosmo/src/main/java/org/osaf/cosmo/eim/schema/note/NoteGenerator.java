@@ -68,7 +68,7 @@ public class NoteGenerator extends BaseItemGenerator
 
         Date d = note.getReminderTime();
         BigDecimal reminderTime = d != null ?
-            new BigDecimal(d.getTime()) :
+            new BigDecimal(d.getTime() / 1000) :
             null;
         record.addField(new DecimalField(FIELD_REMINDER_TIME, reminderTime,
                                          DIGITS_TIMESTAMP, DEC_TIMESTAMP));
