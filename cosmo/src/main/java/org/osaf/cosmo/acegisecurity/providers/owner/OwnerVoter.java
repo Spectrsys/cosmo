@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2006 Open Source Applications Foundation
+ * Copyright 2005-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ public class OwnerVoter implements AccessDecisionVoter {
     private static final Log log = LogFactory.getLog(OwnerVoter.class);
 
     private ContentService contentService;
+    private boolean indirectlyAddressable = false;
 
     /**
      * Votes affirmatively if the authenticated principal is a user
@@ -108,30 +109,34 @@ public class OwnerVoter implements AccessDecisionVoter {
         CollectionPath cp = CollectionPath.parse(path, true);
         if (cp != null) {
             if (cp.getPathInfo() != null) {
-                // find indirectly addressed item
-                item = contentService.
-                    findItemByPath(cp.getPathInfo(), cp.getUid());
-                if (item == null) {
-                    // find indirectly addressed item's parent
-                    String parentPath =
-                        PathUtil.getParentPath(cp.getPathInfo());
+                if (indirectlyAddressable) {
+                    // find indirectly addressed item
                     item = contentService.
-                        findItemByPath(parentPath, cp.getUid());
+                        findItemByPath(cp.getPathInfo(), cp.getUid());
                     if (item == null) {
-                        // case 5
+                        // find indirectly addressed item's parent
+                        String parentPath =
+                            PathUtil.getParentPath(cp.getPathInfo());
+                        item = contentService.
+                            findItemByPath(parentPath, cp.getUid());
+                        if (item == null) {
+                            // case 5
+                            if (log.isDebugEnabled())
+                                log.debug("Indirectly addressed item at " + path + " not found and parent not found; abstaining");
+                            return ACCESS_ABSTAIN;
+                        }
+                        // case 4
                         if (log.isDebugEnabled())
-                            log.debug("Indirectly addressed item at " + path + " not found and parent not found; abstaining");
-                        return ACCESS_ABSTAIN;
+                            log.debug("Indirectly addressed item at " + path + " not found but parent found; proceeding to owner check");
+                        return checkOwnership(details.getUser(), item);
                     }
-                    // case 4
+                    // case 3
                     if (log.isDebugEnabled())
-                        log.debug("Indirectly addressed item at " + path + " not found but parent found; proceeding to owner check");
+                        log.debug("Indirectly addressed item at " + path + " found; proceeding to owner check");
                     return checkOwnership(details.getUser(), item);
                 }
-                // case 3
                 if (log.isDebugEnabled())
-                    log.debug("Indirectly addressed item at " + path + " found; proceeding to owner check");
-                return checkOwnership(details.getUser(), item);
+                    log.debug("Ignoring extra path info found since indirect addressing is not allowed");
             }
 
             // find directly addressed collection
@@ -230,5 +235,15 @@ public class OwnerVoter implements AccessDecisionVoter {
     /** */
     public void setContentService(ContentService service) {
         contentService = service;
+    }
+
+    /** */
+    public boolean isIndirectlyAddressable() {
+        return indirectlyAddressable;
+    }
+
+    /** */
+    public void setIndirectlyAddressable(boolean indirectlyAddressable) {
+        this.indirectlyAddressable = indirectlyAddressable;
     }
 }

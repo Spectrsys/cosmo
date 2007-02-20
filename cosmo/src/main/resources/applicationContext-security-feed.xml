@@ -3,7 +3,7 @@
           "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <!--
-    Copyright 2005-2007 Open Source Applications Foundation
+    Copyright 2007 Open Source Applications Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,21 +18,11 @@
     limitations under the License.
 -->
 
-<!-- Security configuration for WebDAV -->
+<!-- Security configuration for feeds -->
 
 <beans>
 
-  <bean id="davOwnerVoter"
-        class="org.osaf.cosmo.acegisecurity.providers.owner.OwnerVoter">
-    <property name="contentService">
-      <ref bean="contentService"/>
-    </property>
-    <property name="indirectlyAddressable">
-      <value>true</value>
-    </property>
-  </bean>
-
-  <bean id="davAccessDecisionManager"
+  <bean id="feedAccessDecisionManager"
         class="org.acegisecurity.vote.AffirmativeBased">
     <property name="allowIfAllAbstainDecisions">
       <value>false</value>
@@ -40,21 +30,21 @@
     <property name="decisionVoters">
       <list>
         <ref bean="ticketVoter"/>
-        <ref bean="davOwnerVoter"/>
+        <ref bean="ownerVoter"/>
         <ref bean="roleVoter"/>
       </list>
     </property>
   </bean>
 
-  <!-- interceptor which performs authorization for DAV requests -->
+  <!-- interceptor which performs authorization for feed requests -->
 
-   <bean id="davFilterInvocationInterceptor"
+   <bean id="feedFilterInvocationInterceptor"
          class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
      <property name="authenticationManager">
        <ref bean="authenticationManager"/>
      </property>
      <property name="accessDecisionManager">
-       <ref bean="davAccessDecisionManager"/>
+       <ref bean="feedAccessDecisionManager"/>
      </property>
      <property name="objectDefinitionSource">
        <value>
@@ -67,55 +57,55 @@
 
   <!-- filter chain that kicks off request-time processing -->
 
-  <bean id="davFilterChainProxy"
+  <bean id="feedFilterChainProxy"
         class="org.acegisecurity.util.FilterChainProxy">
     <property name="filterInvocationDefinitionSource">
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         PATTERN_TYPE_APACHE_ANT
-        /**=davHttpRequestContextIntegrationFilter,davBasicProcessingFilter,davTicketProcessingFilter,davExceptionTranslationFilter,davFilterInvocationInterceptor
+        /**=feedHttpRequestContextIntegrationFilter,feedBasicProcessingFilter,feedTicketProcessingFilter,feedExceptionTranslationFilter,feedFilterInvocationInterceptor
       </value>
     </property>
   </bean>
 
   <!-- filter that integrates SecurityContext into HTTP request -->
 
-  <bean id="davHttpRequestContextIntegrationFilter"
+  <bean id="feedHttpRequestContextIntegrationFilter"
         class="org.osaf.cosmo.acegisecurity.context.HttpRequestContextIntegrationFilter"/>
 
   <!-- filter that performs ticket authentication -->
 
-  <bean id="davTicketProcessingFilter"
+  <bean id="feedTicketProcessingFilter"
         class="org.osaf.cosmo.acegisecurity.providers.ticket.TicketProcessingFilter"/>
 
   <!-- filter that performs Basic authentication -->
 
-  <bean id="davBasicAuthenticationEntryPoint"
+  <bean id="feedBasicAuthenticationEntryPoint"
         class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
     <property name="realmName">
       <value>Cosmo Sharing Server</value>
     </property>
   </bean>
 
-  <bean id="davBasicProcessingFilter"
+  <bean id="feedBasicProcessingFilter"
         class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
     <property name="authenticationManager">
       <ref bean="authenticationManager"/>
     </property>
     <property name="authenticationEntryPoint">
-      <ref local="davBasicAuthenticationEntryPoint"/>
+      <ref local="feedBasicAuthenticationEntryPoint"/>
     </property>
     <property name="ignoreFailure">
       <value>true</value>
     </property>
   </bean>
 
-  <!-- filter that converts authn/authz exceptions to DAV responses -->
+  <!-- filter that converts authn/authz exceptions to feed responses -->
 
-  <bean id="davExceptionTranslationFilter"
+  <bean id="feedExceptionTranslationFilter"
         class="org.acegisecurity.ui.ExceptionTranslationFilter">
     <property name="authenticationEntryPoint">
-      <ref local="davBasicAuthenticationEntryPoint"/>
+      <ref local="feedBasicAuthenticationEntryPoint"/>
     </property>
     <property name="createSessionAllowed">
       <value>false</value>
