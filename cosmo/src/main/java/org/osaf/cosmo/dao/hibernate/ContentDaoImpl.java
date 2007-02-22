@@ -15,7 +15,6 @@
  */
 package org.osaf.cosmo.dao.hibernate;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,16 +22,12 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.validator.InvalidStateException;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
-import org.osaf.cosmo.model.DuplicateEventUidException;
-import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.ModelConversionException;
-import org.osaf.cosmo.model.ModelValidationException;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.User;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
@@ -45,16 +40,6 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
 
     private static final Log log = LogFactory.getLog(ContentDaoImpl.class);
 
-    private CalendarIndexer calendarIndexer = null;
-    
-    public CalendarIndexer getCalendarIndexer() {
-        return calendarIndexer;
-    }
-
-    public void setCalendarIndexer(CalendarIndexer calendarIndexer) {
-        this.calendarIndexer = calendarIndexer;
-    }
-    
     /*
      * (non-Javadoc)
      * 
@@ -140,21 +125,54 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             parent.removeTombstone(content);
             getSession().update(parent);
             
-            boolean isEvent = content.getStamp(EventStamp.class) != null;
+            getSession().save(content);
+            getSession().flush();
+            return content;
+        } catch (HibernateException e) {
+            throw SessionFactoryUtils.convertHibernateAccessException(e);
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.osaf.cosmo.dao.ContentDao#createContent(java.util.Set, org.osaf.cosmo.model.ContentItem)
+     */
+    public ContentItem createContent(Set<CollectionItem> parents, ContentItem content) {
+
+        if(parents==null)
+            throw new IllegalArgumentException("parent cannot be null");
+        
+        if(parents.size()==0)
+            throw new IllegalArgumentException("content must have at least one parent");
+        
+        if (content == null)
+            throw new IllegalArgumentException("content cannot be null");
+
+        if (content.getId()!=-1)
+            throw new IllegalArgumentException("invalid content id (expected -1)");
+        
+        try {
+            User owner = content.getOwner();
+
+            if (owner == null)
+                throw new IllegalArgumentException("content must have owner");
+
+            // verify uid not in use
+            checkForDuplicateUid(content);
             
-            if(isEvent) {
-                EventStamp event = EventStamp.getStamp(content);
-                verifyEventUidIsUnique(parent,event);
-                getCalendarIndexer().indexCalendarEvent(getSession(), event);
-                try {
-                    // Set the content length (required) based on the length of the
-                    // icalendar string
-                    content.setContentLength((long) event.getCalendar().toString()
-                            .getBytes("UTF-8").length);
-                } catch (UnsupportedEncodingException e) {
-                    // should never happen
-                    throw new RuntimeException("error converting to utf8");
-                }
+            // Enforce hiearchy for WebDAV support
+            // In a hierarchy, can't have two items with same name with
+            // same parent
+            for(Item parent: parents)
+                checkForDuplicateItemName(owner.getId(), parent.getId(), content.getName());
+
+            setBaseItemProps(content);
+            for(CollectionItem parent: parents) {
+                content.getParents().add(parent);
+                parent.removeTombstone(content);
+                getSession().update(parent);
             }
             
             getSession().save(content);
@@ -297,23 +315,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             checkForDuplicateItemNameMinusItem(content.getOwner().getId(), 
                     content.getParents(), content.getName(), content.getId());
             
-            boolean isEvent = content.getStamp(EventStamp.class) != null;
-            
-            if(isEvent) {
-                EventStamp event = EventStamp.getStamp(content);
-                // TODO: verify icaluid is unique
-                getCalendarIndexer().indexCalendarEvent(getSession(), event);
-                try {
-                    // Set the content length (required) based on the length of the
-                    // icalendar string
-                    content.setContentLength((long) event.getCalendar().toString()
-                            .getBytes("UTF-8").length);
-                } catch (UnsupportedEncodingException e) {
-                    // should never happen
-                    throw new RuntimeException("error converting to utf8");
-                }
-            }
-            
+            // ensure item is dirty
             content.setModifiedDate(new Date());
             
             getSession().update(content);
@@ -339,23 +341,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             throw new IllegalArgumentException("item cannot be null");
         
         try {
-            // Removing a collection does  not automatically remove
-            // its children.  Instead, the association to all the
-            // children is removed, and any children who have no
-            // parent collection are then removed.
-            for(Item item: collection.getChildren()) {
-                if(item instanceof CollectionItem) {
-                    removeCollection((CollectionItem) item);
-                } else if(item instanceof ContentItem) {
-                    item.getParents().remove(collection);
-                    if(item.getParents().size()==0)
-                        getSession().delete(item);
-                } else {
-                    getSession().delete(item);
-                }
-            }
-            
-            getSession().delete(collection);
+            removeCollectionRecursive(collection);
             getSession().flush();
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
@@ -373,19 +359,12 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             throw new IllegalArgumentException("item cannot be null");
         
         try {
-            // Add a tombstone to each parent collection to track
-            // when the removal occurred.
-            for(CollectionItem parent : content.getParents()) {
-                parent.addTombstone(new Tombstone(parent, content));
-                getSession().update(parent);
-            }
-            getSession().delete(content);
+            removeContentRecursive(content);
             getSession().flush();
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
         }
     }
-
     
     /*
      * (non-Javadoc)
@@ -442,42 +421,46 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
      */
     public void init() {
         super.init();
-        
-        if (calendarIndexer == null)
-            throw new IllegalStateException("calendarIndexer is required");
     }
-    
-    /**
-     * Verify that event uid (event UID property in ical data) is unique
-     * for the containing calendar.
-     * @param collection collection to search
-     * @param event event to verify
-     * @throws DuplicateEventUidException if an event with the same uid
-     *         exists
-     * @throws ModelValidationException if there is an error retrieving
-     *         the uid from the even ics data
-     */
-    private void verifyEventUidIsUnique(CollectionItem collection,
-            EventStamp event) {
-        String uid = null;
-        
-        try {
-            uid = event.getIcalUid();
-        } catch(ModelConversionException mce) {
-            throw mce;
-        } catch (Exception e) {
-            log.error("error retrieving master event");
-            throw new ModelValidationException("invalid event ics data");
+
+    private void removeContentRecursive(ContentItem content) {
+        // Add a tombstone to each parent collection to track
+        // when the removal occurred.
+        for(CollectionItem parent : content.getParents()) {
+            parent.addTombstone(new Tombstone(parent, content));
+            getSession().update(parent);
         }
         
-        Query hibQuery = getSession()
-                .getNamedQuery("event.by.calendar.icaluid");
-        hibQuery.setParameter("calendar", collection);
-        hibQuery.setParameter("uid", uid);
-        if (hibQuery.uniqueResult()!=null)
-            throw new DuplicateEventUidException("uid " + uid
-                    + " already exists in calendar");
+        // Remove modfications if NoteItem
+        if(content instanceof NoteItem) {
+            for(NoteItem modification : ((NoteItem) content).getModifications()) {
+                removeContentRecursive(modification);
+            }
+        }
+        
+        getSession().delete(content);
     }
     
-    
+    private void removeCollectionRecursive(CollectionItem collection) {
+        // Removing a collection does not automatically remove
+        // its children.  Instead, the association to all the
+        // children is removed, and any children who have no
+        // parent collection are then removed.
+        for(Item item: collection.getChildren()) {
+            if(item instanceof CollectionItem) {
+                removeCollectionRecursive((CollectionItem) item);
+            } else if(item instanceof ContentItem) {                    
+                item.getParents().remove(collection);
+                // let hibernate delete modifications using cascading
+                if(item instanceof NoteItem && (((NoteItem) item).getModifies() != null))
+                    continue;
+                if(item.getParents().size()==0)
+                    getSession().delete(item);
+            } else {
+                getSession().delete(item);
+            }
+        }
+        
+        getSession().delete(collection);
+    }
 }

@@ -111,15 +111,33 @@ public class EventStamp extends Stamp implements
         return "event";
     }
     
+    @Transient
+    public Calendar getCalendar() {
+        Calendar masterCal = CalendarUtils.copyCalendar(calendar);
+        
+        // add all exception events
+        NoteItem note = (NoteItem) getItem();
+        for(NoteItem exception : note.getModifications()) {
+            EventExceptionStamp exceptionStamp = EventExceptionStamp.getStamp(exception);
+            masterCal.getComponents().add(exceptionStamp.getExceptionEvent());
+        }
+        
+        return masterCal;
+    }
+
+    public void setCalendar(Calendar calendar) {
+        setMasterCalendar(calendar);
+    }
+    
     @Column(table="event_stamp", name = "icaldata", length=102400000, nullable = false)
     @Type(type="calendar_clob")
     @NotNull
     @Event
-    public Calendar getCalendar() {
+    public Calendar getMasterCalendar() {
         return calendar;
     }
-
-    public void setCalendar(Calendar calendar) {
+    
+    public void setMasterCalendar(Calendar calendar) {
         this.calendar = calendar;
     }
     

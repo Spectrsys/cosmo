@@ -17,12 +17,20 @@ package org.osaf.cosmo.model;
 
 import java.io.Reader;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Where;
 
 /**
@@ -41,6 +49,8 @@ public class NoteItem extends ContentItem {
     
     private static final long serialVersionUID = -6100568628972081120L;
     private String icalUid = null;
+    private Set<NoteItem> modifications = new HashSet<NoteItem>(0);
+    private NoteItem modifies = null;
     
     public NoteItem() {
     }
@@ -123,6 +133,26 @@ public class NoteItem extends ContentItem {
         return copy;
     }
     
+    @OneToMany(mappedBy = "modifies", fetch=FetchType.LAZY)
+    @Cascade( {CascadeType.DELETE} )
+    public Set<NoteItem> getModifications() {
+        return modifications;
+    }
+
+    public void setModifications(Set<NoteItem> modifications) {
+        this.modifications = modifications;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "modifiesitemid")
+    public NoteItem getModifies() {
+        return modifies;
+    }
+    
+    public void setModifies(NoteItem modifies) {
+        this.modifies = modifies;
+    }
+
     @Override
     protected void copyToItem(Item item) {
         

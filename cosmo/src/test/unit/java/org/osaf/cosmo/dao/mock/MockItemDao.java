@@ -26,6 +26,7 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
@@ -250,6 +251,13 @@ public class MockItemDao implements ItemDao {
     public void removeItem(Item item) {
         if(item.getParent()!=null)
             item.getParent().getChildren().remove(item);
+        
+        // update modifications
+        if(item instanceof NoteItem) {
+            NoteItem note = (NoteItem) item;
+            if(note.getModifies()!=null)
+                note.getModifies().getModifications().remove(note);
+        }
 
         storage.removeItemByUid(item.getUid());
         storage.removeItemByPath(getItemPath(item));

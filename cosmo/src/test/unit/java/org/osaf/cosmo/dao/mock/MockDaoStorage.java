@@ -29,6 +29,7 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.DuplicateItemNameException;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 
@@ -143,7 +144,14 @@ public class MockDaoStorage {
             if (sibling.getName().equals(item.getName()))
                 throw new DuplicateItemNameException();
         }
-
+        
+        // handle NoteItem modifications
+        if(item instanceof NoteItem) {
+            NoteItem note = (NoteItem) item;
+            if(note.getModifies()!=null)
+                note.getModifies().getModifications().add(note);
+        }
+        
         item.getParent().getChildren().add(item);
         item.getParent().getAllChildren().add(item);
 

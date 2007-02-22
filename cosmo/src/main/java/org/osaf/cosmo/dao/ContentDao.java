@@ -105,6 +105,17 @@ public interface ContentDao extends ItemDao {
      * @return newly created content
      */
     public ContentItem createContent(CollectionItem parent, ContentItem content);
+    
+    /**
+     * Create new content item and associate with multiple parent collections.
+     * 
+     * @param parents
+     *            parent collections of content. 
+     * @param content
+     *            content to create
+     * @return newly created content
+     */
+    public ContentItem createContent(Set<CollectionItem> parents, ContentItem content);
 
     /**
      * Update an existing content item.

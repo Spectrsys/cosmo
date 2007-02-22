@@ -18,11 +18,14 @@ package org.osaf.cosmo.service;
 import java.util.Collection;
 import java.util.Set;
 
+import net.fortuna.ical4j.model.Calendar;
+
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 
@@ -317,4 +320,29 @@ public interface ContentService extends Service {
      */
     public void removeTicket(String path,
                              String key);
+    
+    /**
+     * Create a new event based on an ical4j Calendar.  This will 
+     * create the master NoteItem and any modification NoteItem's 
+     * for each VEVENT modification.
+     * 
+     * @param parent parent collection
+     * @param masterNote master note item
+     * @param calendar Calendar containing master/override VEVENTs
+     * @return newly created master note item
+     */
+    public NoteItem createEvent(CollectionItem parent, NoteItem masterNote,
+            Calendar calendar);
+    
+    /**
+     * Update existing event (NoteItem with EventStamp) based on 
+     * an ical4j Calendar.  This will update the master NoteItem and 
+     * any modification NoteItem's for each VEVENT modification, including
+     * removing/adding modification NoteItems.
+     * 
+     * @param note master note item to update
+     * @param calendar Calendar containing master/override VEVENTs
+     * @return updated master note item
+     */
+    public NoteItem updateEvent(NoteItem note, Calendar calendar);
 }

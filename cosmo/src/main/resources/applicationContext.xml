@@ -111,6 +111,7 @@
             <value>org.osaf.cosmo.model.DateAttribute</value>
             <value>org.osaf.cosmo.model.DecimalAttribute</value>
             <value>org.osaf.cosmo.model.DictionaryAttribute</value>
+            <value>org.osaf.cosmo.model.EventExceptionStamp</value>
             <value>org.osaf.cosmo.model.EventStamp</value>
             <value>org.osaf.cosmo.model.HomeCollectionItem</value>
             <value>org.osaf.cosmo.model.IntegerAttribute</value>
@@ -261,9 +262,6 @@
     <property name="ticketKeyGenerator">
       <ref local="ticketKeyGenerator" />
     </property>
-    <property name="calendarIndexer">
-      <ref bean="calendarIndexer" />
-    </property>
   </bean>
 
   <bean id="userDao"
@@ -296,6 +294,9 @@
     </property>
     <property name="calendarFilterTranslator">
       <ref bean="calendarFilterTranslator" />
+    </property>
+    <property name="calendarIndexer">
+      <ref bean="calendarIndexer" />
     </property>
   </bean>
 

@@ -63,6 +63,7 @@ import org.osaf.cosmo.model.DuplicateEventUidException;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.ModelConversionException;
 import org.osaf.cosmo.model.ModelValidationException;
+import org.osaf.cosmo.model.NoteItem;
 
 /**
  * Extends <code>DavCollection</code> to adapt the Cosmo
@@ -389,7 +390,7 @@ public class DavCalendarCollection extends DavCollection
                 log.debug("updating event " + member.getResourcePath());
 
             try {
-                content = getContentService().updateContent(content);
+                content = getContentService().updateEvent((NoteItem) content, event.getMasterCalendar());
             } catch (DuplicateEventUidException e) {
                 throw new DavException(DavServletResponse.SC_CONFLICT, "Uid already in use");
             } catch (CollectionLockedException e) {
@@ -400,7 +401,7 @@ public class DavCalendarCollection extends DavCollection
                 log.debug("creating event " + member.getResourcePath());
 
             try {
-                content = getContentService().createContent(collection, content);
+                content = getContentService().createEvent(collection, (NoteItem) content, event.getMasterCalendar());
             } catch (DuplicateEventUidException e) {
                 throw new DavException(DavServletResponse.SC_CONFLICT, "Uid already in use");
             } catch (CollectionLockedException e) {

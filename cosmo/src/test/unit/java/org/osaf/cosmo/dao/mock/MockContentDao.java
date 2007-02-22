@@ -22,6 +22,7 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ModelValidationException;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.mock.MockCollectionItem;
 import org.osaf.cosmo.model.mock.MockContentItem;
@@ -160,7 +161,7 @@ public class MockContentDao extends MockItemDao implements ContentDao {
             throw new ConcurrencyFailureException("fail!");
         
         content.getParents().add(parent);
-        
+          
         // Set mock id
         if(content instanceof MockContentItem)
             ((MockContentItem) content).setMockId(System.currentTimeMillis());
@@ -253,5 +254,24 @@ public class MockContentDao extends MockItemDao implements ContentDao {
      */
     public void removeCollection(CollectionItem collection) {
         removeItem(collection);
+    }
+
+    public ContentItem createContent(Set<CollectionItem> parents, ContentItem content) {
+        if (parents == null || parents.size()==0)
+            throw new IllegalArgumentException("parents cannot be null or empty");
+        if (content == null)
+            throw new IllegalArgumentException("collection cannot be null");
+
+        if(THROW_CONCURRENT_EXCEPTION)
+            throw new ConcurrencyFailureException("fail!");
+        
+        content.getParents().addAll(parents);
+          
+        // Set mock id
+        if(content instanceof MockContentItem)
+            ((MockContentItem) content).setMockId(System.currentTimeMillis());
+        getStorage().storeItem((Item)content);
+
+        return content;
     }
 }

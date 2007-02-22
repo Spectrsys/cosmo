@@ -15,20 +15,37 @@
  */
 package org.osaf.cosmo.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.ComponentList;
+import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.component.VEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
+import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.ContentItem;
+import org.osaf.cosmo.model.EventExceptionStamp;
+import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.service.ContentService;
@@ -315,12 +332,37 @@ public class StandardContentService implements ContentService {
         
         try {
             // Create the new collection
-            CollectionItem newCollection = contentDao.createCollection(parent,
-                    collection);
+            collection = contentDao.createCollection(parent, collection);
+            
+            // Keep track of event items (NoteItem with EventStamp) that need
+            // to be indexed
+            HashMap<String, NoteItem> events = new HashMap<String, NoteItem>();
+            
+            // Keep track of NoteItem modifications that need to be processed
+            // after the master NoteItem.
+            ArrayList<NoteItem> modifications = new ArrayList<NoteItem>(); 
             
             // Either create or update each item
             for (Item item : children) {
-                if (item instanceof ContentItem) {
+                if (item instanceof NoteItem) {
+                    
+                    NoteItem note = (NoteItem) item;
+                    
+                    // If item is a modification and the master note
+                    // hasn't been created, then we need to process
+                    // the master first.
+                    if(note.getModifies()!=null) {
+                        if(note.getModifies().getId()==-1) {
+                            modifications.add(note);
+                            continue;
+                        }
+                    }
+                    
+                    // keep track of events so we can index
+                    if(note.getModifies()!=null && (EventStamp.getStamp(note.getModifies())!=null))
+                        events.put(note.getModifies().getUid(), note.getModifies());
+                    else if(EventStamp.getStamp(note)!=null)
+                        events.put(note.getUid(), note);
                     
                     // create item
                     if(item.getId()==-1) {
@@ -335,6 +377,20 @@ public class StandardContentService implements ContentService {
                 }
             }
             
+            // process modifications that came before master
+            for(NoteItem mod : modifications) {
+                if(mod.getModifies().getId()==-1)
+                    throw new RuntimeException("note modifies unknown item");
+                mod = (NoteItem) contentDao.createContent(collection, mod);
+            }
+            
+            // index events
+            for(Entry<String, NoteItem> entry : events.entrySet()) {
+                NoteItem note = entry.getValue();
+                contentDao.refreshItem(note);
+                calendarDao.indexEvent(EventStamp.getStamp(note));
+            }
+                
             // update collections involved
             for(CollectionItem lockedCollection : locks)
                 contentDao.updateCollection(lockedCollection);
@@ -400,13 +456,41 @@ public class StandardContentService implements ContentService {
         Set<CollectionItem> locks = acquireLocks(collection, updates);
         
         try {
+            
+            // Keep track of event items (NoteItem with EventStamp) that need
+            // to be indexed
+            HashMap<String, NoteItem> events = new HashMap<String, NoteItem>();
+            
+            // Keep track of NoteItem modifications that need to be processed
+            // after the master NoteItem.
+            ArrayList<NoteItem> modifications = new ArrayList<NoteItem>(); 
+            
             for(Item item : updates) {
-                // for now, only process ContentItems
-                if(item instanceof ContentItem) {
+                // for now, only process NoteItem
+                if(item instanceof NoteItem) {
+                    
+                    NoteItem  note = (NoteItem) item;
+                    
+                    // If item is a modification and the master note
+                    // hasn't been created, then we need to process
+                    // the master first.
+                    if(note.getModifies()!=null) {
+                        if(note.getModifies().getId()==-1) {
+                            modifications.add(note);
+                            continue;
+                        }
+                    }
+                    
+                    // keep track of events so we can index
+                    if(note.getModifies()!=null && (EventStamp.getStamp(note.getModifies())!=null))
+                        events.put(note.getModifies().getUid(), note.getModifies());
+                    else if(note.getIsActive()==true && EventStamp.getStamp(note)!=null)
+                        events.put(note.getUid(), note);
+                    
                     // addition
                     if(item.getId()==-1) {
-                        ContentItem newItem = contentDao.createContent(collection,
-                                                 (ContentItem) item);
+                        note = (NoteItem) contentDao.createContent(collection,
+                                                 note);
                     }
                     // deletion
                     else if(item.getIsActive()==false) {
@@ -422,6 +506,20 @@ public class StandardContentService implements ContentService {
                         contentDao.updateContent((ContentItem) item);
                     }
                 }
+            }
+            
+            // process modifications that came before master
+            for(NoteItem mod : modifications) {
+                if(mod.getModifies().getId()==-1)
+                    throw new RuntimeException("note modifies unknown item");
+                mod = (NoteItem) contentDao.createContent(collection, mod);
+            }
+            
+            // index events
+            for(Entry<String, NoteItem> entry : events.entrySet()) {
+                NoteItem note = entry.getValue();
+                contentDao.refreshItem(note);
+                calendarDao.indexEvent(EventStamp.getStamp(note));
             }
             
             // update collections
@@ -495,6 +593,52 @@ public class StandardContentService implements ContentService {
         } finally {
             lockManager.unlockCollection(parent);
         }   
+    }
+    
+    public NoteItem updateEvent(NoteItem note, Calendar calendar) {
+        if (log.isDebugEnabled()) {
+            log.debug("updating event " + note.getName());
+        }
+        
+        Set<CollectionItem> locks = acquireLocks(note);
+        
+        try {
+            updateEventInternal(note, calendar);
+            
+            // update collections
+            for(CollectionItem parent : locks)
+                contentDao.updateCollection(parent);
+            
+            return note;
+        } finally {
+            releaseLocks(locks);
+        }
+    }
+    
+    public NoteItem createEvent(CollectionItem parent, NoteItem masterNote, Calendar calendar) {
+        
+        if (log.isDebugEnabled()) {
+            log.debug("creating event " + masterNote.getName() +
+                      " in " + parent.getName());
+        }
+        
+        if (! lockManager.lockCollection(parent, lockTimeout))
+            throw new CollectionLockedException("unable to obtain collection lock");
+        
+        try {
+            EventStamp eventStamp = EventStamp.getStamp(masterNote);
+            masterNote.setIcalUid(eventStamp.getIcalUid());
+            masterNote.setBody(eventStamp.getDescription());
+            // create master note
+            masterNote = (NoteItem) contentDao.createContent(parent, masterNote);
+           
+            // create modification notes if needed
+            updateEventInternal(masterNote, calendar);
+            contentDao.updateCollection(parent);
+            return masterNote;
+        } finally {
+            lockManager.unlockCollection(parent);
+        }  
     }
 
     /**
@@ -794,5 +938,121 @@ public class StandardContentService implements ContentService {
     private void releaseLocks(Set<CollectionItem> locks) {
         for(CollectionItem lock : locks)
             lockManager.unlockCollection(lock);
+    }
+    
+    private void updateEventInternal(NoteItem masterNote, Calendar calendar) {
+        HashMap<Date, VEvent> exceptions = new HashMap<Date, VEvent>();
+        
+        // Clone Calendar as it will be the basis for the master event's calendar
+        calendar = CalendarUtils.copyCalendar(calendar);
+        
+        ComponentList vevents = calendar.getComponents().getComponents(
+                Component.VEVENT);
+        EventStamp eventStamp = EventStamp.getStamp(masterNote);
+
+        // get list of exceptions (VEVENT with RECURRENCEID)
+        for (Iterator<VEvent> i = vevents.iterator(); i.hasNext();) {
+            VEvent event = i.next();
+            if (event.getReccurrenceId() != null)
+                exceptions.put(event.getReccurrenceId().getDate(), event);
+        }
+        
+        // Remove all exceptions from master calendar as these
+        // will be stored in each NoteItem modification's EventExceptionStamp
+        for (Entry<Date, VEvent> entry : exceptions.entrySet())
+            calendar.getComponents().remove(entry.getValue());
+
+        // Master calendar includes everything in the original calendar minus
+        // any exception events (VEVENT with RECURRENCEID)
+        eventStamp.setMasterCalendar(calendar);
+        
+        // update master note
+        contentDao.updateContent(masterNote);
+        
+        // synchronize exceptions with master NoteItem modifications
+        syncExceptions(exceptions, masterNote);
+        
+        // refresh master to get updated modifications
+        contentDao.refreshItem(masterNote);
+       
+        // set content length of master NoteItem (length of entire Calendar)
+        try {
+            masterNote.setContentLength((long) eventStamp.getCalendar()
+                    .toString().getBytes("UTF-8").length);
+        } catch (UnsupportedEncodingException e) {
+            // should never happen
+            throw new RuntimeException("unsupported UTF-8 encoding");
+        } 
+        
+        // index entire calendar
+        calendarDao.indexEvent(eventStamp);
+    }
+
+    private void syncExceptions(Map<Date, VEvent> exceptions,
+            NoteItem masterNote) {
+        for (Entry<Date, VEvent> entry : exceptions.entrySet())
+            syncException(entry.getValue(), masterNote);
+
+        // remove old exceptions
+        List<NoteItem> toRemove = new ArrayList<NoteItem>();
+        for (NoteItem noteItem : masterNote.getModifications()) {
+            EventExceptionStamp eventException = EventExceptionStamp
+                    .getStamp(noteItem);
+            if (!exceptions.containsKey(eventException.getRecurrenceId()))
+                toRemove.add(noteItem);
+        }
+        
+        for(NoteItem noteItem : toRemove)
+            contentDao.removeContent(noteItem);
+    }
+
+    private void syncException(VEvent event, NoteItem masterNote) {
+        NoteItem mod = getModification(masterNote, event.getReccurrenceId()
+                .getDate());
+
+        if (mod == null) {
+            // create if not present
+            createNoteModification(masterNote, event);
+        } else {
+            // update existing mod
+            updateNoteModification(mod, event);
+        }
+    }
+
+    private NoteItem getModification(NoteItem masterNote,
+            Date recurrenceId) {
+        for (NoteItem mod : masterNote.getModifications()) {
+            EventExceptionStamp exceptionStamp = EventExceptionStamp
+                    .getStamp(mod);
+            if (exceptionStamp.getRecurrenceId().equals(recurrenceId))
+                return mod;
+        }
+
+        return null;
+    }
+
+    private void createNoteModification(NoteItem masterNote, VEvent event) {
+        NoteItem noteMod = new NoteItem();
+        EventExceptionStamp exceptionStamp = new EventExceptionStamp(noteMod);
+        exceptionStamp.setExceptionEvent(event);
+        noteMod.addStamp(exceptionStamp);
+
+        noteMod.setOwner(masterNote.getOwner());
+        noteMod.setName(event.getUid().getValue() + ":"
+                + event.getReccurrenceId().getValue());
+        noteMod.setDisplayName(exceptionStamp.getDescription());
+        noteMod.setBody(exceptionStamp.getSummary());
+        noteMod.setIcalUid(masterNote.getIcalUid());
+        noteMod.setModifies(masterNote);
+        contentDao.createContent(masterNote.getParents(), noteMod);
+    }
+
+    private void updateNoteModification(NoteItem noteMod, VEvent event) {
+        EventExceptionStamp exceptionStamp = EventExceptionStamp
+                .getStamp(noteMod);
+        exceptionStamp.setExceptionEvent(event);
+        noteMod.setDisplayName(exceptionStamp.getDescription());
+        noteMod.setBody(exceptionStamp.getSummary());
+        contentDao.updateContent(noteMod);
     }
 }

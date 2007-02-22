@@ -709,10 +709,6 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
         eventStamp.setCalendar(calendar);
         calendarEventItem.addStamp(eventStamp);
 
-        // set NoteItem attributes
-        calendarEventItem.setIcalUid(eventStamp.getIcalUid());
-        calendarEventItem.setBody(event.getDescription());
-
         Iterator<String> availableNameIterator = availableNameIterator(vevent);
 
         boolean added = false;
@@ -723,8 +719,7 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
                 calendarEventItem.setDisplayName(name);
             try{
                 added = true;
-                calendarEventItem = (NoteItem) contentService.createContent(calendarItem,
-                            calendarEventItem);
+                calendarEventItem = (NoteItem) contentService.createEvent(calendarItem, calendarEventItem, calendar);
             } catch (DuplicateItemNameException dupe){
                 added = false;
             }
@@ -904,14 +899,14 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
     private String doSaveEvent(CollectionItem collection, Event event)
             throws RPCException {
 
-        ContentItem calendarEventItem = null;
+        NoteItem calendarEventItem = null;
 
         // Check to see if this is a new event
         if (StringUtils.isEmpty(event.getId())) {
             calendarEventItem = saveNewEvent(event, collection);
 
         } else {
-            calendarEventItem = (ContentItem) contentService
+            calendarEventItem = (NoteItem) contentService
                     .findItemByUid(event.getId());
             calendarEventItem.setDisplayName(event.getTitle());
 
@@ -924,15 +919,13 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
                     .getCalendar();
             cosmoToICalendarConverter.updateEvent(event, calendar);
             cosmoToICalendarConverter.updateVTimeZones(calendar);
-            eventStamp.setCalendar(calendar);
-
+            
             // update NoteItem attributes
-            if (calendarEventItem instanceof NoteItem) {
-                ((NoteItem) calendarEventItem).setIcalUid(eventStamp
-                        .getIcalUid());
-                ((NoteItem) calendarEventItem).setBody(event.getDescription());
-            }
-            contentService.updateContent(calendarEventItem);
+            calendarEventItem.setIcalUid(eventStamp
+                    .getIcalUid());
+            calendarEventItem.setBody(event.getDescription());
+            
+            contentService.updateEvent(calendarEventItem, calendar);
         }
 
         return calendarEventItem.getUid();
@@ -941,7 +934,7 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
     private void doSaveRecurrenceRule(CollectionItem collection, String eventUid,
             RecurrenceRule recurrenceRule) throws RPCException {
 
-        ContentItem calItem = (ContentItem) contentService.findItemByUid(eventUid);
+        NoteItem calItem = (NoteItem) contentService.findItemByUid(eventUid);
 
         User user = cosmoSecurityManager.getSecurityContext().getUser();
         calItem.setLastModifiedBy(user != null ? user.getEmail() : "");
@@ -954,8 +947,7 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
         event.setRecurrenceRule(recurrenceRule);
         cosmoToICalendarConverter.updateEvent(event, calendar);
         cosmoToICalendarConverter.updateVTimeZones(calendar);
-        eventStamp.setCalendar(calendar);
-        contentService.updateContent(calItem);
+        contentService.updateEvent(calItem, calendar);
     }
     private Map<String, RecurrenceRule> doGetRecurrenceRules(CollectionItem collection,
             String[] eventUids) throws RPCException {

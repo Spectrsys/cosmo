@@ -36,7 +36,6 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 import org.hibernate.validator.Min;
-import org.hibernate.validator.NotNull;
 
 /**
  * Extends {@link Item} to represent an item containing binary content
@@ -158,8 +157,6 @@ public class ContentItem extends Item {
     }
 
     @Column(name = "contentLength")
-    @NotNull
-    @Min(value=0)
     public Long getContentLength() {
         return contentLength;
     }
