@@ -26,7 +26,6 @@ import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EventStamp;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -49,7 +48,7 @@ public class CalendarDaoImpl extends HibernateDaoSupport implements CalendarDao 
             return calendarFilterTranslator.
                 getCalendarItems(getSession(), collection, filter);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -68,7 +67,7 @@ public class CalendarDaoImpl extends HibernateDaoSupport implements CalendarDao 
             hibQuery.setParameter("uid", uid);
             return (ContentItem) hibQuery.uniqueResult();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
     
@@ -76,9 +75,13 @@ public class CalendarDaoImpl extends HibernateDaoSupport implements CalendarDao 
      * @see org.osaf.cosmo.dao.CalendarDao#indexEvent(org.osaf.cosmo.model.EventStamp)
      */
     public void indexEvent(EventStamp eventStamp) {
-        getCalendarIndexer().indexCalendarEvent(getSession(), eventStamp);
-        getSession().update(eventStamp.getItem());
-        getSession().flush();
+        try {
+            getCalendarIndexer().indexCalendarEvent(getSession(), eventStamp);
+            getSession().update(eventStamp);
+            getSession().flush();
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
+        } 
     }
 
     public CalendarFilterTranslator getCalendarFilterTranslator() {

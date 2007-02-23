@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -117,10 +118,14 @@ public class EventStamp extends Stamp implements
         
         // add all exception events
         NoteItem note = (NoteItem) getItem();
+        TreeMap<String, VEvent> sortedMap = new TreeMap<String, VEvent>();
         for(NoteItem exception : note.getModifications()) {
             EventExceptionStamp exceptionStamp = EventExceptionStamp.getStamp(exception);
-            masterCal.getComponents().add(exceptionStamp.getExceptionEvent());
+            sortedMap.put(exceptionStamp.getRecurrenceId().toString(), exceptionStamp.getExceptionEvent());
+            //masterCal.getComponents().add(exceptionStamp.getExceptionEvent());
         }
+        
+        masterCal.getComponents().addAll(sortedMap.values());
         
         return masterCal;
     }
@@ -182,7 +187,7 @@ public class EventStamp extends Stamp implements
      */
     @Transient
     public VEvent getMasterEvent() {
-        return (VEvent) getCalendar().getComponents().getComponents(
+        return (VEvent) getMasterCalendar().getComponents().getComponents(
                 Component.VEVENT).get(0);
     }
 

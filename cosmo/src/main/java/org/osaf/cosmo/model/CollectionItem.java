@@ -96,13 +96,14 @@ public class CollectionItem extends Item {
         tombstones.add(tombstone);
     }
     
-    public void removeTombstone(Item item) {
+    public boolean removeTombstone(Item item) {
         for(Tombstone ts: tombstones) {
             if(ts.getItemUid().equals(item.getUid())) {
                 tombstones.remove(ts);
-                return;
+                return true;
             }
         }
+        return false;
     }
     
     /**

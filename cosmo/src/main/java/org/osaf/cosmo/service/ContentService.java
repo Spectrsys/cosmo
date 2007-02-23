@@ -180,17 +180,6 @@ public interface ContentService extends Service {
                                            Set<Item> children);
     
     /**
-     * Find all children for collection. Children can consist of ContentItem and
-     * CollectionItem objects.
-     * 
-     * @param collection
-     *            collection to find children for
-     * @return collection of child objects for parent collection. Child objects
-     *         can be either CollectionItem or ContentItem.
-     */
-    public Collection findChildren(CollectionItem collection);
-
-    /**
      * Remove collection item
      * 
      * @param collection

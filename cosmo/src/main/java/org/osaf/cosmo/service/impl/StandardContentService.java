@@ -534,23 +534,6 @@ public class StandardContentService implements ContentService {
     }
 
     /**
-     * Find all children for collection. Children can consist of ContentItem and
-     * CollectionItem objects.
-     * 
-     * @param collection
-     *            collection to find children for
-     * @return set of child objects for parent collection. Child objects
-     *         can be either CollectionItem or ContentItem.
-     */
-    public Set findChildren(CollectionItem collection) {
-        if (log.isDebugEnabled()) {
-            log.debug("finding children of collection " +
-                      collection.getName());
-        }
-        return contentDao.findChildren(collection);
-    }
-
-    /**
      * Remove collection item
      * 
      * @param collection
@@ -944,9 +927,9 @@ public class StandardContentService implements ContentService {
         HashMap<Date, VEvent> exceptions = new HashMap<Date, VEvent>();
         
         // Clone Calendar as it will be the basis for the master event's calendar
-        calendar = CalendarUtils.copyCalendar(calendar);
+        Calendar masterCalendar = CalendarUtils.copyCalendar(calendar);
         
-        ComponentList vevents = calendar.getComponents().getComponents(
+        ComponentList vevents = masterCalendar.getComponents().getComponents(
                 Component.VEVENT);
         EventStamp eventStamp = EventStamp.getStamp(masterNote);
 
@@ -960,32 +943,29 @@ public class StandardContentService implements ContentService {
         // Remove all exceptions from master calendar as these
         // will be stored in each NoteItem modification's EventExceptionStamp
         for (Entry<Date, VEvent> entry : exceptions.entrySet())
-            calendar.getComponents().remove(entry.getValue());
+            masterCalendar.getComponents().remove(entry.getValue());
 
         // Master calendar includes everything in the original calendar minus
         // any exception events (VEVENT with RECURRENCEID)
-        eventStamp.setMasterCalendar(calendar);
+        eventStamp.setMasterCalendar(masterCalendar);
         
-        // update master note
-        contentDao.updateContent(masterNote);
-        
-        // synchronize exceptions with master NoteItem modifications
-        syncExceptions(exceptions, masterNote);
-        
-        // refresh master to get updated modifications
-        contentDao.refreshItem(masterNote);
-       
         // set content length of master NoteItem (length of entire Calendar)
         try {
-            masterNote.setContentLength((long) eventStamp.getCalendar()
+            masterNote.setContentLength((long) calendar
                     .toString().getBytes("UTF-8").length);
         } catch (UnsupportedEncodingException e) {
             // should never happen
             throw new RuntimeException("unsupported UTF-8 encoding");
         } 
         
+        // synchronize exceptions with master NoteItem modifications
+        syncExceptions(exceptions, masterNote);
+                
         // index entire calendar
         calendarDao.indexEvent(eventStamp);
+        
+        // update master note
+        contentDao.updateContent(masterNote);
     }
 
     private void syncExceptions(Map<Date, VEvent> exceptions,
@@ -1002,8 +982,10 @@ public class StandardContentService implements ContentService {
                 toRemove.add(noteItem);
         }
         
-        for(NoteItem noteItem : toRemove)
+        for(NoteItem noteItem : toRemove) {
             contentDao.removeContent(noteItem);
+            masterNote.getModifications().remove(noteItem);
+        }
     }
 
     private void syncException(VEvent event, NoteItem masterNote) {
@@ -1044,7 +1026,8 @@ public class StandardContentService implements ContentService {
         noteMod.setBody(exceptionStamp.getSummary());
         noteMod.setIcalUid(masterNote.getIcalUid());
         noteMod.setModifies(masterNote);
-        contentDao.createContent(masterNote.getParents(), noteMod);
+        noteMod = (NoteItem) contentDao.createContent(masterNote.getParents(), noteMod);
+        noteMod.getModifications().add(noteMod);
     }
 
     private void updateNoteModification(NoteItem noteMod, VEvent event) {

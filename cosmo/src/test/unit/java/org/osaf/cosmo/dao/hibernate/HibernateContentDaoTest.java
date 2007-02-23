@@ -698,12 +698,12 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         Assert.assertNotNull(root);
 
         // test children
-        Collection children = contentDao.findChildren(a);
+        Collection children = a.getChildren();
         Assert.assertEquals(2, children.size());
         verifyContains(children, b);
         verifyContains(children, d);
 
-        children = contentDao.findChildren(root);
+        children = root.getChildren();
         Assert.assertEquals(1, children.size());
         verifyContains(children, a);
 

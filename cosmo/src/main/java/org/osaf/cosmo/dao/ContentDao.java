@@ -72,28 +72,6 @@ public interface ContentDao extends ItemDao {
     public CollectionItem findCollectionByUid(String uid);
 
     /**
-     * Find all children for collection. Children can consist of ContentItem and
-     * CollectionItem objects.
-     * 
-     * @param collection
-     *            collection to find children for
-     * @return collection of child objects for parent collection. Child objects
-     *         can be either CollectionItem or ContentItem.
-     */
-    public Set<Item> findChildren(CollectionItem collection);
-
-    /**
-     * Find all top level children for user. Children can consist of ContentItem
-     * and CollectionItem objects.
-     * 
-     * @param user
-     *            user to find children for
-     * @return collection of child objects for parent collection. Child objects
-     *         can be either CollectionItem or ContentItem.
-     */
-    public Set<Item> findChildren(User user);
-
-    /**
      * Create new content item. A content item represents a piece of content or
      * file.
      * 

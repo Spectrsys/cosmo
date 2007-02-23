@@ -16,7 +16,6 @@
 package org.osaf.cosmo.dao.hibernate;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +29,6 @@ import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.User;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 /**
  * Implementation of ContentDao using hibernate persistence objects
@@ -55,14 +53,14 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         if (collection == null)
             throw new IllegalArgumentException("collection cannot be null");
 
+        if (collection.getOwner() == null)
+            throw new IllegalArgumentException("collection must have owner");
+        
         if (collection.getId()!=-1)
             throw new IllegalArgumentException("invalid collection id (expected -1)");
         
         
         try {
-            if (collection.getOwner() == null)
-                throw new IllegalArgumentException("collection must have owner");
-
             User owner = collection.getOwner();
             
             // verify uid not in use
@@ -82,7 +80,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             
             return collection;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } catch (InvalidStateException ise) {
             logInvalidStateException(ise);
             throw ise;
@@ -106,11 +104,11 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         if (content.getId()!=-1)
             throw new IllegalArgumentException("invalid content id (expected -1)");
         
+        if (content.getOwner() == null)
+            throw new IllegalArgumentException("content must have owner");
+        
         try {
             User owner = content.getOwner();
-
-            if (owner == null)
-                throw new IllegalArgumentException("content must have owner");
 
             // verify uid not in use
             checkForDuplicateUid(content);
@@ -121,15 +119,19 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             checkForDuplicateItemName(owner.getId(), parent.getId(), content.getName());
 
             setBaseItemProps(content);
+            
+            // add parent to new content
             content.getParents().add(parent);
-            parent.removeTombstone(content);
-            getSession().update(parent);
+            
+            // remove tomstone (if it exists) from parent
+            if(parent.removeTombstone(content)==true)
+                getSession().update(parent);
             
             getSession().save(content);
             getSession().flush();
             return content;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } catch (InvalidStateException ise) {
             logInvalidStateException(ise);
             throw ise;
@@ -153,11 +155,11 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         if (content.getId()!=-1)
             throw new IllegalArgumentException("invalid content id (expected -1)");
         
+        if (content.getOwner() == null)
+            throw new IllegalArgumentException("content must have owner");
+        
         try {
             User owner = content.getOwner();
-
-            if (owner == null)
-                throw new IllegalArgumentException("content must have owner");
 
             // verify uid not in use
             checkForDuplicateUid(content);
@@ -171,37 +173,21 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             setBaseItemProps(content);
             for(CollectionItem parent: parents) {
                 content.getParents().add(parent);
-                parent.removeTombstone(content);
-                getSession().update(parent);
+                if(parent.removeTombstone(content)==true)
+                    getSession().update(parent);
             }
             
             getSession().save(content);
             getSession().flush();
             return content;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } catch (InvalidStateException ise) {
             logInvalidStateException(ise);
             throw ise;
         }
     }
     
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.osaf.cosmo.dao.ContentDao#findChildren(org.osaf.cosmo.model.CollectionItem)
-     */
-    public Set<Item> findChildren(CollectionItem collection) {
-
-        try {
-            getSession().refresh(collection);
-            return collection.getChildren();
-        } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
-        }
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -213,7 +199,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                     "collectionItem.by.uid").setParameter("uid", uid)
                     .uniqueResult();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -230,7 +216,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
 
             return (CollectionItem) item;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -247,7 +233,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
 
             return (ContentItem) item;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } 
     }
 
@@ -261,7 +247,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             return (ContentItem) getSession().getNamedQuery(
                     "contentItem.by.uid").setParameter("uid", uid).uniqueResult();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -276,6 +262,9 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             if (collection == null)
                 throw new IllegalArgumentException("collection cannot be null");
             
+            if (collection.getOwner() == null)
+                throw new IllegalArgumentException("collection must have owner");
+            
             // In a hierarchy, can't have two items with same name with
             // same parent
             if (collection.getParents().size() > 0)
@@ -289,7 +278,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             
             return collection;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } catch (InvalidStateException ise) {
             logInvalidStateException(ise);
             throw ise;
@@ -307,6 +296,9 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             if (content == null)
                 throw new IllegalArgumentException("content cannot be null");
             
+            if (content.getOwner() == null)
+                throw new IllegalArgumentException("content must have owner");
+            
             if(content.getParents().size()==0)
                 throw new IllegalArgumentException("item must have at least one parent");
                         
@@ -315,7 +307,6 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             checkForDuplicateItemNameMinusItem(content.getOwner().getId(), 
                     content.getParents(), content.getName(), content.getId());
             
-            // ensure item is dirty
             content.setModifiedDate(new Date());
             
             getSession().update(content);
@@ -323,7 +314,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             
             return content;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } catch (InvalidStateException ise) {
             logInvalidStateException(ise);
             throw ise;
@@ -338,13 +329,13 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
     public void removeCollection(CollectionItem collection) {
         
         if(collection==null)
-            throw new IllegalArgumentException("item cannot be null");
+            throw new IllegalArgumentException("collection cannot be null");
         
         try {
             removeCollectionRecursive(collection);
             getSession().flush();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -356,32 +347,16 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
     public void removeContent(ContentItem content) {
         
         if(content==null)
-            throw new IllegalArgumentException("item cannot be null");
+            throw new IllegalArgumentException("content cannot be null");
         
         try {
             removeContentRecursive(content);
             getSession().flush();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.osaf.cosmo.dao.ContentDao#findChildren(org.osaf.cosmo.model.User)
-     */
-    public Set<Item> findChildren(User user) {
-        try {
-            CollectionItem rootItem = getRootItem(user);
-            if(rootItem!=null)
-                return rootItem.getChildren();
-            else
-                return new HashSet<Item>(0);
-        } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
-        }
-    }
     
     @Override
     public void removeItem(Item item) {
@@ -414,7 +389,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         else
             super.removeItem(item);
     }
-
+    
     /**
      * Initializes the DAO, sanity checking required properties and defaulting
      * optional properties.
