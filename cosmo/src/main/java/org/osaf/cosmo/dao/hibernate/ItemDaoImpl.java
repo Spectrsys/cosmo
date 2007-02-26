@@ -21,6 +21,7 @@ import java.util.Set;
 import org.apache.commons.id.IdentifierGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.ObjectDeletedException;
 import org.hibernate.ObjectNotFoundException;
@@ -105,9 +106,12 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
      */
     public Item findItemByUid(String uid) {
         try {
+            // prevent auto flushing when looking up item by uid
+            getSession().setFlushMode(FlushMode.MANUAL);
             Query hibQuery = getSession().getNamedQuery("item.by.uid")
                     .setParameter("uid", uid);
             hibQuery.setCacheable(true);
+            hibQuery.setFlushMode(FlushMode.MANUAL);
             return (Item) hibQuery.uniqueResult();
         } catch (HibernateException e) {
             throw SessionFactoryUtils.convertHibernateAccessException(e);
