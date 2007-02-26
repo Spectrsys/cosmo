@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.eim.schema.task;
 
+import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseStampApplicator;
@@ -43,7 +44,7 @@ public class TaskApplicator extends BaseStampApplicator {
     }
 
     /** */
-    protected Stamp createStamp() {
+    protected Stamp createStamp(EimRecord record) throws EimSchemaException {
         return new TaskStamp();
     }
 

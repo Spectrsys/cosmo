@@ -65,6 +65,9 @@ public class NoteGenerator extends BaseItemGenerator
         record.addField(new ClobField(FIELD_BODY, body));
 
         record.addField(new TextField(FIELD_ICALUID, note.getIcalUid()));
+        
+        String parentUuid = note.getModifies() == null ? null : note.getModifies().getUid();
+        record.addField(new TextField(FIELD_PARENTUUID, parentUuid));
 
         Date d = note.getReminderTime();
         BigDecimal reminderTime = d != null ?

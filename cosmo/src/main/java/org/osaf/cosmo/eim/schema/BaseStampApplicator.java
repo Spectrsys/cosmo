@@ -81,7 +81,7 @@ public abstract class BaseStampApplicator extends BaseApplicator {
         }
 
         if (stamp == null) {
-            stamp = createStamp();
+            stamp = createStamp(record);
             if (getItem() != null)
                 getItem().addStamp(stamp);
         }
@@ -97,7 +97,7 @@ public abstract class BaseStampApplicator extends BaseApplicator {
      * stamp record is applied to an item that does not already have
      * that stamp.
      */
-    protected abstract Stamp createStamp();
+    protected abstract Stamp createStamp(EimRecord record) throws EimSchemaException;
 
     /**
      * Deletes the stamp.

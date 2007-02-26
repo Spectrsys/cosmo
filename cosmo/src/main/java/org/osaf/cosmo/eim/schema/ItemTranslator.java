@@ -16,31 +16,26 @@
 package org.osaf.cosmo.eim.schema;
 
 import org.apache.commons.lang.BooleanUtils;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.schema.contentitem.ContentItemApplicator;
 import org.osaf.cosmo.eim.schema.contentitem.ContentItemGenerator;
-import org.osaf.cosmo.eim.schema.note.NoteApplicator;
-import org.osaf.cosmo.eim.schema.note.NoteGenerator;
 import org.osaf.cosmo.eim.schema.event.EventApplicator;
 import org.osaf.cosmo.eim.schema.event.EventGenerator;
 import org.osaf.cosmo.eim.schema.event.modification.EventModificationApplicator;
-import org.osaf.cosmo.eim.schema.task.TaskApplicator;
-import org.osaf.cosmo.eim.schema.task.TaskGenerator;
+import org.osaf.cosmo.eim.schema.event.modification.EventModificationGenerator;
 import org.osaf.cosmo.eim.schema.message.MessageApplicator;
 import org.osaf.cosmo.eim.schema.message.MessageGenerator;
+import org.osaf.cosmo.eim.schema.note.NoteApplicator;
+import org.osaf.cosmo.eim.schema.note.NoteGenerator;
+import org.osaf.cosmo.eim.schema.task.TaskApplicator;
+import org.osaf.cosmo.eim.schema.task.TaskGenerator;
 import org.osaf.cosmo.eim.schema.unknown.UnknownApplicator;
 import org.osaf.cosmo.eim.schema.unknown.UnknownGenerator;
-import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.MessageStamp;
 import org.osaf.cosmo.model.NoteItem;
-import org.osaf.cosmo.model.Stamp;
-import org.osaf.cosmo.model.TaskStamp;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Handles the translation of EIM recordsets to/from an
@@ -60,6 +55,7 @@ public class ItemTranslator implements EimSchemaConstants {
     private EventApplicator eventApplicator;
     private EventGenerator eventGenerator;
     private EventModificationApplicator eventModApplicator;
+    private EventModificationGenerator eventModGenerator;
     private TaskApplicator taskApplicator; 
     private TaskGenerator taskGenerator;
     private MessageApplicator messageApplicator;
@@ -81,6 +77,7 @@ public class ItemTranslator implements EimSchemaConstants {
             eventApplicator = new EventApplicator(item);
             eventGenerator = new EventGenerator(item);
             eventModApplicator = new EventModificationApplicator(item);
+            eventModGenerator = new EventModificationGenerator(item);
         
             taskApplicator = new TaskApplicator(item);
             taskGenerator = new TaskGenerator(item);

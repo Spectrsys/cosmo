@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.eim.schema.message;
 
+import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseStampApplicator;
@@ -49,7 +50,7 @@ public class MessageApplicator extends BaseStampApplicator
      * stamp record is applied to an item that does not already have
      * that stamp.
      */
-    protected Stamp createStamp() {
+    protected Stamp createStamp(EimRecord record) throws EimSchemaException {
         return new MessageStamp();
     }
 

@@ -96,7 +96,7 @@ public class BaseStampApplicatorTest extends BaseApplicatorTestCase {
             appliedFields = new HashSet<EimRecordField>();
         }
 
-        protected Stamp createStamp() {
+        protected Stamp createStamp(EimRecord record) throws EimSchemaException {
             stampCreated = true;
             return null;
         }

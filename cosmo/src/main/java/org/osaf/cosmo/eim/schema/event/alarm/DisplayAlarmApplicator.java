@@ -37,6 +37,8 @@ import org.osaf.cosmo.eim.schema.EimFieldValidator;
 import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
 import org.osaf.cosmo.eim.schema.event.EventConstants;
+import org.osaf.cosmo.model.BaseEventStamp;
+import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.Stamp;
@@ -100,7 +102,7 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
     }
     
     @Override
-    protected Stamp createStamp() {
+    protected Stamp createStamp(EimRecord record) throws EimSchemaException {
         // do nothing as the stamp should already be created
         return null;
     }
@@ -239,20 +241,32 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
      * or a modification (recurrenceId present).
      */
     private VEvent getEvent(EimRecord record) throws EimSchemaException {
-        if(getEventStamp()==null)
-            throw new EimSchemaException("EventStamp required");
+        
+        BaseEventStamp eventStamp = getEventStamp();
+        
+        if(eventStamp==null)
+            throw new EimSchemaException("EventStamp or EventExceptionStamp required");
         
         // retrieve key field (recurrenceId)
         Date recurrenceId = getRecurrenceId(record);
         
-        if(recurrenceId==null)
-            return getEventStamp().getMasterEvent();
-        else
-            return getEventStamp().getModification(recurrenceId);
-        
+        if(recurrenceId==null) {
+            if(eventStamp instanceof EventStamp)
+                return eventStamp.getEvent();
+            else
+                throw new EimSchemaException("EventStamp required");
+        } else {
+            if(eventStamp instanceof EventExceptionStamp)
+                return eventStamp.getEvent();
+            else
+                throw new EimSchemaException("EventExceptionStamp required");
+        }
     }
     
-    private EventStamp getEventStamp() {
-        return EventStamp.getStamp(getItem());
+    private BaseEventStamp getEventStamp() {
+        Stamp eventStamp = EventStamp.getStamp(getItem());
+        if(eventStamp==null)
+            eventStamp = EventExceptionStamp.getStamp(getItem());
+        return (BaseEventStamp) eventStamp;
     }
 }

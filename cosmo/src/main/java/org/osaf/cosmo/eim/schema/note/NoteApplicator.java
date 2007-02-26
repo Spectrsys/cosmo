@@ -73,11 +73,42 @@ public class NoteApplicator extends BaseItemApplicator
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_ICALUID);
             note.setIcalUid(value);
+        } else if (field.getName().equals(FIELD_PARENTUUID)) {
+            String value =
+                EimFieldValidator.validateText(field, MAXLEN_PARENTUUID);
+            handleParentUuidField(value, note);
         } else if(field.getName().equals(FIELD_REMINDER_TIME)) {
             Date value = EimFieldValidator.validateTimeStamp(field);
             note.setReminderTime(value);
         } else {
             applyUnknownField(field);
         }
+    }
+    
+    private void handleParentUuidField(String parentUuid, NoteItem note)
+            throws EimSchemaException {
+        if (parentUuid == null)
+            return;
+
+        // We don't support changing the modifies field.  Once its set, its set.
+        // It will be present for existing items that are being added to a new
+        // collection, so in that case just ignore.
+        if(note.getModifies()!=null)
+            return;
+        
+        // Find parent note item by looking through parent's children.
+        // This assumes that there will only be a single parent because
+        // parentUuid should only be set once, at cration time, thus
+        // assuring only a single parent.
+        for (Item child : note.getParent().getChildren()) {
+            if (child.getUid().equals(parentUuid) && child instanceof NoteItem) {
+                note.setModifies((NoteItem) child);
+                return;
+            }
+        }
+
+        // If we didn't find the parent in the collection's children, then we
+        // don't know about it, so throw an exception
+        throw new EimSchemaException("Unable to find parent for " + parentUuid);
     }
 }

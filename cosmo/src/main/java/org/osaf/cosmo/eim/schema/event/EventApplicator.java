@@ -17,6 +17,7 @@ package org.osaf.cosmo.eim.schema.event;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.schema.BaseStampApplicator;
 import org.osaf.cosmo.eim.schema.EimFieldValidator;
@@ -50,7 +51,7 @@ public class EventApplicator extends BaseStampApplicator
      * stamp record is applied to an item that does not already have
      * that stamp.
      */
-    protected Stamp createStamp() {
+    protected Stamp createStamp(EimRecord record) throws EimSchemaException {
         EventStamp eventStamp = new EventStamp(getItem());
         // initialize calendar on EventStamp
         eventStamp.createCalendar();

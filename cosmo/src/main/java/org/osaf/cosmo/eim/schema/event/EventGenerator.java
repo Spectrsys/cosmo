@@ -15,19 +15,15 @@
  */
 package org.osaf.cosmo.eim.schema.event;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.VAlarm;
-import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.Trigger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.eim.ClobField;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
@@ -95,56 +91,9 @@ public class EventGenerator extends BaseStampGenerator
         records.add(master);
         
         // generate alarm record;
-        VAlarm alarm = event.getDisplayAlarm(null);
+        VAlarm alarm = event.getDisplayAlarm();
         if(alarm != null)
-            records.add(generateAlarmRecord(alarm, null));
-
-        // generate modification records
-        for (VEvent override : event.getModifications()) {
-            EimRecord overrideRec = new EimRecord(PREFIX_EVENT_MODIFICATION,
-                    NS_EVENT_MODIFICATION);
-            overrideRec.addKeyField(new TextField(FIELD_UUID, event.getItem()
-                    .getUid()));
-
-            value = EimValueConverter.fromICalDate(override.getReccurrenceId()
-                    .getDate());
-            overrideRec.addKeyField(new TextField(FIELD_RECURRENCE_ID, value));
-
-            value = EimValueConverter.fromICalDate(override.getStartDate()
-                    .getDate());
-            overrideRec.addField(new TextField(FIELD_DTSTART, value));
-
-            value = EimValueConverter.fromICalDate(override.getEndDate()
-                    .getDate());
-            overrideRec.addField(new TextField(FIELD_DTEND, value));
-
-            Property prop = override.getProperties().getProperty(
-                    Property.LOCATION);
-            value = (prop == null) ? null : prop.getValue();
-            overrideRec.addField(new TextField(FIELD_LOCATION, value));
-
-            prop = override.getProperties().getProperty(Property.STATUS);
-            value = (prop == null) ? null : prop.getValue();
-            overrideRec.addField(new TextField(FIELD_STATUS, value));
-
-            prop = override.getProperties().getProperty(Property.SUMMARY);
-            value = (prop == null) ? null : prop.getValue();
-            overrideRec.addField(new TextField(FIELD_DISPLAY_NAME, value));
-
-            prop = override.getProperties().getProperty(Property.DESCRIPTION);
-            value = (prop == null) ? null : prop.getValue();
-            StringReader body = value != null ?
-                new StringReader(value) :
-                null;
-            overrideRec.addField(new ClobField(FIELD_BODY, body));
-
-            records.add(overrideRec);
-            Date recurrenceId = override.getReccurrenceId().getDate();
-            alarm = event.getDisplayAlarm(recurrenceId);
-            
-            if (alarm != null)
-                records.add(generateAlarmRecord(alarm, recurrenceId));
-        }
+            records.add(generateAlarmRecord(alarm));
 
         return records;
     }
@@ -152,14 +101,11 @@ public class EventGenerator extends BaseStampGenerator
     /**
      * Create display alarm eim record.
      */
-    private EimRecord generateAlarmRecord(VAlarm alarm, Date recurrenceId) {
+    private EimRecord generateAlarmRecord(VAlarm alarm) {
         EventStamp event = (EventStamp) getStamp();
         
         EimRecord alarmRec = new EimRecord(PREFIX_DISPLAY_ALARM, NS_DISPLAY_ALARM);
         alarmRec.addKeyField(new TextField(FIELD_UUID, event.getItem().getUid()));
-
-        if(recurrenceId!=null)
-            alarmRec.addKeyField(new TextField(FIELD_RECURRENCE_ID, EimValueConverter.fromICalDate(recurrenceId)));
         
         Property prop = alarm.getProperties().getProperty(Property.DESCRIPTION);
         String value = (prop==null) ? null : prop.getValue();

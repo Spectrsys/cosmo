@@ -335,6 +335,9 @@ public class StandardMorseCodeController implements MorseCodeController {
                         (ContentItem) item :
                         createChildItem(collection, recordset);
                     children.add(child);
+                    // TODO: delay applyRecords until all child  
+                    // items have been looked up/created.  This assures
+                    // we can handle out of order note modifications
                     new ItemTranslator(child).applyRecords(recordset);
                 } catch (EimValidationException e) {
                     throw new ValidationException("could not apply EIM recordset " + recordset.getUuid() + " due to invalid data", e);
@@ -355,8 +358,9 @@ public class StandardMorseCodeController implements MorseCodeController {
         child.setDisplayName(recordset.getUuid());
         child.setUid(recordset.getUuid());
         child.setOwner(collection.getOwner());
-        // temp fix - should be moved inside model layer
-        child.setContentLength(new Long(0));
+        // Add reference to parent collection so that applicator can
+        // access parent (and children) if necessary
+        child.getParents().add(collection);
         collection.getChildren().add(child);
         return child;
     }
