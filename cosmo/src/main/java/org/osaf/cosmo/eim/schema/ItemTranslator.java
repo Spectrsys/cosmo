@@ -172,6 +172,7 @@ public class ItemTranslator implements EimSchemaConstants {
         if (item instanceof NoteItem) {
             recordset.addRecords(noteGenerator.generateRecords());
             recordset.addRecords(eventGenerator.generateRecords(timestamp));
+            recordset.addRecords(eventModGenerator.generateRecords(timestamp));
             recordset.addRecords(taskGenerator.generateRecords(timestamp));
             recordset.addRecords(messageGenerator.generateRecords(timestamp));
         }
