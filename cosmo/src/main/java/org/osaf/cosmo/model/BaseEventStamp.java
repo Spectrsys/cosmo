@@ -63,6 +63,16 @@ public abstract class BaseEventStamp extends Stamp implements
     public abstract VEvent getEvent();
     public abstract void setCalendar(Calendar calendar);
     
+    
+    /**
+     * Return BaseEventStamp from Item
+     * @param item
+     * @return BaseEventStamp from Item
+     */
+    public static BaseEventStamp getStamp(Item item) {
+        return (BaseEventStamp) item.getStamp(BaseEventStamp.class);
+    }
+    
     /**
      * Returns a copy of the the iCalendar UID property value of the
      * event .

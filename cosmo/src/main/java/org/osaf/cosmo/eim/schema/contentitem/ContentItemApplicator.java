@@ -25,6 +25,7 @@ import org.osaf.cosmo.eim.schema.BaseItemApplicator;
 import org.osaf.cosmo.eim.schema.EimFieldValidator;
 import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValidationException;
+import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
@@ -62,11 +63,11 @@ public class ContentItemApplicator extends BaseItemApplicator
             String value = EimFieldValidator.validateText(field, MAXLEN_TITLE);
             contentItem.setDisplayName(value);
             
-            // ContentItem.displayName == EventStamp.getSummary()
+            // ContentItem.displayName == BaseEventStamp.getSummary()
             // For now, we have to keep the ContentItem and
             // EventStamp in sync, otherwise an update by morsecode
             // to ContentItem will not propogate to a CalDAV client.
-            EventStamp eventStamp = EventStamp.getStamp(contentItem);
+            BaseEventStamp eventStamp = BaseEventStamp.getStamp(contentItem);
             if(eventStamp!=null)
                 eventStamp.setSummary(value);
         } else if (field.getName().equals(FIELD_TRIAGE_STATUS)) {
