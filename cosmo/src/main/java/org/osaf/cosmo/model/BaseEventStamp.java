@@ -24,7 +24,9 @@ import javax.persistence.Transient;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateList;
+import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Parameter;
+import net.fortuna.ical4j.model.ParameterFactoryImpl;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.Recur;
@@ -34,6 +36,7 @@ import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.parameter.XParameter;
 import net.fortuna.ical4j.model.property.Action;
 import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.DtEnd;
 import net.fortuna.ical4j.model.property.DtStart;
@@ -57,8 +60,8 @@ import org.osaf.cosmo.icalendar.ICalendarConstants;
 /**
  * Represents a calendar event.
  */
-public abstract class BaseEventStamp extends Stamp implements
-        java.io.Serializable {
+public abstract class BaseEventStamp extends Stamp
+    implements java.io.Serializable, ICalendarConstants {
 
     public abstract VEvent getEvent();
     public abstract void setCalendar(Calendar calendar);
@@ -172,8 +175,11 @@ public abstract class BaseEventStamp extends Stamp implements
         DtStart dtStart = getEvent().getStartDate();
         if (dtStart != null)
             dtStart.setDate(date);
-        else
-            getEvent().getProperties().add(new DtStart(date));
+        else {
+            dtStart = new DtStart(date);
+            getEvent().getProperties().add(dtStart);
+        }
+        setDatePropertyValue(dtStart, date);
     }
 
     /**
@@ -205,8 +211,23 @@ public abstract class BaseEventStamp extends Stamp implements
                 getProperty(Property.DURATION);
             if (duration != null)
                 getEvent().getProperties().remove(duration);
-            getEvent().getProperties().add(new DtEnd(date));
+            dtEnd = new DtEnd(date);
+            getEvent().getProperties().add(dtEnd);
         }
+        setDatePropertyValue(dtEnd, date);
+    }
+
+    @Transient
+    protected void setDatePropertyValue(DateProperty prop,
+                                        Date date) {
+        if (prop == null)
+            return;
+        Value value = (Value)
+            prop.getParameters().getParameter(Parameter.VALUE);
+        if (value != null)
+            prop.getParameters().remove(value);
+        value = date instanceof DateTime ? Value.DATE_TIME : Value.DATE;
+        prop.getParameters().add(value);
     }
 
     /**
@@ -462,12 +483,12 @@ public abstract class BaseEventStamp extends Stamp implements
         if (dtStart == null)
             return false;
         Parameter parameter = dtStart.getParameters()
-            .getParameter(ICalendarConstants.PARAM_X_OSAF_ANYTIME);
+            .getParameter(PARAM_X_OSAF_ANYTIME);
         if (parameter == null) {
             return false;
         }
 
-        return ICalendarConstants.VALUE_TRUE.equals(parameter.getValue());
+        return VALUE_TRUE.equals(parameter.getValue());
     }
     
     /**
@@ -479,7 +500,7 @@ public abstract class BaseEventStamp extends Stamp implements
         if (dtStart == null)
             throw new IllegalStateException("event has no start date");
         Parameter parameter = dtStart.getParameters().getParameter(
-                ICalendarConstants.PARAM_X_OSAF_ANYTIME);
+                PARAM_X_OSAF_ANYTIME);
 
         // add X-OSAF-ANYTIME if it doesn't exist
         if (parameter == null && isAnyTime) {
@@ -490,7 +511,7 @@ public abstract class BaseEventStamp extends Stamp implements
         // if it exists, update based on isAnyTime
         if (parameter != null) {
             String value = parameter.getValue();
-            boolean currIsAnyTime = ICalendarConstants.VALUE_TRUE.equals(value);
+            boolean currIsAnyTime = VALUE_TRUE.equals(value);
             if (currIsAnyTime && !isAnyTime)
                 dtStart.getParameters().remove(parameter);
             else if (!currIsAnyTime && isAnyTime) {
@@ -502,8 +523,7 @@ public abstract class BaseEventStamp extends Stamp implements
     
     @Transient
     private Parameter getAnyTimeXParam() {
-        return new XParameter(ICalendarConstants.PARAM_X_OSAF_ANYTIME,
-                ICalendarConstants.VALUE_TRUE);
+        return new XParameter(PARAM_X_OSAF_ANYTIME, VALUE_TRUE);
     }
     
     /**
