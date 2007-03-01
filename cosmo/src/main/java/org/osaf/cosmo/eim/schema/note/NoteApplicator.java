@@ -70,7 +70,6 @@ public class NoteApplicator extends BaseItemApplicator
             BaseEventStamp eventStamp = BaseEventStamp.getStamp(note);
             if(eventStamp!=null) {
                 eventStamp.setDescription(note.getBody());
-                eventStamp.setDirty(true);
             }
             
         } else if (field.getName().equals(FIELD_ICALUID)) {

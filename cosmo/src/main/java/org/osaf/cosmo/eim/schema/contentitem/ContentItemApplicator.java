@@ -70,7 +70,6 @@ public class ContentItemApplicator extends BaseItemApplicator
             BaseEventStamp eventStamp = BaseEventStamp.getStamp(contentItem);
             if(eventStamp!=null) {
                 eventStamp.setSummary(value);
-                eventStamp.setDirty(true);
             }
         } else if (field.getName().equals(FIELD_TRIAGE_STATUS)) {
             String value =

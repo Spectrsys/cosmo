@@ -17,32 +17,28 @@ package org.osaf.cosmo.eim.schema;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.BlobField;
 import org.osaf.cosmo.eim.BytesField;
 import org.osaf.cosmo.eim.ClobField;
 import org.osaf.cosmo.eim.DateTimeField;
 import org.osaf.cosmo.eim.DecimalField;
-import org.osaf.cosmo.eim.IntegerField;
-import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
+import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.BinaryAttribute;
 import org.osaf.cosmo.model.CalendarAttribute;
 import org.osaf.cosmo.model.DecimalAttribute;
 import org.osaf.cosmo.model.IntegerAttribute;
-import org.osaf.cosmo.model.StringAttribute;
-import org.osaf.cosmo.model.TextAttribute;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.QName;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.model.StringAttribute;
+import org.osaf.cosmo.model.TextAttribute;
 
 /**
  * Base class for classes that apply EIM records to items and stamps.
@@ -104,7 +100,7 @@ public abstract class BaseApplicator implements EimSchemaConstants {
             if(attribute!=null)
                 attribute.setValue(value);
             else
-            item.addAttribute(new TextAttribute(qn, value));
+                item.addAttribute(new TextAttribute(qn, value));
         } else if (field instanceof DateTimeField) {
             Calendar value = ((DateTimeField)field).getCalendar();
             if(attribute!=null)

@@ -117,6 +117,7 @@ public abstract class BaseEventStamp extends Stamp
      */
     @Transient
     public void setSummary(String text) {
+        setDirty(true);
         Summary summary = (Summary)
             getEvent().getProperties().getProperty(Property.SUMMARY);
         if (text == null) {
@@ -151,8 +152,10 @@ public abstract class BaseEventStamp extends Stamp
      */
     @Transient
     public void setDescription(String text) {
+        setDirty(true);
         Description description = (Description)
             getEvent().getProperties().getProperty(Property.DESCRIPTION);
+       
         if (text == null) {
             if (description != null)
                 getEvent().getProperties().remove(description);
@@ -192,6 +195,7 @@ public abstract class BaseEventStamp extends Stamp
             getEvent().getProperties().add(dtStart);
         }
         setDatePropertyValue(dtStart, date);
+        setDirty(true);
     }
 
     /**
@@ -227,6 +231,7 @@ public abstract class BaseEventStamp extends Stamp
             getEvent().getProperties().add(dtEnd);
         }
         setDatePropertyValue(dtEnd, date);
+        setDirty(true);
     }
 
     @Transient
@@ -240,6 +245,7 @@ public abstract class BaseEventStamp extends Stamp
             prop.getParameters().remove(value);
         value = date instanceof DateTime ? Value.DATE_TIME : Value.DATE;
         prop.getParameters().add(value);
+        setDirty(true);
     }
 
     /**
@@ -262,8 +268,11 @@ public abstract class BaseEventStamp extends Stamp
      */
     @Transient
     public void setLocation(String text) {
+        setDirty(true);
+        
         Location location = (Location)
             getEvent().getProperties().getProperty(Property.LOCATION);
+        
         if (text == null) {
             if (location != null)
                 getEvent().getProperties().remove(location);
@@ -304,6 +313,8 @@ public abstract class BaseEventStamp extends Stamp
             pl.remove(rrule);
         for (Recur recur : recurs)
             pl.add(new RRule(recur));
+        
+        setDirty(true);
     }
 
     /**
@@ -334,6 +345,7 @@ public abstract class BaseEventStamp extends Stamp
             pl.remove(exrule);
         for (Recur recur : recurs)
             pl.add(new ExRule(recur));
+        setDirty(true);
     }
 
     /**
@@ -359,6 +371,8 @@ public abstract class BaseEventStamp extends Stamp
     public void setRecurrenceDates(DateList dates) {
         if (dates == null)
             return;
+        
+        setDirty(true);
         PropertyList pl = getEvent().getProperties();
         for (RDate rdate : (List<RDate>) pl.getProperties(Property.RDATE))
             pl.remove(rdate);
@@ -410,6 +424,7 @@ public abstract class BaseEventStamp extends Stamp
     public void setExceptionDates(DateList dates) {
         if (dates == null)
             return;
+        setDirty(true);
         PropertyList pl = getEvent().getProperties();
         for (ExDate exdate : (List<ExDate>) pl.getProperties(Property.EXDATE))
             pl.remove(exdate);
@@ -437,6 +452,7 @@ public abstract class BaseEventStamp extends Stamp
      */
     @Transient
     public void setRecurrenceId(Date date) {
+        setDirty(true);
         RecurrenceId recurrenceId = (RecurrenceId)
             getEvent().getProperties().
             getProperty(Property.RECURRENCE_ID);
@@ -475,6 +491,7 @@ public abstract class BaseEventStamp extends Stamp
         // ical4j Status value is immutable, so if there's any change
         // at all, we have to remove the old status and add a new
         // one.
+        setDirty(true);
         Status status = (Status)
             getEvent().getProperties().getProperty(Property.STATUS);
         if (status != null)
@@ -514,6 +531,8 @@ public abstract class BaseEventStamp extends Stamp
         Parameter parameter = dtStart.getParameters().getParameter(
                 PARAM_X_OSAF_ANYTIME);
 
+        setDirty(true);
+        
         // add X-OSAF-ANYTIME if it doesn't exist
         if (parameter == null && isAnyTime) {
             dtStart.getParameters().add(getAnyTimeXParam());

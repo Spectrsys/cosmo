@@ -68,24 +68,19 @@ public class EventModificationApplicator extends BaseStampApplicator
             ICalDate icd = EimValueConverter.toICalDate(value);
             event.setStartDate(icd.getDate());
             event.setAnyTime(icd.isAnyTime());
-            event.setDirty(true);
         } else if (field.getName().equals(FIELD_DTEND)) {
             String value = EimFieldValidator.validateText(field, MAXLEN_DTEND);
             event.setEndDate(EimValueConverter.toICalDate(value).getDate());
-            event.setDirty(true);
         } else if (field.getName().equals(FIELD_LOCATION)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_LOCATION);
             event.setLocation(value);
-            event.setDirty(true);
         } else if (field.getName().equals(FIELD_STATUS)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_STATUS);
             event.setStatus(value);
-            event.setDirty(true);
         } else {
             applyUnknownField(field);
-            event.setDirty(true);
         }
     }
     
