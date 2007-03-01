@@ -76,35 +76,44 @@ public class EventApplicator extends BaseStampApplicator
             ICalDate icd = EimValueConverter.toICalDate(value);
             event.setStartDate(icd.getDate());
             event.setAnyTime(icd.isAnyTime());
+            event.setDirty(true);
         } else if (field.getName().equals(FIELD_DTEND)) {
             String value = EimFieldValidator.validateText(field, MAXLEN_DTEND);
             event.setEndDate(EimValueConverter.toICalDate(value).getDate());
+            event.setDirty(true);
         } else if (field.getName().equals(FIELD_LOCATION)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_LOCATION);
             event.setLocation(value);
+            event.setDirty(true);
         } else if (field.getName().equals(FIELD_RRULE)) {
             String value = EimFieldValidator.validateText(field, MAXLEN_RRULE);
             event.setRecurrenceRules(EimValueConverter.toICalRecurs(value));
+            event.setDirty(true);
         } else if (field.getName().equals(FIELD_EXRULE)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_EXRULE);
             event.setExceptionRules(EimValueConverter.toICalRecurs(value));
+            event.setDirty(true);
         } else if (field.getName().equals(FIELD_RDATE)) {
             String value = EimFieldValidator.validateText(field, MAXLEN_RDATE);
             ICalDate icd = EimValueConverter.toICalDate(value);
             event.setRecurrenceDates(icd != null ? icd.getDateList() : null);
+            event.setDirty(true);
         } else if (field.getName().equals(FIELD_EXDATE)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_EXDATE);
             ICalDate icd = EimValueConverter.toICalDate(value);
             event.setExceptionDates(icd != null ? icd.getDateList() : null);
+            event.setDirty(true);
         } else if (field.getName().equals(FIELD_STATUS)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_STATUS);
             event.setStatus(value);
+            event.setDirty(true);
         } else {
             applyUnknownField(field);
+            event.setDirty(true);
         }
     }
 }

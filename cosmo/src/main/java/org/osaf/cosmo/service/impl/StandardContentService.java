@@ -482,11 +482,18 @@ public class StandardContentService implements ContentService {
                     }
                     
                     // keep track of events so we can index
-                    if(note.getModifies()!=null && (EventStamp.getStamp(note.getModifies())!=null))
-                        events.put(note.getModifies().getUid(), note.getModifies());
-                    else if(note.getIsActive()==true && EventStamp.getStamp(note)!=null)
-                        events.put(note.getUid(), note);
-                    
+                    if(note.getModifies()!=null) {
+                        EventStamp masterEvent = EventStamp.getStamp(note.getModifies());
+                        EventExceptionStamp exEvent = EventExceptionStamp.getStamp(note);
+                        // only index event if the eventstamp is dirty
+                        if(masterEvent!=null && exEvent !=null && exEvent.isDirty())
+                            events.put(note.getModifies().getUid(), note.getModifies());
+                    } else if(note.getIsActive()==true && EventStamp.getStamp(note)!=null) {
+                        // only index event if the eventstamp is dirty
+                        if(EventStamp.getStamp(note).isDirty())
+                            events.put(note.getUid(), note);
+                    }
+                     
                     // addition
                     if(item.getId()==-1) {
                         note = (NoteItem) contentDao.createContent(collection,

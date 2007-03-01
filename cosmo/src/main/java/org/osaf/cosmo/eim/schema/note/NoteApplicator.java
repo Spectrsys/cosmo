@@ -68,8 +68,10 @@ public class NoteApplicator extends BaseItemApplicator
             // BaseEventStamp in sync, otherwise an update by Chander
             // to NoteItem will not propogate to a CalDAV client.
             BaseEventStamp eventStamp = BaseEventStamp.getStamp(note);
-            if(eventStamp!=null)
+            if(eventStamp!=null) {
                 eventStamp.setDescription(note.getBody());
+                eventStamp.setDirty(true);
+            }
             
         } else if (field.getName().equals(FIELD_ICALUID)) {
             String value =

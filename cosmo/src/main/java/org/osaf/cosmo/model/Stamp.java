@@ -55,6 +55,7 @@ public abstract class Stamp extends AuditableObject implements
     // Fields
     private Item item;
     private Boolean isActive = Boolean.TRUE;
+    private boolean dirty = false;
 
     // Constructors
     /** default constructor */
@@ -113,5 +114,14 @@ public abstract class Stamp extends AuditableObject implements
      */
     public void remove() {
         setIsActive(false);
+    }
+    
+    @Transient
+    public boolean isDirty() {
+        return dirty;
+    }
+    
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 }

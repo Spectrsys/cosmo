@@ -68,8 +68,10 @@ public class ContentItemApplicator extends BaseItemApplicator
             // EventStamp in sync, otherwise an update by morsecode
             // to ContentItem will not propogate to a CalDAV client.
             BaseEventStamp eventStamp = BaseEventStamp.getStamp(contentItem);
-            if(eventStamp!=null)
+            if(eventStamp!=null) {
                 eventStamp.setSummary(value);
+                eventStamp.setDirty(true);
+            }
         } else if (field.getName().equals(FIELD_TRIAGE_STATUS)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_TRIAGE_STATUS);
