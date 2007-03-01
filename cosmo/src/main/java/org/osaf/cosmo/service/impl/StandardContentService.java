@@ -501,8 +501,8 @@ public class StandardContentService implements ContentService {
                     }
                     // deletion
                     else if(item.getIsActive()==false) {
-                        
-                        contentDao.removeItem(item);
+                        item.setIsActive(true);
+                        contentDao.removeItemFromCollection(item, collection);
                     }
                     // update
                     else {

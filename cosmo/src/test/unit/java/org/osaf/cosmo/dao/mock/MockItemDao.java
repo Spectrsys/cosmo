@@ -357,6 +357,9 @@ public class MockItemDao implements ItemDao {
     
     public void removeItemFromCollection(Item item, CollectionItem collection) {
         item.getParents().remove(collection);
+        collection.getChildren().remove(item);
+        if(item.getParents().size()==0)
+            removeItem(item);
     }
     
     public void refreshItem(Item item) {

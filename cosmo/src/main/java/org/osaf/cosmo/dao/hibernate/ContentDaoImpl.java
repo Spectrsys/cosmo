@@ -332,6 +332,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             throw new IllegalArgumentException("collection cannot be null");
         
         try {
+            getSession().refresh(collection);
             removeCollectionRecursive(collection);
             getSession().flush();
         } catch (HibernateException e) {
@@ -350,6 +351,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             throw new IllegalArgumentException("content cannot be null");
         
         try {
+            getSession().refresh(content);
             removeContentRecursive(content);
             getSession().flush();
         } catch (HibernateException e) {
@@ -421,7 +423,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         // its children.  Instead, the association to all the
         // children is removed, and any children who have no
         // parent collection are then removed.
-        for(Item item: collection.getChildren()) {
+        for(Item item: collection.getAllChildren()) {
             if(item instanceof CollectionItem) {
                 removeCollectionRecursive((CollectionItem) item);
             } else if(item instanceof ContentItem) {                    
