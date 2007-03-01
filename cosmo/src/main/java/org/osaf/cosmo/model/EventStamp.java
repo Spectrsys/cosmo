@@ -175,6 +175,18 @@ public class EventStamp extends BaseEventStamp implements
         return (EventStamp) item.getStamp(EventStamp.class);
     }
     
+    /**
+     * Return EventStamp from Item
+     * @param item
+     * @param activeOnly
+     * @return EventStamp from Item
+     */
+    public static EventStamp getStamp(Item item,
+                                      boolean activeOnly) {
+        return (EventStamp) item.getStamp(EventStamp.class,
+                                          activeOnly);
+    }
+    
     /* (non-Javadoc)
      * @see org.osaf.cosmo.model.Stamp#copy()
      */

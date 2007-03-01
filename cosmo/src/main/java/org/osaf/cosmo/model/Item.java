@@ -183,15 +183,29 @@ public abstract class Item extends AuditableObject {
     }
     
     /**
-     * Get the stamp that corresponds to the specified class
+     * Get the active stamp that corresponds to the specified class
      * @param clazz stamp class to return
      * @return stamp
      */
     public Stamp getStamp(Class clazz) {
+        return getStamp(clazz, true);
+    }
+    
+    /**
+     * Get the stamp that corresponds to the specified class
+     * @param clazz stamp class to return
+     * @param activeOnly whether or not the stamp is required to be
+     * active to be returned
+     * @return stamp
+     */
+    public Stamp getStamp(Class clazz,
+                          boolean activeOnly) {
         for(Stamp stamp : stamps)
-            // only return stamp if it matches class and is active
-            if(clazz.isInstance(stamp) && (stamp.getIsActive()==true))
-                return stamp;
+            // only return stamp if it matches class, and is active if
+            // that's required
+            if(clazz.isInstance(stamp) &&
+               (! activeOnly || stamp.getIsActive()))
+               return stamp;
         
         return null;
     }

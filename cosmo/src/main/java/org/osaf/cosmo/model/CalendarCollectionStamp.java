@@ -275,4 +275,16 @@ public class CalendarCollectionStamp extends Stamp implements
     public static CalendarCollectionStamp getStamp(Item item) {
         return (CalendarCollectionStamp) item.getStamp(CalendarCollectionStamp.class);
     }
+
+    /**
+     * Return CalendarCollectionStamp from Item
+     * @param item
+     * @param activeOnly
+     * @return CalendarCollectionStamp from Item
+     */
+    public static CalendarCollectionStamp getStamp(Item item,
+                                                   boolean activeOnly) {
+        return (CalendarCollectionStamp)
+            item.getStamp(CalendarCollectionStamp.class, activeOnly);
+    }
 }

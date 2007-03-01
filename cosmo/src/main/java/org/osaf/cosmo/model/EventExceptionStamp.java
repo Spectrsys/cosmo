@@ -120,6 +120,18 @@ public class EventExceptionStamp extends BaseEventStamp implements
         return (EventExceptionStamp) item.getStamp(EventExceptionStamp.class);
     }
     
+    /**
+     * Return EventExceptionStamp from Item
+     * @param item
+     * @param activeOnly
+     * @return EventExceptionStamp from Item
+     */
+    public static EventExceptionStamp getStamp(Item item,
+                                               boolean activeOnly) {
+        return (EventExceptionStamp) item.getStamp(EventExceptionStamp.class,
+                                                   activeOnly);
+    }
+    
     /* (non-Javadoc)
      * @see org.osaf.cosmo.model.Stamp#copy()
      */
