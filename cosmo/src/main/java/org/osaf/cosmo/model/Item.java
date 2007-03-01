@@ -158,6 +158,7 @@ public abstract class Item extends AuditableObject {
                         "Item already has stamp of type " + s.getClass());
                 else {
                     toRemove = s;
+                    break;
                 }
             }
         }
