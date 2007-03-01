@@ -147,6 +147,7 @@ public abstract class Item extends AuditableObject {
         if (stamp == null)
             throw new IllegalArgumentException("stamp cannot be null");
 
+        Stamp toRemove = null;
         for (Stamp s : stamps) {
             if (s.getClass() == stamp.getClass()) {
                 // If there is already an active stamp of this type,
@@ -156,10 +157,13 @@ public abstract class Item extends AuditableObject {
                     throw new ModelValidationException(
                         "Item already has stamp of type " + s.getClass());
                 else {
-                    stamps.remove(s);
+                    toRemove = s;
                 }
             }
         }
+        
+        if(toRemove!=null)
+            stamps.remove(toRemove);
         
         stamp.setItem(this);
         stamps.add(stamp);
