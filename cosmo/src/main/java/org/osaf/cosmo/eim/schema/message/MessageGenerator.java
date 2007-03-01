@@ -43,33 +43,36 @@ public class MessageGenerator extends BaseStampGenerator
     /** */
     public MessageGenerator(Item item) {
         super(PREFIX_MESSAGE, NS_MESSAGE, item);
-        setStamp(MessageStamp.getStamp(item));
+        setStamp(MessageStamp.getStamp(item, false));
     }
 
     /**
-     * Copies message properties and attributes into a message record.
+     * Adds a record for the message.
      */
-    public List<EimRecord> generateRecords() {
-        ArrayList<EimRecord> records = new ArrayList<EimRecord>();
-
-        MessageStamp message = (MessageStamp) getStamp();
-        if (message == null)
-            return records;
+    protected void addRecords(List<EimRecord> records) {
+        MessageStamp stamp = (MessageStamp) getStamp();
+        if (stamp == null)
+            return;
 
         EimRecord record = new EimRecord(getPrefix(), getNamespace());
-
-        record.addKeyField(new TextField(FIELD_UUID,
-                                         message.getItem().getUid()));
-
-        record.addField(new TextField(FIELD_SUBJECT, message.getSubject()));
-        record.addField(new TextField(FIELD_TO, message.getTo()));
-        record.addField(new TextField(FIELD_CC, message.getCc()));
-        record.addField(new TextField(FIELD_BCC, message.getBcc()));
-
-        record.addFields(generateUnknownFields());
-
+        addKeyFields(record);
+        addFields(record);
         records.add(record);
+    }
 
-        return records;
+    /**
+     * Adds key field for uuid.
+     */
+    protected void addKeyFields(EimRecord record) {
+        record.addKeyField(new TextField(FIELD_UUID, getItem().getUid()));
+    }
+
+    private void addFields(EimRecord record) {
+        MessageStamp stamp = (MessageStamp) getStamp();
+        record.addField(new TextField(FIELD_SUBJECT, stamp.getSubject()));
+        record.addField(new TextField(FIELD_TO, stamp.getTo()));
+        record.addField(new TextField(FIELD_CC, stamp.getCc()));
+        record.addField(new TextField(FIELD_BCC, stamp.getBcc()));
+        record.addFields(generateUnknownFields());
     }
 }

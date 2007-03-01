@@ -40,27 +40,31 @@ public class TaskGenerator extends BaseStampGenerator {
     /** */
     public TaskGenerator(Item item) {
         super(PREFIX_TASK, NS_TASK, item);
-        setStamp(TaskStamp.getStamp(item));
+        setStamp(TaskStamp.getStamp(item, false));
     }
 
     /**
-     * Copies task properties and attributes into a task record.
+     * Adds a record for the task.
      */
-    public List<EimRecord> generateRecords() {
-        ArrayList<EimRecord> records = new ArrayList<EimRecord>();
-
-        TaskStamp task = (TaskStamp) getStamp();
-        if (task == null)
-            return records;
+    protected void addRecords(List<EimRecord> records) {
+        TaskStamp stamp = (TaskStamp) getStamp();
+        if (stamp == null)
+            return;
 
         EimRecord record = new EimRecord(getPrefix(), getNamespace());
-
-        record.addKeyField(new TextField(FIELD_UUID, task.getItem().getUid()));
-
-        record.addFields(generateUnknownFields());
-
+        addKeyFields(record);
+        addFields(record);
         records.add(record);
+    }
 
-        return records;
+    /**
+     * Adds a key field for uuid.
+     */
+    protected void addKeyFields(EimRecord record) {
+        record.addKeyField(new TextField(FIELD_UUID, getItem().getUid()));
+    }
+
+    private void addFields(EimRecord record) {
+        record.addFields(generateUnknownFields());
     }
 }

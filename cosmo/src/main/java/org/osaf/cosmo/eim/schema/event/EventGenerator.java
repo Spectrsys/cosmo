@@ -45,67 +45,74 @@ public class EventGenerator extends BaseStampGenerator
     /** */
     public EventGenerator(Item item) {
         super(PREFIX_EVENT, NS_EVENT, item);
-        setStamp(EventStamp.getStamp(item));
+        setStamp(EventStamp.getStamp(item, false));
     }
 
     /**
-     * Copies event properties and attributes into a event record.
+     * Adds records representing the master event and its display
+     * alarm (if one exists).
      */
-    public List<EimRecord> generateRecords() {
-        ArrayList<EimRecord> records = new ArrayList<EimRecord>();
+    protected void addRecords(List<EimRecord> records) {
+        EventStamp stamp = (EventStamp) getStamp();
+        if (stamp == null)
+            return;
 
-        EventStamp event = (EventStamp) getStamp();
-        if (event == null)
-            return records;
+        EimRecord record = new EimRecord(getPrefix(), getNamespace());
+        addKeyFields(record);
+        addFields(record);
+        records.add(record);
 
-        EimRecord master = new EimRecord(getPrefix(), getNamespace());
-        String value = null;
-
-        master.addKeyField(new TextField(FIELD_UUID, event.getItem().getUid()));
-
-        value = EimValueConverter.fromICalDate(event.getStartDate(),
-                                               event.isAnyTime());
-        master.addField(new TextField(FIELD_DTSTART, value));
-                                      
-        value = EimValueConverter.fromICalDate(event.getEndDate());
-        master.addField(new TextField(FIELD_DTEND, value));
-
-        master.addField(new TextField(FIELD_LOCATION, event.getLocation()));
-
-        value = EimValueConverter.fromICalRecurs(event.getRecurrenceRules());
-        master.addField(new TextField(FIELD_RRULE, value));
-
-        value = EimValueConverter.fromICalRecurs(event.getExceptionRules());
-        master.addField(new TextField(FIELD_EXRULE, value));
-
-        value = EimValueConverter.fromICalDates(event.getRecurrenceDates());
-        master.addField(new TextField(FIELD_RDATE, value));
-
-        value = EimValueConverter.fromICalDates(event.getExceptionDates());
-        master.addField(new TextField(FIELD_EXDATE, value));
-
-        master.addField(new TextField(FIELD_STATUS, event.getStatus()));
-
-        master.addFields(generateUnknownFields());
-
-        records.add(master);
-        
-        // generate alarm record;
-        VAlarm alarm = event.getDisplayAlarm();
-        if(alarm != null)
-            records.add(generateAlarmRecord(alarm));
-
-        return records;
+        if (stamp.getIsActive()) {
+            // generate alarm record
+            VAlarm alarm = stamp.getDisplayAlarm();
+            if (alarm != null)
+                records.add(generateAlarmRecord(alarm));
+        }
     }
     
     /**
-     * Create display alarm eim record.
+     * Adds a key field for uuid.
      */
+    protected void addKeyFields(EimRecord record) {
+        record.addKeyField(new TextField(FIELD_UUID, getItem().getUid()));
+    }
+
+    private void addFields(EimRecord record) {
+        EventStamp stamp = (EventStamp) getStamp();
+
+        String value = null;
+
+        value = EimValueConverter.fromICalDate(stamp.getStartDate(),
+                                               stamp.isAnyTime());
+        record.addField(new TextField(FIELD_DTSTART, value));
+                                      
+        value = EimValueConverter.fromICalDate(stamp.getEndDate());
+        record.addField(new TextField(FIELD_DTEND, value));
+
+        record.addField(new TextField(FIELD_LOCATION, stamp.getLocation()));
+
+        value = EimValueConverter.fromICalRecurs(stamp.getRecurrenceRules());
+        record.addField(new TextField(FIELD_RRULE, value));
+
+        value = EimValueConverter.fromICalRecurs(stamp.getExceptionRules());
+        record.addField(new TextField(FIELD_EXRULE, value));
+
+        value = EimValueConverter.fromICalDates(stamp.getRecurrenceDates());
+        record.addField(new TextField(FIELD_RDATE, value));
+
+        value = EimValueConverter.fromICalDates(stamp.getExceptionDates());
+        record.addField(new TextField(FIELD_EXDATE, value));
+
+        record.addField(new TextField(FIELD_STATUS, stamp.getStatus()));
+
+        record.addFields(generateUnknownFields());
+    }
+
     private EimRecord generateAlarmRecord(VAlarm alarm) {
-        EventStamp event = (EventStamp) getStamp();
+        EventStamp stamp = (EventStamp) getStamp();
         
         EimRecord alarmRec = new EimRecord(PREFIX_DISPLAY_ALARM, NS_DISPLAY_ALARM);
-        alarmRec.addKeyField(new TextField(FIELD_UUID, event.getItem().getUid()));
+        alarmRec.addKeyField(new TextField(FIELD_UUID, stamp.getItem().getUid()));
         
         Property prop = alarm.getProperties().getProperty(Property.DESCRIPTION);
         String value = (prop==null) ? null : prop.getValue();
@@ -124,5 +131,4 @@ public class EventGenerator extends BaseStampGenerator
         
         return alarmRec;
     }
-    
 }

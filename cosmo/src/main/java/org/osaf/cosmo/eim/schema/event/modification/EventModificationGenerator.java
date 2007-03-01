@@ -48,57 +48,63 @@ public class EventModificationGenerator extends BaseStampGenerator
     /** */
     public EventModificationGenerator(Item item) {
         super(PREFIX_EVENT_MODIFICATION, NS_EVENT_MODIFICATION, item);
-        setStamp(EventExceptionStamp.getStamp(item));
+        setStamp(EventExceptionStamp.getStamp(item, false));
     }
 
     /**
-     * Copies event properties and attributes into a event record.
+     * Adds records for the exception event and its display alarm (if
+     * one exists).
      */
-    public List<EimRecord> generateRecords() {
-        ArrayList<EimRecord> records = new ArrayList<EimRecord>();
+    protected void addRecords(List<EimRecord> records) {
+        EventExceptionStamp stamp = (EventExceptionStamp) getStamp();
+        if (stamp == null)
+            return;
 
-        EventExceptionStamp event = (EventExceptionStamp) getStamp();
-        if (event == null)
-            return records;
-
-        EimRecord master = new EimRecord(getPrefix(), getNamespace());
-        String value = null;
-
-        master.addKeyField(new TextField(FIELD_UUID, event.getItem().getUid()));
-        value = EimValueConverter.fromICalDate(event.getRecurrenceId());
-        master.addKeyField(new TextField(FIELD_RECURRENCE_ID, value));
-
-        value = EimValueConverter.fromICalDate(event.getStartDate(),
-                                               event.isAnyTime());
-        master.addField(new TextField(FIELD_DTSTART, value));
-                                      
-        value = EimValueConverter.fromICalDate(event.getEndDate());
-        master.addField(new TextField(FIELD_DTEND, value));
-
-        master.addField(new TextField(FIELD_LOCATION, event.getLocation()));
-
-        master.addField(new TextField(FIELD_STATUS, event.getStatus()));
-
-        master.addFields(generateUnknownFields());
-
-        records.add(master);
+        EimRecord record = new EimRecord(getPrefix(), getNamespace());
+        addKeyFields(record);
+        addFields(record);
+        records.add(record);
         
         // generate alarm record;
-        VAlarm alarm = event.getDisplayAlarm();
+        VAlarm alarm = stamp.getDisplayAlarm();
         if(alarm != null)
-            records.add(generateAlarmRecord(alarm, event.getRecurrenceId()));
-
-        return records;
+            records.add(generateAlarmRecord(alarm, stamp.getRecurrenceId()));
     }
-    
+
     /**
-     * Create display alarm eim record.
+     * Adds a key field for uuid.
      */
+    protected void addKeyFields(EimRecord record) {
+        record.addKeyField(new TextField(FIELD_UUID, getItem().getUid()));
+    }
+
+    private void addFields(EimRecord record) {
+        EventExceptionStamp stamp = (EventExceptionStamp) getStamp();
+
+        String value = null;
+
+        value = EimValueConverter.fromICalDate(stamp.getRecurrenceId());
+        record.addKeyField(new TextField(FIELD_RECURRENCE_ID, value));
+
+        value = EimValueConverter.fromICalDate(stamp.getStartDate(),
+                                               stamp.isAnyTime());
+        record.addField(new TextField(FIELD_DTSTART, value));
+                                      
+        value = EimValueConverter.fromICalDate(stamp.getEndDate());
+        record.addField(new TextField(FIELD_DTEND, value));
+
+        record.addField(new TextField(FIELD_LOCATION, stamp.getLocation()));
+
+        record.addField(new TextField(FIELD_STATUS, stamp.getStatus()));
+
+        record.addFields(generateUnknownFields());
+    }
+
     private EimRecord generateAlarmRecord(VAlarm alarm, Date recurrenceId) {
-        EventStamp event = (EventStamp) getStamp();
+        EventStamp stamp = (EventStamp) getStamp();
         
         EimRecord alarmRec = new EimRecord(PREFIX_DISPLAY_ALARM, NS_DISPLAY_ALARM);
-        alarmRec.addKeyField(new TextField(FIELD_UUID, event.getItem().getUid()));
+        alarmRec.addKeyField(new TextField(FIELD_UUID, stamp.getItem().getUid()));
 
         if(recurrenceId!=null)
             alarmRec.addKeyField(new TextField(FIELD_RECURRENCE_ID, EimValueConverter.fromICalDate(recurrenceId)));
@@ -120,5 +126,4 @@ public class EventModificationGenerator extends BaseStampGenerator
         
         return alarmRec;
     }
-    
 }
