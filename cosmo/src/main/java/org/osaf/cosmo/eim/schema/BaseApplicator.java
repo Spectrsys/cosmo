@@ -83,28 +83,52 @@ public abstract class BaseApplicator implements EimSchemaConstants {
             new QName(field.getRecord().getNamespace(), field.getName());
         if (log.isDebugEnabled())
             log.debug("applying unknown field " + qn);
+        
+        // get existing attribute
+        Attribute attribute = item.getAttribute(qn);
 
         if (field instanceof BlobField) {
             InputStream value = ((BlobField)field).getBlob();
-            item.addAttribute(new BinaryAttribute(qn, value));
+            if(attribute!=null)
+                attribute.setValue(value);
+            else
+                item.addAttribute(new BinaryAttribute(qn, value));
         } else if (field instanceof BytesField) {
             byte[] value = ((BytesField)field).getBytes();
-            item.addAttribute(new BinaryAttribute(qn, value));
+            if(attribute!=null)
+                attribute.setValue(value);
+            else
+                item.addAttribute(new BinaryAttribute(qn, value));
         } else if (field instanceof ClobField) {
             Reader value = ((ClobField)field).getClob();
+            if(attribute!=null)
+                attribute.setValue(value);
+            else
             item.addAttribute(new TextAttribute(qn, value));
         } else if (field instanceof DateTimeField) {
             Calendar value = ((DateTimeField)field).getCalendar();
-            item.addAttribute(new CalendarAttribute(qn, value));
+            if(attribute!=null)
+                attribute.setValue(value);
+            else
+                item.addAttribute(new CalendarAttribute(qn, value));
         } else if (field instanceof DecimalField) {
             BigDecimal value = ((DecimalField)field).getDecimal();
-            item.addAttribute(new DecimalAttribute(qn, value));
+            if(attribute!=null)
+                attribute.setValue(value);
+            else
+                item.addAttribute(new DecimalAttribute(qn, value));
         } else if (field instanceof IntegerField) {
             Integer value = ((IntegerField)field).getInteger();
-            item.addAttribute(new IntegerAttribute(qn, new Long(value.longValue())));
+            if(attribute!=null)
+                attribute.setValue(value);
+            else
+                item.addAttribute(new IntegerAttribute(qn, new Long(value.longValue())));
         } else if (field instanceof TextField) {
             String value = ((TextField)field).getText();
-            item.addAttribute(new StringAttribute(qn, value));
+            if(attribute!=null)
+                attribute.setValue(value);
+            else
+                item.addAttribute(new StringAttribute(qn, value));
         } else {
             throw new EimSchemaException("Field " + field.getName() + " is of unknown type " + field.getClass().getName());
         }
