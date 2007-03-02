@@ -26,7 +26,6 @@ import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.User;
 
@@ -126,6 +125,36 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             // remove tomstone (if it exists) from parent
             if(parent.removeTombstone(content)==true)
                 getSession().update(parent);
+            
+            getSession().save(content);
+            getSession().flush();
+            return content;
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
+        } catch (InvalidStateException ise) {
+            logInvalidStateException(ise);
+            throw ise;
+        }
+    }
+    
+    public ContentItem createContent(ContentItem content) {
+
+        if (content == null)
+            throw new IllegalArgumentException("content cannot be null");
+
+        if (content.getId()!=-1)
+            throw new IllegalArgumentException("invalid content id (expected -1)");
+        
+        if (content.getOwner() == null)
+            throw new IllegalArgumentException("content must have owner");
+        
+        try {
+            User owner = content.getOwner();
+
+            // verify uid not in use
+            checkForDuplicateUid(content);
+            
+            setBaseItemProps(content);
             
             getSession().save(content);
             getSession().flush();
@@ -299,9 +328,6 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             if (content.getOwner() == null)
                 throw new IllegalArgumentException("content must have owner");
             
-            if(content.getParents().size()==0)
-                throw new IllegalArgumentException("item must have at least one parent");
-                        
             // In a hierarchy, can't have two items with same name with
             // same parent
             checkForDuplicateItemNameMinusItem(content.getOwner().getId(), 
@@ -408,13 +434,6 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             getSession().update(parent);
         }
         
-        // Remove modfications if NoteItem
-        if(content instanceof NoteItem) {
-            for(NoteItem modification : ((NoteItem) content).getModifications()) {
-                removeContentRecursive(modification);
-            }
-        }
-        
         getSession().delete(content);
     }
     
@@ -428,9 +447,6 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                 removeCollectionRecursive((CollectionItem) item);
             } else if(item instanceof ContentItem) {                    
                 item.getParents().remove(collection);
-                // let hibernate delete modifications using cascading
-                if(item instanceof NoteItem && (((NoteItem) item).getModifies() != null))
-                    continue;
                 if(item.getParents().size()==0)
                     getSession().delete(item);
             } else {

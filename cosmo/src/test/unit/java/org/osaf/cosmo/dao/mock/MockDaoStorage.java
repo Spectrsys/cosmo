@@ -129,8 +129,7 @@ public class MockDaoStorage {
     public void storeItem(Item item) {
         if (item.getName() == null)
             throw new IllegalArgumentException("name cannot be null");
-        if (item.getParent() == null)
-            throw new IllegalArgumentException("parent cannot be null");
+       
         Item parentItem = item.getParent();
         
         if (item.getOwner() == null)
@@ -140,9 +139,16 @@ public class MockDaoStorage {
         item.setCreationDate(new Date());
         item.setModifiedDate(item.getCreationDate());
 
-        for (Item sibling : item.getParent().getChildren()) {
-            if (sibling.getName().equals(item.getName()))
-                throw new DuplicateItemNameException();
+        if(item.getParent()!=null) {
+            for (Item sibling : item.getParent().getChildren()) {
+                if (sibling.getName().equals(item.getName()))
+                    throw new DuplicateItemNameException();
+            }
+            
+            item.getParent().getChildren().add(item);
+            item.getParent().getAllChildren().add(item);
+            itemsByPath.put(getItemPath(item.getParent()) + "/" + item.getName(),
+                    item);
         }
         
         // handle NoteItem modifications
@@ -152,12 +158,7 @@ public class MockDaoStorage {
                 note.getModifies().getModifications().add(note);
         }
         
-        item.getParent().getChildren().add(item);
-        item.getParent().getAllChildren().add(item);
-
         itemsByUid.put(item.getUid(), item);
-        itemsByPath.put(getItemPath(item.getParent()) + "/" + item.getName(),
-                        item);
     }
 
     /** */

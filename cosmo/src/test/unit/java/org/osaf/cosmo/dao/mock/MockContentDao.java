@@ -169,6 +169,30 @@ public class MockContentDao extends MockItemDao implements ContentDao {
 
         return content;
     }
+    
+    /**
+     * Create new content item. A content item represents a piece of content or
+     * file.
+     *
+     * @param content
+     *            content to create
+     * @return newly created content
+     */
+    public ContentItem createContent(ContentItem content) {
+       
+        if (content == null)
+            throw new IllegalArgumentException("collection cannot be null");
+
+        if(THROW_CONCURRENT_EXCEPTION)
+            throw new ConcurrencyFailureException("fail!");
+        
+        // Set mock id
+        if(content instanceof MockContentItem)
+            ((MockContentItem) content).setMockId(System.currentTimeMillis());
+        getStorage().storeItem((Item)content);
+
+        return content;
+    }
 
     /**
      * Update an existing content item.
