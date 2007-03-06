@@ -358,10 +358,28 @@ public class StandardMorseCodeController implements MorseCodeController {
         child.setDisplayName(recordset.getUuid());
         child.setUid(recordset.getUuid());
         child.setOwner(collection.getOwner());
+        
+        if(child.getUid().indexOf(":")>0)
+            handleModificationItem(child, collection);
+        
         // Add reference to parent collection so that applicator can
         // access parent (and children) if necessary
         child.getParents().add(collection);
         collection.getChildren().add(child);
         return child;
+    }
+    
+    private void handleModificationItem(NoteItem noteMod, CollectionItem collection) {
+        String parentUid = noteMod.getUid().split(":")[0];
+        
+        // Find parent note item by looking through collection's children.
+        for (Item child : collection.getChildren()) {
+            if (child.getUid().equals(parentUid) && child instanceof NoteItem) {
+                noteMod.setModifies((NoteItem) child);
+                return;
+            }
+        }
+        
+        throw new ValidationException("no parent found for " + noteMod.getUid());
     }
 }

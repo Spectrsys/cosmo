@@ -1026,6 +1026,7 @@ public class StandardContentService implements ContentService {
         exceptionStamp.setExceptionEvent(event);
         noteMod.addStamp(exceptionStamp);
 
+        noteMod.setUid(masterNote.getUid() + ":" + event.getReccurrenceId().getValue());
         noteMod.setOwner(masterNote.getOwner());
         noteMod.setName(event.getUid().getValue() + ":"
                 + event.getReccurrenceId().getValue());

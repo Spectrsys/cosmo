@@ -9,7 +9,6 @@ include "eimml-core.rnc"
 eimNoteRecord =
    element note:record {
       (noteUuid
-       & noteParentUuid?
        & noteBody?
        & noteIcalUid?
        & noteReminderTime?
@@ -21,11 +20,6 @@ noteUuid =
       eimTextFieldContent
    }
    
-noteParentUuid =
-   element note:parentUuid {
-      eimTextFieldContent
-   }
-
 noteBody =
    element note:body {
       eimLobFieldContent

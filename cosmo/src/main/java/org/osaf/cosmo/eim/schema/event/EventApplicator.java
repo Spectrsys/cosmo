@@ -25,8 +25,11 @@ import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValidationException;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
 import org.osaf.cosmo.eim.schema.ICalDate;
+import org.osaf.cosmo.model.BaseEventStamp;
+import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Stamp;
 
 /**
@@ -52,9 +55,21 @@ public class EventApplicator extends BaseStampApplicator
      * that stamp.
      */
     protected Stamp createStamp(EimRecord record) throws EimSchemaException {
-        EventStamp eventStamp = new EventStamp(getItem());
-        // initialize calendar on EventStamp
-        eventStamp.createCalendar();
+        BaseEventStamp eventStamp = null;
+        NoteItem note = (NoteItem) getItem();
+        
+        // Create master event stamp, or event exception stamp
+        if(note.getModifies()==null) {
+            eventStamp = new EventStamp(getItem());
+            eventStamp.createCalendar();
+        }
+        else {
+            eventStamp = new EventExceptionStamp(getItem());
+            eventStamp.createCalendar();
+            String recurrenceId = note.getUid().split(":")[1];
+            eventStamp.setRecurrenceId(EimValueConverter.toICalDate(recurrenceId).getDate());
+        }
+        
         return eventStamp;
     }
 
@@ -68,7 +83,7 @@ public class EventApplicator extends BaseStampApplicator
      */
     protected void applyField(EimRecordField field)
         throws EimSchemaException {
-        EventStamp event = (EventStamp) getStamp();
+        BaseEventStamp event = (BaseEventStamp) getStamp();
 
         if (field.getName().equals(FIELD_DTSTART)) {
             String value =

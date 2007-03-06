@@ -15,15 +15,12 @@
  */
 package org.osaf.cosmo.eim.schema;
 
-import java.util.List;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.Stamp;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Base class for schema applicators that map to <code>Stamp</code>s.
