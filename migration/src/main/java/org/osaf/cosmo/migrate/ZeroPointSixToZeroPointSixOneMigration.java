@@ -137,7 +137,7 @@ public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
         log.debug("begin migrateEvents()");
         
         try {
-            stmt = conn.prepareStatement("select i.id, i.ownerid, i.icaluid, es.icaldata, i.displayName, s.id from item i, stamp s, event_stamp es where i.id=s.itemid and s.id=es.stampid");
+            stmt = conn.prepareStatement("select i.id, i.ownerid, i.icaluid, es.icaldata, i.displayName, i.uid, s.id from item i, stamp s, event_stamp es where i.id=s.itemid and s.id=es.stampid");
             
             insertItemStmt1 = conn.prepareStatement("insert into item (itemtype, ownerid, modifiesitemid, itemname, displayname, version, uid, icaluid, isactive, createdate, modifydate) values (?,?,?,?,?,0,?,?,1,?,?)");
             insertItemStmt2 = conn.prepareStatement("insert into item (itemtype, ownerid, modifiesitemid, itemname, displayname, version, uid, icaluid, isactive, createdate, modifydate,id) values (?,?,?,?,?,0,?,?,1,?,?,?)");
@@ -185,7 +185,8 @@ public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
                 String icalUid = rs.getString(3);
                 Calendar calendar = calBuilder.build(new StringReader(rs.getString(4)));
                 String displayName = rs.getString(5);
-                long stampId = rs.getLong(6);
+                String parentUid = rs.getString(6);
+                long stampId = rs.getLong(7);
                 
                 ComponentList comps = calendar.getComponents().getComponents(Component.VEVENT);
                 Vector<VEvent> mods = new Vector<VEvent>();
@@ -216,7 +217,7 @@ public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
                     Property description = mod.getProperties().getProperty(Property.DESCRIPTION);
                     String eventSummary = null;
                     String eventDescription = null;
-                    String uid = uidGenerator.nextIdentifier().toString();
+                    String uid = parentUid + ":" + recurrenceId.getValue();
                     
                     if(summary!=null)
                         eventSummary = summary.getValue();
