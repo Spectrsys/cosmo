@@ -61,6 +61,11 @@ public abstract class BaseStampGenerator extends BaseGenerator {
             // the stamp has not changed since the given time
             return records;
         if (! stamp.getIsActive()) {
+            
+            // Ignore deleted stamps for subscribes
+            if(timestamp==-1)
+                return records;
+            
             // the stamp has been deleted since the given time
             EimRecord record = new EimRecord(getPrefix(), getNamespace());
             addKeyFields(record);

@@ -15,7 +15,6 @@
  */
 package org.osaf.cosmo.eim.schema.event;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.fortuna.ical4j.model.Property;
@@ -62,7 +61,7 @@ public class EventGenerator extends BaseStampGenerator
         addFields(record);
         records.add(record);
 
-        if (stamp.getIsActive()) {
+        if (stamp.getIsActive()==true) {
             // generate alarm record
             VAlarm alarm = stamp.getDisplayAlarm();
             if (alarm != null)
