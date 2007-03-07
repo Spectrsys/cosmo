@@ -8,8 +8,12 @@ create table tombstones (id bigint not null, removedate bigint not null, itemuid
 alter table tombstones add constraint FK40CA41FE8B8DC8EF foreign key (collectionid) references item
 
 # alter existing tables
+alter table item add column triagestatuscode integer
+alter table item add column triagestatustimestamp bigint
+alter table item add column isautotriage smallint
 alter table item add column modifiesitemid bigint
 alter table item add constraint FK317B13AB2006A2 foreign key (modifiesitemid) references item
 
 # migrate data
 insert into collection_item (itemid, collectionid) select id, parentid from item where parentid is not null
+update item set isautotriage=1 where itemtype='note'

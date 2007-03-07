@@ -11,8 +11,15 @@ alter table tombstones add index FK40CA41FE8B8DC8EF (collectionid), add constrai
 # alter existing tables
 alter table stamp drop index itemid;
 alter table stamp add unique itemid (itemid, stamptype, isactive);
+alter table item add column triagestatuscode integer;
+alter table item add column triagestatustimestamp bigint;
+alter table item add column isautotriage bit;
 alter table item add column modifiesitemid bigint;
 alter table item add index FK317B13AB2006A2 (modifiesitemid), add constraint FK317B13AB2006A2 foreign key (modifiesitemid) references item (id);
 
+alter table item drop column triagestatus;
+alter table item drop column triagestatusupdated;
+
 # migrate data
 insert into collection_item (itemid, collectionid) select id, parentid from item where parentid is not null;
+update item set isautotriage=1 where itemtype='note';

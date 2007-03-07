@@ -35,7 +35,6 @@ import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.RecurrenceId;
 import net.fortuna.ical4j.model.property.Version;
 
-import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -132,15 +131,13 @@ public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
         System.setProperty("ical4j.unfolding.relaxed", "true");
         CalendarBuilder calBuilder = new CalendarBuilder();
         
-        VersionFourGenerator uidGenerator = new VersionFourGenerator();
-        
         log.debug("begin migrateEvents()");
         
         try {
             stmt = conn.prepareStatement("select i.id, i.ownerid, i.icaluid, es.icaldata, i.displayName, i.uid, s.id from item i, stamp s, event_stamp es where i.id=s.itemid and s.id=es.stampid");
             
-            insertItemStmt1 = conn.prepareStatement("insert into item (itemtype, ownerid, modifiesitemid, itemname, displayname, version, uid, icaluid, isactive, createdate, modifydate) values (?,?,?,?,?,0,?,?,1,?,?)");
-            insertItemStmt2 = conn.prepareStatement("insert into item (itemtype, ownerid, modifiesitemid, itemname, displayname, version, uid, icaluid, isactive, createdate, modifydate,id) values (?,?,?,?,?,0,?,?,1,?,?,?)");
+            insertItemStmt1 = conn.prepareStatement("insert into item (itemtype, ownerid, modifiesitemid, itemname, displayname, version, uid, icaluid, isactive, createdate, modifydate, isautotriage) values (?,?,?,?,?,0,?,?,1,?,?,1)");
+            insertItemStmt2 = conn.prepareStatement("insert into item (itemtype, ownerid, modifiesitemid, itemname, displayname, version, uid, icaluid, isactive, createdate, modifydate, id, isautotriage) values (?,?,?,?,?,0,?,?,1,?,?,?,1)");
             insertItemStmt1.setString(1, "note");
             insertItemStmt2.setString(1, "note");
             
