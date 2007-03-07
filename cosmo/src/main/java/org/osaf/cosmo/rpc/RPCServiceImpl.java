@@ -52,6 +52,7 @@ import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
+import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.rpc.model.Calendar;
 import org.osaf.cosmo.rpc.model.CosmoDate;
@@ -696,8 +697,10 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
         calendarEventItem.setContentEncoding("UTF-8");
         calendarEventItem.
             setLastModifiedBy(getUser() != null ? getUser().getEmail() : "");
-        calendarEventItem.setTriageStatus(ContentItem.TRIAGE_STATUS_NOW);
-        calendarEventItem.setTriageStatusUpdated(System.currentTimeMillis());
+        calendarEventItem.getNewTriageStatus().setCode(TriageStatus.CODE_NOW);
+        calendarEventItem.getNewTriageStatus().
+            setUpdated(new java.util.Date(System.currentTimeMillis()));
+        calendarEventItem.getNewTriageStatus().setAutoTriage(Boolean.TRUE);
         // content length and content data are handled internally by
         // setting the calendar on EventStamp
 

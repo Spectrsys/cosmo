@@ -46,6 +46,7 @@ import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.DataSizeException;
 import org.osaf.cosmo.model.ModelValidationException;
+import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.User;
 
 /**
@@ -260,8 +261,10 @@ public class DavFile extends DavResourceBase {
         content.setLastModifiedBy(user != null ? user.getEmail() : "");
 
         if (content.getUid() == null) {
-            content.setTriageStatus(ContentItem.TRIAGE_STATUS_NOW);
-            content.setTriageStatusUpdated(System.currentTimeMillis());
+            content.getNewTriageStatus().setCode(TriageStatus.CODE_NOW);
+            content.getNewTriageStatus().
+                setUpdated(new Date(System.currentTimeMillis()));
+            content.getNewTriageStatus().setAutoTriage(Boolean.TRUE);
         }
     }
 

@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -54,19 +55,13 @@ public class ContentItem extends Item {
     // size
     public static final long MAX_CONTENT_SIZE = 10 * 1024 * 1024;
 
-    /** */
-    public static final String TRIAGE_STATUS_NOW = "NOW";
-    /** */
-    public static final String TRIAGE_STATUS_LATER = "LATER";
-    /** */
-    public static final String TRIAGE_STATUS_DONE = "DONE";
-
     private String contentType = null;
     private String contentLanguage = null;
     private String contentEncoding = null;
     private String lastModifiedBy = null;
     private String triageStatus = null;
     private BigDecimal triageStatusUpdated = null;
+    private TriageStatus newTriageStatus = new TriageStatus();
     private Long contentLength = null;
     private ContentData contentData = null;
     
@@ -193,6 +188,11 @@ public class ContentItem extends Item {
 
     public void setTriageStatus(String triageStatus) {
         this.triageStatus = triageStatus;
+
+        Integer code = triageStatus != null ?
+            TriageStatus.code(triageStatus) :
+            null;
+        newTriageStatus.setCode(code);
     }
 
     @Column(name = "triagestatusupdated", precision = 19, scale = 6)
@@ -203,13 +203,48 @@ public class ContentItem extends Item {
 
     public void setTriageStatusUpdated(BigDecimal triageStatusUpdated) {
         this.triageStatusUpdated = triageStatusUpdated;
+
+        Date updated = triageStatusUpdated != null ?
+            new Date(triageStatusUpdated.longValue()) :
+            null;
+        newTriageStatus.setUpdated(updated);
     }
 
     @Transient
     public void setTriageStatusUpdated(long millis) {
-        this.triageStatusUpdated = new BigDecimal(millis);
+        setTriageStatusUpdated(new BigDecimal(millis));
     }
 
+    @Transient
+    public Boolean isAutoTriage() {
+        return newTriageStatus.isAutoTriage();
+    }
+
+    @Transient
+    public void setAutoTriage(Boolean autoTriage) {
+        newTriageStatus.setAutoTriage(autoTriage);
+    }
+
+    // XXX replace the current triageStatus, triageStatusUpdated and
+    // autoTriage with this TriageStatus instance, which can be
+    // persisted as a hibernate component
+
+    @Transient
+    public TriageStatus getNewTriageStatus() {
+        return newTriageStatus;
+    }
+
+    @Transient
+    public void setNewTriageStatus(TriageStatus ts) {
+        this.newTriageStatus = ts;
+
+        // XXX remove
+        if (ts.getCode() != null)
+            triageStatus = TriageStatus.label(ts.getCode());
+
+        if (ts.getUpdated() != null)
+            triageStatusUpdated = new BigDecimal(ts.getUpdated().getTime());
+    }
         
     public Item copy() {
         ContentItem copy = new ContentItem();
@@ -263,5 +298,4 @@ public class ContentItem extends Item {
     private void setContentData(ContentData contentFile) {
         this.contentData = contentFile;
     }
-
 }
