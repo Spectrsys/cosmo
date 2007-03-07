@@ -30,9 +30,6 @@ public interface ContentItemConstants {
     /** */
     public static final int MAXLEN_TRIAGE_STATUS = 256;
     /** */
-    public static final String FIELD_TRIAGE_STATUS_CHANGED =
-        "triageStatusChanged";
-    /** */
     public static final String FIELD_LAST_MODIFIED_BY = "lastModifiedBy";
     /** */
     public static final int MAXLEN_LAST_MODIFIED_BY = 256;

@@ -15,7 +15,6 @@
  */
 package org.osaf.cosmo.eim.schema.contentitem;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
@@ -29,6 +28,7 @@ import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.TriageStatus;
 
 /**
  * Applies EIM records to content items.
@@ -74,13 +74,7 @@ public class ContentItemApplicator extends BaseItemApplicator
         } else if (field.getName().equals(FIELD_TRIAGE_STATUS)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_TRIAGE_STATUS);
-            String ts = value != null ? value.toUpperCase() : null;
-            contentItem.setTriageStatus(ts);
-        } else if (field.getName().equals(FIELD_TRIAGE_STATUS_CHANGED)) {
-            BigDecimal value =
-                EimFieldValidator.validateDecimal(field, DIGITS_TIMESTAMP,
-                                                  DEC_TIMESTAMP);
-            contentItem.setTriageStatusUpdated(value);
+            contentItem.setNewTriageStatus(TriageStatusUtil.parse(value));
         } else if (field.getName().equals(FIELD_LAST_MODIFIED_BY)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_LAST_MODIFIED_BY);

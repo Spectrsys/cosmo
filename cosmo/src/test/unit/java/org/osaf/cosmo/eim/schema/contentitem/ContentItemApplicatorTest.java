@@ -17,6 +17,7 @@ package org.osaf.cosmo.eim.schema.contentitem;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +30,7 @@ import org.osaf.cosmo.eim.schema.BaseApplicatorTestCase;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.QName;
+import org.osaf.cosmo.model.TriageStatus;
 
 /**
  * Test Case for {@link ContentItemApplicator}.
@@ -50,24 +52,26 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
         checkTextValue(record.getFields().get(0),
                        contentItem.getDisplayName());
         checkTextValue(record.getFields().get(1),
-                       contentItem.getTriageStatus());
-        checkDecimalValue(record.getFields().get(2),
-                          contentItem.getTriageStatusUpdated());
-        checkTextValue(record.getFields().get(3),
+                       TriageStatusUtil.format(contentItem.getNewTriageStatus()));
+        checkTextValue(record.getFields().get(2),
                        contentItem.getLastModifiedBy());
-        checkTimeStampValue(record.getFields().get(4),
+        checkTimeStampValue(record.getFields().get(3),
                             contentItem.getClientCreationDate());
-        checkUnknownValue(record.getFields().get(5), contentItem);
+        checkUnknownValue(record.getFields().get(4), contentItem);
     }
 
     private EimRecord makeTestRecord() {
         EimRecord record = new EimRecord(PREFIX_ITEM, NS_ITEM);
 
         record.addField(new TextField(FIELD_TITLE, "The Bangs"));
-        record.addField(new TextField(FIELD_TRIAGE_STATUS, "IN PROGRESS"));
-        record.addField(new DecimalField(FIELD_TRIAGE_STATUS_CHANGED,
-                                         new BigDecimal("1234567890.00"),
-                                         DIGITS_TIMESTAMP, DEC_TIMESTAMP));
+
+        TriageStatus ts = new TriageStatus();
+        ts.setCode(TriageStatus.CODE_DONE);
+        ts.setUpdated(new Date(System.currentTimeMillis()));
+        ts.setAutoTriage(Boolean.TRUE);
+        record.addField(new TextField(FIELD_TRIAGE_STATUS,
+                                      TriageStatusUtil.format(ts)));
+
         record.addField(new TextField(FIELD_LAST_MODIFIED_BY,
                                       "bcm@osafoundation.org"));
         BigDecimal createdOn =

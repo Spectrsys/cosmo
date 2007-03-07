@@ -17,6 +17,7 @@ package org.osaf.cosmo.eim.schema.contentitem;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -29,6 +30,7 @@ import org.osaf.cosmo.eim.schema.BaseGeneratorTestCase;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.StringAttribute;
+import org.osaf.cosmo.model.TriageStatus;
 
 /**
  * Test Case for {@link ContentItemGenerator}.
@@ -39,14 +41,29 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         LogFactory.getLog(ContentItemGeneratorTest.class);
 
     public void testGenerateRecord() throws Exception {
+        String uid = "deadbeef";
+        String name = "3inchesofblood";
+        String displayName = "3 Inches of Blood";
+        String triageStatusLabel = TriageStatus.LABEL_DONE;
+        int triageStatusCode = TriageStatus.CODE_DONE;
+        long triageStatusMillis = System.currentTimeMillis();
+        Date triageStatusUpdated = new Date(triageStatusMillis);
+        Boolean autoTriage = Boolean.TRUE;
+        String lastModifiedBy = "bcm@osafoundation.org";
+        Date clientCreationDate = Calendar.getInstance().getTime();
+
+        TriageStatus ts = new TriageStatus();
+        ts.setCode(triageStatusCode);
+        ts.setUpdated(triageStatusUpdated);
+        ts.setAutoTriage(autoTriage);
+
         ContentItem contentItem = new ContentItem();
-        contentItem.setUid("deadbeef");
-        contentItem.setName("3inchesofblood");
-        contentItem.setDisplayName("3 Inches of Blood");
-        contentItem.setTriageStatus("DONE");
-        contentItem.setTriageStatusUpdated(new BigDecimal("666.66"));
-        contentItem.setLastModifiedBy("bcm@osafoundation.org");
-        contentItem.setClientCreationDate(Calendar.getInstance().getTime());
+        contentItem.setUid(uid);
+        contentItem.setName(name);
+        contentItem.setDisplayName(displayName);
+        contentItem.setNewTriageStatus(ts);
+        contentItem.setLastModifiedBy(lastModifiedBy);
+        contentItem.setClientCreationDate(clientCreationDate);
 
         StringAttribute unknownAttr = makeStringAttribute();
         contentItem.addAttribute(unknownAttr);
@@ -59,33 +76,29 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
 
         EimRecord record = records.get(0);
         checkNamespace(record, PREFIX_ITEM, NS_ITEM);
-        checkUuidKey(record.getKey(), contentItem.getUid());
+        checkUuidKey(record.getKey(), uid);
 
         List<EimRecordField> fields = record.getFields();
-        assertEquals("unexpected number of fields", 6, fields.size());
+        assertEquals("unexpected number of fields", 5, fields.size());
 
-        EimRecordField title = fields.get(0);
-        checkTextField(title, FIELD_TITLE, contentItem.getDisplayName());
+        EimRecordField titleField = fields.get(0);
+        checkTextField(titleField, FIELD_TITLE, displayName);
 
-        EimRecordField triageStatus = fields.get(1);
-        checkTextField(triageStatus, FIELD_TRIAGE_STATUS,
-                       contentItem.getTriageStatus().toLowerCase());
+        EimRecordField triageStatusField = fields.get(1);
+        checkTextField(triageStatusField, FIELD_TRIAGE_STATUS,
+                       TriageStatusUtil.format(ts));
 
-        EimRecordField triageStatusChanged = fields.get(2);
-        checkDecimalField(triageStatusChanged, FIELD_TRIAGE_STATUS_CHANGED,
-                          contentItem.getTriageStatusUpdated(),
-                          DIGITS_TIMESTAMP, DEC_TIMESTAMP);
+        EimRecordField lastModifiedByField = fields.get(2);
+        checkTextField(lastModifiedByField, FIELD_LAST_MODIFIED_BY,
+                       lastModifiedBy);
 
-        EimRecordField lastModifiedBy = fields.get(3);
-        checkTextField(lastModifiedBy, FIELD_LAST_MODIFIED_BY,
-                       contentItem.getLastModifiedBy());
+        EimRecordField createdOnField = fields.get(3);
+        checkTimeStampField(createdOnField, FIELD_CREATED_ON,
+                            clientCreationDate);
 
-        EimRecordField createdOn = fields.get(4);
-        checkTimeStampField(createdOn, FIELD_CREATED_ON,
-                            contentItem.getClientCreationDate());
-
-        EimRecordField unknown = fields.get(5);
-        checkTextField(unknown, unknownAttr.getName(), unknownAttr.getValue());
+        EimRecordField unknownField = fields.get(4);
+        checkTextField(unknownField, unknownAttr.getName(),
+                       unknownAttr.getValue());
     }
 
     public void testInactiveNotDeleted() throws Exception {

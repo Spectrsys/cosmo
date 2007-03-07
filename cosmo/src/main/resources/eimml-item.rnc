@@ -11,7 +11,6 @@ eimItemRecord =
       (itemUuid
        & itemTitle?
        & itemTriageStatus?
-       & itemTriageStatusChanged?
        & itemLastModifiedBy?
        & itemCreatedOn?
        & anyItemField*)
@@ -30,11 +29,6 @@ itemTitle =
 itemTriageStatus =
    element item:triageStatus {
       eimTextFieldContent
-   }
-
-itemTriageStatusChanged =
-   element item:triageStatusChanged {
-      eimDecimalFieldContent
    }
 
 itemLastModifiedBy =

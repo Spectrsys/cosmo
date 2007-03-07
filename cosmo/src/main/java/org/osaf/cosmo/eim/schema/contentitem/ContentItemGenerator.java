@@ -26,6 +26,7 @@ import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseItemGenerator;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.TriageStatus;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,19 +61,17 @@ public class ContentItemGenerator extends BaseItemGenerator
 
         record.addField(new TextField(FIELD_TITLE,
                                       contentItem.getDisplayName()));
-        String ts = contentItem.getTriageStatus();
-        if (ts != null)
-            ts = ts.toLowerCase();
+
+        String ts = TriageStatusUtil.format(contentItem.getNewTriageStatus());
         record.addField(new TextField(FIELD_TRIAGE_STATUS, ts));
-        record.addField(new DecimalField(FIELD_TRIAGE_STATUS_CHANGED,
-                                         contentItem.getTriageStatusUpdated(),
-                                         DIGITS_TIMESTAMP, DEC_TIMESTAMP));
+
         record.addField(new TextField(FIELD_LAST_MODIFIED_BY,
                                       contentItem.getLastModifiedBy()));
         Date d = contentItem.getClientCreationDate();
         BigDecimal createdOn = d != null ?
             new BigDecimal(d.getTime() / 1000) :
             null;
+
         record.addField(new DecimalField(FIELD_CREATED_ON, createdOn,
                                          DIGITS_TIMESTAMP, DEC_TIMESTAMP));
 
