@@ -24,6 +24,7 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseItemGenerator;
+import org.osaf.cosmo.eim.schema.util.TriageStatusFormat;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.TriageStatus;
@@ -62,7 +63,8 @@ public class ContentItemGenerator extends BaseItemGenerator
         record.addField(new TextField(FIELD_TITLE,
                                       contentItem.getDisplayName()));
 
-        String ts = TriageStatusUtil.format(contentItem.getTriageStatus());
+        String ts = TriageStatusFormat.getInstance().
+            format(contentItem.getTriageStatus());
         record.addField(new TextField(FIELD_TRIAGE_STATUS, ts));
 
         record.addField(new TextField(FIELD_LAST_MODIFIED_BY,

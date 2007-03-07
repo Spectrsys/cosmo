@@ -27,6 +27,7 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.EimRecordKey;
 import org.osaf.cosmo.eim.schema.BaseGeneratorTestCase;
+import org.osaf.cosmo.eim.schema.util.TriageStatusFormat;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.StringAttribute;
@@ -86,7 +87,7 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
 
         EimRecordField triageStatusField = fields.get(1);
         checkTextField(triageStatusField, FIELD_TRIAGE_STATUS,
-                       TriageStatusUtil.format(ts));
+                       TriageStatusFormat.getInstance().format(ts));
 
         EimRecordField lastModifiedByField = fields.get(2);
         checkTextField(lastModifiedByField, FIELD_LAST_MODIFIED_BY,

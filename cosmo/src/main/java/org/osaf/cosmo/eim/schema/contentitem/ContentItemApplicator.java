@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.eim.schema.contentitem;
 
+import java.text.ParseException;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
@@ -24,6 +25,7 @@ import org.osaf.cosmo.eim.schema.BaseItemApplicator;
 import org.osaf.cosmo.eim.schema.EimFieldValidator;
 import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValidationException;
+import org.osaf.cosmo.eim.schema.util.TriageStatusFormat;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EventStamp;
@@ -74,7 +76,13 @@ public class ContentItemApplicator extends BaseItemApplicator
         } else if (field.getName().equals(FIELD_TRIAGE_STATUS)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_TRIAGE_STATUS);
-            contentItem.setTriageStatus(TriageStatusUtil.parse(value));
+            try {
+                TriageStatus ts =
+                    TriageStatusFormat.getInstance().parse(value);
+                contentItem.setTriageStatus(ts);
+            } catch (ParseException e) {
+                throw new EimValidationException("Illegal triage status", e);
+            }
         } else if (field.getName().equals(FIELD_LAST_MODIFIED_BY)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_LAST_MODIFIED_BY);

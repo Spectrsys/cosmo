@@ -27,6 +27,7 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseApplicatorTestCase;
+import org.osaf.cosmo.eim.schema.util.TriageStatusFormat;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.QName;
@@ -52,7 +53,8 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
         checkTextValue(record.getFields().get(0),
                        contentItem.getDisplayName());
         checkTextValue(record.getFields().get(1),
-                       TriageStatusUtil.format(contentItem.getTriageStatus()));
+                       TriageStatusFormat.getInstance().
+                       format(contentItem.getTriageStatus()));
         checkTextValue(record.getFields().get(2),
                        contentItem.getLastModifiedBy());
         checkTimeStampValue(record.getFields().get(3),
@@ -70,7 +72,8 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
         ts.setUpdated(new Date(System.currentTimeMillis()));
         ts.setAutoTriage(Boolean.TRUE);
         record.addField(new TextField(FIELD_TRIAGE_STATUS,
-                                      TriageStatusUtil.format(ts)));
+                                      TriageStatusFormat.getInstance().
+                                      format(ts)));
 
         record.addField(new TextField(FIELD_LAST_MODIFIED_BY,
                                       "bcm@osafoundation.org"));
