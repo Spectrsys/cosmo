@@ -74,7 +74,7 @@ public class ContentItemApplicator extends BaseItemApplicator
         } else if (field.getName().equals(FIELD_TRIAGE_STATUS)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_TRIAGE_STATUS);
-            contentItem.setNewTriageStatus(TriageStatusUtil.parse(value));
+            contentItem.setTriageStatus(TriageStatusUtil.parse(value));
         } else if (field.getName().equals(FIELD_LAST_MODIFIED_BY)) {
             String value =
                 EimFieldValidator.validateText(field, MAXLEN_LAST_MODIFIED_BY);

@@ -19,11 +19,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -34,9 +33,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
-import org.hibernate.validator.Min;
 
 /**
  * Extends {@link Item} to represent an item containing binary content
@@ -59,9 +56,7 @@ public class ContentItem extends Item {
     private String contentLanguage = null;
     private String contentEncoding = null;
     private String lastModifiedBy = null;
-    private String triageStatus = null;
-    private BigDecimal triageStatusUpdated = null;
-    private TriageStatus newTriageStatus = new TriageStatus();
+    private TriageStatus triageStatus = new TriageStatus();
     private Long contentLength = null;
     private ContentData contentData = null;
     
@@ -181,69 +176,13 @@ public class ContentItem extends Item {
         this.lastModifiedBy = lastModifiedBy;
     }
 
-    @Column(name = "triagestatus", length=64)
-    public String getTriageStatus() {
+    @Embedded
+    public TriageStatus getTriageStatus() {
         return triageStatus;
     }
-
-    public void setTriageStatus(String triageStatus) {
-        this.triageStatus = triageStatus;
-
-        Integer code = triageStatus != null ?
-            TriageStatus.code(triageStatus) :
-            null;
-        newTriageStatus.setCode(code);
-    }
-
-    @Column(name = "triagestatusupdated", precision = 19, scale = 6)
-    @Type(type="org.hibernate.type.BigDecimalType")
-    public BigDecimal getTriageStatusUpdated() {
-        return triageStatusUpdated;
-    }
-
-    public void setTriageStatusUpdated(BigDecimal triageStatusUpdated) {
-        this.triageStatusUpdated = triageStatusUpdated;
-
-        Date updated = triageStatusUpdated != null ?
-            new Date(triageStatusUpdated.longValue()) :
-            null;
-        newTriageStatus.setUpdated(updated);
-    }
-
-    @Transient
-    public void setTriageStatusUpdated(long millis) {
-        setTriageStatusUpdated(new BigDecimal(millis));
-    }
-
-    @Transient
-    public Boolean isAutoTriage() {
-        return newTriageStatus.isAutoTriage();
-    }
-
-    @Transient
-    public void setAutoTriage(Boolean autoTriage) {
-        newTriageStatus.setAutoTriage(autoTriage);
-    }
-
-    // XXX replace the current triageStatus, triageStatusUpdated and
-    // autoTriage with this TriageStatus instance, which can be
-    // persisted as a hibernate component
-
-    @Transient
-    public TriageStatus getNewTriageStatus() {
-        return newTriageStatus;
-    }
-
-    @Transient
-    public void setNewTriageStatus(TriageStatus ts) {
-        this.newTriageStatus = ts;
-
-        // XXX remove
-        if (ts.getCode() != null)
-            triageStatus = TriageStatus.label(ts.getCode());
-
-        if (ts.getUpdated() != null)
-            triageStatusUpdated = new BigDecimal(ts.getUpdated().getTime());
+  
+    public void setTriageStatus(TriageStatus ts) {
+        triageStatus = ts;
     }
         
     public Item copy() {

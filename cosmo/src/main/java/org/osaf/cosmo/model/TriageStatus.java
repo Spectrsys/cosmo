@@ -15,14 +15,18 @@
  */
 package org.osaf.cosmo.model;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.Type;
 
 /**
  * Represents a compound triage status value.
  */
+@Embeddable
 public class TriageStatus {
 
     /** */
@@ -45,6 +49,7 @@ public class TriageStatus {
     public TriageStatus() {
     }
    
+    @Column(name = "triagestatuscode")
     public Integer getCode() {
         return code;
     }
@@ -53,6 +58,8 @@ public class TriageStatus {
         this.code = code;
     }
 
+    @Column(name = "triagestatustimestamp")
+    @Type(type="long_timestamp")
     public Date getUpdated() {
         return updated;
     }
@@ -61,6 +68,7 @@ public class TriageStatus {
         this.updated = updated;
     }
 
+    @Column(name = "isautotriage")
     public Boolean isAutoTriage() {
         return autoTriage;
     }

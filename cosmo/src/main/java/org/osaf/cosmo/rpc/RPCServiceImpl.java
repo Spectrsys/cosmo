@@ -30,7 +30,6 @@ import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.DtStart;
 import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.Version;
 
@@ -697,10 +696,10 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
         calendarEventItem.setContentEncoding("UTF-8");
         calendarEventItem.
             setLastModifiedBy(getUser() != null ? getUser().getEmail() : "");
-        calendarEventItem.getNewTriageStatus().setCode(TriageStatus.CODE_NOW);
-        calendarEventItem.getNewTriageStatus().
+        calendarEventItem.getTriageStatus().setCode(TriageStatus.CODE_NOW);
+        calendarEventItem.getTriageStatus().
             setUpdated(new java.util.Date(System.currentTimeMillis()));
-        calendarEventItem.getNewTriageStatus().setAutoTriage(Boolean.TRUE);
+        calendarEventItem.getTriageStatus().setAutoTriage(Boolean.TRUE);
         // content length and content data are handled internally by
         // setting the calendar on EventStamp
 

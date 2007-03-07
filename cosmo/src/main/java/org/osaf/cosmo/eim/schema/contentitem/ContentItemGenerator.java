@@ -62,7 +62,7 @@ public class ContentItemGenerator extends BaseItemGenerator
         record.addField(new TextField(FIELD_TITLE,
                                       contentItem.getDisplayName()));
 
-        String ts = TriageStatusUtil.format(contentItem.getNewTriageStatus());
+        String ts = TriageStatusUtil.format(contentItem.getTriageStatus());
         record.addField(new TextField(FIELD_TRIAGE_STATUS, ts));
 
         record.addField(new TextField(FIELD_LAST_MODIFIED_BY,

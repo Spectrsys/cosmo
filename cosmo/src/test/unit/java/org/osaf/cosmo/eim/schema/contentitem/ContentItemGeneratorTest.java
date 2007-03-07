@@ -61,7 +61,7 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         contentItem.setUid(uid);
         contentItem.setName(name);
         contentItem.setDisplayName(displayName);
-        contentItem.setNewTriageStatus(ts);
+        contentItem.setTriageStatus(ts);
         contentItem.setLastModifiedBy(lastModifiedBy);
         contentItem.setClientCreationDate(clientCreationDate);
 

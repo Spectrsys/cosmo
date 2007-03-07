@@ -261,10 +261,10 @@ public class DavFile extends DavResourceBase {
         content.setLastModifiedBy(user != null ? user.getEmail() : "");
 
         if (content.getUid() == null) {
-            content.getNewTriageStatus().setCode(TriageStatus.CODE_NOW);
-            content.getNewTriageStatus().
+            content.getTriageStatus().setCode(TriageStatus.CODE_NOW);
+            content.getTriageStatus().
                 setUpdated(new Date(System.currentTimeMillis()));
-            content.getNewTriageStatus().setAutoTriage(Boolean.TRUE);
+            content.getTriageStatus().setAutoTriage(Boolean.TRUE);
         }
     }
 

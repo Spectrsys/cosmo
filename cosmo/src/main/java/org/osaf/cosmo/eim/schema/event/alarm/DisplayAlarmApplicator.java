@@ -17,7 +17,6 @@ package org.osaf.cosmo.eim.schema.event.alarm;
 
 import java.util.Iterator;
 
-import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
@@ -31,14 +30,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
-import org.osaf.cosmo.eim.EimRecordKey;
 import org.osaf.cosmo.eim.schema.BaseStampApplicator;
 import org.osaf.cosmo.eim.schema.EimFieldValidator;
 import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
 import org.osaf.cosmo.eim.schema.event.EventConstants;
 import org.osaf.cosmo.model.BaseEventStamp;
-import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.Stamp;
@@ -79,6 +76,11 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
         if(event==null)
             throw new EimSchemaException("no event found for alarm");
         
+        if (record.isDeleted()) {
+            applyDeletion(record);
+            return;
+        }
+        
         VAlarm alarm = getOrCreateDisplayAlarm(event);
             
         for (EimRecordField field : record.getFields()) {
@@ -104,22 +106,6 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
     @Override
     protected Stamp createStamp(EimRecord record) throws EimSchemaException {
         // do nothing as the stamp should already be created
-        return null;
-    }
-
-    /**
-     * get the recurrenceId key field from the eim record
-     */
-    private Date getRecurrenceId(EimRecord record) throws EimSchemaException {
-        // recurrenceId is a key field
-        EimRecordKey key = record.getKey();
-        for(EimRecordField keyField: key.getFields()) {
-            if(keyField.getName().equals(FIELD_RECURRENCE_ID)) {
-                String value = EimFieldValidator.validateText(keyField,
-                        MAXLEN_RECURRENCE_ID);
-                return EimValueConverter.toICalDate(value).getDate();
-            }
-        }
         return null;
     }
         
@@ -237,36 +223,18 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
     
     /**
      * Get the event associated with the displayAlarm record.
-     * This is either the master event (no recurrenceId present)
-     * or a modification (recurrenceId present).
      */
     private VEvent getEvent(EimRecord record) throws EimSchemaException {
         
         BaseEventStamp eventStamp = getEventStamp();
         
         if(eventStamp==null)
-            throw new EimSchemaException("EventStamp or EventExceptionStamp required");
+            throw new EimSchemaException("EventStamp required");
         
-        // retrieve key field (recurrenceId)
-        Date recurrenceId = getRecurrenceId(record);
-        
-        if(recurrenceId==null) {
-            if(eventStamp instanceof EventStamp)
-                return eventStamp.getEvent();
-            else
-                throw new EimSchemaException("EventStamp required");
-        } else {
-            if(eventStamp instanceof EventExceptionStamp)
-                return eventStamp.getEvent();
-            else
-                throw new EimSchemaException("EventExceptionStamp required");
-        }
+        return eventStamp.getEvent();
     }
     
     private BaseEventStamp getEventStamp() {
-        Stamp eventStamp = EventStamp.getStamp(getItem());
-        if(eventStamp==null)
-            eventStamp = EventExceptionStamp.getStamp(getItem());
-        return (BaseEventStamp) eventStamp;
+        return BaseEventStamp.getStamp(getItem());
     }
 }

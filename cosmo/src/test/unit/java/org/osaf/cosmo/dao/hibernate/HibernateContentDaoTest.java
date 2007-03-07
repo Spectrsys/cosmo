@@ -44,6 +44,7 @@ import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.StringAttribute;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.TimestampAttribute;
+import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -1110,6 +1111,45 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         queryItem = contentDao.findContentByUid(newItem.getUid());
         Assert.assertNull(a);
         Assert.assertNull(queryItem);
+    }
+    
+    public void testContentDaoTriageStatus() throws Exception {
+        User user = getUser(userDao, "testuser");
+        CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
+
+        ContentItem item = generateTestContent();
+        item.setName("test");
+        item.getTriageStatus().setAutoTriage(true);
+        item.getTriageStatus().setCode(TriageStatus.CODE_DONE);
+        item.getTriageStatus().setUpdated(new Date());
+
+        ContentItem newItem = contentDao.createContent(root, item);
+
+        Assert.assertTrue(newItem.getId() > -1);
+        Assert.assertTrue(newItem.getUid() != null);
+
+        clearSession();
+
+        ContentItem queryItem = contentDao.findContentByUid(newItem.getUid());
+        TriageStatus triageStatus = queryItem.getTriageStatus();
+        Assert.assertEquals(triageStatus.isAutoTriage(), Boolean.TRUE);
+        Assert.assertEquals(triageStatus.getCode(), new Integer(TriageStatus.CODE_DONE));
+        Assert.assertEquals(triageStatus.getUpdated(),item.getTriageStatus().getUpdated());
+        
+        Date timestamp = new Date();
+        triageStatus.setCode(TriageStatus.CODE_LATER);
+        triageStatus.setAutoTriage(false);
+        triageStatus.setUpdated(timestamp);
+        
+        contentDao.updateContent(queryItem);
+        clearSession();
+        
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        triageStatus = queryItem.getTriageStatus();
+        Assert.assertEquals(triageStatus.isAutoTriage(), Boolean.FALSE);
+        Assert.assertEquals(triageStatus.getCode(), new Integer(TriageStatus.CODE_LATER));
+        Assert.assertEquals(triageStatus.getUpdated(),timestamp);
+        
     }
     
     private void verifyTicket(Ticket ticket1, Ticket ticket2) {

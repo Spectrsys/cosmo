@@ -52,7 +52,7 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
         checkTextValue(record.getFields().get(0),
                        contentItem.getDisplayName());
         checkTextValue(record.getFields().get(1),
-                       TriageStatusUtil.format(contentItem.getNewTriageStatus()));
+                       TriageStatusUtil.format(contentItem.getTriageStatus()));
         checkTextValue(record.getFields().get(2),
                        contentItem.getLastModifiedBy());
         checkTimeStampValue(record.getFields().get(3),
