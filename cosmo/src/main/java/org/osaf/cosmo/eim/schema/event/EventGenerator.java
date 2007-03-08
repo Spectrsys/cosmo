@@ -28,13 +28,13 @@ import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseStampGenerator;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
-import org.osaf.cosmo.model.EventStamp;
+import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.Item;
 
 /**
  * Generates EIM records from event stamps.
  *
- * @see EventStamp
+ * @see BaseEventStamp
  */
 public class EventGenerator extends BaseStampGenerator
     implements EventConstants {
@@ -44,7 +44,7 @@ public class EventGenerator extends BaseStampGenerator
     /** */
     public EventGenerator(Item item) {
         super(PREFIX_EVENT, NS_EVENT, item);
-        setStamp(EventStamp.getStamp(item, false));
+        setStamp(BaseEventStamp.getStamp(item, false));
     }
 
     /**
@@ -52,7 +52,7 @@ public class EventGenerator extends BaseStampGenerator
      * alarm (if one exists).
      */
     protected void addRecords(List<EimRecord> records) {
-        EventStamp stamp = (EventStamp) getStamp();
+        BaseEventStamp stamp = (BaseEventStamp) getStamp();
         if (stamp == null)
             return;
 
@@ -77,7 +77,7 @@ public class EventGenerator extends BaseStampGenerator
     }
 
     private void addFields(EimRecord record) {
-        EventStamp stamp = (EventStamp) getStamp();
+        BaseEventStamp stamp = (BaseEventStamp) getStamp();
 
         String value = null;
 
@@ -108,7 +108,7 @@ public class EventGenerator extends BaseStampGenerator
     }
 
     private EimRecord generateAlarmRecord(VAlarm alarm) {
-        EventStamp stamp = (EventStamp) getStamp();
+        BaseEventStamp stamp = (BaseEventStamp) getStamp();
         
         EimRecord alarmRec = new EimRecord(PREFIX_DISPLAY_ALARM, NS_DISPLAY_ALARM);
         alarmRec.addKeyField(new TextField(FIELD_UUID, stamp.getItem().getUid()));

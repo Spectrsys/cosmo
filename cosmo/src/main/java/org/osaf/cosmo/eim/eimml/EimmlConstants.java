@@ -67,6 +67,10 @@ public interface EimmlConstants {
     public static final String ATTR_EMPTY = "empty";
     /** */
     public static final QName QN_EMPTY = new QName(ATTR_EMPTY);
+    /** */
+    public static final String ATTR_MISSING = "missing";
+    /** */
+    public static final QName QN_MISSING = new QName(ATTR_MISSING);
 
     /** */
     public static final String TYPE_BYTES = "bytes";

@@ -17,9 +17,11 @@ package org.osaf.cosmo.eim.schema;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.BlobField;
@@ -36,6 +38,7 @@ import org.osaf.cosmo.model.CalendarAttribute;
 import org.osaf.cosmo.model.DecimalAttribute;
 import org.osaf.cosmo.model.IntegerAttribute;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.StringAttribute;
 import org.osaf.cosmo.model.TextAttribute;
@@ -144,5 +147,61 @@ public abstract class BaseApplicator implements EimSchemaConstants {
     /** */
     public Item getItem() {
         return item;
+    }
+    
+    /**
+     * Determine if current item is a NoteItem that modifies another NoteItem
+     * 
+     * @return true if item is a NoteItem and modifies another NoteItem
+     */
+    protected boolean isModification() {
+        if(getItem() instanceof NoteItem) {
+            NoteItem note = (NoteItem) getItem();
+            if(note.getModifies()!=null)
+                return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Copy an attribute from one object to another.
+     * 
+     * @param attribute attribute to copy
+     * @param modification object to copy attribute to
+     * @param master object to copy attribute from
+     */
+    protected void handleMissingAttribute(String attribute,
+            Object modification, Object master) {
+        try {
+            Object value = PropertyUtils.getProperty(master, attribute);
+            PropertyUtils.setProperty(modification, attribute, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("error copying attribute " + attribute);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("error copying attribute " + attribute);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("error copying attribute " + attribute);
+        }
+    }
+    
+    /**
+     * Handle missing attribute for a NoteItem.  This involves copying an 
+     * attribute value from the master NoteItem to the modification NoteItem.
+     * 
+     * @param attribute atttribute to copy
+     * @throws EimSchemaException
+     */
+    protected void handleMissingAttribute(String attribute)
+            throws EimSchemaException {
+
+        if (!isModification())
+            throw new EimSchemaException(
+                    "missing attributes not support on non-modification items");
+
+        NoteItem modification = (NoteItem) getItem();
+        NoteItem parent = modification.getModifies();
+        
+        handleMissingAttribute(attribute, modification, parent);
     }
 }

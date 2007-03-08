@@ -86,18 +86,29 @@ public class EventApplicator extends BaseStampApplicator
         BaseEventStamp event = (BaseEventStamp) getStamp();
 
         if (field.getName().equals(FIELD_DTSTART)) {
-            String value =
-                EimFieldValidator.validateText(field, MAXLEN_DTSTART);
-            ICalDate icd = EimValueConverter.toICalDate(value);
-            event.setStartDate(icd.getDate());
-            event.setAnyTime(icd.isAnyTime());
+            if(field.isMissing()) {
+                handleMissingAttribute("startDate");
+                handleMissingAttribute("anyTime");
+            }
+            else {
+                String value =
+                    EimFieldValidator.validateText(field, MAXLEN_DTSTART);
+                ICalDate icd = EimValueConverter.toICalDate(value);
+                event.setStartDate(icd.getDate());
+                event.setAnyTime(icd.isAnyTime());
+            }
         } else if (field.getName().equals(FIELD_DTEND)) {
             String value = EimFieldValidator.validateText(field, MAXLEN_DTEND);
             event.setEndDate(EimValueConverter.toICalDate(value).getDate());
         } else if (field.getName().equals(FIELD_LOCATION)) {
-            String value =
-                EimFieldValidator.validateText(field, MAXLEN_LOCATION);
-            event.setLocation(value);
+            if(field.isMissing()) {
+                handleMissingAttribute("location");
+            }
+            else {
+                String value =
+                    EimFieldValidator.validateText(field, MAXLEN_LOCATION);
+                event.setLocation(value);
+            }
         } else if (field.getName().equals(FIELD_RRULE)) {
             String value = EimFieldValidator.validateText(field, MAXLEN_RRULE);
             event.setRecurrenceRules(EimValueConverter.toICalRecurs(value));
@@ -115,11 +126,27 @@ public class EventApplicator extends BaseStampApplicator
             ICalDate icd = EimValueConverter.toICalDate(value);
             event.setExceptionDates(icd != null ? icd.getDateList() : null);
         } else if (field.getName().equals(FIELD_STATUS)) {
-            String value =
-                EimFieldValidator.validateText(field, MAXLEN_STATUS);
-            event.setStatus(value);
+            if(field.isMissing()) {
+                handleMissingAttribute("status");
+            }
+            else {
+                String value =
+                    EimFieldValidator.validateText(field, MAXLEN_STATUS);
+                event.setStatus(value);
+            }
         } else {
             applyUnknownField(field);
         }
+    }
+    
+    @Override
+    protected Stamp getParentStamp() {
+        NoteItem noteMod = (NoteItem) getItem();
+        NoteItem parentNote = noteMod.getModifies();
+        
+        if(parentNote!=null)
+            return parentNote.getStamp(BaseEventStamp.class);
+        else
+            return null;
     }
 }

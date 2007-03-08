@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Stamp;
 
 /**
@@ -131,4 +132,36 @@ public abstract class BaseStampApplicator extends BaseApplicator {
     protected void setStamp(Stamp stamp) {
         this.stamp = stamp;
     }
+
+    
+    /**
+     * Need to override to handle copying attribute from stamp to parent stamp.
+     */
+    @Override
+    protected void handleMissingAttribute(String attribute) throws EimSchemaException {
+        if (!isModification())
+            throw new EimSchemaException(
+                    "missing attributes not support on non-modification items");
+
+        Stamp modStamp = getStamp();
+        Stamp parentStamp = getParentStamp();
+        
+        if(parentStamp==null)
+            throw new EimSchemaException("no parent to inherit missing attribute from");
+        
+        handleMissingAttribute(attribute, modStamp, parentStamp);
+    }
+    
+    /**
+     * Get the parent stamp from the current stamp.
+     * @return parent stamp
+     */
+    protected Stamp getParentStamp() {
+        NoteItem noteMod = (NoteItem) getItem();
+        NoteItem parentNote = noteMod.getModifies();
+        
+        Stamp modStamp = getStamp();
+        return parentNote.getStamp(modStamp.getClass());
+    }
+    
 }
