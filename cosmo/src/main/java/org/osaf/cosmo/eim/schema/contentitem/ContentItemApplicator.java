@@ -92,15 +92,6 @@ public class ContentItemApplicator extends BaseItemApplicator
                     throw new EimValidationException("Illegal triage status", e);
                 }
             }
-        } else if (field.getName().equals(FIELD_LAST_MODIFIED_BY)) {
-            if(field.isMissing()) {
-                handleMissingAttribute("lastModifiedBy");
-            }
-            else {
-                String value =
-                    EimFieldValidator.validateText(field, MAXLEN_LAST_MODIFIED_BY);
-                contentItem.setLastModifiedBy(value);
-            }
         } else if (field.getName().equals(FIELD_CREATED_ON)) {
             if(field.isMissing()) {
                 handleMissingAttribute("clientCreationDate");

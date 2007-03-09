@@ -55,11 +55,9 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
         checkTextValue(record.getFields().get(1),
                        TriageStatusFormat.getInstance().
                        format(contentItem.getTriageStatus()));
-        checkTextValue(record.getFields().get(2),
-                       contentItem.getLastModifiedBy());
-        checkTimeStampValue(record.getFields().get(3),
+        checkTimeStampValue(record.getFields().get(2),
                             contentItem.getClientCreationDate());
-        checkUnknownValue(record.getFields().get(4), contentItem);
+        checkUnknownValue(record.getFields().get(3), contentItem);
     }
 
     private EimRecord makeTestRecord() {
@@ -75,8 +73,6 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
                                       TriageStatusFormat.getInstance().
                                       format(ts)));
 
-        record.addField(new TextField(FIELD_LAST_MODIFIED_BY,
-                                      "bcm@osafoundation.org"));
         BigDecimal createdOn =
             new BigDecimal(Calendar.getInstance().getTime().getTime());
         record.addField(new DecimalField(FIELD_CREATED_ON, createdOn));

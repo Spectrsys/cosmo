@@ -80,7 +80,7 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         checkUuidKey(record.getKey(), uid);
 
         List<EimRecordField> fields = record.getFields();
-        assertEquals("unexpected number of fields", 5, fields.size());
+        assertEquals("unexpected number of fields", 4, fields.size());
 
         EimRecordField titleField = fields.get(0);
         checkTextField(titleField, FIELD_TITLE, displayName);
@@ -89,15 +89,11 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         checkTextField(triageStatusField, FIELD_TRIAGE_STATUS,
                        TriageStatusFormat.getInstance().format(ts));
 
-        EimRecordField lastModifiedByField = fields.get(2);
-        checkTextField(lastModifiedByField, FIELD_LAST_MODIFIED_BY,
-                       lastModifiedBy);
-
-        EimRecordField createdOnField = fields.get(3);
+        EimRecordField createdOnField = fields.get(2);
         checkTimeStampField(createdOnField, FIELD_CREATED_ON,
                             clientCreationDate);
 
-        EimRecordField unknownField = fields.get(4);
+        EimRecordField unknownField = fields.get(3);
         checkTextField(unknownField, unknownAttr.getName(),
                        unknownAttr.getValue());
     }
