@@ -287,6 +287,8 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             
             if(isEvent) {
                 EventStamp event = EventStamp.getStamp(content);
+                // make sure stamp is dirty
+                event.setModifiedDate(new Date());
                 // TODO: verify icaluid is unique
                 getCalendarIndexer().indexCalendarEvent(getSession(), event);
                 try {

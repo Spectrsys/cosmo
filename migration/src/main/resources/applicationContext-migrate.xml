@@ -40,10 +40,20 @@
         class="org.osaf.cosmo.migrate.ZeroPointFiveToZeroPointSixMigration">
     </bean>
 
+    <bean id="zeroPointSixToZeroPointSixZeroOne"
+        class="org.osaf.cosmo.migrate.BasicSqlScriptMigration">
+        <property name="fromVersion">
+            <value>0.6.0</value>
+        </property>
+        <property name="toVersion">
+            <value>0.6.0.1</value>
+        </property>
+    </bean>
+
     <bean id="propertyPlaceHolderConfigurer"
         class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     </bean>
-	
+
     <bean id="migrationManager"
         class="org.osaf.cosmo.migrate.MigrationManager">
 
@@ -54,6 +64,7 @@
         <property name="migrations">
             <list>
                 <ref local="zeroPointFiveToZeroPointSix"/>
+                <ref local="zeroPointSixToZeroPointSixZeroOne"/>
             </list>
         </property>
     </bean>
