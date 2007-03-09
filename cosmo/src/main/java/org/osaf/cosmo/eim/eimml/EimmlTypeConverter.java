@@ -230,10 +230,6 @@ public class EimmlTypeConverter implements EimmlConstants {
                 pattern.append("#");
         }
 
-        if (log.isDebugEnabled())
-            log.debug("formatting decimal value " + value + " with pattern " +
-                      pattern);
-
         return new DecimalFormat(pattern.toString()).format(value);
     }
 
