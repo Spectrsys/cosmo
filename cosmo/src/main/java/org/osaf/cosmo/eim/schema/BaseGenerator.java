@@ -97,7 +97,8 @@ public abstract class BaseGenerator implements EimSchemaConstants {
             } else if (attr instanceof TimestampAttribute) {
                 Date d = ((TimestampAttribute)attr).getValue();
                 BigDecimal value = new BigDecimal(d.getTime());
-                fields.add(new DecimalField(attr.getName(), value));
+                fields.add(new DecimalField(attr.getName(), value,
+                                            DEC_TIMESTAMP, DIGITS_TIMESTAMP));
             } else if (attr instanceof DecimalAttribute) {
                 BigDecimal value = ((DecimalAttribute)attr).getValue();
                 fields.add(new DecimalField(attr.getName(), value));
