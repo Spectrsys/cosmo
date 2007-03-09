@@ -50,9 +50,6 @@ public class ModifiedByApplicator extends BaseItemApplicator
     private static final Log log =
         LogFactory.getLog(ModifiedByApplicator.class);
 
-    private Date timestamp;
-    private String userid;
-
     /** */
     public ModifiedByApplicator(Item item) {
         super(PREFIX_MODIFIEDBY, NS_MODIFIEDBY, item);
@@ -61,14 +58,38 @@ public class ModifiedByApplicator extends BaseItemApplicator
     }
 
     /**
-     * After all fields have been applied, updates the content item's
-     * lastModifiedBy property with the record's userid if the
-     * record's timestamp is more recent than the content item's last
-     * modified timestamp.
+     * Override the superclass method to read the timestamp and userid
+     * key fields and update the item's lastModifiedBy if the record
+     * timestamp is more recent than the item's modifiedDate.
      */
+    @Override
     public void applyRecord(EimRecord record)
         throws EimSchemaException {
-        super.applyRecord(record);
+        if (record.getNamespace() == null ||
+            ! record.getNamespace().equals(NS_MODIFIEDBY))
+            throw new IllegalArgumentException("Record namespace " + record.getNamespace() + " does not match " + NS_MODIFIEDBY);
+            
+        if (record.isDeleted()) {
+            applyDeletion(record);
+            return;
+        }
+
+        if (log.isDebugEnabled())
+            log.debug("applying modifiedBy record");
+
+        Date timestamp = null;
+        String userid = null;
+
+        for (EimRecordField field : record.getKey().getFields()) {
+            if (field.getName().equals(FIELD_UUID))
+                ; // skip
+            else if (field.getName().equals(FIELD_TIMESTAMP))
+                timestamp = EimFieldValidator.validateTimeStamp(field);
+            else if (field.getName().equals(FIELD_USERID))
+                userid = EimFieldValidator.validateText(field, MAXLEN_USERID);
+            else
+                throw new EimSchemaException("Unknown key field " + field.getName());
+        }
 
         if (timestamp == null)
             throw new EimSchemaException("No timestamp provided");
@@ -81,30 +102,20 @@ public class ModifiedByApplicator extends BaseItemApplicator
     }
 
     /**
-     * Stores the timestamp and userid from the record for later
-     * processing.
-     *
-     * @throws EimValidationException if the field value is invalid
-     * @throws EimSchemaException if the field is improperly
-     * constructed or cannot otherwise be applied to the contentItem 
-     */
-    protected void applyField(EimRecordField field)
-        throws EimSchemaException {
-        ContentItem contentItem = (ContentItem) getItem();
-
-        if (field.getName().equals(FIELD_TIMESTAMP))
-            timestamp = EimFieldValidator.validateTimeStamp(field);
-        else if (field.getName().equals(FIELD_USERID))
-            userid = EimFieldValidator.validateText(field, MAXLEN_USERID);
-        else
-            throw new EimSchemaException("Unknown field " + field.getName());
-    }
-
-    /**
-     * Handles deleted records by ignoring them.
+     * Does nothing, since deleted records are ignored.
      */
     protected void applyDeletion(EimRecord record)
         throws EimSchemaException {
-        // do nothing for deleted records
+        if (log.isDebugEnabled())
+            log.debug("Ignoring deleted modifiedBy record");
+    }
+
+    /**
+     * Throws an exception if called, since modifiedBy records contain
+     * only key fields.
+     */
+    protected void applyField(EimRecordField field)
+        throws EimSchemaException {
+        throw new EimSchemaException("Unknown field " + field.getName());
     }
 }

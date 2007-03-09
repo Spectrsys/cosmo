@@ -104,5 +104,4 @@ public abstract class BaseItemApplicator extends BaseApplicator {
      */
     protected abstract void applyField(EimRecordField field)
         throws EimSchemaException;
-    
 }
