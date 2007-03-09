@@ -126,5 +126,21 @@ public class CalendarUtils {
 
         return result;
     }
+    
+    /**
+     * Determine if two Calendar objects are equal.  The ical4j Calendar.equals()
+     * api doesn't work too well now.  In the mean time, just compare the String
+     * representations.
+     * 
+     * @param cal1 calendar to compare
+     * @param cal2 calendar to compare
+     * @return true if calendars are equal
+     */
+    public static boolean equals(Calendar cal1, Calendar cal2) {
+        if(cal1==null || cal2==null)
+            return false;
+        
+        return cal1.toString().equals(cal2.toString());
+    }
 
 }

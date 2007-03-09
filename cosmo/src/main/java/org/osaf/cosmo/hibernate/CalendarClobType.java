@@ -121,6 +121,12 @@ public class CalendarClobType
         return CalendarUtils.copyCalendar(calendar);
     }
 
+    @Override
+    public boolean equals(Object obj1, Object obj2) throws HibernateException {
+        // since Calendar.equals() doesn't work too well, use our own api
+        return CalendarUtils.equals((Calendar) obj1, (Calendar) obj2);
+    }
+
     public Class returnedClass() {
         return Calendar.class;
     }

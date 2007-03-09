@@ -22,6 +22,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 
 import org.hibernate.validator.InvalidStateException;
+import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
@@ -271,7 +272,8 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         
         EventStamp event = new EventStamp();
         event.setCalendar(helper.getCalendar(baseDir + "/testcalendarwithtimezone1.ics"));
-      
+        Calendar origCal = event.getCalendar();
+        
         item.addStamp(event);
         
         NoteItem newItem = (NoteItem) contentDao.createContent(root, item);
@@ -282,6 +284,9 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         EventStamp es = (EventStamp) queryItem.getStamp(EventStamp.class);
         Date modifyDate = es.getModifiedDate();
         es.setCalendar(helper.getCalendar(baseDir + "/testcalendarwithtimezone2.ics"));
+        Calendar newCal = es.getCalendar();
+        
+        Assert.assertFalse(CalendarUtils.equals(origCal, newCal));
         
         // ensure modifyDate is different
         Thread.sleep(10);
@@ -296,6 +301,7 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         // the stamp would not get updated event though calendar's
         // are different
         Assert.assertTrue(modifyDate.getTime()!=es.getModifiedDate().getTime());
+        Assert.assertFalse(CalendarUtils.equals(origCal, es.getCalendar()));
     }
 
     private User getUser(UserDao userDao, String username) {
