@@ -58,13 +58,13 @@ public class ModifiedByGenerator extends BaseItemGenerator
 
         record.addKeyField(new TextField(FIELD_UUID, contentItem.getUid()));
 
-        record.addField(new TextField(FIELD_USERID,
-                                      contentItem.getLastModifiedBy()));
+        record.addKeyField(new TextField(FIELD_USERID,
+                                         contentItem.getLastModifiedBy()));
 
         long timestamp = contentItem.getModifiedDate().getTime() / 1000;
-        record.addField(new DecimalField(FIELD_TIMESTAMP, 
-                                         new BigDecimal(timestamp),
-                                         DIGITS_TIMESTAMP, DEC_TIMESTAMP));
+        record.addKeyField(new DecimalField(FIELD_TIMESTAMP, 
+                                            new BigDecimal(timestamp),
+                                            DIGITS_TIMESTAMP, DEC_TIMESTAMP));
 
         ArrayList<EimRecord> records = new ArrayList<EimRecord>();
         records.add(record);
