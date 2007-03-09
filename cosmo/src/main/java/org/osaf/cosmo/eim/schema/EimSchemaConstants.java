@@ -28,15 +28,15 @@ public interface EimSchemaConstants {
     /** */
     public static final String PREFIX_ITEM = "item";
     /** */
+    public static final String NS_MODIFIEDBY =
+        "http://osafoundation.org/eim/modifiedBy/0";
+    /** */
+    public static final String PREFIX_MODIFIEDBY = "modby";
+    /** */
     public static final String NS_EVENT =
         "http://osafoundation.org/eim/event/0"; 
     /** */
     public static final String PREFIX_EVENT = "event";
-    /** */
-    public static final String NS_EVENT_MODIFICATION =
-        "http://osafoundation.org/eim/eventModification/0"; 
-    /** */
-    public static final String PREFIX_EVENT_MODIFICATION = "eventModification";
     /** */
     public static final String NS_DISPLAY_ALARM =
         "http://osafoundation.org/eim/displayAlarm/0"; 
@@ -57,11 +57,6 @@ public interface EimSchemaConstants {
         "http://osafoundation.org/eim/note/0";
     /** */
     public static final String PREFIX_NOTE = "note";
-    /** */
-    public static final String NS_ICALEXT =
-        "http://osafoundation.org/eim/icalext/0";
-    /** */
-    public static final String PREFIX_ICALEXT = "icalext";
 
     /** */
     public static final String FIELD_UUID = "uuid";

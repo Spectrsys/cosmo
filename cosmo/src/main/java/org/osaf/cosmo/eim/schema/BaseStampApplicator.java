@@ -49,11 +49,12 @@ public abstract class BaseStampApplicator extends BaseApplicator {
      * If the record is marked deleted, then
      * {@link #applyDeletion(EimRecord)} is called.
      * <p>
+     * Otherwise:
+     * <p>
      * If the stamp corresponding to this record does not already
      * exist, then {@link #createStamp()} is called.
      * <p>
-     * If the record is not marked deleted, then
-     * {@link #applyField(EimRecordField)} is called for each
+     * Finally, {@link #applyField(EimRecordField)} is called for each
      * non-key record field.
      * 
      * @throws IllegalArgumentException if the record's namespace does

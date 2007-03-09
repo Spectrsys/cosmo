@@ -74,6 +74,4 @@
     <from>^/admin/users/?$</from>
     <to>/admin/user/list</to>
   </rule>
-
-
 </urlrewrite>

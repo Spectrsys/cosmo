@@ -22,6 +22,8 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.schema.contentitem.ContentItemApplicator;
 import org.osaf.cosmo.eim.schema.contentitem.ContentItemGenerator;
+import org.osaf.cosmo.eim.schema.modifiedby.ModifiedByApplicator;
+import org.osaf.cosmo.eim.schema.modifiedby.ModifiedByGenerator;
 import org.osaf.cosmo.eim.schema.event.EventApplicator;
 import org.osaf.cosmo.eim.schema.event.EventGenerator;
 import org.osaf.cosmo.eim.schema.message.MessageApplicator;
@@ -48,6 +50,8 @@ public class ItemTranslator implements EimSchemaConstants {
     private Item item;
     private ContentItemApplicator contentItemApplicator;
     private ContentItemGenerator contentItemGenerator;
+    private ModifiedByApplicator modifiedByApplicator;
+    private ModifiedByGenerator modifiedByGenerator;
     private NoteApplicator noteApplicator;
     private NoteGenerator noteGenerator;
     private EventApplicator eventApplicator;
@@ -65,6 +69,9 @@ public class ItemTranslator implements EimSchemaConstants {
 
         contentItemApplicator = new ContentItemApplicator(item);
         contentItemGenerator = new ContentItemGenerator(item);
+
+        modifiedByApplicator = new ModifiedByApplicator(item);
+        modifiedByGenerator = new ModifiedByGenerator(item);
 
         if (item instanceof NoteItem) {
             noteApplicator = new NoteApplicator(item);
@@ -107,6 +114,10 @@ public class ItemTranslator implements EimSchemaConstants {
         for (EimRecord record : recordset.getRecords()) {
             if (record.getNamespace().equals(NS_ITEM)) {
                 contentItemApplicator.applyRecord(record);
+                continue;
+            }
+            else if (record.getNamespace().equals(NS_MODIFIEDBY)) {
+                modifiedByApplicator.applyRecord(record);
                 continue;
             }
 
@@ -158,6 +169,7 @@ public class ItemTranslator implements EimSchemaConstants {
         }
 
         recordset.addRecords(contentItemGenerator.generateRecords());
+        recordset.addRecords(modifiedByGenerator.generateRecords());
 
         if (item instanceof NoteItem) {
             recordset.addRecords(noteGenerator.generateRecords());

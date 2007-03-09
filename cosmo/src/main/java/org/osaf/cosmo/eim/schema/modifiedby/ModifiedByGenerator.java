@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.eim.schema.contentitem;
+package org.osaf.cosmo.eim.schema.modifiedby;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -24,27 +24,25 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseItemGenerator;
-import org.osaf.cosmo.eim.schema.util.TriageStatusFormat;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.TriageStatus;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Generates EIM records from content items.
+ * Generates modifidBy records from content items.
  *
  * @see ContentItem
  */
-public class ContentItemGenerator extends BaseItemGenerator
-    implements ContentItemConstants {
+public class ModifiedByGenerator extends BaseItemGenerator
+    implements ModifiedByConstants {
     private static final Log log =
-        LogFactory.getLog(ContentItemGenerator.class);
+        LogFactory.getLog(ModifiedByGenerator.class);
 
     /** */
-    public ContentItemGenerator(Item item) {
-        super(PREFIX_ITEM, NS_ITEM, item);
+    public ModifiedByGenerator(Item item) {
+        super(PREFIX_MODIFIEDBY, NS_MODIFIEDBY, item);
         if (! (item instanceof ContentItem))
             throw new IllegalArgumentException("item " + item.getUid() + " not a content item");
     }
@@ -60,21 +58,13 @@ public class ContentItemGenerator extends BaseItemGenerator
 
         record.addKeyField(new TextField(FIELD_UUID, contentItem.getUid()));
 
-        record.addField(new TextField(FIELD_TITLE,
-                                      contentItem.getDisplayName()));
+        record.addField(new TextField(FIELD_USERID,
+                                      contentItem.getLastModifiedBy()));
 
-        String ts = TriageStatusFormat.getInstance().
-            format(contentItem.getTriageStatus());
-        record.addField(new TextField(FIELD_TRIAGE_STATUS, ts));
-
-        Date d = contentItem.getClientCreationDate();
-        BigDecimal createdOn = d != null ?
-            new BigDecimal(d.getTime() / 1000) :
-            null;
-        record.addField(new DecimalField(FIELD_CREATED_ON, createdOn,
+        long timestamp = contentItem.getModifiedDate().getTime() / 1000;
+        record.addField(new DecimalField(FIELD_TIMESTAMP, 
+                                         new BigDecimal(timestamp),
                                          DIGITS_TIMESTAMP, DEC_TIMESTAMP));
-
-        record.addFields(generateUnknownFields());
 
         ArrayList<EimRecord> records = new ArrayList<EimRecord>();
         records.add(record);
