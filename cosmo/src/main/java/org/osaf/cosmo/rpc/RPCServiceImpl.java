@@ -692,6 +692,8 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
         calendarEventItem.setDisplayName(event.getTitle());
         calendarEventItem.
             setClientCreationDate(java.util.Calendar.getInstance().getTime());
+        calendarEventItem.
+            setClientCreationDate(calendarEventItem.getClientCreationDate());
         calendarEventItem.setContentType(ICALENDAR_MEDIA_TYPE);
         calendarEventItem.setContentEncoding("UTF-8");
         calendarEventItem.

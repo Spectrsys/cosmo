@@ -618,8 +618,10 @@ public abstract class DavResourceBase
         }
         item.setOwner(owner);
 
-        if (item.getUid() == null)
+        if (item.getUid() == null) {
             item.setClientCreationDate(Calendar.getInstance().getTime());
+            item.setClientModifiedDate(item.getClientCreationDate());
+        }
     }
 
     /**

@@ -73,6 +73,7 @@ public abstract class Item extends AuditableObject {
     private String name;
     private String displayName;
     private Date clientCreationDate;
+    private Date clientModifiedDate;
     private Integer version;
     private Boolean isActive = Boolean.TRUE;
     
@@ -524,6 +525,16 @@ public abstract class Item extends AuditableObject {
 
     public void setClientCreationDate(Date clientCreationDate) {
         this.clientCreationDate = clientCreationDate;
+    }
+    
+    @Column(name = "clientmodifieddate")
+    @Type(type="long_timestamp")
+    public Date getClientModifiedDate() {
+        return clientModifiedDate;
+    }
+
+    public void setClientModifiedDate(Date clientModifiedDate) {
+        this.clientModifiedDate = clientModifiedDate;
     }
     
     @Column(name = "itemname", nullable = false, length=255)

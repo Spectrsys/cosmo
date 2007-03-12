@@ -87,10 +87,34 @@
     </c:if>
     <tr>
       <td class="mdLabel" style="text-align:right;">
-        Created
+        Created on Client:
+      </td>
+      <td class="mdData">
+        <fmt:formatDate value="${Collection.clientCreationDate}" type="both"/>
+      </td>
+    </tr>
+    <tr>
+      <td class="mdLabel" style="text-align:right;">
+        Last Modified on Client:
+      </td>
+      <td class="mdData">
+        <fmt:formatDate value="${Collection.clientModifiedDate}" type="both"/>
+      </td>
+    </tr>
+    <tr>
+      <td class="mdLabel" style="text-align:right;">
+        Created on Server:
       </td>
       <td class="mdData">
         <fmt:formatDate value="${Collection.creationDate}" type="both"/>
+      </td>
+    </tr>
+    <tr>
+      <td class="mdLabel" style="text-align:right;">
+        Last Modified on Server:
+      </td>
+      <td class="mdData">
+        <fmt:formatDate value="${Collection.modifiedDate}" type="both"/>
       </td>
     </tr>
   </table>

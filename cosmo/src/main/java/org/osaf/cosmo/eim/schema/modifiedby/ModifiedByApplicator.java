@@ -75,7 +75,7 @@ public class ModifiedByApplicator extends BaseItemApplicator
         }
 
         if (log.isDebugEnabled())
-            log.debug("applying modifiedBy record");
+            log.debug("applying record " + NS_MODIFIEDBY);
 
         Date timestamp = null;
         String userid = null;
@@ -97,18 +97,18 @@ public class ModifiedByApplicator extends BaseItemApplicator
             throw new EimSchemaException("no userid provided");
 
         ContentItem contentItem = (ContentItem) getItem();
-        if (contentItem.getModifiedDate()==null || timestamp.after(contentItem.getModifiedDate()))
+        if (contentItem.getClientModifiedDate() == null ||
+            timestamp.after(contentItem.getClientModifiedDate())) {
             contentItem.setLastModifiedBy(userid);
+            contentItem.setClientModifiedDate(timestamp);
+        }
     }
 
     /**
      * Does nothing, since deleted records are ignored.
      */
     protected void applyDeletion(EimRecord record)
-        throws EimSchemaException {
-        if (log.isDebugEnabled())
-            log.debug("Ignoring deleted modifiedBy record");
-    }
+        throws EimSchemaException {}
 
     /**
      * Throws an exception if called, since modifiedBy records contain

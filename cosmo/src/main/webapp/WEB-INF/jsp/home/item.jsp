@@ -94,7 +94,31 @@
     </tr>
     <tr>
       <td class="mdLabel" style="text-align:right;">
-        Created
+        Last Modified By:
+      </td>
+      <td class="mdData">
+        <c:choose><c:when test="${Item.lastModifiedBy != null}">${Item.lastModifiedBy}</c:when><c:otherwise><span class="disabled">(anonymous)</span></c:otherwise></c:choose>
+      </td>
+    </tr>
+    <tr>
+      <td class="mdLabel" style="text-align:right;">
+        Created on Client:
+      </td>
+      <td class="mdData">
+        <fmt:formatDate value="${Item.clientCreationDate}" type="both"/>
+      </td>
+    </tr>
+    <tr>
+      <td class="mdLabel" style="text-align:right;">
+        Last Modified on Client:
+      </td>
+      <td class="mdData">
+        <fmt:formatDate value="${Item.clientModifiedDate}" type="both"/>
+      </td>
+    </tr>
+    <tr>
+      <td class="mdLabel" style="text-align:right;">
+        Created on Server:
       </td>
       <td class="mdData">
         <fmt:formatDate value="${Item.creationDate}" type="both"/>
@@ -102,7 +126,7 @@
     </tr>
     <tr>
       <td class="mdLabel" style="text-align:right;">
-        Last Modified
+        Last Modified on Server:
       </td>
       <td class="mdData">
         <fmt:formatDate value="${Item.modifiedDate}" type="both"/>
