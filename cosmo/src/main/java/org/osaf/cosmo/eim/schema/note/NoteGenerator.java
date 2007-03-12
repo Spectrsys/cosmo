@@ -59,22 +59,35 @@ public class NoteGenerator extends BaseItemGenerator
 
         record.addKeyField(new TextField(FIELD_UUID, note.getUid()));
 
-        StringReader body = note.getBody() != null ?
-            new StringReader(note.getBody()) :
-            null;
-        record.addField(new ClobField(FIELD_BODY, body));
-
-        record.addField(new TextField(FIELD_ICALUID, note.getIcalUid()));
+        if(isMissingAttribute("body")) {
+            record.addField(generateMissingField(new ClobField(FIELD_BODY, null)));
+        } else {
+            StringReader body = note.getBody() != null ?
+                    new StringReader(note.getBody()) :
+                    null;
+            record.addField(new ClobField(FIELD_BODY, body));
+        }
         
-        String parentUuid = note.getModifies() == null ? null : note.getModifies().getUid();
-        record.addField(new TextField(FIELD_PARENTUUID, parentUuid));
-
-        Date d = note.getReminderTime();
-        BigDecimal reminderTime = d != null ?
-            new BigDecimal(d.getTime() / 1000) :
-            null;
-        record.addField(new DecimalField(FIELD_REMINDER_TIME, reminderTime,
-                                         DIGITS_TIMESTAMP, DEC_TIMESTAMP));
+        if(isMissingAttribute("icalUid")) {
+            record.addField(generateMissingField(new TextField(FIELD_ICALUID, null)));
+        } else {
+            record.addField(new TextField(FIELD_ICALUID, note.getIcalUid()));
+        }
+        
+        if(isMissingAttribute("reminderTime")) {
+            record
+                    .addField(generateMissingField(new DecimalField(
+                            FIELD_REMINDER_TIME, null, DIGITS_TIMESTAMP,
+                            DEC_TIMESTAMP)));
+        } else {
+            Date d = note.getReminderTime();
+            BigDecimal reminderTime = d != null ?
+                new BigDecimal(d.getTime() / 1000) :
+                null;
+            record.addField(new DecimalField(FIELD_REMINDER_TIME, reminderTime,
+                                             DIGITS_TIMESTAMP, DEC_TIMESTAMP));
+        }
+        
 
         record.addFields(generateUnknownFields());
 

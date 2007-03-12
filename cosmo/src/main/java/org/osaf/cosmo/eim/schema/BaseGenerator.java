@@ -18,6 +18,7 @@ package org.osaf.cosmo.eim.schema;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,11 +40,13 @@ import org.osaf.cosmo.model.BinaryAttribute;
 import org.osaf.cosmo.model.CalendarAttribute;
 import org.osaf.cosmo.model.DecimalAttribute;
 import org.osaf.cosmo.model.IntegerAttribute;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.StringAttribute;
 import org.osaf.cosmo.model.TextAttribute;
 import org.osaf.cosmo.model.TimestampAttribute;
 import org.osaf.cosmo.model.Item;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -131,5 +134,70 @@ public abstract class BaseGenerator implements EimSchemaConstants {
     /** */
     public Item getItem() {
         return item;
+    }
+    
+    /**
+     * Determine if current item is a NoteItem that modifies another NoteItem
+     * 
+     * @return true if item is a NoteItem and modifies another NoteItem
+     */
+    protected boolean isModification() {
+        if(getItem() instanceof NoteItem) {
+            NoteItem note = (NoteItem) getItem();
+            if(note.getModifies()!=null)
+                return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Determine if attribute value of modification is "missing", 
+     * meaning if it is the same as the parent attribute value.
+     * 
+     * @param attribute attribute to copy
+     * @param modification object to copy attribute to
+     * @param master object to copy attribute from
+     */
+    protected boolean isMissingAttribute(String attribute,
+            Object modification, Object master) {
+        try {
+            Object value1 = PropertyUtils.getProperty(master, attribute);
+            Object value2 = PropertyUtils.getProperty(modification, attribute);
+            if(value1==null || value2==null)
+                return false;
+            
+            return value1.equals(value2);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("error copying attribute " + attribute);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("error copying attribute " + attribute);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("error copying attribute " + attribute);
+        }
+    }
+    
+    /**
+     * Determine if attribute value is "missing" for a note modificaiton.
+     * An attribute is "missing" if it is the same value as the parent
+     * attribute value.
+     * 
+     * @param attribute atttribute to copy
+     * @throws EimSchemaException
+     */
+    protected boolean isMissingAttribute(String attribute) {
+
+        if (!isModification())
+            return false;
+
+        NoteItem modification = (NoteItem) getItem();
+        NoteItem parent = modification.getModifies();
+        
+        return isMissingAttribute(attribute, modification, parent);
+    }
+    
+    protected EimRecordField generateMissingField(EimRecordField field) {
+        field.setMissing(true);
+        return field;
     }
 }

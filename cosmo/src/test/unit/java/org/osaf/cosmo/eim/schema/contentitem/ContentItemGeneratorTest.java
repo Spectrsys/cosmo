@@ -15,20 +15,20 @@
  */
 package org.osaf.cosmo.eim.schema.contentitem;
 
-import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
-import org.osaf.cosmo.eim.EimRecordKey;
 import org.osaf.cosmo.eim.schema.BaseGeneratorTestCase;
 import org.osaf.cosmo.eim.schema.util.TriageStatusFormat;
 import org.osaf.cosmo.model.ContentItem;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.StringAttribute;
 import org.osaf.cosmo.model.TriageStatus;
@@ -109,6 +109,31 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         checkNotDeleted(generator.generateRecords().get(0));
     }
 
+    public void testGenerateMissingField() throws Exception {
+        NoteItem modification = new NoteItem();
+        NoteItem parent = new NoteItem();
+        modification.setUid("1");
+        parent.setDisplayName("test");
+        modification.setDisplayName(parent.getDisplayName());
+        modification.setModifies(parent);
+
+        ContentItemGenerator generator = new ContentItemGenerator(modification);
+
+        List<EimRecord> records = generator.generateRecords();
+        assertEquals("unexpected number of records generated", 1,
+                     records.size());
+
+        EimRecord record = records.get(0);
+        checkNamespace(record, PREFIX_ITEM, NS_ITEM);
+        checkUuidKey(record.getKey(), modification.getUid());
+
+        List<EimRecordField> fields = record.getFields();
+        assertEquals("unexpected number of fields", 3, fields.size());
+
+        EimRecordField titleField = fields.get(0);
+        Assert.assertTrue(titleField.isMissing());
+    }
+    
     private StringAttribute makeStringAttribute() {
         StringAttribute attr = new StringAttribute();
         attr.setQName(new QName(NS_ITEM, "Blues Traveler"));

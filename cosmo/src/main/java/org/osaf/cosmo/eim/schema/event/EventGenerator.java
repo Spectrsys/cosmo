@@ -30,6 +30,8 @@ import org.osaf.cosmo.eim.schema.BaseStampGenerator;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
+import org.osaf.cosmo.model.Stamp;
 
 /**
  * Generates EIM records from event stamps.
@@ -81,15 +83,28 @@ public class EventGenerator extends BaseStampGenerator
 
         String value = null;
 
-        value = EimValueConverter.fromICalDate(stamp.getStartDate(),
-                                               stamp.isAnyTime());
-        record.addField(new TextField(FIELD_DTSTART, value));
-                                      
-        value = EimValueConverter.fromICalDate(stamp.getEndDate());
-        record.addField(new TextField(FIELD_DTEND, value));
-
-        record.addField(new TextField(FIELD_LOCATION, stamp.getLocation()));
-
+        if(isMissingAttribute("startDate") && isMissingAttribute("anyTime")) {
+            record.addField(generateMissingField(new TextField(FIELD_DTSTART, null)));
+        } else {
+        
+            value = EimValueConverter.fromICalDate(stamp.getStartDate(),
+                                                   stamp.isAnyTime());
+            record.addField(new TextField(FIELD_DTSTART, value));
+        }
+         
+        if(isMissingAttribute("endDate")) {
+            record.addField(generateMissingField(new TextField(FIELD_DTEND, null)));
+        } else {
+            value = EimValueConverter.fromICalDate(stamp.getEndDate());
+            record.addField(new TextField(FIELD_DTEND, value));
+        }
+        
+        if(isMissingAttribute("location")) {
+            record.addField(generateMissingField(new TextField(FIELD_LOCATION, null)));
+        } else {
+            record.addField(new TextField(FIELD_LOCATION, stamp.getLocation()));
+        }
+        
         value = EimValueConverter.fromICalRecurs(stamp.getRecurrenceRules());
         record.addField(new TextField(FIELD_RRULE, value));
 
@@ -102,8 +117,12 @@ public class EventGenerator extends BaseStampGenerator
         value = EimValueConverter.fromICalDates(stamp.getExceptionDates());
         record.addField(new TextField(FIELD_EXDATE, value));
 
-        record.addField(new TextField(FIELD_STATUS, stamp.getStatus()));
-
+        if(isMissingAttribute("status")) {
+            record.addField(generateMissingField(new TextField(FIELD_STATUS, null)));
+        } else {
+            record.addField(new TextField(FIELD_STATUS, stamp.getStatus()));
+        }
+        
         record.addFields(generateUnknownFields());
     }
 
@@ -129,5 +148,16 @@ public class EventGenerator extends BaseStampGenerator
         alarmRec.addField(new IntegerField(FIELD_REPEAT, new Integer(value))); 
         
         return alarmRec;
+    }
+    
+    @Override
+    protected Stamp getParentStamp() {
+        NoteItem noteMod = (NoteItem) getItem();
+        NoteItem parentNote = noteMod.getModifies();
+        
+        if(parentNote!=null)
+            return parentNote.getStamp(BaseEventStamp.class);
+        else
+            return null;
     }
 }

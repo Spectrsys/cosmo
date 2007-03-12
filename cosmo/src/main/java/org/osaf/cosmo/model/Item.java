@@ -593,6 +593,7 @@ public abstract class Item extends AuditableObject {
         joinColumns={@JoinColumn(name="itemid")},
         inverseJoinColumns={@JoinColumn(name="collectionid")}
     )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public Set<CollectionItem> getParents() {
         return parents;
     }

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Stamp;
 
 import org.apache.commons.logging.Log;
@@ -101,5 +102,34 @@ public abstract class BaseStampGenerator extends BaseGenerator {
     /** */
     protected void setStamp(Stamp stamp) {
         this.stamp = stamp;
+    }
+    
+    /**
+     * Need to override comparing attribute from stamp to parent stamp.
+     */
+    @Override
+    protected boolean isMissingAttribute(String attribute) {
+        if (!isModification())
+            return false;
+
+        Stamp modStamp = getStamp();
+        Stamp parentStamp = getParentStamp();
+        
+        if(parentStamp==null)
+           return false;
+        
+        return isMissingAttribute(attribute, modStamp, parentStamp);
+    }
+    
+    /**
+     * Get the parent stamp from the current stamp.
+     * @return parent stamp
+     */
+    protected Stamp getParentStamp() {
+        NoteItem noteMod = (NoteItem) getItem();
+        NoteItem parentNote = noteMod.getModifies();
+        
+        Stamp modStamp = getStamp();
+        return parentNote.getStamp(modStamp.getClass());
     }
 }

@@ -149,8 +149,6 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             throw new IllegalArgumentException("content must have owner");
         
         try {
-            User owner = content.getOwner();
-
             // verify uid not in use
             checkForDuplicateUid(content);
             

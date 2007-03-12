@@ -16,21 +16,19 @@
 package org.osaf.cosmo.eim.schema.contentitem;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 
-import org.osaf.cosmo.eim.EimRecord;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.DecimalField;
+import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseItemGenerator;
 import org.osaf.cosmo.eim.schema.util.TriageStatusFormat;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.TriageStatus;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Generates EIM records from content items.
@@ -60,8 +58,12 @@ public class ContentItemGenerator extends BaseItemGenerator
 
         record.addKeyField(new TextField(FIELD_UUID, contentItem.getUid()));
 
-        record.addField(new TextField(FIELD_TITLE,
-                                      contentItem.getDisplayName()));
+        if(isMissingAttribute("displayName")) {
+            record.addField(generateMissingField(new TextField(FIELD_TITLE, null)));
+        } else {
+            record.addField(new TextField(FIELD_TITLE,
+                    contentItem.getDisplayName()));
+        }
 
         String ts = TriageStatusFormat.getInstance().
             format(contentItem.getTriageStatus());
