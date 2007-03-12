@@ -106,7 +106,7 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
         ts.setCode(TriageStatus.CODE_DONE);
         ts.setUpdated(new Date(System.currentTimeMillis()));
         ts.setAutoTriage(Boolean.TRUE);
-        record.addField(new TextField(FIELD_TRIAGE_STATUS,
+        record.addField(new TextField(FIELD_TRIAGE,
                                       TriageStatusFormat.getInstance().
                                       format(ts)));
 
