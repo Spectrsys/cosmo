@@ -10,7 +10,7 @@ eimItemRecord =
    element item:record {
       (itemUuid
        & itemTitle?
-       & itemTriageStatus?
+       & itemTriage?
        & itemCreatedOn?
        & anyItemField*)
    }
@@ -25,8 +25,8 @@ itemTitle =
       eimTextFieldContent
    }
 
-itemTriageStatus =
-   element item:triageStatus {
+itemTriage =
+   element item:triage {
       eimTextFieldContent
    }
 

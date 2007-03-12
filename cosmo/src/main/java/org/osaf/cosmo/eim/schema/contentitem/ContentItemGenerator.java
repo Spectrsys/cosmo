@@ -65,7 +65,7 @@ public class ContentItemGenerator extends BaseItemGenerator
 
         String ts = TriageStatusFormat.getInstance().
             format(contentItem.getTriageStatus());
-        record.addField(new TextField(FIELD_TRIAGE_STATUS, ts));
+        record.addField(new TextField(FIELD_TRIAGE, ts));
 
         Date d = contentItem.getClientCreationDate();
         BigDecimal createdOn = d != null ?

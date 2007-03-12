@@ -78,12 +78,12 @@ public class ContentItemApplicator extends BaseItemApplicator
             if(eventStamp!=null) {
                 eventStamp.setSummary(contentItem.getDisplayName());
             }
-        } else if (field.getName().equals(FIELD_TRIAGE_STATUS)) {
+        } else if (field.getName().equals(FIELD_TRIAGE)) {
             if(field.isMissing()) {
                 handleMissingAttribute("triageStatus");
             } else {
                 String value =
-                    EimFieldValidator.validateText(field, MAXLEN_TRIAGE_STATUS);
+                    EimFieldValidator.validateText(field, MAXLEN_TRIAGE);
                 try {
                     TriageStatus ts =
                         TriageStatusFormat.getInstance().parse(value);

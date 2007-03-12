@@ -26,9 +26,9 @@ public interface ContentItemConstants {
     /** */
     public static final int MAXLEN_TITLE = 256;
     /** */
-    public static final String FIELD_TRIAGE_STATUS = "triageStatus";
+    public static final String FIELD_TRIAGE = "triage";
     /** */
-    public static final int MAXLEN_TRIAGE_STATUS = 256;
+    public static final int MAXLEN_TRIAGE = 256;
     /** */
     public static final String FIELD_CREATED_ON = "createdOn";
 }

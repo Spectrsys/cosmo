@@ -86,7 +86,7 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         checkTextField(titleField, FIELD_TITLE, displayName);
 
         EimRecordField triageStatusField = fields.get(1);
-        checkTextField(triageStatusField, FIELD_TRIAGE_STATUS,
+        checkTextField(triageStatusField, FIELD_TRIAGE,
                        TriageStatusFormat.getInstance().format(ts));
 
         EimRecordField createdOnField = fields.get(2);
