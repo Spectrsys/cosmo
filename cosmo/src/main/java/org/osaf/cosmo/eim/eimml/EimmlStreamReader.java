@@ -136,12 +136,12 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
     private int nextTag()
         throws XMLStreamException {
         int rc = xmlReader.nextTag();
-        if (log.isDebugEnabled()) {
-            if (xmlReader.isStartElement())
-                log.debug("read start tag: " + xmlReader.getName());
-            else
-                log.debug("read end tag: " + xmlReader.getName());
-        }
+//         if (log.isDebugEnabled()) {
+//             if (xmlReader.isStartElement())
+//                 log.debug("read start tag: " + xmlReader.getName());
+//             else
+//                 log.debug("read end tag: " + xmlReader.getName());
+//         }
         return rc;
     }
 
@@ -156,8 +156,8 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
 
         for (int i=0; i<xmlReader.getAttributeCount(); i++) {
             QName attr = xmlReader.getAttributeName(i);
-            if (log.isDebugEnabled())
-                log.debug("read attr: " + attr);
+//             if (log.isDebugEnabled())
+//                 log.debug("read attr: " + attr);
             String value = xmlReader.getAttributeValue(i);
             if (attr.equals(QN_UUID)) {
                 if (StringUtils.isBlank(value))
@@ -192,8 +192,8 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
 
         for (int i=0; i<xmlReader.getAttributeCount(); i++) {
             QName attr = xmlReader.getAttributeName(i);
-            if (log.isDebugEnabled())
-                log.debug("read attr: " + attr);
+//             if (log.isDebugEnabled())
+//                 log.debug("read attr: " + attr);
             String value = xmlReader.getAttributeValue(i);
             if (attr.equals(QN_UUID)) {
                 if (StringUtils.isBlank(value))
@@ -247,8 +247,8 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
 
         for (int i=0; i<xmlReader.getAttributeCount(); i++) {
             QName attr = xmlReader.getAttributeName(i);
-            if (log.isDebugEnabled())
-                log.debug("read attr: " + attr);
+//             if (log.isDebugEnabled())
+//                 log.debug("read attr: " + attr);
             if (attr.equals(QN_DELETED))
                 record.setDeleted(true);
             else
@@ -285,8 +285,8 @@ public class EimmlStreamReader implements EimmlConstants, XMLStreamConstants {
                        type.equals(TYPE_BLOB)))
                     throw new EimmlStreamException("Invalid empty attribute on field element " + xmlReader.getName());
                 if (text != null)
-                    if (log.isDebugEnabled())
-                        log.debug("emptying non-null text for field " + xmlReader.getName());
+//                     if (log.isDebugEnabled())
+//                         log.debug("emptying non-null text for field " + xmlReader.getName());
                 text = "";
             } else if (text.equals(""))
                 text = null;
