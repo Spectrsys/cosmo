@@ -56,8 +56,8 @@ public class ModifiedByApplicatorTest extends BaseApplicatorTestCase
         applicator.applyRecord(record);
 
         assertEquals("uid wrongly modified", origUuid, contentItem.getUid());
-        assertEquals("modifiedDate wrongly modified", origModifiedDate,
-                     contentItem.getModifiedDate());
+        assertEquals("clientModifiedDate not modified", updateDate,
+                     contentItem.getClientModifiedDate());
         assertEquals("lastModifiedBy not modified", updateLastModifiedBy,
                      contentItem.getLastModifiedBy());
     }
@@ -80,8 +80,8 @@ public class ModifiedByApplicatorTest extends BaseApplicatorTestCase
         applicator.applyRecord(record);
 
         assertEquals("uid wrongly modified", origUuid, contentItem.getUid());
-        assertEquals("modifiedDate wrongly modified", origModifiedDate,
-                     contentItem.getModifiedDate());
+        assertEquals("clientModifiedDate wrongly modified", origModifiedDate,
+                     contentItem.getClientModifiedDate());
         assertEquals("lastModifiedBy wrongly modified", origLastModifiedBy,
                      contentItem.getLastModifiedBy());
     }
@@ -103,8 +103,8 @@ public class ModifiedByApplicatorTest extends BaseApplicatorTestCase
         applicator.applyRecord(record);
 
         assertEquals("uid wrongly modified", origUuid, contentItem.getUid());
-        assertEquals("modifiedDate wrongly modified", origModifiedDate,
-                     contentItem.getModifiedDate());
+        assertEquals("clientModifiedDate wrongly modified", origModifiedDate,
+                     contentItem.getClientModifiedDate());
         assertEquals("lastModifiedBy wrongly modified", origLastModifiedBy,
                      contentItem.getLastModifiedBy());
     }
@@ -115,7 +115,7 @@ public class ModifiedByApplicatorTest extends BaseApplicatorTestCase
         ContentItem contentItem = new ContentItem();
         contentItem.setUid(uuid);
         contentItem.setLastModifiedBy(lastModifiedBy);
-        contentItem.setModifiedDate(modifiedDate);
+        contentItem.setClientModifiedDate(modifiedDate);
         return contentItem;
     }
 
