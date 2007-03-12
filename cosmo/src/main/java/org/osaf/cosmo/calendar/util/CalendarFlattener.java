@@ -32,8 +32,6 @@ import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateList;
 import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.Instance;
-import net.fortuna.ical4j.model.InstanceList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.model.component.VEvent;
@@ -41,6 +39,9 @@ import net.fortuna.ical4j.model.property.DateProperty;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.osaf.cosmo.calendar.Instance;
+import org.osaf.cosmo.calendar.InstanceList;
 
 /**
  * @author cyrusdaboo
