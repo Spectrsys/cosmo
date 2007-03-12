@@ -21,6 +21,9 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.eim.schema.EimValidationException;
 
@@ -36,6 +39,8 @@ import org.osaf.cosmo.eim.schema.EimValidationException;
  * @see TriageStatus
  */
 public class TriageStatusFormat extends Format {
+    private static final Log log =
+        LogFactory.getLog(TriageStatusFormat.class);
 
     public static int CODE_FIELD = 1;
     public static int UPDATED_FIELD = 2;
@@ -43,6 +48,8 @@ public class TriageStatusFormat extends Format {
 
     private static String AUTOTRIAGE_ON = "1";
     private static String AUTOTRIAGE_OFF = "0";
+
+    private ParseException parseException;
 
     private TriageStatusFormat() {
     }
@@ -112,7 +119,14 @@ public class TriageStatusFormat extends Format {
 
     public TriageStatus parse(String source)
         throws ParseException {
-        return (TriageStatus) super.parseObject(source);
+        TriageStatus ts = (TriageStatus) super.parseObject(source);
+        if (ts != null)
+            return ts;
+        if (parseException != null)
+            throw parseException;
+        if (log.isDebugEnabled())
+            log.debug("Unknown error parsing " + source);
+        return null;
     }
 
     public Object parseObject(String source,
@@ -124,6 +138,7 @@ public class TriageStatusFormat extends Format {
 
         String[] chunks = source.split(" ", 3);
         if (chunks.length != 3) {
+            parseException = new ParseException("Incorrect number of chunks: " + chunks.length, 0);
             pos.setErrorIndex(index);
             return null;
         }
@@ -137,7 +152,8 @@ public class TriageStatusFormat extends Format {
             TriageStatus.label(code);
             ts.setCode(code);
             index += chunks[0].length() + 1;
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
+            parseException = new ParseException(e.getMessage(), 0);
             pos.setErrorIndex(index);
             return null;
         }
@@ -148,6 +164,7 @@ public class TriageStatusFormat extends Format {
             ts.setUpdated(new Date(millis));
             index += chunks[1].length() + 1;
         } catch (NumberFormatException e) {
+            parseException = new ParseException(e.getMessage(), 0);
             pos.setErrorIndex(index);
             return null;
         }
@@ -157,6 +174,7 @@ public class TriageStatusFormat extends Format {
         else if (chunks[2].equals(AUTOTRIAGE_OFF))
             ts.setAutoTriage(Boolean.FALSE);
         else {
+            parseException = new ParseException("Invalid autotriage value " + chunks[2], 0);
             pos.setErrorIndex(index);
             return null;
         }
