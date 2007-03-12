@@ -54,6 +54,8 @@ public class TriageStatusFormat extends Format {
     public StringBuffer format(Object obj,
                                StringBuffer toAppendTo,
                                FieldPosition pos) {
+        if (obj == null)
+            return toAppendTo;
         if (! (obj instanceof TriageStatus))
             throw new IllegalArgumentException("object not a TriageStatus");
         TriageStatus ts = (TriageStatus) obj;
