@@ -44,7 +44,7 @@ public class ModifiedByGeneratorTest extends BaseGeneratorTestCase
 
         ContentItem contentItem = new ContentItem();
         contentItem.setUid(uuid);
-        contentItem.setModifiedDate(modifiedDate);
+        contentItem.setClientModifiedDate(modifiedDate);
         contentItem.setLastModifiedBy(lastModifiedBy);
 
         ModifiedByGenerator generator = new ModifiedByGenerator(contentItem);

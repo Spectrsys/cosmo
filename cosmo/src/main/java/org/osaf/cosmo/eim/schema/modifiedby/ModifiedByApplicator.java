@@ -97,8 +97,11 @@ public class ModifiedByApplicator extends BaseItemApplicator
             throw new EimSchemaException("no userid provided");
 
         ContentItem contentItem = (ContentItem) getItem();
+        //        log.debug("checking client timestamp " + timestamp + " against item client modified date " + contentItem.getClientModifiedDate());
         if (contentItem.getClientModifiedDate() == null ||
             timestamp.after(contentItem.getClientModifiedDate())) {
+            //            log.debug("updating lastModifiedBy with " + userid);
+            //            log.debug("updating clientModifiedDate with " + timestamp);
             contentItem.setLastModifiedBy(userid);
             contentItem.setClientModifiedDate(timestamp);
         }

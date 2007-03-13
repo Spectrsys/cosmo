@@ -54,6 +54,11 @@ public class ModifiedByGenerator extends BaseItemGenerator
     public List<EimRecord> generateRecords() {
         ContentItem contentItem = (ContentItem) getItem();
 
+        ArrayList<EimRecord> records = new ArrayList<EimRecord>();
+
+        if (contentItem.getClientModifiedDate() == null)
+            return records;
+
         EimRecord record = new EimRecord(getPrefix(), getNamespace());
 
         record.addKeyField(new TextField(FIELD_UUID, contentItem.getUid()));
@@ -61,12 +66,11 @@ public class ModifiedByGenerator extends BaseItemGenerator
         record.addKeyField(new TextField(FIELD_USERID,
                                          contentItem.getLastModifiedBy()));
 
-        long timestamp = contentItem.getModifiedDate().getTime() / 1000;
+        long timestamp = contentItem.getClientModifiedDate().getTime() / 1000;
         record.addKeyField(new DecimalField(FIELD_TIMESTAMP, 
                                             new BigDecimal(timestamp),
                                             DIGITS_TIMESTAMP, DEC_TIMESTAMP));
 
-        ArrayList<EimRecord> records = new ArrayList<EimRecord>();
         records.add(record);
 
         return records;
