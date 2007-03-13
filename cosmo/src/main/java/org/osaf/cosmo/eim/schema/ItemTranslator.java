@@ -15,9 +15,13 @@
  */
 package org.osaf.cosmo.eim.schema;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.schema.contentitem.ContentItemApplicator;
@@ -34,6 +38,7 @@ import org.osaf.cosmo.eim.schema.task.TaskApplicator;
 import org.osaf.cosmo.eim.schema.task.TaskGenerator;
 import org.osaf.cosmo.eim.schema.unknown.UnknownApplicator;
 import org.osaf.cosmo.eim.schema.unknown.UnknownGenerator;
+import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
 
@@ -138,6 +143,17 @@ public class ItemTranslator implements EimSchemaConstants {
             }
 
             unknownApplicator.applyRecord(record);
+
+            if (item instanceof ContentItem) {
+                ContentItem ci = (ContentItem) item;
+                Date now = Calendar.getInstance().getTime();
+                // if the item has no client creation date or client
+                // modified date, set it to the current time
+                if (ci.getClientCreationDate() == null)
+                    ci.setClientCreationDate(now);
+                if (ci.getClientModifiedDate() == null)
+                    ci.setClientModifiedDate(now);
+            }
         }
     }
 
