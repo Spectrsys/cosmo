@@ -30,6 +30,8 @@ import org.osaf.cosmo.eim.schema.modifiedby.ModifiedByApplicator;
 import org.osaf.cosmo.eim.schema.modifiedby.ModifiedByGenerator;
 import org.osaf.cosmo.eim.schema.event.EventApplicator;
 import org.osaf.cosmo.eim.schema.event.EventGenerator;
+import org.osaf.cosmo.eim.schema.event.alarm.DisplayAlarmApplicator;
+import org.osaf.cosmo.eim.schema.event.alarm.DisplayAlarmGenerator;
 import org.osaf.cosmo.eim.schema.message.MessageApplicator;
 import org.osaf.cosmo.eim.schema.message.MessageGenerator;
 import org.osaf.cosmo.eim.schema.note.NoteApplicator;
@@ -61,6 +63,8 @@ public class ItemTranslator implements EimSchemaConstants {
     private NoteGenerator noteGenerator;
     private EventApplicator eventApplicator;
     private EventGenerator eventGenerator;
+    private DisplayAlarmGenerator alarmGenerator;
+    private DisplayAlarmApplicator alarmApplicator;
     private TaskApplicator taskApplicator; 
     private TaskGenerator taskGenerator;
     private MessageApplicator messageApplicator;
@@ -84,6 +88,9 @@ public class ItemTranslator implements EimSchemaConstants {
 
             eventApplicator = new EventApplicator(item);
             eventGenerator = new EventGenerator(item);
+            
+            alarmApplicator = new DisplayAlarmApplicator(item);
+            alarmGenerator = new DisplayAlarmGenerator(item);
             
             taskApplicator = new TaskApplicator(item);
             taskGenerator = new TaskGenerator(item);
@@ -133,7 +140,11 @@ public class ItemTranslator implements EimSchemaConstants {
                 } else if (record.getNamespace().equals(NS_EVENT)) {
                     eventApplicator.applyRecord(record);
                     continue;
-                } else if (record.getNamespace().equals(NS_TASK)) {
+                } else if (record.getNamespace().equals(NS_DISPLAY_ALARM)) {
+                    alarmApplicator.applyRecord(record);
+                    continue;
+                }
+                else if (record.getNamespace().equals(NS_TASK)) {
                     taskApplicator.applyRecord(record);
                     continue;
                 } else if (record.getNamespace().equals(NS_MESSAGE)) {
@@ -190,6 +201,7 @@ public class ItemTranslator implements EimSchemaConstants {
         if (item instanceof NoteItem) {
             recordset.addRecords(noteGenerator.generateRecords());
             recordset.addRecords(eventGenerator.generateRecords(timestamp));
+            recordset.addRecords(alarmGenerator.generateRecords(timestamp));
             recordset.addRecords(taskGenerator.generateRecords(timestamp));
             recordset.addRecords(messageGenerator.generateRecords(timestamp));
         }

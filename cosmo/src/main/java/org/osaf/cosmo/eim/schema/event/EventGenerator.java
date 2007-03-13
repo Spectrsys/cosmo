@@ -17,14 +17,9 @@ package org.osaf.cosmo.eim.schema.event;
 
 import java.util.List;
 
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.component.VAlarm;
-import net.fortuna.ical4j.model.property.Trigger;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.EimRecord;
-import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseStampGenerator;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
@@ -62,13 +57,6 @@ public class EventGenerator extends BaseStampGenerator
         addKeyFields(record);
         addFields(record);
         records.add(record);
-
-        if (stamp.getIsActive()==true) {
-            // generate alarm record
-            VAlarm alarm = stamp.getDisplayAlarm();
-            if (alarm != null)
-                records.add(generateAlarmRecord(alarm));
-        }
     }
     
     /**
@@ -124,30 +112,6 @@ public class EventGenerator extends BaseStampGenerator
         }
         
         record.addFields(generateUnknownFields());
-    }
-
-    private EimRecord generateAlarmRecord(VAlarm alarm) {
-        BaseEventStamp stamp = (BaseEventStamp) getStamp();
-        
-        EimRecord alarmRec = new EimRecord(PREFIX_DISPLAY_ALARM, NS_DISPLAY_ALARM);
-        alarmRec.addKeyField(new TextField(FIELD_UUID, stamp.getItem().getUid()));
-        
-        Property prop = alarm.getProperties().getProperty(Property.DESCRIPTION);
-        String value = (prop==null) ? null : prop.getValue();
-        alarmRec.addField(new TextField(FIELD_DESCRIPTION, value));
-        
-        value = EimValueConverter.fromIcalTrigger((Trigger) alarm.getProperties().getProperty(Property.TRIGGER));
-        alarmRec.addField(new TextField(FIELD_TRIGGER, value));
-        
-        prop = alarm.getProperties().getProperty(Property.DURATION);
-        value = (prop==null) ? null : prop.getValue();
-        alarmRec.addField(new TextField(FIELD_DURATION, value));
-        
-        prop = alarm.getProperties().getProperty(Property.REPEAT);
-        value = (prop==null) ? null : prop.getValue();
-        alarmRec.addField(new IntegerField(FIELD_REPEAT, new Integer(value))); 
-        
-        return alarmRec;
     }
     
     @Override

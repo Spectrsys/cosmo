@@ -10,7 +10,6 @@ eimDisplayAlarm =
    element displayAlarm:record {
       (eimDeleted,
          displayAlarmUuid
-       & displayAlarmRecurrenceId?
        & displayAlarmDescription
        & displayAlarmTrigger
        & displayAlarmDuration?
@@ -22,11 +21,6 @@ displayAlarmUuid =
       eimTextFieldContent
    }
    
-displayAlarmRecurrenceId =
-   element displayAlarm:recurrenceId {
-      eimTextFieldContent
-   }
-
 displayAlarmDescription =
    element displayAlarm:description {
       eimTextFieldContent

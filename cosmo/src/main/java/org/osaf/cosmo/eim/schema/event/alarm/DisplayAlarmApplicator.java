@@ -17,13 +17,11 @@ package org.osaf.cosmo.eim.schema.event.alarm;
 
 import java.util.Iterator;
 
+import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.Action;
-import net.fortuna.ical4j.model.property.Description;
-import net.fortuna.ical4j.model.property.Duration;
-import net.fortuna.ical4j.model.property.Repeat;
 import net.fortuna.ical4j.model.property.Trigger;
 
 import org.apache.commons.logging.Log;
@@ -34,10 +32,10 @@ import org.osaf.cosmo.eim.schema.BaseStampApplicator;
 import org.osaf.cosmo.eim.schema.EimFieldValidator;
 import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
-import org.osaf.cosmo.eim.schema.event.EventConstants;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Stamp;
 
 /**
@@ -46,7 +44,7 @@ import org.osaf.cosmo.model.Stamp;
  * @see EventStamp
  */
 public class DisplayAlarmApplicator extends BaseStampApplicator
-    implements EventConstants {
+    implements DisplayAlarmConstants {
     private static final Log log =
         LogFactory.getLog(DisplayAlarmApplicator.class);
 
@@ -72,6 +70,7 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
     @Override
     public void applyRecord(EimRecord record) throws EimSchemaException {
         VEvent event = getEvent(record);
+        BaseEventStamp eventStamp = getEventStamp();
         
         if(event==null)
             throw new EimSchemaException("no event found for alarm");
@@ -81,17 +80,48 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
             return;
         }
         
-        VAlarm alarm = getOrCreateDisplayAlarm(event);
+        // create the alarm if its not already there
+        getOrCreateDisplayAlarm(event);
             
         for (EimRecordField field : record.getFields()) {
-            if(field.getName().equals(FIELD_DESCRIPTION))
-                applyDescription(field, alarm);
-            else if(field.getName().equals(FIELD_TRIGGER))
-                applyTrigger(field,alarm);
-            else if (field.getName().equals(FIELD_DURATION))
-                applyDuration(field, alarm);
-            else if(field.getName().equals(FIELD_REPEAT))
-                applyRepeat(field, alarm);
+            if(field.getName().equals(FIELD_DESCRIPTION)) {
+                if(field.isMissing()) {
+                    handleMissingAttribute("displayAlarmDescription");
+                }
+                else {
+                    String value = EimFieldValidator.validateText(field, MAXLEN_DESCRIPTION);
+                    eventStamp.setDisplayAlarmDescription(value);
+                }
+            }
+            else if(field.getName().equals(FIELD_TRIGGER)) {
+                if(field.isMissing()) {
+                    handleMissingAttribute("displayAlarmTrigger");
+                }
+                else {
+                    String value = EimFieldValidator.validateText(field, MAXLEN_TRIGGER);
+                    Trigger newTrigger = EimValueConverter.toIcalTrigger(value);
+                    eventStamp.setDisplayAlarmTrigger(newTrigger);
+                }
+            }
+            else if (field.getName().equals(FIELD_DURATION)) {
+                if(field.isMissing()) {
+                    handleMissingAttribute("displayAlarmDuration");
+                }
+                else {
+                    String value = EimFieldValidator.validateText(field, MAXLEN_DURATION);
+                    Dur dur = EimValueConverter.toICalDur(value); 
+                    eventStamp.setDisplayAlarmDuration(dur);
+                }
+            }
+            else if(field.getName().equals(FIELD_REPEAT)) {
+                if(field.isMissing()) {
+                    handleMissingAttribute("displayAlarmRepeat");
+                }
+                else {
+                    Integer value = EimFieldValidator.validateInteger(field);
+                    eventStamp.setDisplayAlarmRepeat(value);
+                }
+            }
             else
                 log.warn("usupported eim field " + field.getName()
                         + " found in " + record.getNamespace());
@@ -109,88 +139,14 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
         return null;
     }
         
-    /**
-     * Apply a description field to the alarm
-     */
-    private void applyDescription(EimRecordField field, VAlarm alarm) throws EimSchemaException {
-        String value = EimFieldValidator.validateText(field, MAXLEN_DESCRIPTION);
-        
-        Description description = (Description) alarm.getProperties()
-                .getProperty(Property.DESCRIPTION);
-        if (value == null) {
-            if (description != null)
-                alarm.getProperties().remove(description);
-        }
-        if (description == null) {
-            description = new Description();
-            alarm.getProperties().add(description);
-        }
-        
-        description.setValue(value);
-    }
-     
-    /**
-     * Apply a trigger field to the alarm
-     */
-    private void applyTrigger(EimRecordField field, VAlarm alarm) throws EimSchemaException {
-        String value = EimFieldValidator.validateText(field, MAXLEN_TRIGGER);
-        Trigger newTrigger = EimValueConverter.toIcalTrigger(value);
-        
-        Trigger oldTrigger = (Trigger) alarm.getProperties()
-                .getProperty(Property.TRIGGER);
-        if (oldTrigger != null)
-            alarm.getProperties().remove(oldTrigger);
-        
-        alarm.getProperties().add(newTrigger);
-    }
-    
-    /**
-     * Apply a duration field to the alarm
-     */
-    private void applyDuration(EimRecordField field, VAlarm alarm) throws EimSchemaException {
-        String value = EimFieldValidator.validateText(field, MAXLEN_DURATION);
-       
-        Duration duration = (Duration) alarm.getProperties()
-                .getProperty(Property.DURATION);
-        if (value == null) {
-            if (duration != null)
-                alarm.getProperties().remove(duration);
-        }
-        if (duration == null) {
-            duration = new Duration();
-            alarm.getProperties().add(duration);
-        }
-        
-        duration.setDuration(EimValueConverter.toICalDur(value));
-    }
-    
-    /**
-     * Apply a repeat field to the alarm
-     */
-    private void applyRepeat(EimRecordField field, VAlarm alarm) throws EimSchemaException {
-        Integer value = EimFieldValidator.validateInteger(field);
-       
-        Repeat repeat = (Repeat) alarm.getProperties()
-                .getProperty(Property.REPEAT);
-        if (value == null) {
-            if (repeat != null)
-                alarm.getProperties().remove(repeat);
-        }
-        if (repeat == null) {
-            repeat = new Repeat();
-            alarm.getProperties().add(repeat);
-        }
-     
-        repeat.setCount(value.intValue());
-    }
-    
+   
     /**
      * get the current display alarm, or create a new one
      */
     private VAlarm getOrCreateDisplayAlarm(VEvent event) {
         VAlarm alarm = getDisplayAlarm(event);
         if(alarm==null)
-            alarm =  creatDisplayAlarm(event);
+            alarm = creatDisplayAlarm(event);
         return alarm;
     }
     
@@ -236,5 +192,16 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
     
     private BaseEventStamp getEventStamp() {
         return BaseEventStamp.getStamp(getItem());
+    }
+    
+    @Override
+    protected Stamp getParentStamp() {
+        NoteItem noteMod = (NoteItem) getItem();
+        NoteItem parentNote = noteMod.getModifies();
+        
+        if(parentNote!=null)
+            return parentNote.getStamp(BaseEventStamp.class);
+        else
+            return null;
     }
 }

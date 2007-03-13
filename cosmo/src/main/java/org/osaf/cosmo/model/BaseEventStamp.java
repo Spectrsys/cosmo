@@ -25,8 +25,8 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateList;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Parameter;
-import net.fortuna.ical4j.model.ParameterFactoryImpl;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.Recur;
@@ -48,8 +48,10 @@ import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.RDate;
 import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.RecurrenceId;
+import net.fortuna.ical4j.model.property.Repeat;
 import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Summary;
+import net.fortuna.ical4j.model.property.Trigger;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
 
@@ -398,6 +400,7 @@ public abstract class BaseEventStamp extends Stamp
      * Return the first display alarm on the event
      * @return first display alarm on event
      */
+    @Transient
     public VAlarm getDisplayAlarm() {
         VEvent event = getEvent();
        
@@ -412,6 +415,163 @@ public abstract class BaseEventStamp extends Stamp
         }
         
         return null;
+    }
+    
+    /**
+     * Return the description of the first display alarm on the event.
+     * @return alarm description
+     */
+    @Transient
+    public String getDisplayAlarmDescription() {
+        VAlarm alarm = getDisplayAlarm();
+        if(alarm==null)
+            return null;
+        
+        Description description = (Description) alarm.getProperties()
+                .getProperty(Property.DESCRIPTION);
+        
+        if(description==null)
+            return null;
+        
+        return description.getValue();
+    }
+    
+    /**
+     * Set the description of the first display alarm on the event.
+     * @param newDescription display alarm description
+     */
+    public void setDisplayAlarmDescription(String newDescription) {
+        VAlarm alarm = getDisplayAlarm();
+        if(alarm==null)
+            return;
+        
+        Description description = (Description) alarm.getProperties()
+                .getProperty(Property.DESCRIPTION);
+        
+        if (newDescription == null) {
+            if (description != null)
+                alarm.getProperties().remove(description);
+        }
+        if (description == null) {
+            description = new Description();
+            alarm.getProperties().add(description);
+        }
+        
+        description.setValue(newDescription);
+    }
+    
+    /**
+     * Return the Trigger of the first display alarm on the event
+     * @return trigger of the first display alarm
+     */
+    @Transient
+    public Trigger getDisplayAlarmTrigger() {
+        VAlarm alarm = getDisplayAlarm();
+        if(alarm==null)
+            return null;
+        
+        return (Trigger) alarm.getProperties().getProperty(Property.TRIGGER);
+    }
+    
+    
+    /**
+     * Set the trigger property of the first display alarm on the event.
+     * @param newTrigger trigger
+     */
+    public void setDisplayAlarmTrigger(Trigger newTrigger) {
+        VAlarm alarm = getDisplayAlarm();
+        if(alarm==null)
+            return;
+        
+        Trigger oldTrigger = (Trigger) alarm.getProperties().getProperty(
+                Property.TRIGGER);
+        if (oldTrigger != null)
+            alarm.getProperties().remove(oldTrigger);
+
+        alarm.getProperties().add(newTrigger);
+    }
+    
+    /**
+     * Return the duration of the first display alarm on the event
+     * @return duration of the first display alarm
+     */
+    @Transient
+    public Dur getDisplayAlarmDuration() {
+        VAlarm alarm = getDisplayAlarm();
+        if(alarm==null)
+            return null;
+        
+        Duration dur =  (Duration) alarm.getProperties().getProperty(Property.DURATION);
+        if(dur!=null)
+            return dur.getDuration();
+        else
+            return null;
+    }
+    
+    /**
+     * Set the durcation of the first display alarm on the event
+     * @param dur duration
+     */
+    public void setDisplayAlarmDuration(Dur dur) {
+        VAlarm alarm = getDisplayAlarm();
+        if(alarm==null)
+            return;
+        
+        Duration duration = (Duration) alarm.getProperties().getProperty(
+                Property.DURATION);
+        if (dur == null) {
+            if (duration != null)
+                alarm.getProperties().remove(duration);
+            
+            return;
+        }
+        if (duration == null) {
+            duration = new Duration();
+            alarm.getProperties().add(duration);
+        }
+        
+        duration.setDuration(dur);
+    }
+    
+    /**
+     * Return the repeat count on the first display alarm on the event
+     * @return repeat count of the first display alarm on the event
+     */
+    @Transient
+    public Integer getDisplayAlarmRepeat() {
+        VAlarm alarm = getDisplayAlarm();
+        if(alarm==null)
+            return null;
+        
+        Repeat repeat = (Repeat) alarm.getProperties().getProperty(Property.REPEAT);
+        
+        if(repeat==null)
+            return null;
+        
+        return repeat.getCount();
+    }
+    
+    /**
+     * Set the repeat count on the first display alarm on the event.
+     * @param count repeat count of the first display alarm.
+     */
+    public void setDisplayAlarmRepeat(Integer count) {
+        VAlarm alarm = getDisplayAlarm();
+        if(alarm==null)
+            return;
+        
+        Repeat repeat = (Repeat) alarm.getProperties().getProperty(Property.REPEAT);
+        if (count == null) {
+            if (repeat != null)
+                alarm.getProperties().remove(repeat);
+            return;
+        }
+        if (repeat == null) {
+            repeat = new Repeat();
+            alarm.getProperties().add(repeat);
+        }
+
+        repeat.setCount(count.intValue());
     }
 
     /**
