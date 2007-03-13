@@ -28,6 +28,7 @@ import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.EimRecordKey;
+import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 
 /**
@@ -94,6 +95,16 @@ public class BaseGeneratorTestCase extends TestCase
         TextField tf = (TextField) field;
         assertEquals("incorrect field name", expectedName, tf.getName());
         assertEquals("incorrect field value", expectedValue, tf.getText());
+    }
+    
+    /** */
+    protected void checkIntegerField(EimRecordField field,
+                                  String expectedName,
+                                  Integer expectedValue) {
+        assertTrue("not an integer field", field instanceof IntegerField);
+        IntegerField intF = (IntegerField) field;
+        assertEquals("incorrect field name", expectedName, intF.getName());
+        assertEquals("incorrect field value", expectedValue, intF.getInteger());
     }
 
     /** */

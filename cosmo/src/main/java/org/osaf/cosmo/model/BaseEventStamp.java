@@ -755,4 +755,13 @@ public abstract class BaseEventStamp extends Stamp
             setDescription(note.getBody());
         }
     }
+    
+    /**
+     * Create new display alarm on event.
+     */
+    public void creatDisplayAlarm() {
+        VAlarm alarm = new VAlarm();
+        alarm.getProperties().add(Action.DISPLAY);
+        getEvent().getAlarms().add(alarm);
+    }
 }
