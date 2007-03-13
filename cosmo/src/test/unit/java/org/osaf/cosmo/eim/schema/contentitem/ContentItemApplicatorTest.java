@@ -81,7 +81,7 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
 
         TriageStatus ts = new TriageStatus();
         ts.setCode(TriageStatus.CODE_DONE);
-        ts.setUpdated(new Date(System.currentTimeMillis()));
+        ts.setRank(new BigDecimal("-12345.67"));
         ts.setAutoTriage(Boolean.TRUE);
         record.addField(new TextField(FIELD_TRIAGE,
                                       TriageStatusFormat.getInstance().
@@ -104,7 +104,7 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
 
         TriageStatus ts = new TriageStatus();
         ts.setCode(TriageStatus.CODE_DONE);
-        ts.setUpdated(new Date(System.currentTimeMillis()));
+        ts.setRank(new BigDecimal("-76543.21"));
         ts.setAutoTriage(Boolean.TRUE);
         record.addField(new TextField(FIELD_TRIAGE,
                                       TriageStatusFormat.getInstance().

@@ -260,12 +260,8 @@ public class DavFile extends DavResourceBase {
         User user = getSecurityManager().getSecurityContext().getUser();
         content.setLastModifiedBy(user != null ? user.getEmail() : "");
 
-        if (content.getUid() == null) {
-            content.getTriageStatus().setCode(TriageStatus.CODE_NOW);
-            content.getTriageStatus().
-                setUpdated(new Date(System.currentTimeMillis()));
-            content.getTriageStatus().setAutoTriage(Boolean.TRUE);
-        }
+        if (content.getUid() == null)
+            content.setTriageStatus(TriageStatus.createInitialized());
     }
 
     /** */

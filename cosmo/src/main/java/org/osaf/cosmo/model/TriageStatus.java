@@ -15,11 +15,12 @@
  */
 package org.osaf.cosmo.model;
 
-import java.util.Date;
+import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 
@@ -43,7 +44,7 @@ public class TriageStatus {
     public static final int CODE_DONE = 300;
 
     private Integer code = null;
-    private Date updated = null;
+    private BigDecimal rank = null;
     private Boolean autoTriage = null;
     
     public TriageStatus() {
@@ -58,14 +59,14 @@ public class TriageStatus {
         this.code = code;
     }
 
-    @Column(name = "triagestatustimestamp")
-    @Type(type="long_timestamp")
-    public Date getUpdated() {
-        return updated;
+    @Column(name = "triagestatusrank", precision = 12, scale = 2)
+    @Type(type="org.hibernate.type.BigDecimalType")
+    public BigDecimal getRank() {
+        return rank;
     }
 
-    public void setUpdated(Date updated) {
-        this.updated = updated;
+    public void setRank(BigDecimal rank) {
+        this.rank = rank;
     }
 
     @Column(name = "isautotriage")
@@ -80,17 +81,40 @@ public class TriageStatus {
     public TriageStatus copy() {
         TriageStatus copy = new TriageStatus();
         copy.setCode(code);
-        copy.setUpdated(updated);
+        copy.setRank(rank);
         copy.setAutoTriage(autoTriage);
         return copy;
     }
 
     public String toString() {
         return new ToStringBuilder(this).
-            append("code").append(code).
-            append("updated").append(updated).
-            append("autoTriage").append(autoTriage).
+            append("code", code).
+            append("rank", rank).
+            append("autoTriage", autoTriage).
             toString();
+    }
+
+    public boolean equals(Object obj) {
+        if (! (obj instanceof TriageStatus))
+            return false;
+        if (this == obj)
+            return true;
+        TriageStatus ts = (TriageStatus) obj;
+        return new EqualsBuilder().
+            append(code, ts.code).
+            append(rank, ts.rank).
+            append(autoTriage, ts.autoTriage).
+            isEquals();
+    }
+
+    public static TriageStatus createInitialized() {
+        TriageStatus ts = new TriageStatus();
+        ts.setCode(new Integer(CODE_NOW));
+        // XXX there's gotta be a better way!
+        String time = (System.currentTimeMillis() / 1000) + ".00";
+        ts.setRank(new BigDecimal(time).negate());
+        ts.setAutoTriage(Boolean.TRUE);
+        return ts;
     }
 
     public static String label(Integer code) {

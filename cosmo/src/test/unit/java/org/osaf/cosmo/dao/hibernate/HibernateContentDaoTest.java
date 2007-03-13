@@ -1119,9 +1119,8 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
 
         ContentItem item = generateTestContent();
         item.setName("test");
-        item.getTriageStatus().setAutoTriage(true);
-        item.getTriageStatus().setCode(TriageStatus.CODE_DONE);
-        item.getTriageStatus().setUpdated(new Date());
+        TriageStatus initialTriageStatus = TriageStatus.createInitialized();
+        item.setTriageStatus(initialTriageStatus);
 
         ContentItem newItem = contentDao.createContent(root, item);
 
@@ -1132,14 +1131,14 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
 
         ContentItem queryItem = contentDao.findContentByUid(newItem.getUid());
         TriageStatus triageStatus = queryItem.getTriageStatus();
-        Assert.assertEquals(triageStatus.isAutoTriage(), Boolean.TRUE);
-        Assert.assertEquals(triageStatus.getCode(), new Integer(TriageStatus.CODE_DONE));
-        Assert.assertEquals(triageStatus.getUpdated(),item.getTriageStatus().getUpdated());
-        
-        Date timestamp = new Date();
+        System.out.println("initial: " + initialTriageStatus);
+        System.out.println("saved: " + triageStatus);
+        Assert.assertEquals(initialTriageStatus, triageStatus);
+
         triageStatus.setCode(TriageStatus.CODE_LATER);
         triageStatus.setAutoTriage(false);
-        triageStatus.setUpdated(timestamp);
+        BigDecimal rank = new BigDecimal("-98765.43");
+        triageStatus.setRank(rank);
         
         contentDao.updateContent(queryItem);
         clearSession();
@@ -1147,9 +1146,9 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         queryItem = contentDao.findContentByUid(newItem.getUid());
         triageStatus = queryItem.getTriageStatus();
         Assert.assertEquals(triageStatus.isAutoTriage(), Boolean.FALSE);
-        Assert.assertEquals(triageStatus.getCode(), new Integer(TriageStatus.CODE_LATER));
-        Assert.assertEquals(triageStatus.getUpdated(),timestamp);
-        
+        Assert.assertEquals(triageStatus.getCode(),
+                            new Integer(TriageStatus.CODE_LATER));
+        Assert.assertEquals(triageStatus.getRank(), rank);
     }
     
     private void verifyTicket(Ticket ticket1, Ticket ticket2) {

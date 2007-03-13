@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.eim.schema.contentitem;
 
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -47,15 +48,14 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         String displayName = "3 Inches of Blood";
         String triageStatusLabel = TriageStatus.LABEL_DONE;
         int triageStatusCode = TriageStatus.CODE_DONE;
-        long triageStatusMillis = System.currentTimeMillis();
-        Date triageStatusUpdated = new Date(triageStatusMillis);
+        BigDecimal triageStatusRank = new BigDecimal("-12345.67");
         Boolean autoTriage = Boolean.TRUE;
         String lastModifiedBy = "bcm@osafoundation.org";
         Date clientCreationDate = Calendar.getInstance().getTime();
 
         TriageStatus ts = new TriageStatus();
         ts.setCode(triageStatusCode);
-        ts.setUpdated(triageStatusUpdated);
+        ts.setRank(triageStatusRank);
         ts.setAutoTriage(autoTriage);
 
         ContentItem contentItem = new ContentItem();

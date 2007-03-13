@@ -15,11 +15,11 @@
  */
 package org.osaf.cosmo.eim.schema.util;
 
+import java.math.BigDecimal;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +33,7 @@ import org.osaf.cosmo.eim.schema.EimValidationException;
  * Triage status is formatted as such:
  * <p>
  * <pre>
- * <code> <unix timestamp> <bit>
+ * <code> <rank> <bit>
  * </pre>
  * <p>
  * @see TriageStatus
@@ -43,7 +43,7 @@ public class TriageStatusFormat extends Format {
         LogFactory.getLog(TriageStatusFormat.class);
 
     public static int CODE_FIELD = 1;
-    public static int UPDATED_FIELD = 2;
+    public static int RANK_FIELD = 2;
     public static int AUTOTRIAGE_FIELD = 3;
 
     private static String AUTOTRIAGE_ON = "1";
@@ -86,16 +86,15 @@ public class TriageStatusFormat extends Format {
 
         toAppendTo.append(" ");
 
-        Date updated = ts.getUpdated();
-        long millis = updated != null ?
-            updated.getTime() :
-            System.currentTimeMillis();
-        long seconds = millis / 1000;
+        BigDecimal rank = ts.getRank();
+        if (rank == null)
+            rank = BigDecimal.ZERO;
+        rank.setScale(2);
 
-        if (pos.getField() == UPDATED_FIELD)
+        if (pos.getField() == RANK_FIELD)
             begin = toAppendTo.length();
-        toAppendTo.append(seconds);
-        if (pos.getField() == UPDATED_FIELD)
+        toAppendTo.append(rank);
+        if (pos.getField() == RANK_FIELD)
             end = toAppendTo.length() - 1;
         
         toAppendTo.append(" ");
@@ -160,8 +159,10 @@ public class TriageStatusFormat extends Format {
 
         try {
             pos.setIndex(index);
-            long millis = Long.valueOf(chunks[1]) * 1000;
-            ts.setUpdated(new Date(millis));
+            BigDecimal rank = new BigDecimal(chunks[1]);
+            if (rank.scale() != 2)
+                throw new NumberFormatException("Invalid rank value " + chunks[1]);
+            ts.setRank(rank);
             index += chunks[1].length() + 1;
         } catch (NumberFormatException e) {
             parseException = new ParseException(e.getMessage(), 0);

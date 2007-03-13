@@ -693,15 +693,12 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
         calendarEventItem.
             setClientCreationDate(java.util.Calendar.getInstance().getTime());
         calendarEventItem.
-            setClientCreationDate(calendarEventItem.getClientCreationDate());
+            setClientModifiedDate(calendarEventItem.getClientCreationDate());
         calendarEventItem.setContentType(ICALENDAR_MEDIA_TYPE);
         calendarEventItem.setContentEncoding("UTF-8");
         calendarEventItem.
             setLastModifiedBy(getUser() != null ? getUser().getEmail() : "");
-        calendarEventItem.getTriageStatus().setCode(TriageStatus.CODE_NOW);
-        calendarEventItem.getTriageStatus().
-            setUpdated(new java.util.Date(System.currentTimeMillis()));
-        calendarEventItem.getTriageStatus().setAutoTriage(Boolean.TRUE);
+        calendarEventItem.setTriageStatus(TriageStatus.createInitialized());
         // content length and content data are handled internally by
         // setting the calendar on EventStamp
 
