@@ -59,12 +59,10 @@ public class SyncToken {
      */
     public boolean isValid(CollectionItem collection) {
         int collectionHashcode = collection.generateHash();
-        log.debug("token hash: " + hashcode);
-        log.debug("collection hash: " + collectionHashcode);
         boolean isValid = hashcode == collectionHashcode;
-        if (log.isDebugEnabled())
-            log.debug("token valid for collection " + collection.getUid() +
-                      "? " + isValid);
+//         if (log.isDebugEnabled())
+//             log.debug("token valid for collection " + collection.getUid() +
+//                       "? " + isValid);
         return isValid;
     }
 
@@ -76,12 +74,10 @@ public class SyncToken {
      */
     public boolean hasItemChanged(Item item) {
         long itemTimestamp = item.getModifiedDate().getTime();
-        log.debug("token timestamp: " + timestamp);
-        log.debug("item timestamp: " + itemTimestamp);
         boolean hasChanged = itemTimestamp > timestamp;
-        if (log.isDebugEnabled())
-            log.debug("item " + item.getUid() + " changed since " +
-                      item.getModifiedDate() + "? " + hasChanged);
+//         if (log.isDebugEnabled())
+//             log.debug("item " + item.getUid() + " changed since " +
+//                       item.getModifiedDate() + "? " + hasChanged);
         return hasChanged;
     }
 
@@ -94,13 +90,11 @@ public class SyncToken {
      */
     public boolean isTombstoneRecent(Tombstone tombstone) {
         long tombstoneTimestamp = tombstone.getTimestamp().getTime();
-        log.debug("token timestamp: " + timestamp);
-        log.debug("tombstone timestamp: " + tombstoneTimestamp);
         boolean hasChanged = tombstoneTimestamp > timestamp;
-        if (log.isDebugEnabled())
-            log.debug("tombstone " + tombstone.getItemUid() +
-                      " removed since " + tombstone.getTimestamp() + "? " +
-                      hasChanged);
+//         if (log.isDebugEnabled())
+//             log.debug("tombstone " + tombstone.getItemUid() +
+//                       " removed since " + tombstone.getTimestamp() + "? " +
+//                       hasChanged);
         return hasChanged;
     }
 
