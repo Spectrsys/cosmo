@@ -2,7 +2,7 @@
 
 <%--
 /*
- * Copyright 2005-2006 Open Source Applications Foundation
+ * Copyright 2005-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 </c:if>
 
 <div class="hd" style="margin-top: 12px;">
-  Properties
+  Attributes
 </div>
 
 <div style="margin-top:12px;">
@@ -42,16 +42,16 @@
         Value
       </td>
     </tr>
-    <c:forEach var="entry" items="${Item.attributes}">
+    <c:forEach var="attr" items="${Item.attributes}">
     <tr>
       <td class="smTableData" width="50%">
-        ${entry.key.namespace}
+        ${attr.key.namespace}
       </td>
       <td class="smTableData" width="50%">
-        ${entry.key.localName}
+        ${attr.key.localName}
       </td>
       <td class="smTableData" width="50%">
-        ${entry.value.value}
+        ${attr.value.value}
       </td>
     </tr>
     </c:forEach>

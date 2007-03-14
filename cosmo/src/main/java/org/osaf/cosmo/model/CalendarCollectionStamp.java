@@ -163,6 +163,17 @@ public class CalendarCollectionStamp extends Stamp implements
     }
 
     /**
+     * @return name of timezone if one is set
+     */
+    @Transient
+    public String getTimezoneName() {
+        if (timezone == null)
+            return null;
+        return timezone.getComponents().getComponent(Component.VTIMEZONE).
+            getProperties().getProperty(Property.TZID).getValue();
+    }
+
+    /**
      * Set timezone definition for calendar.
      * 
      * @param timezone
