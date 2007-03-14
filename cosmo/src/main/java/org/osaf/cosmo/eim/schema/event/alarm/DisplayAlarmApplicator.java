@@ -51,6 +51,7 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
     /** */
     public DisplayAlarmApplicator(Item item) {
         super(PREFIX_DISPLAY_ALARM, NS_DISPLAY_ALARM, item);
+        setStamp(BaseEventStamp.getStamp(item));
     }
     
     @Override

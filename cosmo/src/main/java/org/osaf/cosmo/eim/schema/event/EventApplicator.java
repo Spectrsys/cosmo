@@ -45,7 +45,7 @@ public class EventApplicator extends BaseStampApplicator
     /** */
     public EventApplicator(Item item) {
         super(PREFIX_EVENT, NS_EVENT, item);
-        setStamp(EventStamp.getStamp(item));
+        setStamp(BaseEventStamp.getStamp(item));
     }
 
     /**

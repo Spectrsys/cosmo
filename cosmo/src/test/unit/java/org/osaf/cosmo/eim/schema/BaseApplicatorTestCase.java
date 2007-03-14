@@ -24,7 +24,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.eim.DecimalField;
+import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
+import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.Item;
@@ -69,5 +71,17 @@ public class BaseApplicatorTestCase extends TestCase
         assertNotNull("attribute " + qname + " not found", attr);
         assertEquals("incorrect attribute value", field.getValue(),
                      attr.getValue());
+    }
+    
+    protected void addMissingTextField(String fieldName, EimRecord record) {
+        TextField tf = new TextField(fieldName, null);
+        tf.setMissing(true);
+        record.addField(tf);
+    }
+    
+    protected void addMissingIntegerField(String fieldName, EimRecord record) {
+        IntegerField intF = new IntegerField(fieldName, 0);
+        intF.setMissing(true);
+        record.addField(intF);
     }
 }

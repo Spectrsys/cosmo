@@ -98,9 +98,7 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
     private EimRecord makeTestMissingRecord() {
         EimRecord record = new EimRecord(PREFIX_ITEM, NS_ITEM);
 
-        TextField tf = new TextField(FIELD_TITLE, null);
-        tf.setMissing(true);
-        record.addField(tf);
+        addMissingTextField(FIELD_TITLE, record);
 
         TriageStatus ts = new TriageStatus();
         ts.setCode(TriageStatus.CODE_DONE);
