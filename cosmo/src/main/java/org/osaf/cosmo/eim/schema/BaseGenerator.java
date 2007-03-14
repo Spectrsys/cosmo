@@ -167,7 +167,10 @@ public abstract class BaseGenerator implements EimSchemaConstants {
             if(value1==null || value2==null)
                 return false;
             
-            return value1.equals(value2);
+            if(value1 instanceof Comparable)
+                return (((Comparable) value1).compareTo(value2)==0);
+            else
+                return value1.equals(value2);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("error copying attribute " + attribute);
         } catch (InvocationTargetException e) {
