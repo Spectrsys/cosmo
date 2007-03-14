@@ -24,12 +24,11 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.schema.BaseGeneratorTestCase;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
-import org.osaf.cosmo.eim.schema.event.alarm.DisplayAlarmGenerator;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.NoteItem;
 
 /**
- * Test Case for {@link DisplayAlarmGenerator}.
+ * Test Case for {@link EventGenerator}.
  */
 public class EventGeneratorTest extends BaseGeneratorTestCase
     implements EventConstants {

@@ -23,13 +23,12 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseApplicatorTestCase;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
-import org.osaf.cosmo.eim.schema.event.alarm.DisplayAlarmApplicator;
 import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.NoteItem;
 
 /**
- * Test Case for {@link DisplayAlarmApplicator}.
+ * Test Case for {@link EventApplicator}.
  */
 public class EventApplicatorTest extends BaseApplicatorTestCase
     implements EventConstants {
