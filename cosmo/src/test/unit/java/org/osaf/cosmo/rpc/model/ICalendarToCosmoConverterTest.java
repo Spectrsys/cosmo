@@ -368,7 +368,19 @@ public class ICalendarToCosmoConverterTest extends TestCase {
         assertEquals(LA_TZ, event.getStart().getTzId());
 
     }
-    
+
+    public void testConvertChandlerAnyTimeEventBug8217() throws Exception{
+        Event e = loadEventIcs("bug8217-weirdAnytime.ics", "12345");
+        assertTrue(e.isAnyTime());
+        
+        //let's try converting it, and then converting back
+        CosmoToICalendarConverter scoobyConverter = new CosmoToICalendarConverter();
+        Calendar c = scoobyConverter.createWrappedVEvent(e);
+        VEvent ve = getFirstEvent(c);
+        e = converter.createEvent("111",ve, c);
+        assertTrue(e.isAnyTime());
+    }
+
     protected Event loadEventIcs(String name, String id) throws Exception {
         Calendar c = testHelper.loadIcs(name);
         return converter.createEvent(id, getFirstEvent(c), c);

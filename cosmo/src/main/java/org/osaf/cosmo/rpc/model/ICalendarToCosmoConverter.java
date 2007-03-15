@@ -175,8 +175,9 @@ public class ICalendarToCosmoConverter {
        boolean startDateHasTime = startDate instanceof DateTime;
 
        // check for anytime
-       if (VALUE_TRUE.equals(getParameterValue(dtStart,
-               PARAM_X_OSAF_ANYTIME))) {
+       String anytime = getParameterValue(dtStart,
+               PARAM_X_OSAF_ANYTIME);
+       if(anytime != null && anytime.startsWith(VALUE_TRUE)) {
            return EventType.ANYTIME;
        }
 
