@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.eim.schema.event.alarm;
 
+import java.text.ParseException;
 import java.util.Iterator;
 
 import net.fortuna.ical4j.model.Dur;
@@ -31,7 +32,9 @@ import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.schema.BaseStampApplicator;
 import org.osaf.cosmo.eim.schema.EimFieldValidator;
 import org.osaf.cosmo.eim.schema.EimSchemaException;
+import org.osaf.cosmo.eim.schema.EimValidationException;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
+import org.osaf.cosmo.eim.schema.text.DurationFormat;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
@@ -110,8 +113,12 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
                 }
                 else {
                     String value = EimFieldValidator.validateText(field, MAXLEN_DURATION);
-                    Dur dur = EimValueConverter.toICalDur(value); 
-                    eventStamp.setDisplayAlarmDuration(dur);
+                    try {
+                        Dur dur = DurationFormat.getInstance().parse(value);
+                        eventStamp.setDisplayAlarmDuration(dur);
+                    } catch (ParseException e) {
+                        throw new EimValidationException("Illegal duration", e);
+                    }
                 }
             }
             else if(field.getName().equals(FIELD_REPEAT)) {

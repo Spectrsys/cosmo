@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.eim.schema.util;
+package org.osaf.cosmo.eim.schema.text;
 
 import java.math.BigDecimal;
 import java.text.FieldPosition;

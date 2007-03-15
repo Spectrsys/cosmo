@@ -23,6 +23,7 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseStampGenerator;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
+import org.osaf.cosmo.eim.schema.text.DurationFormat;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
@@ -80,11 +81,11 @@ public class EventGenerator extends BaseStampGenerator
             record.addField(new TextField(FIELD_DTSTART, value));
         }
          
-        if(isMissingAttribute("endDate")) {
-            record.addField(generateMissingField(new TextField(FIELD_DTEND, null)));
+        if(isMissingAttribute("duration")) {
+            record.addField(generateMissingField(new TextField(FIELD_DURATION, null)));
         } else {
-            value = EimValueConverter.fromICalDate(stamp.getEndDate());
-            record.addField(new TextField(FIELD_DTEND, value));
+            value = DurationFormat.getInstance().format(stamp.getDuration());
+            record.addField(new TextField(FIELD_DURATION, value));
         }
         
         if(isMissingAttribute("location")) {

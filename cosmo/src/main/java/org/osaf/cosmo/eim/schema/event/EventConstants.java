@@ -26,9 +26,9 @@ public interface EventConstants {
     /** */
     public static final int MAXLEN_DTSTART = 256;
     /** */
-    public static final String FIELD_DTEND = "dtend";
+    public static final String FIELD_DURATION = "duration";
     /** */
-    public static final int MAXLEN_DTEND = 256;
+    public static final int MAXLEN_DURATION = 40;
     /** */
     public static final String FIELD_LOCATION = "location";
     /** */

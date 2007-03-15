@@ -54,6 +54,7 @@ import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Trigger;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.util.Dates;
 
 import org.osaf.cosmo.CosmoConstants;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
@@ -203,7 +204,7 @@ public abstract class BaseEventStamp extends Stamp
     /**
      * Returns the end date of the event as calculated from the
      * iCalendar DTEND property value or the the iCalendar DTSTART +
-     * DURATION (never null).
+     * DURATION.
      */
     @Transient
     public Date getEndDate() {
@@ -247,6 +248,48 @@ public abstract class BaseEventStamp extends Stamp
             prop.getParameters().remove(value);
         value = date instanceof DateTime ? Value.DATE_TIME : Value.DATE;
         prop.getParameters().add(value);
+        setDirty(true);
+    }
+
+    /**
+     * Returns the duration of the event as calculated from the
+     * iCalendar DURATION property value or the the iCalendar DTEND -
+     * DTSTART.
+     */
+    @Transient
+    public Dur getDuration() {
+        Duration duration = (Duration)
+            getEvent().getProperties().getProperty(Property.DURATION);
+        if (duration != null)
+            return duration.getDuration();
+        DtStart dtstart = getEvent().getStartDate();
+        if (dtstart == null)
+            return null;
+        DtEnd dtend = getEvent().getEndDate();
+        if (dtend == null)
+            return null;
+        return new Duration(dtstart.getDate(), dtend.getDate()).getDuration();
+    }
+
+    /** 
+     * Sets the iCalendar DURATION property of the event.
+     *
+     * @param dur a <code>Dur</code>
+     */
+    @Transient
+    public void setDuration(Dur dur) {
+        Duration duration = (Duration)
+            getEvent().getProperties().getProperty(Property.DURATION);
+        if (duration != null)
+            duration.setDuration(dur);
+        else {
+            // remove the dtend if there was one
+            DtEnd dtend = getEvent().getEndDate();
+            if (dtend != null)
+                getEvent().getProperties().remove(dtend);
+            duration = new Duration(dur);
+            getEvent().getProperties().add(duration);
+        }
         setDirty(true);
     }
 

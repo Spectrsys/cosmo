@@ -15,8 +15,11 @@
  */
 package org.osaf.cosmo.eim.schema.event;
 
+import java.text.ParseException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.schema.BaseStampApplicator;
@@ -25,6 +28,7 @@ import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValidationException;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
 import org.osaf.cosmo.eim.schema.ICalDate;
+import org.osaf.cosmo.eim.schema.text.DurationFormat;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
@@ -97,9 +101,14 @@ public class EventApplicator extends BaseStampApplicator
                 event.setStartDate(icd.getDate());
                 event.setAnyTime(icd.isAnyTime());
             }
-        } else if (field.getName().equals(FIELD_DTEND)) {
-            String value = EimFieldValidator.validateText(field, MAXLEN_DTEND);
-            event.setEndDate(EimValueConverter.toICalDate(value).getDate());
+        } else if (field.getName().equals(FIELD_DURATION)) {
+            String value =
+                EimFieldValidator.validateText(field, MAXLEN_DURATION);
+            try {
+                event.setDuration(DurationFormat.getInstance().parse(value));
+            } catch (ParseException e) {
+                throw new EimValidationException("Illegal duration", e);
+            }
         } else if (field.getName().equals(FIELD_LOCATION)) {
             if(field.isMissing()) {
                 handleMissingAttribute("location");

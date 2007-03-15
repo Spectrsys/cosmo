@@ -67,8 +67,8 @@ public class EventGeneratorTest extends BaseGeneratorTestCase
         EimRecordField dtStartField = fields.get(0);
         checkTextField(dtStartField, FIELD_DTSTART, ";VALUE=DATE-TIME:20070212T074500");
 
-        EimRecordField dtEndField = fields.get(1);
-        checkTextField(dtEndField, FIELD_DTEND, ";VALUE=DATE-TIME:20070212T084500");
+        EimRecordField durationField = fields.get(1);
+        checkTextField(durationField, FIELD_DURATION, "PT1H");
 
         EimRecordField locationField = fields.get(2);
         checkTextField(locationField, FIELD_LOCATION, "here");
