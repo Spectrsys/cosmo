@@ -139,26 +139,7 @@ cosmo.view.cal = new function () {
                     ret = (diff >= bound || diff <= (bound * -1)) ? true : false;
                     return ret;
                 }
-                // There ought to be a better way to do this -- figure out if
-                // this event is a recurrence mod by poking through the 
-                // modifications array and seeing if its start date matches
-                // any of the existing mods' instanceDates
-                function isRecurrenceMod() {
-                    var ret = false;
-                    var mods = recur.modifications;
-                    var evDt = ev.data.instanceDate.getTime();
-                    if (mods && mods.length) {
-                        for (var i = 0; i < mods.length; i++) {
-                            var modDt = mods[i].instanceDate.getTime();
-                            if (modDt == evDt) {
-                                ret = true;
-                                break;
-                            }
-                        }
-                    }
-                    return ret;
-                }
-                
+            
                 // Change to master event in recurrence
                 if (ev.data.masterEvent) {
                     opts.masterEvent = true;
@@ -168,7 +149,7 @@ cosmo.view.cal = new function () {
                     opts.instanceOnly = isOutOfIntervalRange();
                 }
                 
-                opts.recurrenceMod = isRecurrenceMod();
+                opts.recurrenceMod = recur.getModification(ev.data.instanceDate) != null;
 
                 // Show the confirmation dialog
                 cosmo.app.showDialog(cosmo.view.cal.dialog.getProps('saveRecurConfirm', opts));
@@ -763,6 +744,7 @@ cosmo.view.cal = new function () {
                     var dates = rrule.exceptionDates;
                     var d = ScoobyDate.clone(ev.data.instanceDate);
                     dates.push(d);
+                    rrule.removeModification(d);
 
                     f = function () { doSaveRecurrenceRule(ev, rrule, { 'saveAction': 'remove',
                         'saveType': 'instanceOnlyThisEvent' }) };

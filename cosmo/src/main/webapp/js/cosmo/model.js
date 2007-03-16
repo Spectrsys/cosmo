@@ -39,7 +39,7 @@ cosmo.model.CalEventData = function (id, title, description, start, end, allDay,
 CalEventData = cosmo.model.CalEventData;
 
 CalEventData.prototype = {
-    toString: genericToString
+    toString: genericToString,
 }
 
 CalEventData.clone = function(data) {
@@ -103,7 +103,34 @@ cosmo.model.RecurrenceRule = function(){
 }
 RecurrenceRule = cosmo.model.RecurrenceRule;
 RecurrenceRule.prototype = {
-    toString: genericToString
+    toString: genericToString,
+    
+    getModification: function(/*CosmoDate*/ instanceDate, /*boolean?*/ returnIndex){
+        //summary: returns the modification for the given instance date
+        //desciption: if there is a modification whose instanceDate is UTC equivalent
+        //            to the given date, it is returned. If no such modification exists null is returned.
+        //instanceDate: the instanceDate of the desired modification
+        //returnIndex: if true, returns the index of the found modification, or -1 if not found.
+        
+        if (!this.modifications){
+            return returnIndex ? -1 : null;
+        }
+        
+        for (var x = 0; x < this.modifications.length;x++){
+            var modification = this.modifications[x];
+            if (modification.instanceDate.getTime() == instanceDate.getTime()){
+                return returnIndex ? x : modification;
+            }
+        }
+        return returnIndex ? -1 : null;
+    },
+    
+    removeModification: function(/*CosmoDate*/ instanceDate){
+        var i = this.getModification(instanceDate, true);
+        if (i > -1){
+            this.modifications.splice(i,1);
+        }
+    }
 }
 
 RecurrenceRuleFrequency = {
