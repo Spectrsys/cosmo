@@ -362,7 +362,7 @@
 
   <resource-env-ref>
     <resource-env-ref-name>jdbc/cosmo</resource-env-ref-name>
-    <resource-env-ref-type>javax.sql.DataSouurce</resource-env-ref-type>
+    <resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
   </resource-env-ref>
   <resource-env-ref>
     <resource-env-ref-name>mail/cosmo</resource-env-ref-name>
