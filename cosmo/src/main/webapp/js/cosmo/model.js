@@ -18,6 +18,7 @@ dojo.provide("cosmo.model");
 dojo.require("cosmo.util.debug");
 dojo.require("cosmo.util.hash");
 
+
 cosmo.model.CalEventData = function (id, title, description, start, end, allDay,
     pointInTime, anyTime, recurrenceRule, status, masterEvent, instance, instanceDate, loc) {
 
@@ -39,7 +40,7 @@ cosmo.model.CalEventData = function (id, title, description, start, end, allDay,
 CalEventData = cosmo.model.CalEventData;
 
 CalEventData.prototype = {
-    toString: genericToString,
+    toString: genericToString
 }
 
 CalEventData.clone = function(data) {
@@ -101,6 +102,7 @@ cosmo.model.RecurrenceRule = function(){
      */
     this.modifications = [];
 }
+
 RecurrenceRule = cosmo.model.RecurrenceRule;
 RecurrenceRule.prototype = {
     toString: genericToString,
