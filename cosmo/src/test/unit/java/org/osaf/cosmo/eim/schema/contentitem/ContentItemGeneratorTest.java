@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.schema.BaseGeneratorTestCase;
-import org.osaf.cosmo.eim.schema.util.TriageStatusFormat;
+import org.osaf.cosmo.eim.schema.text.TriageStatusFormat;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.QName;
