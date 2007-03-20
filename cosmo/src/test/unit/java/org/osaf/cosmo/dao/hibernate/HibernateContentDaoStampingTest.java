@@ -27,7 +27,6 @@ import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.MessageStamp;
-import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.Stamp;
@@ -52,7 +51,7 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         item.setIcalUid("icaluid");
         item.setBody("this is a body");
         
-        MessageStamp message = new MessageStamp();
+        MessageStamp message = new MessageStamp(item);
         message.setBcc("bcc");
         message.setTo("to");
         message.setSubject("subject");
@@ -103,7 +102,7 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         ((NoteItem) item).setBody("this is a body");
         ((NoteItem) item).setIcalUid("icaluid");
         
-        MessageStamp message = new MessageStamp();
+        MessageStamp message = new MessageStamp(item);
         message.setBcc("bcc");
         message.setTo("to");
         message.setSubject("subject");

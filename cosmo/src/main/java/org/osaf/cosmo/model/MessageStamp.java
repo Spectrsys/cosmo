@@ -15,16 +15,12 @@
  */
 package org.osaf.cosmo.model;
 
-import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SecondaryTable;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
 
 
 /**
@@ -32,8 +28,6 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @DiscriminatorValue("message")
-@SecondaryTable(name="message_stamp", pkJoinColumns={
-        @PrimaryKeyJoinColumn(name="stampid", referencedColumnName="id")})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MessageStamp extends Stamp implements
         java.io.Serializable {
@@ -42,13 +36,25 @@ public class MessageStamp extends Stamp implements
      * 
      */
     private static final long serialVersionUID = -6100568628972081120L;
-    private String subject = null;
-    private String to = null;
-    private String cc = null;
-    private String bcc = null;
+    
+    public static final QName ATTR_MESSAGE_SUBJECT = new QName(
+            MessageStamp.class, "subject");
+    
+    public static final QName ATTR_MESSAGE_TO = new QName(
+            MessageStamp.class, "to");
+    
+    public static final QName ATTR_MESSAGE_CC = new QName(
+            MessageStamp.class, "cc");
+    
+    public static final QName ATTR_MESSAGE_BCC = new QName(
+            MessageStamp.class, "bcc");
     
     /** default constructor */
     public MessageStamp() {
+    }
+    
+    public MessageStamp(Item item) {
+        setItem(item);
     }
     
     @Transient
@@ -57,44 +63,100 @@ public class MessageStamp extends Stamp implements
     }
     
     // Property accessors
-    @Column(table="message_stamp", name="msgbcc", length=262144)
-    @Type(type="text")
+    @Transient
     public String getBcc() {
-        return bcc;
+        // bcc stored as TextAttribute on Item
+        TextAttribute attr = (TextAttribute) getItem().getAttribute(ATTR_MESSAGE_BCC);
+        if(attr!=null)
+            return attr.getValue();
+        else
+            return null;
     }
 
     public void setBcc(String bcc) {
-        this.bcc = bcc;
+        //bcc stored as TextAttribute on Item
+        TextAttribute attr = (TextAttribute) getItem().getAttribute(ATTR_MESSAGE_BCC);
+        if(attr==null && bcc!=null) {
+            attr = new TextAttribute(ATTR_MESSAGE_BCC,bcc);
+            getItem().addAttribute(attr);
+            return;
+        }
+        if(bcc==null)
+            getItem().removeAttribute(ATTR_MESSAGE_BCC);
+        else
+            attr.setValue(bcc);
     }
 
-    @Column(table="message_stamp", name="msgcc", length=262144)
-    @Type(type="text")
+    @Transient
     public String getCc() {
-        return cc;
+        // cc stored as TextAttribute on Item
+        TextAttribute attr = (TextAttribute) getItem().getAttribute(ATTR_MESSAGE_CC);
+        if(attr!=null)
+            return attr.getValue();
+        else
+            return null;
     }
 
     public void setCc(String cc) {
-        this.cc = cc;
+        // cc stored as TextAttribute on Item
+        TextAttribute attr = (TextAttribute) getItem().getAttribute(ATTR_MESSAGE_CC);
+        if(attr==null && cc!=null) {
+            attr = new TextAttribute(ATTR_MESSAGE_CC,cc);
+            getItem().addAttribute(attr);
+            return;
+        }
+        if(cc==null)
+            getItem().removeAttribute(ATTR_MESSAGE_CC);
+        else
+            attr.setValue(cc);
     }
 
-    @Column(table="message_stamp", name="msgsubject", length=262144)
-    @Type(type="text")
+    @Transient
     public String getSubject() {
-        return subject;
+        // subject stored as TextAttribute on Item
+        TextAttribute attr = (TextAttribute) getItem().getAttribute(ATTR_MESSAGE_SUBJECT);
+        if(attr!=null)
+            return attr.getValue();
+        else
+            return null;
     }
 
     public void setSubject(String subject) {
-        this.subject = subject;
+        // subject stored as TextAttribute on Item
+        TextAttribute attr = (TextAttribute) getItem().getAttribute(ATTR_MESSAGE_SUBJECT);
+        if(attr==null && subject!=null) {
+            attr = new TextAttribute(ATTR_MESSAGE_SUBJECT,subject);
+            getItem().addAttribute(attr);
+            return;
+        }
+        if(subject==null)
+            getItem().removeAttribute(ATTR_MESSAGE_SUBJECT);
+        else
+            attr.setValue(subject);
     }
 
-    @Column(table="message_stamp", name="msgto", length=262144)
-    @Type(type="text")
+    @Transient
     public String getTo() {
-        return to;
+        // to stored as TextAttribute on Item
+        TextAttribute attr = (TextAttribute) getItem().getAttribute(ATTR_MESSAGE_TO);
+        if(attr!=null)
+            return attr.getValue();
+        else
+            return null;
     }
 
     public void setTo(String to) {
-        this.to = to;
+        // to stored as TextAttribute on Item
+        TextAttribute attr = (TextAttribute) getItem().getAttribute(ATTR_MESSAGE_TO);
+        if(attr==null && to!=null) {
+            attr = new TextAttribute(ATTR_MESSAGE_TO,to);
+            getItem().addAttribute(attr);
+            return;
+        }
+        if(to==null)
+            getItem().removeAttribute(ATTR_MESSAGE_TO);
+        else
+            attr.setValue(to);
     }
 
     /**
@@ -120,10 +182,10 @@ public class MessageStamp extends Stamp implements
     
     public Stamp copy(Item item) {
         MessageStamp stamp = new MessageStamp();
-        stamp.subject = subject;
-        stamp.to = to;
-        stamp.bcc = bcc;
-        stamp.cc = cc;
+        stamp.setSubject(getSubject());
+        stamp.setTo(getTo());
+        stamp.setBcc(getBcc());
+        stamp.setCc(getCc());
         return stamp;
     }
 }
