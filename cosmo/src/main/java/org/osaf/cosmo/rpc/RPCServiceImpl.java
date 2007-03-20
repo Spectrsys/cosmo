@@ -699,6 +699,9 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
         calendarEventItem.
             setLastModifiedBy(getUser() != null ? getUser().getEmail() : "");
         calendarEventItem.setTriageStatus(TriageStatus.createInitialized());
+        calendarEventItem.setLastModification(ContentItem.Action.CREATED);
+        calendarEventItem.setSent(Boolean.FALSE);
+        calendarEventItem.setNeedsReply(Boolean.FALSE);
         // content length and content data are handled internally by
         // setting the calendar on EventStamp
 
@@ -914,6 +917,7 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
             User user = cosmoSecurityManager.getSecurityContext().getUser();
             calendarEventItem.
                 setLastModifiedBy(user != null ? user.getEmail() : "");
+            calendarEventItem.setLastModification(ContentItem.Action.EDITED);
 
             EventStamp eventStamp = EventStamp.getStamp(calendarEventItem);
             net.fortuna.ical4j.model.Calendar calendar = eventStamp
@@ -939,6 +943,7 @@ public class RPCServiceImpl implements RPCService, ICalendarConstants {
 
         User user = cosmoSecurityManager.getSecurityContext().getUser();
         calItem.setLastModifiedBy(user != null ? user.getEmail() : "");
+        calItem.setLastModification(ContentItem.Action.EDITED);
 
         EventStamp eventStamp = EventStamp.getStamp(calItem);
         net.fortuna.ical4j.model.Calendar calendar = eventStamp.getCalendar();

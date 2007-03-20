@@ -79,6 +79,7 @@ public class ModifiedByApplicator extends BaseItemApplicator
 
         Date timestamp = null;
         String userid = null;
+        Integer action = null;
 
         for (EimRecordField field : record.getKey().getFields()) {
             if (field.getName().equals(FIELD_UUID))
@@ -87,14 +88,21 @@ public class ModifiedByApplicator extends BaseItemApplicator
                 timestamp = EimFieldValidator.validateTimeStamp(field);
             else if (field.getName().equals(FIELD_USERID))
                 userid = EimFieldValidator.validateText(field, MAXLEN_USERID);
+            else if (field.getName().equals(FIELD_ACTION)) {
+                action = EimFieldValidator.validateInteger(field);
+                if (! ContentItem.Action.validate(action))
+                    throw new EimValidationException("invalid last modification action " + action);
+            }
             else
                 throw new EimSchemaException("Unknown key field " + field.getName());
         }
 
         if (timestamp == null)
-            throw new EimSchemaException("No timestamp provided");
+            throw new EimValidationException("Timestamp required");
         if (userid == null)
-            throw new EimSchemaException("no userid provided");
+            throw new EimValidationException("Userid required");
+        if (action == null)
+            throw new EimValidationException("Action required");
 
         ContentItem contentItem = (ContentItem) getItem();
         //        log.debug("checking client timestamp " + timestamp + " against item client modified date " + contentItem.getClientModifiedDate());
@@ -104,6 +112,7 @@ public class ModifiedByApplicator extends BaseItemApplicator
             //            log.debug("updating clientModifiedDate with " + timestamp);
             contentItem.setLastModifiedBy(userid);
             contentItem.setClientModifiedDate(timestamp);
+            contentItem.setLastModification(action);
         }
     }
 

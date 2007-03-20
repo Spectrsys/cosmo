@@ -10,7 +10,8 @@ eimModifiedByRecord =
    element modby:record {
       (modUuid
        & modUserid?
-       & modTime)
+       & modTimestamp?
+       & modAction?)
    }
 
 modUuid =
@@ -23,7 +24,18 @@ modUserid =
       eimTextFieldContent
    }
 
-modTime =
+# digits=12, decimal_places=2, negative signed
+modTimestamp =
    element modby:timestamp {
       eimDecimalFieldContent
+   }
+
+# 100: edited
+# 200: queued
+# 300: sent
+# 400: updated
+# 500: created
+modAction =
+   element modby:action {
+      eimIntegerFieldContent
    }

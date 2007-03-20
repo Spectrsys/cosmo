@@ -44,6 +44,21 @@ public class EimFieldValidator implements EimSchemaConstants {
     private EimFieldValidator() {}
 
     /**
+     * Validates and returns a boolean from an integer field value.
+     *
+     * @throws EimValidationException if the value is invalid
+     */
+    public static Boolean validateBoolean(EimRecordField field)
+        throws EimValidationException {
+        Integer value = validateInteger(field);
+        if (value.intValue() == 0)
+            return Boolean.FALSE;
+        if (value.intValue() == 1)
+            return Boolean.TRUE;
+        throw new EimValidationException("Field " + field.getName() + " contains an invalid boolean value " + value);
+    }
+
+    /**
      * Validates and returns a clob field value.
      *
      * @throws EimValidationException if the value is invalid

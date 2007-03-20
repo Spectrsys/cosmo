@@ -30,5 +30,9 @@ public interface ContentItemConstants {
     /** */
     public static final int MAXLEN_TRIAGE = 256;
     /** */
+    public static final String FIELD_HAS_BEEN_SENT = "hasBeenSent";
+    /** */
+    public static final String FIELD_NEEDS_REPLY = "needsReply";
+    /** */
     public static final String FIELD_CREATED_ON = "createdOn";
 }

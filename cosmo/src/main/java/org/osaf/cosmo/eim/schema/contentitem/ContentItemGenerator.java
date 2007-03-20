@@ -20,10 +20,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.EimRecord;
+import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseItemGenerator;
 import org.osaf.cosmo.eim.schema.text.TriageStatusFormat;
@@ -68,6 +71,12 @@ public class ContentItemGenerator extends BaseItemGenerator
         String ts = TriageStatusFormat.getInstance().
             format(contentItem.getTriageStatus());
         record.addField(new TextField(FIELD_TRIAGE, ts));
+
+        boolean sent = BooleanUtils.isTrue(contentItem.getSent());
+        record.addField(new IntegerField(FIELD_HAS_BEEN_SENT, sent));
+
+        boolean needsReply = BooleanUtils.isTrue(contentItem.getNeedsReply());
+        record.addField(new IntegerField(FIELD_NEEDS_REPLY, needsReply));
 
         Date d = contentItem.getClientCreationDate();
         BigDecimal createdOn = d != null ?

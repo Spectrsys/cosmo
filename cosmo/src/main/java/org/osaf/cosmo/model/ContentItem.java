@@ -56,7 +56,10 @@ public class ContentItem extends Item {
     private String contentLanguage = null;
     private String contentEncoding = null;
     private String lastModifiedBy = null;
+    private Integer lastModification = null;
     private TriageStatus triageStatus = new TriageStatus();
+    private Boolean sent = null;
+    private Boolean needsReply = null;
     private Long contentLength = null;
     private ContentData contentData = null;
     
@@ -176,6 +179,15 @@ public class ContentItem extends Item {
         this.lastModifiedBy = lastModifiedBy;
     }
 
+    @Column(name = "lastmodification")
+    public Integer getLastModification() {
+        return lastModification;
+    }
+
+    public void setLastModification(Integer lastModification) {
+        this.lastModification = lastModification;
+    }
+
     @Embedded
     public TriageStatus getTriageStatus() {
         return triageStatus;
@@ -183,6 +195,24 @@ public class ContentItem extends Item {
   
     public void setTriageStatus(TriageStatus ts) {
         triageStatus = ts;
+    }
+
+    @Column(name = "sent")
+    public Boolean getSent() {
+        return sent;
+    }
+
+    public void setSent(Boolean sent) {
+        this.sent = sent;
+    }
+
+    @Column(name = "needsreply")
+    public Boolean getNeedsReply() {
+        return needsReply;
+    }
+
+    public void setNeedsReply(Boolean needsReply) {
+        this.needsReply = needsReply;
     }
         
     public Item copy() {
@@ -210,6 +240,11 @@ public class ContentItem extends Item {
             contentItem.setContentLanguage(getContentLanguage());
             contentItem.setContentType(getContentType());
             contentItem.setContentLength(getContentLength());
+            contentItem.setLastModifiedBy(getLastModifiedBy());
+            contentItem.setLastModification(getLastModification());
+            contentItem.setTriageStatus(getTriageStatus());
+            contentItem.setSent(getSent());
+            contentItem.setNeedsReply(getNeedsReply());
         } catch (IOException e) {
             throw new RuntimeException("Error copying content");
         }
@@ -224,7 +259,7 @@ public class ContentItem extends Item {
                 getContentEncoding()).append("contentLanguage",
                 getContentLanguage()).toString();
     }
-    
+
     // For hibernate use only
     @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="contentdataid")
@@ -236,5 +271,22 @@ public class ContentItem extends Item {
     // For hibernate use only
     private void setContentData(ContentData contentFile) {
         this.contentData = contentFile;
+    }
+
+    public static class Action {
+
+        public static final int EDITED = 100;
+        public static final int QUEUED = 200;
+        public static final int SENT = 300;
+        public static final int UPDATED = 400;
+        public static final int CREATED = 500;
+
+        public static boolean validate(Integer action) {
+            return (action.intValue() == EDITED ||
+                    action.intValue() == QUEUED ||
+                    action.intValue() == SENT ||
+                    action.intValue() == UPDATED ||
+                    action.intValue() == CREATED);
+        }
     }
 }

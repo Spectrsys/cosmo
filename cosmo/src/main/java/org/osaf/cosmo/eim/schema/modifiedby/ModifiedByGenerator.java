@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.DecimalField;
+import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseItemGenerator;
 import org.osaf.cosmo.model.ContentItem;
@@ -70,6 +71,9 @@ public class ModifiedByGenerator extends BaseItemGenerator
         record.addKeyField(new DecimalField(FIELD_TIMESTAMP, 
                                             new BigDecimal(timestamp),
                                             DIGITS_TIMESTAMP, DEC_TIMESTAMP));
+
+        record.addKeyField(new IntegerField(FIELD_ACTION,
+                                            contentItem.getLastModification()));
 
         records.add(record);
 

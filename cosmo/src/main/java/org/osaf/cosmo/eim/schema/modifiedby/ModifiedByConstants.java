@@ -25,4 +25,6 @@ public interface ModifiedByConstants {
     public static final String FIELD_USERID = "userid";
     /** */
     public static final int MAXLEN_USERID = 256;
+    /** */
+    public static final String FIELD_ACTION = "action";
 }

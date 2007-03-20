@@ -12,6 +12,8 @@ eimItemRecord =
        & itemTitle?
        & itemTriage?
        & itemCreatedOn?
+       & itemHasBeenSent?
+       & itemNeedsReply?
        & anyItemField*)
    }
 
@@ -30,9 +32,22 @@ itemTriage =
       eimTextFieldContent
    }
 
+# digits=20, decimal_places=0
 itemCreatedOn =
    element item:createdOn {
       eimDecimalFieldContent
+   }
+
+# either 1 or 0
+itemHasBeenSent =
+   element item:hasBeenSent {
+      eimIntegerFieldContent
+   }
+
+# either 1 or 0
+itemNeedsReply =
+   element item:needsReply {
+      eimIntegerFieldContent
    }
 
 anyItemField =

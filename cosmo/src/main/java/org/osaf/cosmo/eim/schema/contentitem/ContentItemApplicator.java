@@ -92,6 +92,20 @@ public class ContentItemApplicator extends BaseItemApplicator
                     throw new EimValidationException("Illegal triage status", e);
                 }
             }
+        } else if (field.getName().equals(FIELD_HAS_BEEN_SENT)) {
+            if (field.isMissing())
+                handleMissingAttribute("sent");
+            else {
+                Boolean value = EimFieldValidator.validateBoolean(field);
+                contentItem.setSent(value);
+            }
+        } else if (field.getName().equals(FIELD_NEEDS_REPLY)) {
+            if (field.isMissing())
+                handleMissingAttribute("needsReply");
+            else {
+                Boolean value = EimFieldValidator.validateBoolean(field);
+                contentItem.setNeedsReply(value);
+            }
         } else if (field.getName().equals(FIELD_CREATED_ON)) {
             if(field.isMissing()) {
                 handleMissingAttribute("clientCreationDate");
