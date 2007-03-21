@@ -31,6 +31,7 @@ import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VToDo;
 import net.fortuna.ical4j.model.parameter.Related;
+import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.Duration;
 import net.fortuna.ical4j.model.property.Repeat;
 import net.fortuna.ical4j.model.property.Trigger;
@@ -178,17 +179,17 @@ public class Instance {
         Parameter related = propT.getParameters().getParameter(
                 Parameter.RELATED);
         if (related != null)
-            relativeToStart = Related.VALUE_START.equals(related.getValue());
+            relativeToStart = Related.START.equals(related);
 
         // Find the first trigger for the alarm
         Date triggerStart = null;
         if (propT.getDateTime() != null) {
             triggerStart = copyNormalisedDate(propT.getDateTime());
         } else if (propT.getDuration() != null) {
-            triggerStart = copyNormalisedDate(Dates.getInstance(propT
-                    .getDuration().getTime(
-                            relativeToStart ? getStart() : getEnd()),
-                    relativeToStart ? getStart() : getEnd()));
+            Date d = relativeToStart ? getStart() : getEnd();
+            Value v = d instanceof DateTime ? Value.DATE_TIME : Value.DATE;
+            java.util.Date dt = propT.getDuration().getTime(d);
+            triggerStart = copyNormalisedDate(Dates.getInstance(dt, v));
         }
 
         result.add(triggerStart);
@@ -199,8 +200,10 @@ public class Instance {
             Dur duration = propD.getDuration();
 
             for (int i = 0; i < repeats; i++) {
-                triggerStart = copyNormalisedDate(Dates.getInstance(duration
-                        .getTime(triggerStart), triggerStart));
+                Value v = triggerStart instanceof DateTime ?
+                    Value.DATE_TIME : Value.DATE;
+                java.util.Date dt = duration.getTime(triggerStart);
+                triggerStart = copyNormalisedDate(Dates.getInstance(dt, v));
                 result.add(triggerStart);
             }
         }

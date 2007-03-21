@@ -139,7 +139,11 @@ public class EventExceptionStamp extends BaseEventStamp implements
         EventExceptionStamp stamp = new EventExceptionStamp(item);
         
         // Need to copy Calendar
-        stamp.setExceptionCalendar(CalendarUtils.copyCalendar(calendar));
+        try {
+            stamp.setExceptionCalendar(new Calendar(calendar));
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot copy calendar", e);
+        }
         
         return stamp;
     }

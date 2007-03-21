@@ -934,7 +934,12 @@ public class StandardContentService implements ContentService {
         HashMap<Date, VEvent> exceptions = new HashMap<Date, VEvent>();
         
         // Clone Calendar as it will be the basis for the master event's calendar
-        Calendar masterCalendar = CalendarUtils.copyCalendar(calendar);
+        Calendar masterCalendar = null;
+        try {
+            masterCalendar = new Calendar(calendar);
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot copy calendar", e);
+        }
         
         ComponentList vevents = masterCalendar.getComponents().getComponents(
                 Component.VEVENT);
@@ -943,8 +948,8 @@ public class StandardContentService implements ContentService {
         // get list of exceptions (VEVENT with RECURRENCEID)
         for (Iterator<VEvent> i = vevents.iterator(); i.hasNext();) {
             VEvent event = i.next();
-            if (event.getReccurrenceId() != null)
-                exceptions.put(event.getReccurrenceId().getDate(), event);
+            if (event.getRecurrenceId() != null)
+                exceptions.put(event.getRecurrenceId().getDate(), event);
         }
         
         // Remove all exceptions from master calendar as these
@@ -996,7 +1001,7 @@ public class StandardContentService implements ContentService {
     }
 
     private void syncException(VEvent event, NoteItem masterNote) {
-        NoteItem mod = getModification(masterNote, event.getReccurrenceId()
+        NoteItem mod = getModification(masterNote, event.getRecurrenceId()
                 .getDate());
 
         if (mod == null) {
@@ -1026,10 +1031,10 @@ public class StandardContentService implements ContentService {
         exceptionStamp.setExceptionEvent(event);
         noteMod.addStamp(exceptionStamp);
 
-        noteMod.setUid(masterNote.getUid() + ":" + event.getReccurrenceId().getValue());
+        noteMod.setUid(masterNote.getUid() + ":" + event.getRecurrenceId().getValue());
         noteMod.setOwner(masterNote.getOwner());
         noteMod.setName(event.getUid().getValue() + ":"
-                + event.getReccurrenceId().getValue());
+                + event.getRecurrenceId().getValue());
         noteMod.setDisplayName(exceptionStamp.getDescription());
         noteMod.setBody(exceptionStamp.getSummary());
         noteMod.setIcalUid(masterNote.getIcalUid());

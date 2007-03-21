@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.calendar.data;
 
 import java.io.FileInputStream;
 import java.io.StringReader;
@@ -30,12 +30,10 @@ import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
-import org.osaf.cosmo.dav.caldav.report.CaldavOutputFilter;
-
 /**
  * Test limit-recurring-events output filter
  */
-public class CalendarLimitRecurrenceSetTest extends TestCase {
+public class LimitRecurrenceSetTest extends TestCase {
     protected String baseDir = "src/test/unit/resources/testdata/";
     
     public void testLimitRecurrenceSet() throws Exception {
@@ -47,7 +45,7 @@ public class CalendarLimitRecurrenceSetTest extends TestCase {
         
         VTimeZone vtz = (VTimeZone) calendar.getComponents().getComponent("VTIMEZONE");
         TimeZone tz = new TimeZone(vtz);
-        CaldavOutputFilter filter = new CaldavOutputFilter("test");
+        OutputFilter filter = new OutputFilter("test");
         DateTime start = new DateTime("20060104T010000", tz);
         DateTime end = new DateTime("20060106T010000", tz);
         start.setUtc(true);
@@ -58,7 +56,9 @@ public class CalendarLimitRecurrenceSetTest extends TestCase {
         filter.setAllSubComponents();
         filter.setAllProperties();
         
-        StringReader sr = new StringReader(calendar.toString(filter));
+        StringBuffer buffer = new StringBuffer();
+        filter.filter(calendar, buffer);
+        StringReader sr = new StringReader(buffer.toString());
         
         Calendar filterCal = cb.build(sr);
         
@@ -82,7 +82,7 @@ public class CalendarLimitRecurrenceSetTest extends TestCase {
         
         Assert.assertEquals(3, calendar.getComponents().getComponents("VEVENT").size());
         
-        CaldavOutputFilter filter = new CaldavOutputFilter("test");
+        OutputFilter filter = new OutputFilter("test");
         DateTime start = new DateTime("20060102T170000");
         DateTime end = new DateTime("20060104T170000");
         
@@ -94,7 +94,9 @@ public class CalendarLimitRecurrenceSetTest extends TestCase {
         filter.setAllSubComponents();
         filter.setAllProperties();
         
-        StringReader sr = new StringReader(calendar.toString(filter));
+        StringBuffer buffer = new StringBuffer();
+        filter.filter(calendar, buffer);
+        StringReader sr = new StringReader(buffer.toString());
         
         Calendar filterCal = cb.build(sr);
         
@@ -116,7 +118,7 @@ public class CalendarLimitRecurrenceSetTest extends TestCase {
         
         VTimeZone vtz = (VTimeZone) calendar.getComponents().getComponent("VTIMEZONE");
         TimeZone tz = new TimeZone(vtz);
-        CaldavOutputFilter filter = new CaldavOutputFilter("test");
+        OutputFilter filter = new OutputFilter("test");
         DateTime start = new DateTime("20060108T170000", tz);
         DateTime end = new DateTime("20060109T170000", tz);
         start.setUtc(true);
@@ -127,7 +129,9 @@ public class CalendarLimitRecurrenceSetTest extends TestCase {
         filter.setAllSubComponents();
         filter.setAllProperties();
         
-        StringReader sr = new StringReader(calendar.toString(filter));
+        StringBuffer buffer = new StringBuffer();
+        filter.filter(calendar, buffer);
+        StringReader sr = new StringReader(buffer.toString());
         
         Calendar filterCal = cb.build(sr);
         

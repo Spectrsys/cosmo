@@ -296,7 +296,7 @@ public class StandardContentServiceTest extends TestCase {
         VEvent masterEvent = eventStamp.getMasterEvent();
         
         Assert.assertEquals(1, masterCal.getComponents().getComponents(Component.VEVENT).size());
-        Assert.assertNull(eventStamp.getMasterEvent().getReccurrenceId());
+        Assert.assertNull(eventStamp.getMasterEvent().getRecurrenceId());
         Assert.assertTrue(masterNote.getContentLength().equals( new Long(calendar.toString().getBytes("UTF-8").length)));
         
         Assert.assertEquals(masterNote.getModifications().size(), 4);
@@ -381,7 +381,7 @@ public class StandardContentServiceTest extends TestCase {
         ComponentList events = calendar.getComponents().getComponents(Component.VEVENT);
         for(Iterator<VEvent> it = events.iterator(); it.hasNext();) {
             VEvent event = it.next();
-            if(event.getReccurrenceId()!=null && event.getReccurrenceId().getDate().toString().equals(recurrenceId))
+            if(event.getRecurrenceId()!=null && event.getRecurrenceId().getDate().toString().equals(recurrenceId))
                 return event;
         }
         return null;

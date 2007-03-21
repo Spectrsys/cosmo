@@ -356,7 +356,7 @@ public class CosmoToICalendarConverterTest extends TestCase {
 
         for (Object o : vevents) {
             VEvent vEvent = (VEvent) o;
-            RecurrenceId recurrenceId = vEvent.getReccurrenceId();
+            RecurrenceId recurrenceId = vEvent.getRecurrenceId();
             if (recurrenceId != null) {
                 // this one is the instance
                 assertEquals("20050103T120000", recurrenceId.getDate()
@@ -416,7 +416,7 @@ public class CosmoToICalendarConverterTest extends TestCase {
         
         for (Object o : vevents) {
             VEvent vEvent = (VEvent) o;
-            RecurrenceId recurrenceId = vEvent.getReccurrenceId();
+            RecurrenceId recurrenceId = vEvent.getRecurrenceId();
             if (recurrenceId != null) {
                 // this one is the instance
                 assertEquals("20050103T120000", recurrenceId.getDate()

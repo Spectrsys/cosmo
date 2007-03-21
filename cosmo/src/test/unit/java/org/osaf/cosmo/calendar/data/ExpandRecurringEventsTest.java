@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.calendar.data;
 
 import java.io.FileInputStream;
 import java.io.StringReader;
@@ -32,12 +32,10 @@ import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
-import org.osaf.cosmo.dav.caldav.report.CaldavOutputFilter;
-
 /**
  * Test expand output filter
  */
-public class CalendarExpandRecurringEventsTest extends TestCase {
+public class ExpandRecurringEventsTest extends TestCase {
     protected String baseDir = "src/test/unit/resources/testdata/";
     
     public void testExpandEvent() throws Exception {
@@ -49,7 +47,7 @@ public class CalendarExpandRecurringEventsTest extends TestCase {
         
         VTimeZone vtz = (VTimeZone) calendar.getComponents().getComponent("VTIMEZONE");
         TimeZone tz = new TimeZone(vtz);
-        CaldavOutputFilter filter = new CaldavOutputFilter("test");
+        OutputFilter filter = new OutputFilter("test");
         DateTime start = new DateTime("20060102T140000", tz);
         DateTime end = new DateTime("20060105T140000", tz);
         start.setUtc(true);
@@ -60,7 +58,9 @@ public class CalendarExpandRecurringEventsTest extends TestCase {
         filter.setAllSubComponents();
         filter.setAllProperties();
         
-        StringReader sr = new StringReader(calendar.toString(filter));
+        StringBuffer buffer = new StringBuffer();
+        filter.filter(calendar, buffer);
+        StringReader sr = new StringReader(buffer.toString());
         
         Calendar filterCal = cb.build(sr);
         
@@ -74,17 +74,17 @@ public class CalendarExpandRecurringEventsTest extends TestCase {
         
         Assert.assertEquals("event 6", event.getProperties().getProperty(Property.SUMMARY).getValue());
         Assert.assertEquals("20060102T190000Z", event.getStartDate().getDate().toString());
-        Assert.assertEquals("20060102T190000Z", event.getReccurrenceId().getDate().toString());
+        Assert.assertEquals("20060102T190000Z", event.getRecurrenceId().getDate().toString());
         
         event = it.next();
         Assert.assertEquals("event 6", event.getProperties().getProperty(Property.SUMMARY).getValue());
         Assert.assertEquals("20060103T190000Z", event.getStartDate().getDate().toString());
-        Assert.assertEquals("20060103T190000Z", event.getReccurrenceId().getDate().toString());
+        Assert.assertEquals("20060103T190000Z", event.getRecurrenceId().getDate().toString());
         
         event = it.next();
         Assert.assertEquals("event 6", event.getProperties().getProperty(Property.SUMMARY).getValue());
         Assert.assertEquals("20060104T190000Z", event.getStartDate().getDate().toString());
-        Assert.assertEquals("20060104T190000Z", event.getReccurrenceId().getDate().toString());
+        Assert.assertEquals("20060104T190000Z", event.getRecurrenceId().getDate().toString());
         
         verifyExpandedCalendar(filterCal);
     }
@@ -100,7 +100,7 @@ public class CalendarExpandRecurringEventsTest extends TestCase {
         
         VTimeZone vtz = (VTimeZone) calendar.getComponents().getComponent("VTIMEZONE");
         TimeZone tz = new TimeZone(vtz);
-        CaldavOutputFilter filter = new CaldavOutputFilter("test");
+        OutputFilter filter = new OutputFilter("test");
         DateTime start = new DateTime("20060102T140000", tz);
         DateTime end = new DateTime("20060105T140000", tz);
         start.setUtc(true);
@@ -111,7 +111,9 @@ public class CalendarExpandRecurringEventsTest extends TestCase {
         filter.setAllSubComponents();
         filter.setAllProperties();
         
-        StringReader sr = new StringReader(calendar.toString(filter));
+        StringBuffer buffer = new StringBuffer();
+        filter.filter(calendar, buffer);
+        StringReader sr = new StringReader(buffer.toString());
         
         Calendar filterCal = cb.build(sr);
         
@@ -125,17 +127,17 @@ public class CalendarExpandRecurringEventsTest extends TestCase {
         
         Assert.assertEquals("event 6", event.getProperties().getProperty(Property.SUMMARY).getValue());
         Assert.assertEquals("20060102T190000Z", event.getStartDate().getDate().toString());
-        Assert.assertEquals("20060102T190000Z", event.getReccurrenceId().getDate().toString());
+        Assert.assertEquals("20060102T190000Z", event.getRecurrenceId().getDate().toString());
         
         event = it.next();
         Assert.assertEquals("event 6", event.getProperties().getProperty(Property.SUMMARY).getValue());
         Assert.assertEquals("20060103T190000Z", event.getStartDate().getDate().toString());
-        Assert.assertEquals("20060103T190000Z", event.getReccurrenceId().getDate().toString());
+        Assert.assertEquals("20060103T190000Z", event.getRecurrenceId().getDate().toString());
         
         event = it.next();
         Assert.assertEquals("event 6 changed", event.getProperties().getProperty(Property.SUMMARY).getValue());
         Assert.assertEquals("20060104T210000Z", event.getStartDate().getDate().toString());
-        Assert.assertEquals("20060104T190000Z", event.getReccurrenceId().getDate().toString());
+        Assert.assertEquals("20060104T190000Z", event.getRecurrenceId().getDate().toString());
         
         verifyExpandedCalendar(filterCal);
     }
@@ -149,7 +151,7 @@ public class CalendarExpandRecurringEventsTest extends TestCase {
         
         VTimeZone vtz = (VTimeZone) calendar.getComponents().getComponent("VTIMEZONE");
         TimeZone tz = new TimeZone(vtz);
-        CaldavOutputFilter filter = new CaldavOutputFilter("test");
+        OutputFilter filter = new OutputFilter("test");
         DateTime start = new DateTime("20060102T140000", tz);
         DateTime end = new DateTime("20060105T140000", tz);
         start.setUtc(true);
@@ -160,7 +162,9 @@ public class CalendarExpandRecurringEventsTest extends TestCase {
         filter.setAllSubComponents();
         filter.setAllProperties();
         
-        StringReader sr = new StringReader(calendar.toString(filter));
+        StringBuffer buffer = new StringBuffer();
+        filter.filter(calendar, buffer);
+        StringReader sr = new StringReader(buffer.toString());
         
         Calendar filterCal = cb.build(sr);
         
@@ -174,7 +178,7 @@ public class CalendarExpandRecurringEventsTest extends TestCase {
         
         Assert.assertEquals("event 6", event.getProperties().getProperty(Property.SUMMARY).getValue());
         Assert.assertEquals("20060102T190000Z", event.getStartDate().getDate().toString());
-        Assert.assertNull(event.getReccurrenceId());
+        Assert.assertNull(event.getRecurrenceId());
         
         verifyExpandedCalendar(filterCal);
     }

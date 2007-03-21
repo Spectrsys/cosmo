@@ -89,8 +89,13 @@ public class EventStamp extends BaseEventStamp implements
 
     @Transient
     public Calendar getCalendar() {
-        Calendar masterCal = CalendarUtils.copyCalendar(calendar);
-        
+        Calendar masterCal = null;
+        try {
+            masterCal = new Calendar(calendar);
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot copy calendar", e);
+        }
+
         // add all exception events
         NoteItem note = (NoteItem) getItem();
         TreeMap<String, VEvent> sortedMap = new TreeMap<String, VEvent>();
@@ -194,7 +199,11 @@ public class EventStamp extends BaseEventStamp implements
         EventStamp stamp = new EventStamp(item);
         
         // Need to copy Calendar, and indexes
-        stamp.calendar = CalendarUtils.copyCalendar(calendar);
+        try {
+            stamp.calendar = new Calendar(calendar);
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot copy calendar", e);
+        }
         
         for(CalendarTimeRangeIndex index : timeRangeIndexes) {
             stamp.addTimeRangeIndex(index.copy());

@@ -79,9 +79,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>ical4j</groupId>
-            <artifactId>ical4j-osaf</artifactId>
-            <version>0.9.18-20070118</version>
+            <groupId>net.fortuna</groupId>
+            <artifactId>ical4j</artifactId>
+            <version>1.0-beta3-SNAPSHOT</version>
         </dependency>
         <!-- required by jcr-server -->
         <!-- XXX: should be 1.0 release version -->

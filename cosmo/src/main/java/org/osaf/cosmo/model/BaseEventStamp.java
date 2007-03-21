@@ -642,7 +642,7 @@ public abstract class BaseEventStamp extends Stamp
      */
     @Transient
     public Date getRecurrenceId() {
-        RecurrenceId rid = getEvent().getReccurrenceId();
+        RecurrenceId rid = getEvent().getRecurrenceId();
         if (rid == null)
             return null;
         return rid.getDate();

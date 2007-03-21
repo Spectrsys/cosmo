@@ -93,10 +93,17 @@ public class CalendarCollectionStamp extends Stamp implements
     }
 
     public Stamp copy(Item item) {
+        Calendar tz = null;
+        try {
+            tz = new Calendar(timezone);
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot copy timezone calendar", e);
+        }
+
         CalendarCollectionStamp stamp = new CalendarCollectionStamp();
         stamp.language = language;
         stamp.description = description;
-        stamp.timezone = CalendarUtils.copyCalendar(timezone);
+        stamp.timezone = tz;
         stamp.setSupportedComponents(new HashSet<String>(getSupportedComponents()));
         return stamp;
     }
