@@ -24,18 +24,14 @@ import net.fortuna.ical4j.model.DateList;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Parameter;
-import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VToDo;
 import net.fortuna.ical4j.model.parameter.Related;
-import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.Duration;
 import net.fortuna.ical4j.model.property.Repeat;
 import net.fortuna.ical4j.model.property.Trigger;
-import net.fortuna.ical4j.util.Dates;
 
 /**
  * @author cyrusdaboo
@@ -186,10 +182,10 @@ public class Instance {
         if (propT.getDateTime() != null) {
             triggerStart = copyNormalisedDate(propT.getDateTime());
         } else if (propT.getDuration() != null) {
-            Date d = relativeToStart ? getStart() : getEnd();
-            Value v = d instanceof DateTime ? Value.DATE_TIME : Value.DATE;
-            java.util.Date dt = propT.getDuration().getTime(d);
-            triggerStart = copyNormalisedDate(Dates.getInstance(dt, v));
+            triggerStart = copyNormalisedDate(org.osaf.cosmo.calendar.util.Dates.getInstance(propT
+                    .getDuration().getTime(
+                            relativeToStart ? getStart() : getEnd()),
+                    relativeToStart ? getStart() : getEnd()));
         }
 
         result.add(triggerStart);
@@ -200,10 +196,8 @@ public class Instance {
             Dur duration = propD.getDuration();
 
             for (int i = 0; i < repeats; i++) {
-                Value v = triggerStart instanceof DateTime ?
-                    Value.DATE_TIME : Value.DATE;
-                java.util.Date dt = duration.getTime(triggerStart);
-                triggerStart = copyNormalisedDate(Dates.getInstance(dt, v));
+                triggerStart = copyNormalisedDate(org.osaf.cosmo.calendar.util.Dates.getInstance(duration
+                        .getTime(triggerStart), triggerStart));
                 result.add(triggerStart);
             }
         }

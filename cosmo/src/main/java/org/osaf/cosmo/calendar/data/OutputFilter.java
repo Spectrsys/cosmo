@@ -371,7 +371,6 @@ public class OutputFilter {
         DtEnd dtend = ((VEvent)event).getEndDate();
         DateTime start = new DateTime(dtstart.getDate());
         DateTime end = null;
-        Value value = Value.DATE_TIME;
         if (dtend != null) {
             end = new DateTime(dtend.getDate());
         } else {
@@ -383,14 +382,14 @@ public class OutputFilter {
                 // Its an all day event so duration is one day
                 duration = new Dur(1, 0, 0, 0);
             }
-            end = (DateTime) Dates.getInstance(duration.getTime(start), value);
+            end = (DateTime) org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(start), start);
         }
 
         Period p = new Period(start, end);
         if (! p.intersects(getLimit())) {
             Dur duration = new Dur(start, end);
             start = new DateTime(rid.getDate());
-            end = (DateTime) Dates.getInstance(duration.getTime(start), value);
+            end = (DateTime) org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(start), start);
             p = new Period(start, end);
             if (! p.intersects(getLimit())) {
                 if (Range.THISANDFUTURE.equals(range)) {

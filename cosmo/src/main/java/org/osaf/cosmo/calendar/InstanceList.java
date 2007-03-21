@@ -124,8 +124,6 @@ public class InstanceList extends HashMap {
     protected void addMaster(Component comp, Date rangeStart, Date rangeEnd) {
 
         Date start = getStartDate(comp);
-        Value startValue = start instanceof DateTime ?
-            Value.DATE_TIME : Value.DATE;
         
         if (start == null) {
             return;
@@ -146,7 +144,7 @@ public class InstanceList extends HashMap {
                 // Its an all day event so duration is one day
                 duration = new Dur(1, 0, 0, 0);
             }
-            end = Dates.getInstance(duration.getTime(start), startValue);
+            end = org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(start), start);
         } else {
             // Convert to UTC if needed
             if(end instanceof DateTime)
@@ -182,10 +180,8 @@ public class InstanceList extends HashMap {
             } else {
                 for (Iterator j = rdate.getDates().iterator(); j.hasNext();) {
                     Date startDate = (Date) j.next();
-                    Value startDateValue = startDate instanceof DateTime ?
-                        Value.DATE_TIME : Value.DATE;
-                    Date endDate = Dates.getInstance(duration
-                            .getTime(startDate), startDateValue);
+                    Date endDate = org.osaf.cosmo.calendar.util.Dates.getInstance(duration
+                            .getTime(startDate), startDate);
                     Instance instance = new Instance(comp, startDate, endDate);
                     put(instance.getRid().toString(), instance);
                 }
@@ -205,10 +201,8 @@ public class InstanceList extends HashMap {
                     (start instanceof DateTime) ? Value.DATE_TIME : Value.DATE);
             for (int j = 0; j < startDates.size(); j++) {
                 Date sd = (Date) startDates.get(j);
-                Value sv = sd instanceof DateTime ?
-                    Value.DATE_TIME : Value.DATE;
-                Date startDate = Dates.getInstance(sd, sv);
-                Date endDate = Dates.getInstance(duration.getTime(sd), sv);
+                Date startDate = org.osaf.cosmo.calendar.util.Dates.getInstance(sd, start);
+                Date endDate = org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(sd), start);
                 Instance instance = new Instance(comp, startDate, endDate);
                 put(instance.getRid().toString(), instance);
             }
@@ -220,9 +214,7 @@ public class InstanceList extends HashMap {
             ExDate exDate = (ExDate) i.next();
             for (Iterator j = exDate.getDates().iterator(); j.hasNext();) {
                 Date sd = (Date) j.next();
-                Value sv = sd instanceof DateTime ?
-                    Value.DATE_TIME : Value.DATE;
-                Date startDate = Dates.getInstance(sd, sv);
+                Date startDate = org.osaf.cosmo.calendar.util.Dates.getInstance(sd, start);
                 Instance instance = new Instance(comp, startDate, startDate);
                 remove(instance.getStart().toString());
             }
@@ -240,9 +232,7 @@ public class InstanceList extends HashMap {
                     (start instanceof DateTime) ? Value.DATE_TIME : Value.DATE);
             for (Iterator j = startDates.iterator(); j.hasNext();) {
                 Date sd = (Date) j.next();
-                Value sv = sd instanceof DateTime ?
-                    Value.DATE_TIME : Value.DATE;
-                Date startDate = Dates.getInstance(sd, sv);
+                Date startDate = org.osaf.cosmo.calendar.util.Dates.getInstance(sd, start);
                 Instance instance = new Instance(comp, startDate, startDate);
                 remove(instance.getStart().toString());
             }
@@ -275,9 +265,6 @@ public class InstanceList extends HashMap {
         if(dtstart instanceof DateTime)
             dtstart = convertToUTCIfNecessary((DateTime) dtstart);
         
-        Value dtstartValue = dtstart instanceof DateTime ?
-            Value.DATE_TIME : Value.DATE;
-
         // We need either DTEND or DURATION.
         Date dtend = getEndDate(comp);
         if (dtend == null) {
@@ -289,7 +276,7 @@ public class InstanceList extends HashMap {
                 // Its an all day event so duration is one day
                 duration = new Dur(1, 0, 0, 0);
             }
-            dtend = Dates.getInstance(duration.getTime(dtstart), dtstartValue);
+            dtend = org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(dtstart), dtstart);
         } else {
             // Convert to UTC if needed
             if(dtend instanceof DateTime)
@@ -422,13 +409,11 @@ public class InstanceList extends HashMap {
         // No DTEND? No problem, we'll use the DURATION if present.
         if (dtEnd == null) {
             Date dtStart = getStartDate(comp);
-            Value dtStartValue = dtStart instanceof DateTime ?
-                    Value.DATE_TIME : Value.DATE;
             Duration duration = (Duration) comp.getProperties().getProperty(
                     Property.DURATION);
             if (duration != null) {
-                dtEnd = new DtEnd(Dates.getInstance(duration.getDuration()
-                        .getTime(dtStart), dtStartValue));
+                dtEnd = new DtEnd(org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getDuration()
+                        .getTime(dtStart), dtStart));
             }
         }
         return (dtEnd != null) ? dtEnd.getDate() : null;
