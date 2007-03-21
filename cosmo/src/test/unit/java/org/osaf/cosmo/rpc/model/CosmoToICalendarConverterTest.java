@@ -361,8 +361,8 @@ public class CosmoToICalendarConverterTest extends TestCase {
                 // this one is the instance
                 assertEquals("20050103T120000", recurrenceId.getDate()
                         .toString());
-                //one for RECURRENCE-ID. one for DESCRIPTION + 2 for UID and DTSTART which are always there
-                assertEquals(4, vEvent.getProperties().size());
+                //one for RECURRENCE-ID. one for DESCRIPTION + 3 for UID, DTSTAMP, DTSTART which are always there
+                assertEquals(5, vEvent.getProperties().size());
                 assertEquals("MOD", ICalendarUtils.getPropertyValue(vEvent,
                         Property.DESCRIPTION));
             }
@@ -421,8 +421,8 @@ public class CosmoToICalendarConverterTest extends TestCase {
                 // this one is the instance
                 assertEquals("20050103T120000", recurrenceId.getDate()
                         .toString());
-                //one for RECURRENCE-ID. one for DTEND + 2 for UID and DTSTART which are always there
-                assertEquals(4, vEvent.getProperties().size());
+                //one for RECURRENCE-ID. one for DTEND + 3 for UID,DTSTART,DTSTAMP which are always there
+                assertEquals(5, vEvent.getProperties().size());
                 assertEquals(LA_TZ, vEvent.getEndDate().getParameters().getParameter(Parameter.TZID).getValue());
             }
         }
