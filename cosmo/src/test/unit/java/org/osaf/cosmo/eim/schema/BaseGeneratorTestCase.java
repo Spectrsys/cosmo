@@ -21,6 +21,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -105,6 +106,15 @@ public class BaseGeneratorTestCase extends TestCase
         IntegerField intF = (IntegerField) field;
         assertEquals("incorrect field name", expectedName, intF.getName());
         assertEquals("incorrect field value", expectedValue, intF.getInteger());
+    }
+
+    /** */
+    protected void checkBooleanField(EimRecordField field,
+                                     String expectedName,
+                                     Boolean expectedValue) {
+        Integer i = BooleanUtils.isTrue(expectedValue) ?
+            new Integer(1) : new Integer(0);
+        checkIntegerField(field, expectedName, i);
     }
 
     /** */

@@ -50,7 +50,8 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         int triageStatusCode = TriageStatus.CODE_DONE;
         BigDecimal triageStatusRank = new BigDecimal("-12345.67");
         Boolean autoTriage = Boolean.TRUE;
-        String lastModifiedBy = "bcm@osafoundation.org";
+        Boolean sent = Boolean.TRUE;
+        Boolean needsReply = Boolean.TRUE;
         Date clientCreationDate = Calendar.getInstance().getTime();
 
         TriageStatus ts = new TriageStatus();
@@ -63,7 +64,8 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         contentItem.setName(name);
         contentItem.setDisplayName(displayName);
         contentItem.setTriageStatus(ts);
-        contentItem.setLastModifiedBy(lastModifiedBy);
+        contentItem.setSent(sent);
+        contentItem.setNeedsReply(needsReply);
         contentItem.setClientCreationDate(clientCreationDate);
 
         StringAttribute unknownAttr = makeStringAttribute();
@@ -80,7 +82,7 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         checkUuidKey(record.getKey(), uid);
 
         List<EimRecordField> fields = record.getFields();
-        assertEquals("unexpected number of fields", 4, fields.size());
+        assertEquals("unexpected number of fields", 6, fields.size());
 
         EimRecordField titleField = fields.get(0);
         checkTextField(titleField, FIELD_TITLE, displayName);
@@ -89,11 +91,17 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         checkTextField(triageStatusField, FIELD_TRIAGE,
                        TriageStatusFormat.getInstance().format(ts));
 
-        EimRecordField createdOnField = fields.get(2);
+        EimRecordField sentField = fields.get(2);
+        checkBooleanField(sentField, FIELD_HAS_BEEN_SENT, sent);
+
+        EimRecordField needsReplyField = fields.get(3);
+        checkBooleanField(needsReplyField, FIELD_NEEDS_REPLY, needsReply);
+
+        EimRecordField createdOnField = fields.get(4);
         checkTimeStampField(createdOnField, FIELD_CREATED_ON,
                             clientCreationDate);
 
-        EimRecordField unknownField = fields.get(3);
+        EimRecordField unknownField = fields.get(5);
         checkTextField(unknownField, unknownAttr.getName(),
                        unknownAttr.getValue());
     }
@@ -128,7 +136,7 @@ public class ContentItemGeneratorTest extends BaseGeneratorTestCase
         checkUuidKey(record.getKey(), modification.getUid());
 
         List<EimRecordField> fields = record.getFields();
-        assertEquals("unexpected number of fields", 3, fields.size());
+        assertEquals("unexpected number of fields", 5, fields.size());
 
         EimRecordField titleField = fields.get(0);
         Assert.assertTrue(titleField.isMissing());

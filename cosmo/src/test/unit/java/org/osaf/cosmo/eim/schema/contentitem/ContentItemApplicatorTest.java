@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.EimRecord;
+import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseApplicatorTestCase;
 import org.osaf.cosmo.eim.schema.text.TriageStatusFormat;
@@ -54,9 +55,12 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
         checkTextValue(record.getFields().get(1),
                        TriageStatusFormat.getInstance().
                        format(contentItem.getTriageStatus()));
-        checkTimeStampValue(record.getFields().get(2),
+        checkBooleanValue(record.getFields().get(2), contentItem.getSent());
+        checkBooleanValue(record.getFields().get(3),
+                          contentItem.getNeedsReply());
+        checkTimeStampValue(record.getFields().get(4),
                             contentItem.getClientCreationDate());
-        checkUnknownValue(record.getFields().get(3), contentItem);
+        checkUnknownValue(record.getFields().get(5), contentItem);
     }
     
     public void testApplyMissingField() throws Exception {
@@ -71,7 +75,8 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
             new ContentItemApplicator(modification);
         applicator.applyRecord(record);
 
-        Assert.assertEquals(parent.getDisplayName(), modification.getDisplayName());
+        Assert.assertEquals(parent.getDisplayName(),
+                            modification.getDisplayName());
     }
 
     private EimRecord makeTestRecord() {
@@ -87,6 +92,8 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
                                       TriageStatusFormat.getInstance().
                                       format(ts)));
 
+        record.addField(new IntegerField(FIELD_HAS_BEEN_SENT, new Integer(1)));
+        record.addField(new IntegerField(FIELD_NEEDS_REPLY, new Integer(0)));
         BigDecimal createdOn =
             new BigDecimal(Calendar.getInstance().getTime().getTime());
         record.addField(new DecimalField(FIELD_CREATED_ON, createdOn));
@@ -108,6 +115,8 @@ public class ContentItemApplicatorTest extends BaseApplicatorTestCase
                                       TriageStatusFormat.getInstance().
                                       format(ts)));
 
+        record.addField(new IntegerField(FIELD_HAS_BEEN_SENT, new Integer(0)));
+        record.addField(new IntegerField(FIELD_NEEDS_REPLY, new Integer(1)));
         BigDecimal createdOn =
             new BigDecimal(Calendar.getInstance().getTime().getTime());
         record.addField(new DecimalField(FIELD_CREATED_ON, createdOn));

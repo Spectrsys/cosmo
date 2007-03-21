@@ -20,6 +20,7 @@ import java.util.Date;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,6 +46,21 @@ public class BaseApplicatorTestCase extends TestCase
                                      BigDecimal value) {
         BigDecimal expected = ((DecimalField)field).getDecimal();
         assertEquals("incorrect decimal value", expected, value);
+    }
+
+    /** */
+    protected void checkIntegerValue(EimRecordField field,
+                                     Integer value) {
+        Integer expected = ((IntegerField)field).getInteger();
+        assertEquals("incorrect integer value", expected, value);
+    }
+
+    /** */
+    protected void checkBooleanValue(EimRecordField field,
+                                     Boolean value) {
+        Integer v = BooleanUtils.isTrue(value) ?
+            new Integer(1) : new Integer(0);
+        checkIntegerValue(field, v);
     }
 
     /** */
