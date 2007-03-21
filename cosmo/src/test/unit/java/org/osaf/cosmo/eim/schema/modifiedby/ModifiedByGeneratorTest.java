@@ -40,12 +40,14 @@ public class ModifiedByGeneratorTest extends BaseGeneratorTestCase
     public void testGenerateRecord() throws Exception {
         String uuid = "deadbeef";
         String lastModifiedBy = "bcm@osafoundation.org";
+        Integer lastModification = ContentItem.Action.CREATED;
         Date modifiedDate = Calendar.getInstance().getTime();
 
         ContentItem contentItem = new ContentItem();
         contentItem.setUid(uuid);
-        contentItem.setClientModifiedDate(modifiedDate);
         contentItem.setLastModifiedBy(lastModifiedBy);
+        contentItem.setLastModification(lastModification);
+        contentItem.setClientModifiedDate(modifiedDate);
 
         ModifiedByGenerator generator = new ModifiedByGenerator(contentItem);
 
@@ -57,7 +59,7 @@ public class ModifiedByGeneratorTest extends BaseGeneratorTestCase
         checkNamespace(record, PREFIX_MODIFIEDBY, NS_MODIFIEDBY);
 
         List<EimRecordField> fields = record.getKey().getFields();
-        assertEquals("unexpected number of fields", 3, fields.size());
+        assertEquals("unexpected number of fields", 4, fields.size());
 
         EimRecordField uuidField = fields.get(0);
         checkTextField(uuidField, FIELD_UUID, uuid);
@@ -68,6 +70,9 @@ public class ModifiedByGeneratorTest extends BaseGeneratorTestCase
         EimRecordField modifiedDateField = fields.get(2);
         checkTimeStampField(modifiedDateField, FIELD_TIMESTAMP,
                             modifiedDate);
+
+        EimRecordField actionField = fields.get(3);
+        checkIntegerField(actionField, FIELD_ACTION, lastModification);
 
         assertEquals("unexpected number of fields", 0,
                      record.getFields().size());
