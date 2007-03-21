@@ -46,6 +46,18 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>modularity snapshots</id>
+            <name>Modularity Snapshot Repository</name>
+            <url>http://m2.modularity.net.au/snapshots</url>
+            <releases>
+              <enabled>false</enabled>
+            </releases>
+            <snapshots>
+              <enabled>true</enabled>
+              <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
