@@ -45,8 +45,10 @@ import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Transp;
 import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Dates;
 
+import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavException;
@@ -80,6 +82,8 @@ import org.w3c.dom.Element;
  */
 public class FreeBusyReport extends CaldavSingleResourceReport {
     private static final Log log = LogFactory.getLog(FreeBusyReport.class);
+    private static final VersionFourGenerator uuidGenerator =
+        new VersionFourGenerator();
 
     private VTimeZone tz = null;
     
@@ -182,6 +186,8 @@ public class FreeBusyReport extends CaldavSingleResourceReport {
 
         VFreeBusy vfb =
             new VFreeBusy(freeBusyRange.getStart(), freeBusyRange.getEnd());
+        String uid = uuidGenerator.nextIdentifier().toString();
+        vfb.getProperties().add(new Uid(uid));
         calendar.getComponents().add(vfb);
 
         // Add all periods to the VFREEBUSY
