@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.DecimalField;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
+import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseApplicatorTestCase;
 import org.osaf.cosmo.model.ContentItem;
@@ -40,58 +41,72 @@ public class ModifiedByApplicatorTest extends BaseApplicatorTestCase
     public void testApplyRecentModification() throws Exception {
         String origUuid = "deadbeef";
         String origLastModifiedBy = "bcm@osafoundation.org";
+        Integer origAction = ContentItem.Action.CREATED;
         Date origModifiedDate = makeDate("2007-01-01T12:00:00");
         ContentItem contentItem = makeTestItem(origUuid,
                                                origLastModifiedBy,
+                                               origAction,
                                                origModifiedDate);
 
         Date updateDate = makeDate("2007-01-02T12:00:00");
         String updateLastModifiedBy = "bcm@maz.org";
+        Integer updateAction = ContentItem.Action.EDITED;
         EimRecord record = makeTestRecord(contentItem.getUid(),
-                                          updateDate,
-                                          updateLastModifiedBy);
+                                          updateLastModifiedBy,
+                                          updateAction,
+                                          updateDate);
 
         ModifiedByApplicator applicator =
             new ModifiedByApplicator(contentItem);
         applicator.applyRecord(record);
 
         assertEquals("uid wrongly modified", origUuid, contentItem.getUid());
-        assertEquals("clientModifiedDate not modified", updateDate,
-                     contentItem.getClientModifiedDate());
         assertEquals("lastModifiedBy not modified", updateLastModifiedBy,
                      contentItem.getLastModifiedBy());
+        assertEquals("lastModification not modified", updateAction,
+                     contentItem.getLastModification());
+        assertEquals("clientModifiedDate not modified", updateDate,
+                     contentItem.getClientModifiedDate());
     }
 
     public void testApplyOldModification() throws Exception {
         String origUuid = "deadbeef";
         String origLastModifiedBy = "bcm@osafoundation.org";
+        Integer origAction = ContentItem.Action.CREATED;
         Date origModifiedDate = makeDate("2007-01-01T12:00:00");
         ContentItem contentItem = makeTestItem(origUuid,
                                                origLastModifiedBy,
+                                               origAction,
                                                origModifiedDate);
 
         Date updateDate = makeDate("2006-01-02T12:00:00");
         String updateLastModifiedBy = "bcm@maz.org";
+        Integer updateAction = ContentItem.Action.SENT;
         EimRecord record = makeTestRecord(contentItem.getUid(),
-                                          updateDate,
-                                          updateLastModifiedBy);
+                                          updateLastModifiedBy,
+                                          updateAction,
+                                          updateDate);
         ModifiedByApplicator applicator =
             new ModifiedByApplicator(contentItem);
         applicator.applyRecord(record);
 
         assertEquals("uid wrongly modified", origUuid, contentItem.getUid());
-        assertEquals("clientModifiedDate wrongly modified", origModifiedDate,
-                     contentItem.getClientModifiedDate());
         assertEquals("lastModifiedBy wrongly modified", origLastModifiedBy,
                      contentItem.getLastModifiedBy());
+        assertEquals("lastModification wrongly modified", origAction,
+                     contentItem.getLastModification());
+        assertEquals("clientModifiedDate wrongly modified", origModifiedDate,
+                     contentItem.getClientModifiedDate());
     }
 
     public void testApplyDeleted() throws Exception {
         String origUuid = "deadbeef";
         String origLastModifiedBy = "bcm@osafoundation.org";
+        Integer origAction = ContentItem.Action.CREATED;
         Date origModifiedDate = makeDate("2007-01-01T12:00:00");
         ContentItem contentItem = makeTestItem(origUuid,
                                                origLastModifiedBy,
+                                               origAction,
                                                origModifiedDate);
 
         Date updateDate = makeDate("2006-01-02T12:00:00");
@@ -103,31 +118,37 @@ public class ModifiedByApplicatorTest extends BaseApplicatorTestCase
         applicator.applyRecord(record);
 
         assertEquals("uid wrongly modified", origUuid, contentItem.getUid());
-        assertEquals("clientModifiedDate wrongly modified", origModifiedDate,
-                     contentItem.getClientModifiedDate());
+        assertEquals("lastModification wrongly modified", origAction,
+                     contentItem.getLastModification());
         assertEquals("lastModifiedBy wrongly modified", origLastModifiedBy,
                      contentItem.getLastModifiedBy());
+        assertEquals("clientModifiedDate wrongly modified", origModifiedDate,
+                     contentItem.getClientModifiedDate());
     }
 
     private ContentItem makeTestItem(String uuid,
                                      String lastModifiedBy,
+                                     Integer action,
                                      Date modifiedDate) {
         ContentItem contentItem = new ContentItem();
         contentItem.setUid(uuid);
         contentItem.setLastModifiedBy(lastModifiedBy);
+        contentItem.setLastModification(action);
         contentItem.setClientModifiedDate(modifiedDate);
         return contentItem;
     }
 
     private EimRecord makeTestRecord(String uuid,
-                                     Date date,
-                                     String userid) {
+                                     String userid,
+                                     Integer action,
+                                     Date date) {
         EimRecord record = new EimRecord(PREFIX_MODIFIEDBY, NS_MODIFIEDBY);
         record.addKeyField(new TextField(FIELD_UUID, uuid));
+        record.addKeyField(new TextField(FIELD_USERID, userid));
+        record.addKeyField(new IntegerField(FIELD_ACTION, action));
         record.addKeyField(new DecimalField(FIELD_TIMESTAMP,
                                             makeTimestamp(date),
                                             DEC_TIMESTAMP, DIGITS_TIMESTAMP));
-        record.addKeyField(new TextField(FIELD_USERID, userid));
         return record;
     }
 
