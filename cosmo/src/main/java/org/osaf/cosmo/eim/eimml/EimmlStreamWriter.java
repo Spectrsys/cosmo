@@ -50,6 +50,7 @@ public class EimmlStreamWriter implements EimmlConstants, XMLStreamConstants {
     private static final XMLOutputFactory XML_OUTPUT_FACTORY =
         XMLOutputFactory.newInstance();
 
+    private boolean writeCharacterData = false;
     private XMLStreamWriter xmlWriter;
 
     /**
@@ -145,6 +146,14 @@ public class EimmlStreamWriter implements EimmlConstants, XMLStreamConstants {
             close();
             throw new EimmlStreamException("Error writing field", e);
         }
+    }
+
+    public boolean getWriteCharacterData() {
+        return writeCharacterData;
+    }
+
+    public void setWriteCharacterData(boolean flag) {
+        writeCharacterData = flag;
     }
 
     /**
@@ -260,8 +269,12 @@ public class EimmlStreamWriter implements EimmlConstants, XMLStreamConstants {
         if (value != null) {
             if (isEmptyableType(type) && value.equals(""))
                 xmlWriter.writeAttribute(ATTR_EMPTY, "true");
-            else
-                xmlWriter.writeCData(value);
+            else {
+                if (writeCharacterData)
+                    xmlWriter.writeCData(value);
+                else
+                    xmlWriter.writeCharacters(value);
+            }
         }
 
         xmlWriter.writeEndElement();
