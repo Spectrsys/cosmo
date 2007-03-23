@@ -23,7 +23,7 @@ use Getopt::Long ();
 
 BEGIN { $0 = File::Basename::basename($0) }
 
-use constant VERSION => '0.01';
+use constant VERSION => '0.02';
 use constant PROGRAM => $0;
 use constant USAGE => <<EOT;
 Usage: $0 [OPTIONS...] -u [username] -p [password]
@@ -44,13 +44,15 @@ EOT
 
 use constant DEFAULT_SERVER_URL => 'http://localhost:8080/cosmo';
 
-my ($ServerUrl, $Username, $Password, $Uuid, $Debug, $opt_help, $opt_version);
+my ($ServerUrl, $Username, $Password, $Ticket, $Uuid, $Debug);
+my ($opt_help, $opt_version);
 
 # process command line options
 Getopt::Long::GetOptions(
     "s=s" => \$ServerUrl,
     "u=s" => \$Username,
     "p=s" => \$Password,
+    "t=s" => \$Ticket,
     "i=s" => \$Uuid,
     "d"   => \$Debug,
     "h"   => \$opt_help,
@@ -59,13 +61,13 @@ Getopt::Long::GetOptions(
 (print USAGE and exit) if $opt_help;
 (print sprintf("%s/%s\n", PROGRAM, VERSION) and exit) if $opt_version;
 
-(print USAGE and exit) unless $Username && $Password;
+(print USAGE and exit) unless $Ticket || ($Username && $Password);
 
 $ServerUrl ||= DEFAULT_SERVER_URL;
 chop($ServerUrl) if $ServerUrl =~ m|/$|;
 
-Cosmo::MC::Shell->new($ServerUrl, $Username, $Password, $Uuid, $Debug)->
-    cmdloop();
+Cosmo::MC::Shell->new($ServerUrl, $Ticket, $Username, $Password, $Uuid,
+                      $Debug)->cmdloop();
 
 exit;
 
@@ -81,15 +83,17 @@ sub init {
     my $self = shift;
 
     my $serverUrl = $self->{API}{args}[0];
-    my $username = $self->{API}{args}[1];
-    my $password = $self->{API}{args}[2];
-    my $uuid = $self->{API}{args}[3];
-    my $debug = $self->{API}{args}[4];
+    my $ticket = $self->{API}{args}[1];
+    my $username = $self->{API}{args}[2];
+    my $password = $self->{API}{args}[3];
+    my $uuid = $self->{API}{args}[4];
+    my $debug = $self->{API}{args}[5];
 
     print "Morse Code command shell v", main::VERSION, "\n";
     print "Debugging enabled.\n" if $debug;
 
-    $self->{mc} = Cosmo::MC->new($serverUrl, $username, $password, $debug);
+    $self->{mc} =
+        Cosmo::MC->new($serverUrl, $ticket, $username, $password, $debug);
     $self->{debug} = $debug;
     $self->{uuid} = $uuid;
     $self->{token} = undef;
@@ -98,7 +102,13 @@ sub init {
 
     eval {
         $self->{mc}->check_server_availability();
-        print "Connected to $serverUrl.\n";
+        print "Connected to $serverUrl";
+        if ($self->{mc}->ticket()) {
+            print " with ticket " , $self->{mc}->ticket();
+        } else {
+            print " as ", $self->{mc}->username();
+        }
+        print "\n";
     };
     if ($@) {
         print "Error: $@" if $self->{debug};
@@ -147,16 +157,21 @@ sub run_subscribe {
     } unless $self->{uuid};
 
     warn "Subscribing to collection $self->{uuid}.\n" if $self->{debug};
-    my ($xml, $token) = eval { $self->{mc}->subscribe($self->{uuid}); };
+    my $response = eval { $self->{mc}->subscribe($self->{uuid}); };
     if ($@) {
         print "Failed: $@\n";
         return;
     }
 
-    $self->print_summary($xml);
+    $self->print_summary($response->collection());
 
-    $self->{token} = $token;
-    print "Received token $token.\n";
+    $self->{token} = $response->token();
+    print "Received token $self->{token}.\n";
+
+    if ($response->ticket_type()) {
+        print sprintf("Ticket %s is %s.\n", $self->{mc}->ticket(),
+                      $response->{ticket_type});
+    }
 }
 sub help_subscribe { "Subscribes to the wrrking collection.\n" }
 sub smry_subscribe { "subscribe to the working collection" }
@@ -175,17 +190,24 @@ sub run_synchronize {
     } unless $self->{token};
 
     warn "Synchronizing collection $self->{uuid}.\n" if $self->{debug};
-    my ($xml, $token) =
-        eval { $self->{mc}->synchronize($self->{uuid}, $self->{token}); };
+    my $response = eval {
+        $self->{mc}->synchronize($self->{uuid}, $self->{token});
+    };
     if ($@) {
         print "Failed: $@\n";
         return;
     }
 
-    $self->print_summary($xml);
+    $self->print_summary($response->collection());
 
-    $self->{token} = $token;
-    print "Received token $token.\n";
+    $self->{token} = $response->token();
+    print "Received token $self->{token}.\n";
+
+    if ($response->ticket_type()) {
+        $self->{ticket_type} = $response->ticket_type();
+        print sprintf("Ticket %s is %s.\n", $self->{mc}->ticket(),
+                      $response->{ticket_type});
+    }
 }
 sub help_synchronize { "Synchronizes the working collection.\n" }
 sub smry_synchronize { "synchronize the working collection" }
@@ -196,6 +218,7 @@ sub run_publish {
         print "Name of EIMML file must be specified.\n";
         return;
     };
+    my @ticket_types = @_;
 
     do {
         print "Working collection uuid not set.\n";
@@ -209,7 +232,9 @@ sub run_publish {
 
     warn "Publishing collection $self->{uuid} from $filename.\n"
         if $self->{debug};
-    my $token = eval { $self->{mc}->publish($self->{uuid}, $fh); };
+    my $response = eval {
+        $self->{mc}->publish($self->{uuid}, $fh, undef, \@ticket_types);
+    };
     if ($@) {
         print "Failed: $@\n";
         return;
@@ -217,8 +242,12 @@ sub run_publish {
 
     $fh->close();
 
-    $self->{token} = $token;
-    print "Received token $token.\n";
+    $self->{token} = $response->token();
+    print "Received token $self->{token}.\n";
+
+    for my $id (keys %{$response->tickets()}) {
+        print "Received $id ticket ", $response->ticket($id), ".\n";
+    }
 }
 sub help_publish { "Publishes the working collection based on the contents of an EIMML file. The file's location is given as an argument.\n" }
 sub smry_publish { "publish a collection" }

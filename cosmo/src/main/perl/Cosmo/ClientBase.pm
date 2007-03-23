@@ -23,11 +23,14 @@ use LWP::UserAgent ();
 use strict;
 use base qw(LWP::UserAgent);
 
+use constant HEADER_TICKET => 'Ticket';
+
 sub new {
     my $class = shift;
 
     my $self = LWP::UserAgent->new();
     $self->{server_url} = shift;
+    $self->{ticket} = shift;
     $self->{username} = shift;
     $self->{password} = shift;
     $self->{debug} = shift;
@@ -46,9 +49,12 @@ sub get_basic_credentials {
     my $uri = shift;
     my $isproxy = shift;
 
+    return () if $self->{ticket};
+
     if ($realm eq Cosmo::Constants::REALM) {
         return ($self->{username}, $self->{password});
     }
+
     return ();
 }
 
@@ -58,6 +64,27 @@ sub check_server_availability {
     my $res = $self->simple_request($req);
     $res->is_redirect or
         die $res->status_line . "\n";
+}
+
+sub ticket {
+    my $self = shift;
+    return $self->{ticket};
+}
+
+sub username {
+    my $self = shift;
+    return $self->{username};
+}
+
+sub prepare_request {
+    my $self = shift;
+    my $request = shift;
+
+    if ($self->{ticket}) {
+        $request->header(HEADER_TICKET, $self->{ticket});
+    }
+
+    return $self->SUPER::prepare_request($request);
 }
 
 1;
