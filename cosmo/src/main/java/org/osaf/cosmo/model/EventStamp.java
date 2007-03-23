@@ -17,6 +17,8 @@ package org.osaf.cosmo.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.TreeMap;
 
 import javax.persistence.Column;
@@ -30,7 +32,11 @@ import javax.persistence.Transient;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.ComponentList;
+import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.component.VTimeZone;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -95,14 +101,51 @@ public class EventStamp extends BaseEventStamp implements
         } catch (Exception e) {
             throw new RuntimeException("Cannot copy calendar", e);
         }
-
+        
+        // build timezone map that includes all timezones in master calendar
+        ComponentList timezones = masterCal.getComponents(Component.VTIMEZONE);
+        HashMap<String, VTimeZone> tzMap = new HashMap<String, VTimeZone>();
+        for(Iterator it = timezones.iterator(); it.hasNext();) {
+            VTimeZone vtz = (VTimeZone) it.next();
+            tzMap.put(vtz.getTimeZoneId().getValue(), vtz);
+        }
+        
+        // check start/end date tz is included, and add if it isn't
+        String tzid = getTzId(getStartDate());
+        if(tzid!=null && !tzMap.containsKey(tzid)) {
+            VTimeZone vtz = TIMEZONE_REGISTRY.getTimeZone(tzid).getVTimeZone();
+            masterCal.getComponents().add(vtz);
+            tzMap.put(tzid, vtz);
+        }
+        
+        tzid = getTzId(getEndDate());
+        if(tzid!=null && !tzMap.containsKey(tzid)) {
+            VTimeZone vtz = TIMEZONE_REGISTRY.getTimeZone(tzid).getVTimeZone();
+            masterCal.getComponents().add(vtz);
+            tzMap.put(tzid, vtz);
+        }
+        
         // add all exception events
         NoteItem note = (NoteItem) getItem();
         TreeMap<String, VEvent> sortedMap = new TreeMap<String, VEvent>();
         for(NoteItem exception : note.getModifications()) {
             EventExceptionStamp exceptionStamp = EventExceptionStamp.getStamp(exception);
             sortedMap.put(exceptionStamp.getRecurrenceId().toString(), exceptionStamp.getExceptionEvent());
-            //masterCal.getComponents().add(exceptionStamp.getExceptionEvent());
+            
+            // verify that timezones are present for exceptions, and add if not
+            tzid = getTzId(exceptionStamp.getStartDate());
+            if(tzid!=null && !tzMap.containsKey(tzid)) {
+                VTimeZone vtz = TIMEZONE_REGISTRY.getTimeZone(tzid).getVTimeZone();
+                masterCal.getComponents().add(vtz);
+                tzMap.put(tzid, vtz);
+            }
+            
+            tzid = getTzId(exceptionStamp.getEndDate());
+            if(tzid!=null && !tzMap.containsKey(tzid)) {
+                VTimeZone vtz = TIMEZONE_REGISTRY.getTimeZone(tzid).getVTimeZone();
+                masterCal.getComponents().add(vtz);
+                tzMap.put(tzid, vtz);
+            }
         }
         
         masterCal.getComponents().addAll(sortedMap.values());
@@ -224,5 +267,13 @@ public class EventStamp extends BaseEventStamp implements
         propertyIndexes.clear();
     }
     
-    
+    private String getTzId(Date date) {
+        if(date instanceof DateTime) {
+            DateTime dt = (DateTime) date;
+            if(dt.getTimeZone()!=null)
+                return dt.getTimeZone().getID();
+        }
+        
+        return null;
+    }
 }

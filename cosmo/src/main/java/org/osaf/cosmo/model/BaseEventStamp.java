@@ -30,6 +30,8 @@ import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.Recur;
+import net.fortuna.ical4j.model.TimeZoneRegistry;
+import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.parameter.Value;
@@ -54,7 +56,6 @@ import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Trigger;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
-import net.fortuna.ical4j.util.Dates;
 
 import org.osaf.cosmo.CosmoConstants;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
@@ -66,6 +67,9 @@ import org.osaf.cosmo.icalendar.ICalendarConstants;
 public abstract class BaseEventStamp extends Stamp
     implements java.io.Serializable, ICalendarConstants {
 
+    protected static final TimeZoneRegistry TIMEZONE_REGISTRY =
+        TimeZoneRegistryFactory.getInstance().createRegistry();
+    
     public abstract VEvent getEvent();
     public abstract void setCalendar(Calendar calendar);
     
