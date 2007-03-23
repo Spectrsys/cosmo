@@ -162,9 +162,9 @@ public class ICalendarToCosmoConverter {
                     }
                     event.setEnd(createCosmoDate(endDateTime, calendar, tzid != null ? tzid.getValue() : null));
                 } else {
-                    event.setStart(createCosmoDate(dtStart, calendar));
                     event.setEnd(createCosmoDate(dtEnd, calendar));
                 }
+                event.setStart(createCosmoDate(dtStart, calendar));
                 break;
         }
     }

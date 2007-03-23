@@ -381,6 +381,12 @@ public class ICalendarToCosmoConverterTest extends TestCase {
         assertTrue(e.isAnyTime());
     }
 
+    public void testBug84161EventsWithDurationInsteadOfEndDate() throws Exception{
+        Event e = loadEventIcs("bug8416-noEndDate.ics", "12345");
+        assertNotNull(e.getStart());
+        assertNotNull(e.getEnd());
+    }
+    
     protected Event loadEventIcs(String name, String id) throws Exception {
         Calendar c = testHelper.loadIcs(name);
         return converter.createEvent(id, getFirstEvent(c), c);
