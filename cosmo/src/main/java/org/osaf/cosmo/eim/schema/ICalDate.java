@@ -32,6 +32,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.osaf.cosmo.calendar.TimeZoneTranslator;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
 
 /**
@@ -43,6 +44,8 @@ public class ICalDate implements ICalendarConstants {
 
     private static final TimeZoneRegistry TIMEZONE_REGISTRY =
         TimeZoneRegistryFactory.getInstance().createRegistry();
+    
+    private static TimeZoneTranslator tzTranslator = TimeZoneTranslator.getInstance();
 
     private Value value;
     private TzId tzid;
@@ -104,7 +107,17 @@ public class ICalDate implements ICalendarConstants {
         if (date instanceof DateTime) {
             value = Value.DATE_TIME;
             tz = ((DateTime) date).getTimeZone();
+            
+            // Make sure timezone is Olson.  If the translator can't
+            // translate the timezon to an Olson timezone, then
+            // the event will essentially be floating.
             if (tz != null) {
+                tz = tzTranslator.translateToOlsonTz(tz);
+                if(tz==null)
+                    log.warn("no Olson timezone found for " + tz.getID());
+            }
+            
+            if(tz != null) {
                 String id = tz.getVTimeZone().getProperties().
                     getProperty(Property.TZID).getValue();
                 tzid = new TzId(id);
@@ -134,6 +147,16 @@ public class ICalDate implements ICalendarConstants {
     public ICalDate(DateList dates) {
         value = dates.getType();
         tz = dates.getTimeZone();
+        
+        // Make sure timezone is Olson.  If the translator can't
+        // translate the timezon to an Olson timezone, then
+        // the event will essentially be floating.
+        if (tz != null) {
+            tz = tzTranslator.translateToOlsonTz(tz);
+            if(tz==null)
+                log.warn("no Olson timezone found for " + tz.getID());
+        }
+        
         if (tz != null) {
             String id = tz.getVTimeZone().getProperties().
                 getProperty(Property.TZID).getValue();
