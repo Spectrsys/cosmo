@@ -38,6 +38,8 @@ import org.osaf.cosmo.eim.eimml.EimmlStreamWriter;
 import org.osaf.cosmo.eim.eimml.EimmlStreamException;
 import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.UidInUseException;
+import org.osaf.cosmo.model.Ticket;
+import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.server.CollectionPath;
 
 import org.springframework.beans.BeansException;
@@ -64,6 +66,8 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
 
     private static final String BEAN_CONTROLLER =
         "morseCodeController";
+    private static final String BEAN_SECURITY_MANAGER =
+        "securityManager";
 
     /**
      * The name of the request parameter that provides the
@@ -84,6 +88,13 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
      */
     public static final String HEADER_SYNC_TOKEN = "X-MorseCode-SyncToken";
     /**
+     * The name of the response header that provides the privileges
+     * for a ticket request principal:
+     * <code>X-MorseCode-TicketPrivileges</code>.
+     */
+    public static final String HEADER_TICKET_PRIVILEGES =
+        "X-MorseCode-TicketPrivileges";
+    /**
      * The response status code indicating that a collection is locked
      * for updates: <code>423</code>.
      */
@@ -91,6 +102,7 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
 
     private WebApplicationContext wac;
     private MorseCodeController controller;
+    private CosmoSecurityManager securityManager;
 
     // HttpServlet methods
 
@@ -158,6 +170,13 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                 resp.setCharacterEncoding("UTF-8");
                 resp.addHeader(HEADER_SYNC_TOKEN,
                                records.getToken().serialize());
+
+                Ticket ticket =
+                    securityManager.getSecurityContext().getTicket();
+                if (ticket != null)
+                    resp.addHeader(HEADER_TICKET_PRIVILEGES,
+                                   StringUtils.join(ticket.getPrivileges(),
+                                                    ' '));
 
                 EimmlStreamWriter writer =
                     new EimmlStreamWriter(resp.getOutputStream(),
@@ -417,10 +436,15 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
             if (controller == null)
                 controller = (MorseCodeController)
                     getBean(BEAN_CONTROLLER, MorseCodeController.class);
+            if (securityManager == null)
+                securityManager = (CosmoSecurityManager)
+                    getBean(BEAN_SECURITY_MANAGER, CosmoSecurityManager.class);
         }
         
         if (controller == null)
-            throw new ServletException("content service must not be null");
+            throw new ServletException("controller must not be null");
+        if (securityManager == null)
+            throw new ServletException("securityManager must not be null");
     }
 
     // our methods
@@ -435,6 +459,18 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
      */
     public void setController(MorseCodeController controller) {
         this.controller = controller;
+    }
+
+    /**
+     */
+    public CosmoSecurityManager getSecurityManager() {
+        return securityManager;
+    }
+
+    /**
+     */
+    public void setSecurityManager(CosmoSecurityManager securityManager) {
+        this.securityManager = securityManager;
     }
 
     // private methods
