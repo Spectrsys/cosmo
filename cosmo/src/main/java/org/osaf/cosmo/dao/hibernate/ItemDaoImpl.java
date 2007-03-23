@@ -567,8 +567,17 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
 
     // Set server generated item properties
     protected void setBaseItemProps(Item item) {
-        if(item.getUid()==null)
+        if (item.getUid() == null)
             item.setUid(idGenerator.nextIdentifier().toString());
+        for (Ticket ticket : item.getTickets()) {
+            if (ticket.getOwner() == null)
+                ticket.setOwner(item.getOwner());
+            if (ticket.getKey() == null)
+                ticket.setKey(ticketKeyGenerator.nextIdentifier().toString());
+            if (ticket.getTimeout() == null)
+                ticket.setTimeout(Ticket.TIMEOUT_INFINITE);
+            ticket.setCreated(new Date());
+        }
     }
 
     protected Item findItemByParentAndName(Long userDbId, Long parentDbId,

@@ -78,9 +78,10 @@ public class StandardMorseCodeController implements MorseCodeController {
 
     /**
      * Creates a collection identified by the given uid and populates
-     * the collection with items with the provided states. The publish
-     * is atomic; the entire publish fails if the collection or any
-     * contained item cannot be created.
+     * the collection with items with the provided states. If ticket
+     * types are provided, creates one ticket of each type on the
+     * collection. The publish is atomic; the entire publish fails if
+     * the collection or any contained item cannot be created.
      *
      * If a parent uid is provided, the associated collection becomes
      * the parent of the new collection.
@@ -90,6 +91,8 @@ public class StandardMorseCodeController implements MorseCodeController {
      * the parent for the published collection
      * @param records the EIM record sets describing the collection
      * and the items with which it is initially populated
+     * @param ticketTypes a set of ticket types to create on the
+     * collection, one per type
      *
      * @returns the initial <code>SyncToken</code> for the collection
      * @throws IllegalArgumentException if the authenticated principal
@@ -104,12 +107,14 @@ public class StandardMorseCodeController implements MorseCodeController {
      * data according to the records' schemas
      * @throws MorseCodeException if an unknown error occurs
      */
-    public SyncToken publishCollection(String uid,
-                                       String parentUid,
-                                       PubRecords records) {
+    public PubCollection publishCollection(String uid,
+                                           String parentUid,
+                                           PubRecords records,
+                                           Set<Ticket.Type> ticketTypes) {
         if (log.isDebugEnabled()) {
             if (parentUid != null)
-                log.debug("publishing collection " + uid + " with parent " + parentUid);
+                log.debug("publishing collection " + uid +
+                          " with parent " + parentUid);
             else
                 log.debug("publishing collection " + uid);
         }
@@ -145,13 +150,16 @@ public class StandardMorseCodeController implements MorseCodeController {
         Set<Item> children = recordsToItems(records.getRecordSets(),
                                             collection);
 
+        for (Ticket.Type type : ticketTypes)
+            collection.addTicket(new Ticket(type));
+
         // throws UidinUseException
         collection =
             contentService.createCollection(parent, collection, children);
 
-        return SyncToken.generate(collection);
+        return new PubCollection(collection);
     }
-   
+
     /**
      * Retrieves the current state of every item contained within the
      * identified collection.
@@ -247,9 +255,9 @@ public class StandardMorseCodeController implements MorseCodeController {
      * data according to the records' schemas
      * @throws MorseCodeException if an unknown error occurs
      */
-    public SyncToken updateCollection(String uid,
-                                      SyncToken token,
-                                      PubRecords records) {
+    public PubCollection updateCollection(String uid,
+                                          SyncToken token,
+                                          PubRecords records) {
         if (log.isDebugEnabled()) {
             log.debug("updating collection " + uid);
         }
@@ -276,7 +284,7 @@ public class StandardMorseCodeController implements MorseCodeController {
         // throws CollectionLockedException
         collection = contentService.updateCollection(collection, children);
 
-        return SyncToken.generate(collection);
+        return new PubCollection(collection);
     }
 
     // our methods

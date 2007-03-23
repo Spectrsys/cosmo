@@ -16,6 +16,9 @@
 package org.osaf.cosmo.mc;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -82,18 +85,19 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
      */
     public static final String PARAM_PARENT_UID = "parent";
     /**
-     * The name of the response header that contains the new
-     * synchronization token for publish, update, subscribe and
-     * synchronize requests: <code>X-MorseCode-SyncToken</code>.
+     * The extension header <code>X-MorseCode-SyncToken</code>
      */
     public static final String HEADER_SYNC_TOKEN = "X-MorseCode-SyncToken";
     /**
-     * The name of the response header that provides the privileges
-     * for a ticket request principal:
-     * <code>X-MorseCode-TicketPrivileges</code>.
+     * The extension header <code>X-MorseCode-TicketType</code> 
      */
-    public static final String HEADER_TICKET_PRIVILEGES =
-        "X-MorseCode-TicketPrivileges";
+    public static final String HEADER_TICKET_TYPE =
+        "X-MorseCode-TicketType";
+    /**
+     * The extension header <code>X-MorseCode-Tickete</code> 
+     */
+    public static final String HEADER_TICKET =
+        "X-MorseCode-Ticket";
     /**
      * The response status code indicating that a collection is locked
      * for updates: <code>423</code>.
@@ -173,10 +177,9 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
 
                 Ticket ticket =
                     securityManager.getSecurityContext().getTicket();
-                if (ticket != null)
-                    resp.addHeader(HEADER_TICKET_PRIVILEGES,
-                                   StringUtils.join(ticket.getPrivileges(),
-                                                    ' '));
+                if (ticket != null && ticket.getType() != null)
+                    resp.addHeader(HEADER_TICKET_TYPE,
+                                   ticket.getType().toString());
 
                 EimmlStreamWriter writer =
                     new EimmlStreamWriter(resp.getOutputStream(),
@@ -273,11 +276,12 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                 PubRecords records =
                     new PubRecords(i, reader.getCollectionName());
 
-                SyncToken newToken =
+                PubCollection pubCollection =
                     controller.updateCollection(cp.getUid(), token, records);
 
                 resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                resp.addHeader(HEADER_SYNC_TOKEN, newToken.serialize());
+                resp.addHeader(HEADER_SYNC_TOKEN,
+                               pubCollection.getToken().serialize());
                 return;
             } catch (SyncTokenException e) {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
@@ -362,12 +366,27 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                 PubRecords records =
                     new PubRecords(i, reader.getCollectionName());
 
-                SyncToken newToken =
+                
+                Set<Ticket.Type> ticketTypes = null;
+                try {
+                    ticketTypes = parseTicketTypes(req);
+                } catch (IllegalArgumentException e) {
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                                   e.getMessage());
+                    return;
+                }
+
+                PubCollection pubCollection =
                     controller.publishCollection(cp.getUid(), parentUid,
-                                                 records);
+                                                 records, ticketTypes);
 
                 resp.setStatus(HttpServletResponse.SC_CREATED);
-                resp.addHeader(HEADER_SYNC_TOKEN, newToken.serialize());
+                resp.addHeader(HEADER_SYNC_TOKEN,
+                               pubCollection.getToken().serialize());
+                for (Ticket ticket :
+                         pubCollection.getCollection().getTickets())
+                    resp.addHeader(HEADER_TICKET, formatTicket(ticket));
+
                 return;
             } catch (IllegalArgumentException e) {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
@@ -511,5 +530,30 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
         }
 
         return true;
+    }
+
+    private Set<Ticket.Type> parseTicketTypes(HttpServletRequest req) {
+        Set<Ticket.Type> types = new HashSet<Ticket.Type>();
+
+        Enumeration<String> e = (Enumeration<String>)
+            req.getHeaders(HEADER_TICKET_TYPE);
+        while (e.hasMoreElements()) {
+            for (String id : StringUtils.split(e.nextElement())) {
+                if (! (id.equals(Ticket.Type.ID_READ_ONLY) ||
+                       id.equals(Ticket.Type.ID_READ_WRITE)))
+                    throw new IllegalArgumentException("Ticket type " + id + " not allowed for collections");
+                types.add(Ticket.Type.createInstance(id));
+            }
+        }
+
+        return types;
+    }
+
+    private String formatTicket(Ticket ticket) {
+        StringBuffer buf = new StringBuffer();
+        buf.append(ticket.getType()).
+            append("=").
+            append(ticket.getKey());
+        return buf.toString();
     }
 }
