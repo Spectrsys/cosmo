@@ -15,8 +15,10 @@
  */
 package org.osaf.cosmo.eim.schema.event.alarm;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.component.VAlarm;
 
@@ -48,15 +50,28 @@ public class DisplayAlarmGenerator extends BaseStampGenerator
         setStamp(BaseEventStamp.getStamp(item, false));
     }
 
+    @Override
+    public List<EimRecord> generateRecords(long timestamp) {
+        BaseEventStamp stamp = (BaseEventStamp) getStamp();
+        
+        // use super class if item is an event
+        if (stamp != null)
+            return super.generateRecords(timestamp);
+        
+        // Otherwise overide for non-event records, where we
+        // pull the alarm from NoteItem.reminderTime
+        ArrayList<EimRecord> records = new ArrayList<EimRecord>();
+        addRecordsNonEvent(records);
+        return records;
+    }
+    
     /**
      * Adds records representing the event's display
      * alarm (if one exists).
      */
     protected void addRecords(List<EimRecord> records) {
         BaseEventStamp stamp = (BaseEventStamp) getStamp();
-        if (stamp == null)
-            return;
-
+        
         VAlarm alarm = stamp.getDisplayAlarm();
         if (alarm == null)
             return;
@@ -67,6 +82,13 @@ public class DisplayAlarmGenerator extends BaseStampGenerator
         EimRecord record = new EimRecord(getPrefix(), getNamespace());
         addKeyFields(record);
         addFields(record);
+        records.add(record);
+    }
+    
+    protected void addRecordsNonEvent(List<EimRecord> records) {
+        EimRecord record = new EimRecord(getPrefix(), getNamespace());
+        addKeyFields(record);
+        addFieldsNonEvent(record);
         records.add(record);
     }
     
@@ -107,6 +129,25 @@ public class DisplayAlarmGenerator extends BaseStampGenerator
             record.addField(new IntegerField(FIELD_REPEAT, stamp.getDisplayAlarmRepeat()));
         }
         
+        record.addFields(generateUnknownFields());
+    }
+    
+    private void addFieldsNonEvent(EimRecord record) {
+        NoteItem noteItem = (NoteItem) getItem();
+        
+        record.addField(new TextField(FIELD_DESCRIPTION, null));
+        
+        // TODO: fix to generate isMissing if required
+        if(noteItem.getReminderTime()==null)
+            record.addField(new TextField(FIELD_TRIGGER, null));
+        else {
+            DateTime dt = new DateTime(true);
+            dt.setTime(noteItem.getReminderTime().getTime());
+            record.addField(new TextField(FIELD_TRIGGER, EimValueConverter.formatTriggerFromDateTime(dt)));
+        }
+        record.addField(new TextField(FIELD_DURATION, null));
+        record.addField(new IntegerField(FIELD_REPEAT, 1));
+
         record.addFields(generateUnknownFields());
     }
  

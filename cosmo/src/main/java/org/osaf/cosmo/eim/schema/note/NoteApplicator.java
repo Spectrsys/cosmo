@@ -16,7 +16,6 @@
 package org.osaf.cosmo.eim.schema.note;
 
 import java.io.Reader;
-import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,14 +83,6 @@ public class NoteApplicator extends BaseItemApplicator
                 String value =
                     EimFieldValidator.validateText(field, MAXLEN_ICALUID);
                 note.setIcalUid(value);
-            }
-        } else if(field.getName().equals(FIELD_REMINDER_TIME)) {
-            if(field.isMissing()) {
-                handleMissingAttribute("reminderTime");
-            }
-            else {
-                Date value = EimFieldValidator.validateTimeStamp(field);
-                note.setReminderTime(value);
             }
         } else {
             applyUnknownField(field);

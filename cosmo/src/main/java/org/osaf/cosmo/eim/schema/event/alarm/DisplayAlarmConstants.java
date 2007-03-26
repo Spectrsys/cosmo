@@ -26,7 +26,7 @@ public interface DisplayAlarmConstants extends EventConstants {
     /** */
     public static final String FIELD_TRIGGER = "trigger";
     /** */
-    public static final int MAXLEN_TRIGGER = 32;
+    public static final int MAXLEN_TRIGGER = 64;
     /** */
     public static final String FIELD_DESCRIPTION = "description";
     /** */

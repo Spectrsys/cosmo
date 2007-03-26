@@ -17,6 +17,7 @@ package org.osaf.cosmo.eim.schema.event.alarm;
 
 import junit.framework.Assert;
 
+import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
 
 import org.apache.commons.logging.Log;
@@ -56,6 +57,18 @@ public class DisplayAlarmApplicatorTest extends BaseApplicatorTestCase
         Assert.assertEquals(eventStamp.getDisplayAlarmRepeat(), new Integer(1));
     }
     
+    public void testApplyFieldNonEvent() throws Exception {
+        NoteItem noteItem = new NoteItem();
+        EimRecord record = makeTestRecordNonEvent();
+
+        DisplayAlarmApplicator applicator =
+            new DisplayAlarmApplicator(noteItem);
+        applicator.applyRecord(record);
+
+        Assert.assertNotNull(noteItem.getReminderTime());
+        Assert.assertEquals(noteItem.getReminderTime(), new DateTime("20080101T075900Z"));
+    }
+    
     public void testApplyMissingField() throws Exception {
         NoteItem masterNote = new NoteItem();
         EventStamp masterEvent = new EventStamp(masterNote);
@@ -92,6 +105,17 @@ public class DisplayAlarmApplicatorTest extends BaseApplicatorTestCase
         record.addField(new TextField(FIELD_DESCRIPTION, "My alarm"));
         record.addField(new TextField(FIELD_TRIGGER, "PT15M"));
         record.addField(new TextField(FIELD_DURATION, "P1W"));
+        record.addField(new IntegerField(FIELD_REPEAT, 1));
+
+        return record;
+    }
+    
+    private EimRecord makeTestRecordNonEvent() {
+        EimRecord record = new EimRecord(PREFIX_DISPLAY_ALARM, NS_DISPLAY_ALARM);
+
+        record.addField(new TextField(FIELD_DESCRIPTION, null));
+        record.addField(new TextField(FIELD_TRIGGER, ";VALUE=DATE-TIME:20080101T075900Z"));
+        record.addField(new TextField(FIELD_DURATION, null));
         record.addField(new IntegerField(FIELD_REPEAT, 1));
 
         return record;

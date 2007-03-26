@@ -59,10 +59,11 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
     
     @Override
     protected void applyDeletion(EimRecord record) throws EimSchemaException {
-        VEvent event = getEvent(record);
+        VEvent event = getEvent(record);    
         
+        // Require event to continue
         if(event==null)
-            throw new EimSchemaException("no event found for alarm");
+            throw new EimSchemaException("No event to delete");
         
         VAlarm alarm = getDisplayAlarm(event);
         
@@ -70,21 +71,30 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
         if(alarm != null)
             event.getAlarms().remove(alarm);
     }
+    
+    protected void applyDeletionNonEvent(EimRecord record) throws EimSchemaException {
+        NoteItem note = (NoteItem) getItem();
+        note.setReminderTime(null);
+    }
 
     @Override
     public void applyRecord(EimRecord record) throws EimSchemaException {
-        VEvent event = getEvent(record);
-        BaseEventStamp eventStamp = getEventStamp();
         
-        if(event==null)
-            throw new EimSchemaException("no event found for alarm");
+        // If item is not an event, then process differently
+        if(getEventStamp()==null) {
+            applyRecordNonEvent(record);
+            return;
+        }
         
+        // handle deletion
         if (record.isDeleted()) {
             applyDeletion(record);
             return;
         }
         
-        // create the alarm if its not already there
+        BaseEventStamp eventStamp = getEventStamp();
+        VEvent event = getEvent(record);
+        
         getOrCreateDisplayAlarm(event);
             
         for (EimRecordField field : record.getFields()) {
@@ -129,6 +139,46 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
                     Integer value = EimFieldValidator.validateInteger(field);
                     eventStamp.setDisplayAlarmRepeat(value);
                 }
+            }
+            else
+                log.warn("usupported eim field " + field.getName()
+                        + " found in " + record.getNamespace());
+        }
+    }
+    
+    public void applyRecordNonEvent(EimRecord record) throws EimSchemaException {
+        
+        // handle deletion
+        if (record.isDeleted()) {
+            applyDeletionNonEvent(record);
+            return;
+        }
+        
+        NoteItem note = (NoteItem) getItem();
+            
+        for (EimRecordField field : record.getFields()) {
+            if(field.getName().equals(FIELD_DESCRIPTION)) {
+                // ignore, don't support
+            }
+            else if(field.getName().equals(FIELD_TRIGGER)) {
+                if(field.isMissing()) {
+                    handleMissingAttribute("reminderTime");
+                }
+                else {
+                    String value = EimFieldValidator.validateText(field, MAXLEN_TRIGGER);
+                    Trigger trigger = EimValueConverter.toIcalTrigger(value);
+                    
+                    // for non-events, the trigger has to be absolute
+                    if(trigger.getDuration()!=null)
+                        throw new EimSchemaException("non-absolute triggers not supported on non-events");
+                    note.setReminderTime(trigger.getDate());
+                }
+            }
+            else if (field.getName().equals(FIELD_DURATION)) {
+                // ignore, don't support
+            }
+            else if(field.getName().equals(FIELD_REPEAT)) {
+                // ignore, don't support
             }
             else
                 log.warn("usupported eim field " + field.getName()

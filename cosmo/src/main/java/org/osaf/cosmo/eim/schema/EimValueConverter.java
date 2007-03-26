@@ -150,6 +150,18 @@ public class EimValueConverter implements EimSchemaConstants {
         else
             return trigger.getDuration().toString();
     }
+    
+    /**
+     * Generate an icalendar TRIGGER value representation for an absolute trigger
+     * with the given absolute trigger time.
+     * @param dateTime absolute trigger time
+     * @return icalendar TRIGGER value string
+     */
+    public static String formatTriggerFromDateTime(DateTime dateTime) {
+        if(!dateTime.isUtc())
+            throw new IllegalArgumentException("date must be UTC");
+        return ";VALUE=DATE-TIME:" + dateTime.toString();
+    }
 
     /**
      * Parses a serialized text value and returns a trigger object.

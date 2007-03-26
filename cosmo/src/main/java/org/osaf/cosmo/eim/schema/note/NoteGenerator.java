@@ -16,21 +16,17 @@
 package org.osaf.cosmo.eim.schema.note;
 
 import java.io.StringReader;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
 import java.util.ArrayList;
-
-import org.osaf.cosmo.eim.EimRecord;
-import org.osaf.cosmo.eim.ClobField;
-import org.osaf.cosmo.eim.DecimalField;
-import org.osaf.cosmo.eim.TextField;
-import org.osaf.cosmo.eim.schema.BaseItemGenerator;
-import org.osaf.cosmo.model.NoteItem;
-import org.osaf.cosmo.model.Item;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.eim.ClobField;
+import org.osaf.cosmo.eim.EimRecord;
+import org.osaf.cosmo.eim.TextField;
+import org.osaf.cosmo.eim.schema.BaseItemGenerator;
+import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.NoteItem;
 
 /**
  * Generates EIM records from note items.
@@ -74,21 +70,6 @@ public class NoteGenerator extends BaseItemGenerator
             record.addField(new TextField(FIELD_ICALUID, note.getIcalUid()));
         }
         
-        if(isMissingAttribute("reminderTime")) {
-            record
-                    .addField(generateMissingField(new DecimalField(
-                            FIELD_REMINDER_TIME, null, DIGITS_TIMESTAMP,
-                            DEC_TIMESTAMP)));
-        } else {
-            Date d = note.getReminderTime();
-            BigDecimal reminderTime = d != null ?
-                new BigDecimal(d.getTime() / 1000) :
-                null;
-            record.addField(new DecimalField(FIELD_REMINDER_TIME, reminderTime,
-                                             DIGITS_TIMESTAMP, DEC_TIMESTAMP));
-        }
-        
-
         record.addFields(generateUnknownFields());
 
         ArrayList<EimRecord> records = new ArrayList<EimRecord>();
