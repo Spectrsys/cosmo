@@ -97,11 +97,6 @@ public class DavFile extends DavResourceBase {
                    DavResourceFactory factory,
                    DavSession session) {
         super(item, locator, factory, session);
-
-        // pre-emptively calculate etag, which will not change until
-        // the item content changes
-        if (exists())
-            this.etag = calculateEtag();
     }
 
     /** */
@@ -129,10 +124,9 @@ public class DavFile extends DavResourceBase {
 
     /** */
     public String getETag() {
-        if (etag == null) {
-            etag = calculateEtag();
-        }
-        return etag;
+        if (getItem() == null)
+            return null;
+        return calculateEtag();
     }
 
     /** */
