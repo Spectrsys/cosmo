@@ -40,6 +40,7 @@
   - <span class="md">${Path}</span>
 </div>
 
+<c:if test="${Item.class.name == 'org.osaf.cosmo.model.ContentItem' || eventstamp!=null}">
 <div style="margin-top:12px;">
 <c:choose>
 <c:when test="${eventstamp != null}">
@@ -50,6 +51,7 @@
 </c:otherwise>
 </c:choose>
 </div>
+</c:if>
 
 <div class="hd" style="margin-top: 12px;">
   Item Properties
