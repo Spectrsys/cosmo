@@ -40,7 +40,7 @@ public class TimeZoneTranslatorTest extends TestCase {
         
         TimeZone olsonTz = translator.translateToOlsonTz(tz1);
         Assert.assertNotNull(olsonTz);
-        Assert.assertEquals("America/Chicago", olsonTz.getID());
+        Assert.assertEquals("America/Los_Angeles", olsonTz.getID());
         
         olsonTz = translator.translateToOlsonTz(tz2);
         Assert.assertNotNull(olsonTz);
