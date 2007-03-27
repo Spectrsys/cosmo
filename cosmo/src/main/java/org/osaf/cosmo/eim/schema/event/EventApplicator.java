@@ -70,8 +70,10 @@ public class EventApplicator extends BaseStampApplicator
         else {
             eventStamp = new EventExceptionStamp(getItem());
             eventStamp.createCalendar();
-            String recurrenceId = note.getUid().split(":")[1];
-            eventStamp.setRecurrenceId(EimValueConverter.toICalDate(recurrenceId).getDate());
+            String recurrenceId = note.getUid().split(
+                    EventExceptionStamp.RECURRENCEID_DELIMITER)[1];
+            eventStamp.setRecurrenceId(EimValueConverter.toICalDate(
+                    recurrenceId).getDate());
         }
         
         return eventStamp;

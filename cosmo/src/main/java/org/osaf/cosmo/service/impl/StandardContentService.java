@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.osaf.cosmo.calendar.util.Dates;
 import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
@@ -1031,10 +1032,11 @@ public class StandardContentService implements ContentService {
         exceptionStamp.setExceptionEvent(event);
         noteMod.addStamp(exceptionStamp);
 
-        noteMod.setUid(masterNote.getUid() + ":" + event.getRecurrenceId().getValue());
+        noteMod.setUid(masterNote.getUid()
+                + EventExceptionStamp.RECURRENCEID_DELIMITER
+                + Dates.fromDateToString(event.getRecurrenceId().getDate()));
         noteMod.setOwner(masterNote.getOwner());
-        noteMod.setName(event.getUid().getValue() + ":"
-                + event.getRecurrenceId().getValue());
+        noteMod.setName(noteMod.getUid());
         noteMod.setDisplayName(exceptionStamp.getDescription());
         noteMod.setBody(exceptionStamp.getSummary());
         noteMod.setIcalUid(masterNote.getIcalUid());

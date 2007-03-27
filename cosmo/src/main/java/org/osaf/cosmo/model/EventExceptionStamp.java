@@ -50,6 +50,8 @@ public class EventExceptionStamp extends BaseEventStamp implements
     private static final long serialVersionUID = 3992468809776886156L;
 
     private Calendar calendar = null;
+ 
+    public static final String RECURRENCEID_DELIMITER = "::";
     
     /** default constructor */
     public EventExceptionStamp() {

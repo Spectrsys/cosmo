@@ -30,6 +30,7 @@ import org.osaf.cosmo.eim.schema.EimValidationException;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
+import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
@@ -367,7 +368,7 @@ public class StandardMorseCodeController implements MorseCodeController {
         child.setUid(recordset.getUuid());
         child.setOwner(collection.getOwner());
         
-        if(child.getUid().indexOf(":")>0)
+        if(child.getUid().indexOf(EventExceptionStamp.RECURRENCEID_DELIMITER)>0)
             handleModificationItem(child, collection);
         
         // Add reference to parent collection so that applicator can
@@ -378,7 +379,8 @@ public class StandardMorseCodeController implements MorseCodeController {
     }
     
     private void handleModificationItem(NoteItem noteMod, CollectionItem collection) {
-        String parentUid = noteMod.getUid().split(":")[0];
+        String parentUid = noteMod.getUid().split(
+                EventExceptionStamp.RECURRENCEID_DELIMITER)[0];
         
         // Find parent note item by looking through collection's children.
         for (Item child : collection.getChildren()) {
