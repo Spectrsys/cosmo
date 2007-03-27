@@ -23,3 +23,4 @@ insert into collection_item (itemid, collectionid) select id, parentid from item
 update item set isautotriage=1 where itemtype='note'
 delete from event_stamp where exists (select id from stamp where isactive=0 and id=stampid)
 delete from stamp where stamp.isactive=0
+delete from item where isactive=0
