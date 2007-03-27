@@ -18,7 +18,6 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,8 +27,14 @@ import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
+import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.parameter.TzId;
+import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.RecurrenceId;
@@ -37,18 +42,19 @@ import net.fortuna.ical4j.model.property.Version;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.calendar.TimeZoneTranslator;
 
 
 /**
- * Migration implementation that migrates Cosmo 0.6.0
+ * Migration implementation that migrates Cosmo 0.6.0.1
  * database to 0.6.1  
  * 
  * Supports MySQL5 and Derby dialects only.
  *
  */
-public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
+public class ZeroPointSixZeroOneToZeroPointSixOneMigration extends AbstractMigration {
     
-    private static final Log log = LogFactory.getLog(ZeroPointSixToZeroPointSixOneMigration.class);
+    private static final Log log = LogFactory.getLog(ZeroPointSixZeroOneToZeroPointSixOneMigration.class);
     private HibernateHelper hibernateHelper = new HibernateHelper();
     
     public static final String PRODUCT_ID =
@@ -56,7 +62,7 @@ public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
     
     @Override
     public String getFromVersion() {
-        return "0.6.0";
+        return "0.6.0.1";
     }
 
     @Override
@@ -78,38 +84,8 @@ public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
         log.debug("starting migrateData()");
         
         migrateEvents(conn, dialect);
-        
-        if("Derby".equals(dialect))
-            removeDerbyIndexes(conn);
     }
      
-    private void removeDerbyIndexes(Connection conn)  throws Exception {
-        
-        Statement stmt = null;
-        log.debug("starting migrateDerbyIndexes()");
-        
-        try {
-            
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select constraintname from sys.sysconstraints, sys.systables where sys.sysconstraints.tableid=sys.systables.tableid and sys.systables.tablename='STAMP' and sys.sysconstraints.constraintname like 'SQL%' order by sys.sysconstraints.constraintname asc");
-            
-            // should be 2, and the second one is the name we are looking for
-            if(!rs.next())
-                throw new RuntimeException("error migrating derby indexes, no indexes found");
-            if(!rs.next())
-                throw new RuntimeException("error migrating derby indexes, only 1 index found");
-            
-            String indexName = rs.getString(1);
-            rs.close();
-            
-            
-            log.debug("dropping index " + indexName);
-            stmt.execute("alter table stamp drop unique " + indexName);
-        } finally {
-            if(stmt!=null)
-                stmt.close();
-        }
-    }
     
     private void migrateEvents(Connection conn, String dialect) throws Exception {
         PreparedStatement stmt = null;
@@ -214,7 +190,7 @@ public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
                     Property description = mod.getProperties().getProperty(Property.DESCRIPTION);
                     String eventSummary = null;
                     String eventDescription = null;
-                    String uid = parentUid + ":" + recurrenceId.getValue();
+                    String uid = parentUid + "::" + fromDateToString(recurrenceId.getDate());
                     
                     if(summary!=null)
                         eventSummary = summary.getValue();
@@ -228,7 +204,7 @@ public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
                     if(description!=null)
                         eventDescription = description.getValue();
             
-                    String itemName = icalUid + ":" + recurrenceId.getValue();
+                    String itemName = uid;
                     
                     insertItemStmt1.setLong(2, ownerId);
                     insertItemStmt2.setLong(2, ownerId);
@@ -361,6 +337,43 @@ public class ZeroPointSixToZeroPointSixOneMigration extends AbstractMigration {
         cal.getProperties().add(CalScale.GREGORIAN);
         cal.getComponents().add(event);
         return cal;
+    }
+    
+    public static String fromDateToString(Date date) {
+        Value value = null;
+        TimeZone tz = null;
+        Parameter tzid = null;
+        
+        if (date instanceof DateTime) {
+            value = Value.DATE_TIME;
+            tz = ((DateTime) date).getTimeZone();
+            
+            // Make sure timezone is Olson.  If the translator can't
+            // translate the timezon to an Olson timezone, then
+            // the event will essentially be floating.
+            if (tz != null) {
+                String oldId = tz.getID();
+                tz = TimeZoneTranslator.getInstance().translateToOlsonTz(tz);
+                if(tz==null)
+                    log.warn("no Olson timezone found for " + oldId);
+            }
+            
+            if(tz != null) {
+                String id = tz.getVTimeZone().getProperties().
+                    getProperty(Property.TZID).getValue();
+                tzid = new TzId(id);
+            }
+        } else {
+            value = Value.DATE;
+        }
+       
+        StringBuffer buf = new StringBuffer(";");
+        buf.append(value.toString());
+        if (tzid != null)
+            buf.append(";").append("TZID=").append(tzid.getValue());
+       
+        buf.append(":").append(date.toString());
+        return buf.toString();
     }
 
 }

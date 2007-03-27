@@ -1,4 +1,4 @@
-# 0.6.0-to-0.6.1-Derby-post.sql
+# 0.6.0.1-to-0.6.1-Derby-post.sql
 
 # can't drop parentid column, so atleast drop the constraint
 alter table item drop foreign key FK317B137014CFFB
