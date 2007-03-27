@@ -112,9 +112,10 @@ public class ICalDate implements ICalendarConstants {
             // translate the timezon to an Olson timezone, then
             // the event will essentially be floating.
             if (tz != null) {
+                String origId = tz.getID();
                 tz = tzTranslator.translateToOlsonTz(tz);
                 if(tz==null)
-                    log.warn("no Olson timezone found for " + tz.getID());
+                    log.warn("no Olson timezone found for " + origId);
             }
             
             if(tz != null) {
@@ -152,9 +153,10 @@ public class ICalDate implements ICalendarConstants {
         // translate the timezon to an Olson timezone, then
         // the event will essentially be floating.
         if (tz != null) {
+            String origId = tz.getID();
             tz = tzTranslator.translateToOlsonTz(tz);
             if(tz==null)
-                log.warn("no Olson timezone found for " + tz.getID());
+                log.warn("no Olson timezone found for " + origId);
         }
         
         if (tz != null) {
