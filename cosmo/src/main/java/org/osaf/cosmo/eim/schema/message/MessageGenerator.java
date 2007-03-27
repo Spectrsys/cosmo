@@ -15,18 +15,17 @@
  */
 package org.osaf.cosmo.eim.schema.message;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseStampGenerator;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.MessageStamp;
-import org.osaf.cosmo.model.Stamp;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Generates EIM records from message stamps.
@@ -38,12 +37,23 @@ public class MessageGenerator extends BaseStampGenerator
     private static final Log log =
         LogFactory.getLog(MessageGenerator.class);
 
+    private static final HashSet<String> STAMP_TYPES = new HashSet<String>(2);
+    
+    static {
+        STAMP_TYPES.add("message");
+    }
+    
     private MessageStamp message;
 
     /** */
     public MessageGenerator(Item item) {
         super(PREFIX_MESSAGE, NS_MESSAGE, item);
-        setStamp(MessageStamp.getStamp(item, false));
+        setStamp(MessageStamp.getStamp(item));
+    }
+
+    @Override
+    protected Set<String> getStampTypes() {
+        return STAMP_TYPES;
     }
 
     /**

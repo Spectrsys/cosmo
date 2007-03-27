@@ -30,7 +30,9 @@ import org.osaf.cosmo.model.MessageStamp;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.Stamp;
+import org.osaf.cosmo.model.StampTombstone;
 import org.osaf.cosmo.model.StringAttribute;
+import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.User;
 
 public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCase {
@@ -68,7 +70,6 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
 
         ContentItem queryItem = contentDao.findContentByUid(newItem.getUid());
         Assert.assertEquals(2, queryItem.getStamps().size());
-        Assert.assertEquals(2, queryItem.getActiveStamps().size());
         
         Stamp stamp = queryItem.getStamp(EventStamp.class);
         Assert.assertNotNull(stamp.getCreationDate());
@@ -119,7 +120,6 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
 
         ContentItem queryItem = contentDao.findContentByUid(newItem.getUid());
         Assert.assertEquals(2, queryItem.getStamps().size());
-        Assert.assertEquals(2, queryItem.getActiveStamps().size());
         
         Stamp stamp = queryItem.getStamp(MessageStamp.class);
         queryItem.removeStamp(stamp);
@@ -133,8 +133,7 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         
         clearSession();
         queryItem = contentDao.findContentByUid(newItem.getUid());
-        Assert.assertEquals(2, queryItem.getStamps().size());
-        Assert.assertEquals(1, queryItem.getActiveStamps().size());
+        Assert.assertEquals(1, queryItem.getStamps().size());
         Assert.assertNull(queryItem.getStamp(MessageStamp.class));
         stamp = queryItem.getStamp(EventStamp.class);
         es = (EventStamp) stamp;
@@ -179,8 +178,7 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
 
         ContentItem queryItem = contentDao.findContentByUid(newItem.getUid());
         Assert.assertEquals(1, queryItem.getStamps().size());
-        Assert.assertEquals(1, queryItem.getActiveStamps().size());
-        
+       
         Stamp stamp = queryItem.getStamp(EventStamp.class);
         queryItem.removeStamp(stamp);
         contentDao.updateContent(queryItem);
@@ -188,10 +186,12 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         
         queryItem = contentDao.findContentByUid(newItem.getUid());
         Assert.assertNotNull(queryItem);
-        Assert.assertEquals(queryItem.getStamps().size(),1);
-        Assert.assertEquals(queryItem.getActiveStamps().size(),0);
-        Assert.assertTrue(
-                queryItem.getStamps().iterator().next() instanceof EventStamp);
+        Assert.assertEquals(queryItem.getStamps().size(),0);
+        Assert.assertEquals(1, queryItem.getTombstones().size());
+        
+        Tombstone ts = queryItem.getTombstones().iterator().next();
+        Assert.assertTrue(ts instanceof StampTombstone);
+        Assert.assertEquals(((StampTombstone)ts).getStampType(),stamp.getType());
         
         event = new EventStamp();
         event.setCalendar(helper.getCalendar(baseDir + "/cal1.ics"));
@@ -202,7 +202,6 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         
         queryItem = contentDao.findContentByUid(newItem.getUid());
         Assert.assertEquals(1, queryItem.getStamps().size());
-        Assert.assertEquals(1, queryItem.getActiveStamps().size());
     }
     
     public void testCalendarCollectionStamp() throws Exception {
@@ -234,7 +233,6 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
         
         CollectionItem queryCol = contentDao.findCollectionByUid(root.getUid());
         Assert.assertEquals(1, queryCol.getStamps().size());
-        Assert.assertEquals(1, queryCol.getActiveStamps().size());
         Stamp stamp = queryCol.getStamp(CalendarCollectionStamp.class);
         Assert.assertTrue(stamp instanceof CalendarCollectionStamp);
         Assert.assertEquals("calendar", stamp.getType());

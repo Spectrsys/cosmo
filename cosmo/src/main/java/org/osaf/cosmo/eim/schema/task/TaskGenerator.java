@@ -15,18 +15,17 @@
  */
 package org.osaf.cosmo.eim.schema.task;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseStampGenerator;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.Stamp;
 import org.osaf.cosmo.model.TaskStamp;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Generates EIM records from task stamps.
@@ -37,10 +36,21 @@ public class TaskGenerator extends BaseStampGenerator {
     private static final Log log =
         LogFactory.getLog(TaskGenerator.class);
 
+    private static final HashSet<String> STAMP_TYPES = new HashSet<String>(2);
+    
+    static {
+        STAMP_TYPES.add("task");
+    }
+    
     /** */
     public TaskGenerator(Item item) {
         super(PREFIX_TASK, NS_TASK, item);
-        setStamp(TaskStamp.getStamp(item, false));
+        setStamp(TaskStamp.getStamp(item));
+    }
+
+    @Override
+    protected Set<String> getStampTypes() {
+        return STAMP_TYPES;
     }
 
     /**

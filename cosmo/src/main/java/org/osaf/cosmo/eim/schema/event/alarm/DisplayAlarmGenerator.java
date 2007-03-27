@@ -16,7 +16,9 @@
 package org.osaf.cosmo.eim.schema.event.alarm;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
@@ -44,10 +46,22 @@ public class DisplayAlarmGenerator extends BaseStampGenerator
     private static final Log log =
         LogFactory.getLog(DisplayAlarmGenerator.class);
 
+    private static final HashSet<String> STAMP_TYPES = new HashSet<String>(2);
+    
+    static {
+        STAMP_TYPES.add("event");
+        STAMP_TYPES.add("eventexception");
+    }
+    
     /** */
     public DisplayAlarmGenerator(Item item) {
         super(PREFIX_DISPLAY_ALARM, NS_DISPLAY_ALARM, item);
-        setStamp(BaseEventStamp.getStamp(item, false));
+        setStamp(BaseEventStamp.getStamp(item));
+    }
+
+    @Override
+    protected Set<String> getStampTypes() {
+        return STAMP_TYPES;
     }
 
     @Override
@@ -74,9 +88,6 @@ public class DisplayAlarmGenerator extends BaseStampGenerator
         
         VAlarm alarm = stamp.getDisplayAlarm();
         if (alarm == null)
-            return;
-        
-        if (stamp.getIsActive()==false)
             return;
         
         EimRecord record = new EimRecord(getPrefix(), getNamespace());

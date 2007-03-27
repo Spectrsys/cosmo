@@ -26,7 +26,7 @@ import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.Tombstone;
+import org.osaf.cosmo.model.ItemTombstone;
 import org.osaf.cosmo.model.User;
 
 /**
@@ -428,7 +428,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         // Add a tombstone to each parent collection to track
         // when the removal occurred.
         for(CollectionItem parent : content.getParents()) {
-            parent.addTombstone(new Tombstone(parent, content));
+            parent.addTombstone(new ItemTombstone(parent, content));
             getSession().update(parent);
         }
         

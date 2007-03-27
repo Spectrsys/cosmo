@@ -84,18 +84,6 @@ public abstract class BaseEventStamp extends Stamp
     }
     
     /**
-     * Return BaseEventStamp from Item
-     * @param item
-     * @param activeOnly
-     * @return BaseEventStamp from Item
-     */
-    public static BaseEventStamp getStamp(Item item,
-                                          boolean activeOnly) {
-        return (BaseEventStamp) item.getStamp(BaseEventStamp.class,
-                                              activeOnly);
-    }
-    
-    /**
      * Returns a copy of the the iCalendar UID property value of the
      * event .
      */
@@ -811,4 +799,5 @@ public abstract class BaseEventStamp extends Stamp
         alarm.getProperties().add(Action.DISPLAY);
         getEvent().getAlarms().add(alarm);
     }
+    
 }

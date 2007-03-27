@@ -56,17 +56,6 @@ public class TaskStamp extends Stamp implements
         return (TaskStamp) item.getStamp(TaskStamp.class);
     }
     
-    /**
-     * Return TaskStamp from Item
-     * @param item
-     * @param activeOnly
-     * @return TaskStamp from Item
-     */
-    public static TaskStamp getStamp(Item item,
-                                     boolean activeOnly) {
-        return (TaskStamp) item.getStamp(TaskStamp.class, activeOnly);
-    }
-    
     public Stamp copy(Item item) {
         TaskStamp stamp = new TaskStamp();
         return stamp;

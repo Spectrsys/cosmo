@@ -39,11 +39,13 @@ import org.osaf.cosmo.model.DuplicateItemNameException;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
+import org.osaf.cosmo.model.ItemTombstone;
 import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.StringAttribute;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.TimestampAttribute;
+import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
@@ -555,7 +557,11 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         
         root = (CollectionItem) contentDao.getRootItem(user);
         Assert.assertEquals(root.getTombstones().size(), 1);
-        Assert.assertEquals(root.getTombstones().iterator().next().getItemUid(), newItem.getUid());
+        
+        Tombstone ts = root.getTombstones().iterator().next();
+        
+        Assert.assertTrue(ts instanceof ItemTombstone);
+        Assert.assertEquals(((ItemTombstone) ts).getItemUid(), newItem.getUid());
         
         item = generateTestContent();
         item.setUid(newItem.getUid());

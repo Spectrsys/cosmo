@@ -95,7 +95,6 @@ public class StringAttribute extends Attribute implements
      * @param item item to fetch StringAttribute from
      * @param qname QName of attribute
      * @param value value to set on StringAttribute
-     * @return String value of StringAttribute
      */
     public static void setValue(Item item, QName qname, String value) {
         StringAttribute attr = (StringAttribute) item.getAttribute(qname);

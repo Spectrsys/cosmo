@@ -16,17 +16,15 @@
 package org.osaf.cosmo.model;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Where;
 
 /**
@@ -81,30 +79,7 @@ public class CollectionItem extends Item {
         this.allChildren = allChildren;
     }
     
-    @OneToMany(mappedBy="collection", fetch=FetchType.LAZY)
-    @Cascade( {CascadeType.ALL, CascadeType.DELETE_ORPHAN }) 
-    public Set<Tombstone> getTombstones() {
-        return tombstones;
-    }
-
-    private void setTombstones(Set<Tombstone> tombstones) {
-        this.tombstones = tombstones;
-    }
-
-    public void addTombstone(Tombstone tombstone) {
-        tombstone.setCollection(this);
-        tombstones.add(tombstone);
-    }
     
-    public boolean removeTombstone(Item item) {
-        for(Tombstone ts: tombstones) {
-            if(ts.getItemUid().equals(item.getUid())) {
-                tombstones.remove(ts);
-                return true;
-            }
-        }
-        return false;
-    }
     
     /**
      * Return child item with matching uid
@@ -130,6 +105,24 @@ public class CollectionItem extends Item {
 
     public void setExcludeFreeBusyRollup(boolean flag) {
         setAttribute(ATTR_EXCLUDE_FREE_BUSY_ROLLUP, Boolean.valueOf(flag));
+    }
+    
+    /**
+     * Remove ItemTombstone with an itemUid equal to a given Item's uid
+     * @param item
+     * @return true if a tombstone was removed
+     */
+    public boolean removeTombstone(Item item) {
+        for(Iterator<Tombstone> it = getTombstones().iterator();it.hasNext();) {
+            Tombstone ts = it.next();
+            if(ts instanceof ItemTombstone) {
+                if(((ItemTombstone) ts).getItemUid().equals(item.getUid())) {
+                    it.remove();
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     /**

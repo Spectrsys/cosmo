@@ -15,7 +15,9 @@
  */
 package org.osaf.cosmo.eim.schema.event;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,10 +41,22 @@ public class EventGenerator extends BaseStampGenerator
     private static final Log log =
         LogFactory.getLog(EventGenerator.class);
 
+    private static final HashSet<String> STAMP_TYPES = new HashSet<String>(2);
+    
+    static {
+        STAMP_TYPES.add("event");
+        STAMP_TYPES.add("eventexception");
+    }
+   
     /** */
     public EventGenerator(Item item) {
         super(PREFIX_EVENT, NS_EVENT, item);
-        setStamp(BaseEventStamp.getStamp(item, false));
+        setStamp(BaseEventStamp.getStamp(item));
+    }
+    
+    @Override
+    protected Set<String> getStampTypes() {
+        return STAMP_TYPES;
     }
 
     /**

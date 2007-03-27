@@ -30,7 +30,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.NotNull;
-import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.hibernate.validator.EventException;
 
 
@@ -120,18 +119,6 @@ public class EventExceptionStamp extends BaseEventStamp implements
         return (EventExceptionStamp) item.getStamp(EventExceptionStamp.class);
     }
     
-    /**
-     * Return EventExceptionStamp from Item
-     * @param item
-     * @param activeOnly
-     * @return EventExceptionStamp from Item
-     */
-    public static EventExceptionStamp getStamp(Item item,
-                                               boolean activeOnly) {
-        return (EventExceptionStamp) item.getStamp(EventExceptionStamp.class,
-                                                   activeOnly);
-    }
-    
     /* (non-Javadoc)
      * @see org.osaf.cosmo.model.Stamp#copy()
      */
@@ -146,10 +133,5 @@ public class EventExceptionStamp extends BaseEventStamp implements
         }
         
         return stamp;
-    }
-
-    @Override
-    public void remove() {
-        super.remove();
     }
 }

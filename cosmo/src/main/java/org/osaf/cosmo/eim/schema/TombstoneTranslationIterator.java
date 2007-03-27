@@ -21,19 +21,19 @@ import java.util.List;
 import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.EimRecordSetIterator;
-import org.osaf.cosmo.model.Tombstone;
+import org.osaf.cosmo.model.ItemTombstone;
 
 /**
- * Iterator that translates tombstones to EIM recordsets.
+ * Iterator that translates item tombstones to EIM recordsets.
  *
- * @see Tombstone
+ * @see ItemTombstone
  * @see EimRecordSet
  */
 public class TombstoneTranslationIterator implements EimRecordSetIterator {
 
-    private Iterator<Tombstone> decorated;
+    private Iterator<ItemTombstone> decorated;
 
-    public TombstoneTranslationIterator(List<Tombstone> tombstones) {
+    public TombstoneTranslationIterator(List<ItemTombstone> tombstones) {
         this.decorated = tombstones.iterator();
     }
 
@@ -44,6 +44,6 @@ public class TombstoneTranslationIterator implements EimRecordSetIterator {
 
     public EimRecordSet next()
         throws EimException {
-        return new TombstoneTranslator(decorated.next()).generateRecordSet();
+        return new ItemTombstoneTranslator(decorated.next()).generateRecordSet();
     }
 }

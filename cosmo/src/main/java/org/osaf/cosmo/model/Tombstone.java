@@ -18,12 +18,18 @@ package org.osaf.cosmo.model;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.Type;
 
 /**
@@ -31,31 +37,25 @@ import org.hibernate.annotations.Type;
  * to the collection to track when this removal ocurred.
  */
 @Entity
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @Table(name="tombstones")
-public class Tombstone extends BaseModelObject {
+@DiscriminatorColumn(
+        name="tombstonetype",
+        discriminatorType=DiscriminatorType.STRING,
+        length=16)
+public abstract class Tombstone extends BaseModelObject {
     
-    private String itemUid = null;
     private Date timestamp = null;
-    private CollectionItem collection = null;
+    private Item item = null;
 
     public Tombstone() {
     }
     
-    public Tombstone(CollectionItem collection, Item item) {
-        this.itemUid = item.getUid();
+    public Tombstone(Item item) {
+        this.item = item;
         this.timestamp = new Date(System.currentTimeMillis());
-        this.collection = collection;
     }
     
-    @Column(name = "itemuid", nullable = false, length=255)
-    public String getItemUid() {
-        return itemUid;
-    }
-
-    public void setItemUid(String itemUid) {
-        this.itemUid = itemUid;
-    }
-
     @Column(name = "removedate", nullable = false)
     @Type(type="long_timestamp")
     public Date getTimestamp() {
@@ -67,12 +67,24 @@ public class Tombstone extends BaseModelObject {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "collectionid", nullable = false)
-    public CollectionItem getCollection() {
-        return collection;
+    @JoinColumn(name = "itemid", nullable = false)
+    public Item getItem() {
+        return item;
     }
 
-    public void setCollection(CollectionItem collection) {
-        this.collection = collection;
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj==null || !(obj instanceof Tombstone))
+            return false;
+        return new EqualsBuilder().append(item, ((Tombstone) obj).getItem()).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(13, 23).append(item).toHashCode();
     }
 }

@@ -153,7 +153,6 @@ public class TextAttribute extends Attribute implements
      * @param item item to fetch TextAttribute from
      * @param qname QName of attribute
      * @param value value to set on TextAttribute
-     * @return String value of TextAttribute
      */
     public static void setValue(Item item, QName qname, String value) {
         TextAttribute attr = (TextAttribute) item.getAttribute(qname);

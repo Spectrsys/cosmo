@@ -15,29 +15,26 @@
  */
 package org.osaf.cosmo.eim.schema;
 
-import org.apache.commons.lang.BooleanUtils;
-
-import org.osaf.cosmo.eim.EimRecordSet;
-import org.osaf.cosmo.model.Tombstone;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.eim.EimRecordSet;
+import org.osaf.cosmo.model.ItemTombstone;
 
 /**
  * Handles the translation of EIM recordsets from a
- * <code>Tombstone</code>.
+ * <code>ItemTombstone</code>.
  *
  * @see EimRecordSet
- * @see Tombstone
+ * @see ItemTombstone
  */
-public class TombstoneTranslator implements EimSchemaConstants {
+public class ItemTombstoneTranslator implements EimSchemaConstants {
     private static final Log log =
-        LogFactory.getLog(TombstoneTranslator.class);
+        LogFactory.getLog(ItemTombstoneTranslator.class);
 
-    private Tombstone tombstone;
+    private ItemTombstone tombstone;
 
     /** */
-    public TombstoneTranslator(Tombstone tombstone) {
+    public ItemTombstoneTranslator(ItemTombstone tombstone) {
         this.tombstone = tombstone;
     }
 
@@ -53,7 +50,7 @@ public class TombstoneTranslator implements EimSchemaConstants {
     }
 
     /** */
-    public Tombstone getTombstone() {
+    public ItemTombstone getTombstone() {
         return tombstone;
     }
 }

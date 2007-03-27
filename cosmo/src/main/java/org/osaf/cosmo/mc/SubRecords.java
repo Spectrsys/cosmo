@@ -25,6 +25,7 @@ import org.osaf.cosmo.eim.schema.TombstoneTranslationIterator;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.ItemTombstone;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Tombstone;
 
@@ -104,7 +105,7 @@ public class SubRecords {
 
     /** */
     protected TombstoneTranslationIterator createTombstoneIterator() {
-        ArrayList<Tombstone> tombstones = new ArrayList<Tombstone>();
+        ArrayList<ItemTombstone> tombstones = new ArrayList<ItemTombstone>();
 
         if (prevToken != null)
             addRecentTombstones(tombstones);
@@ -134,19 +135,21 @@ public class SubRecords {
         }
     }
 
-    private void addRecentTombstones(ArrayList<Tombstone> tombstones) {
+    private void addRecentTombstones(ArrayList<ItemTombstone> tombstones) {
         if (prevToken.isValid(collection))
             return;
 
         for (Tombstone tombstone : collection.getTombstones()) {
-            if (prevToken.isTombstoneRecent(tombstone))
-                tombstones.add(tombstone);
+            if(tombstone instanceof ItemTombstone)
+                if (prevToken.isTombstoneRecent(tombstone))
+                    tombstones.add((ItemTombstone) tombstone);
         }
     }
 
-    private void addAllTombstones(ArrayList<Tombstone> tombstones) {
+    private void addAllTombstones(ArrayList<ItemTombstone> tombstones) {
         for (Tombstone tombstone : collection.getTombstones())
-            tombstones.add(tombstone);
+            if(tombstone instanceof ItemTombstone)
+                tombstones.add((ItemTombstone) tombstone);
     }
 
     private boolean isShareableItem(Item item) {

@@ -40,7 +40,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 import org.osaf.cosmo.CosmoConstants;
-import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.hibernate.validator.Timezone;
 
 
@@ -292,17 +291,5 @@ public class CalendarCollectionStamp extends Stamp implements
      */
     public static CalendarCollectionStamp getStamp(Item item) {
         return (CalendarCollectionStamp) item.getStamp(CalendarCollectionStamp.class);
-    }
-
-    /**
-     * Return CalendarCollectionStamp from Item
-     * @param item
-     * @param activeOnly
-     * @return CalendarCollectionStamp from Item
-     */
-    public static CalendarCollectionStamp getStamp(Item item,
-                                                   boolean activeOnly) {
-        return (CalendarCollectionStamp)
-            item.getStamp(CalendarCollectionStamp.class, activeOnly);
     }
 }

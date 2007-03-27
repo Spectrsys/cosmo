@@ -35,9 +35,9 @@ import org.osaf.cosmo.model.DuplicateItemNameException;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
+import org.osaf.cosmo.model.ItemTombstone;
 import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.Ticket;
-import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
@@ -219,7 +219,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
     
     public void removeItemFromCollection(Item item, CollectionItem collection) {
         try {
-            collection.addTombstone(new Tombstone(collection, item));
+            collection.addTombstone(new ItemTombstone(collection, item));
             getSession().update(collection);
 
             item.getParents().remove(collection);
@@ -405,7 +405,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             if(!parent.getUid().equals(oldParent.getUid())) {
                 parent.removeTombstone(item);
                 item.getParents().add(parent);
-                oldParent.addTombstone(new Tombstone(oldParent, item));
+                oldParent.addTombstone(new ItemTombstone(oldParent, item));
                 item.getParents().remove(oldParent);
                 getSession().update(oldParent);
                 getSession().update(parent);

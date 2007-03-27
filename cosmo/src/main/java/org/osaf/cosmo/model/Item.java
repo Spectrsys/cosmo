@@ -18,6 +18,7 @@ package org.osaf.cosmo.model;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -80,28 +81,12 @@ public abstract class Item extends AuditableObject {
     private Map<QName, Attribute> attributes = new HashMap<QName, Attribute>(0);
     private Set<Ticket> tickets = new HashSet<Ticket>(0);
     private Set<Stamp> stamps = new HashSet<Stamp>(0);
-    private Set<Stamp> activeStamps = null;
+    private Set<Tombstone> tombstones = new HashSet<Tombstone>(0);
     private Map<String, Stamp> stampMap = null;
     
     private Set<CollectionItem> parents = new HashSet<CollectionItem>(0);
     private User owner;
   
-    /**
-     * Return all active stamps (isActive=true).
-     * @return active stamps
-     */
-    @Transient 
-    public Set<Stamp> getActiveStamps() {
-        if(activeStamps!=null)
-            return activeStamps;
-        
-        activeStamps = new HashSet<Stamp>(stamps.size());
-        for(Stamp s: stamps)
-            if(s.getIsActive())
-                activeStamps.add(s);
-        
-        return activeStamps;
-    }
     
     /**
      * Return all stamps associated with Item.  This set includes
@@ -130,11 +115,8 @@ public abstract class Item extends AuditableObject {
     public Map<String, Stamp> getStampMap() {
         if(stampMap==null) {
             stampMap = new HashMap<String, Stamp>();
-            for(Stamp stamp : stamps) {
-                // Only care about active stamps
-                if(stamp.getIsActive()==true)
-                    stampMap.put(stamp.getType(), stamp);
-            }
+            for(Stamp stamp : stamps)
+                stampMap.put(stamp.getType(), stamp);
         }
         
         return stampMap;
@@ -148,24 +130,13 @@ public abstract class Item extends AuditableObject {
         if (stamp == null)
             throw new IllegalArgumentException("stamp cannot be null");
 
-        Stamp toRemove = null;
-        for (Stamp s : stamps) {
-            if (s.getClass() == stamp.getClass()) {
-                // If there is already an active stamp of this type,
-                // throw an exception, otherwise remove inactive stamp
-                // to make way for a new active one
-                if(s.getIsActive()==true)
-                    throw new ModelValidationException(
-                        "Item already has stamp of type " + s.getClass());
-                else {
-                    toRemove = s;
-                    break;
-                }
-            }
+        // remove old tombstone if exists
+        for(Iterator<Tombstone> it=tombstones.iterator();it.hasNext();) {
+            Tombstone ts = it.next();
+            if(ts instanceof StampTombstone)
+                if(((StampTombstone) ts).getStampType().equals(stamp.getType()))
+                    it.remove();
         }
-        
-        if(toRemove!=null)
-            stamps.remove(toRemove);
         
         stamp.setItem(this);
         stamps.add(stamp);
@@ -181,39 +152,9 @@ public abstract class Item extends AuditableObject {
         if(!stamps.contains(stamp))
             return;
         
-        stamp.remove();
+        stamps.remove(stamp);
         
-        // remove from activeStamps if it has been initialized
-        if(activeStamps!=null)
-            activeStamps.remove(stamp);
-    }
-    
-    /**
-     * Get the active stamp that corresponds to the specified class
-     * @param clazz stamp class to return
-     * @return stamp
-     */
-    public Stamp getStamp(Class clazz) {
-        return getStamp(clazz, true);
-    }
-    
-    /**
-     * Get the stamp that corresponds to the specified class
-     * @param clazz stamp class to return
-     * @param activeOnly whether or not the stamp is required to be
-     * active to be returned
-     * @return stamp
-     */
-    public Stamp getStamp(Class clazz,
-                          boolean activeOnly) {
-        for(Stamp stamp : stamps)
-            // only return stamp if it matches class, and is active if
-            // that's required
-            if(clazz.isInstance(stamp) &&
-               (! activeOnly || stamp.getIsActive()))
-               return stamp;
-        
-        return null;
+        tombstones.add(new StampTombstone(this, stamp));
     }
     
     /**
@@ -224,7 +165,21 @@ public abstract class Item extends AuditableObject {
     public Stamp getStamp(String type) {
         for(Stamp stamp : stamps)
             // only return stamp if it matches class and is active
-            if(stamp.getType().equals(type) && (stamp.getIsActive()==true))
+            if(stamp.getType().equals(type))
+                return stamp;
+        
+        return null;
+    }
+    
+    /**
+     * Get the stamp that coresponds to the specified class
+     * @param clazz class of stamp to return
+     * @return stamp
+     */
+    public Stamp getStamp(Class clazz) {
+        for(Stamp stamp : stamps)
+            // only return stamp if it is an instance of the specified class
+            if(clazz.isInstance(stamp))
                 return stamp;
         
         return null;
@@ -643,6 +598,21 @@ public abstract class Item extends AuditableObject {
         this.tickets = tickets;
     }
 
+    @OneToMany(mappedBy="item", fetch=FetchType.LAZY)
+    @Cascade( {CascadeType.ALL, CascadeType.DELETE_ORPHAN }) 
+    public Set<Tombstone> getTombstones() {
+        return tombstones;
+    }
+
+    private void setTombstones(Set<Tombstone> tombstones) {
+        this.tombstones = tombstones;
+    }
+
+    public void addTombstone(Tombstone tombstone) {
+        tombstone.setItem(this);
+        tombstones.add(tombstone);
+    }
+    
     /**
      * Item uid determines equality 
      */
@@ -676,7 +646,7 @@ public abstract class Item extends AuditableObject {
             item.addAttribute(entry.getValue().copy());
         
         // copy stamps
-        for(Stamp stamp: getActiveStamps())
+        for(Stamp stamp: getStamps())
             item.addStamp(stamp.copy(item));
     }
 }
