@@ -1,3 +1,10 @@
+# Common aliases
+US/Central=America/Chicago
+US/Eastern=America/New_York
+US/Mountain=America/Denver
+US/Pacific=America/Los_Angeles
+
+# Windows timezones
 Afghanistan=Asia/Kabul
 Afghanistan\ Standard\ Time=Asia/Kabul
 Alaskan=America/Anchorage
@@ -159,7 +166,7 @@ Western\ Brazilian\ Standard\ Time=America/Rio_Branco
 Yakutsk=Asia/Yakutsk
 Yakutsk\ Standard\ Time=Asia/Yakutsk
 
-# Windows aliases
+# Windows aliases as found in the registry
 (GMT+04:30)\ Kabul=Asia/Kabul	
 (GMT-09:00)\ Alaska=America/Anchorage
 (GMT+03:00)\ Kuwait,\ Riyadh=Asia/Riyadh
@@ -253,7 +260,7 @@ Yakutsk\ Standard\ Time=Asia/Yakutsk
 (GMT+10:00)\ Guam,\ Port\ Moresby=Pacific/Guam
 (GMT+09:00)\ Yakutsk=Asia/Yakutsk
 
-# with a "."
+# Windows aliases as found in the registry with a "." instead of ":"
 (GMT+04.30)\ Kabul=Asia/Kabul	
 (GMT-09.00)\ Alaska=America/Anchorage
 (GMT+03.00)\ Kuwait,\ Riyadh=Asia/Riyadh
