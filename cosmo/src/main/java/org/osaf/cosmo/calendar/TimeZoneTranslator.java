@@ -53,7 +53,6 @@ public class TimeZoneTranslator {
     /**
      * Given a timezone and date, return the equivalent Olson timezone.
      * @param timezone timezone
-     * @param date date of event
      * @return equivalent Olson timezone
      */
     public TimeZone translateToOlsonTz(TimeZone timezone) {
@@ -65,6 +64,28 @@ public class TimeZoneTranslator {
         
         // Next check for known aliases
         String aliasedTzId = ALIASES.getProperty(timezone.getID());
+        
+        // If an aliased id was found, return the Olson tz from the registry
+        if(aliasedTzId!=null)
+            return REGISTRY.getTimeZone(aliasedTzId);
+        
+        return null;
+    }
+    
+    /**
+     * Given a timezone id, return the equivalent Olson timezone.
+     * @param tzId timezone id to translate
+     * @return equivalent Olson timezone
+     */
+    public TimeZone translateToOlsonTz(String tzId) {
+        
+        // First use registry to find Olson tz
+        TimeZone translatedTz = REGISTRY.getTimeZone(tzId);
+        if(translatedTz!=null)
+            return translatedTz;
+        
+        // Next check for known aliases
+        String aliasedTzId = ALIASES.getProperty(tzId);
         
         // If an aliased id was found, return the Olson tz from the registry
         if(aliasedTzId!=null)

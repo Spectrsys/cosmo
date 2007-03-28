@@ -235,7 +235,7 @@ public class ICalDate implements ICalendarConstants {
     private void parseTzId(String str)
         throws EimConversionException {
         tzid = new TzId(str);
-        tz = TIMEZONE_REGISTRY.getTimeZone(str);
+        tz = tzTranslator.translateToOlsonTz(str);
         if (tz == null)
             throw new EimConversionException("Unknown timezone " + str);
     }
