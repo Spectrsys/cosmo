@@ -213,13 +213,13 @@ public class EimmlTypeConverter implements EimmlConstants {
                                      int digits,
                                      int decimalPlaces)
         throws EimmlConversionException {
+        if (value == null)
+            return null;
+
         if (digits <= 0)
             throw new IllegalArgumentException("Number of digits must be positive");
         if (decimalPlaces < 0)
             throw new IllegalArgumentException("Number of decimal places must be positive or 0");
-
-        if (value == null)
-            return null;
 
         StringBuffer pattern = new StringBuffer();
         for (int i=1; i<= digits; i++)
