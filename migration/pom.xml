@@ -84,9 +84,9 @@
             <version>1.2.9</version>
         </dependency>
         <dependency>
-            <groupId>ical4j</groupId>
-            <artifactId>ical4j-osaf</artifactId>
-            <version>0.9.18-20070118</version>
+            <groupId>net.fortuna</groupId>
+            <artifactId>ical4j</artifactId>
+            <version>1.0-beta3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>

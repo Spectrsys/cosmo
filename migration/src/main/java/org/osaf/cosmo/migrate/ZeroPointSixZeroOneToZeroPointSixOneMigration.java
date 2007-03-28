@@ -168,7 +168,7 @@ public class ZeroPointSixZeroOneToZeroPointSixOneMigration extends AbstractMigra
                 // find event exceptions
                 for(Iterator<VEvent> it =comps.iterator(); it.hasNext(); ) {
                     VEvent event = it.next();
-                    if(event.getReccurrenceId()!=null && !"".equals(event.getReccurrenceId().getValue()))
+                    if(event.getRecurrenceId()!=null && !"".equals(event.getRecurrenceId().getValue()))
                         mods.add(event);
                     else
                         masterEvent = event;
@@ -185,7 +185,7 @@ public class ZeroPointSixZeroOneToZeroPointSixOneMigration extends AbstractMigra
                     calendar.getComponents().remove(mod);
                     Calendar modCalendar = createBaseCalendar(mod);
                     long newItemId = 0;
-                    RecurrenceId recurrenceId = mod.getReccurrenceId();
+                    RecurrenceId recurrenceId = mod.getRecurrenceId();
                     Property summary = mod.getProperties().getProperty(Property.SUMMARY);
                     Property description = mod.getProperties().getProperty(Property.DESCRIPTION);
                     String eventSummary = null;
