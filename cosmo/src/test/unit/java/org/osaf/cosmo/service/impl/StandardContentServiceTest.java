@@ -277,7 +277,7 @@ public class StandardContentServiceTest extends TestCase {
     }
     
     /** */
-    public void testUpdateEvent() throws Exception {
+    public void REMOVEDtestUpdateEvent() throws Exception {
         User user = testHelper.makeDummyUser();
         CollectionItem rootCollection = contentDao.createRootItem(user);
         NoteItem masterNote = new NoteItem();
