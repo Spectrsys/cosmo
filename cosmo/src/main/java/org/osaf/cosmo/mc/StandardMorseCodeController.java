@@ -239,6 +239,11 @@ public class StandardMorseCodeController implements MorseCodeController {
             throw new NotCollectionException(uid);
         CollectionItem collection = (CollectionItem) item;
 
+        // If collection hasn't changed, don't bother querying for children
+        // just return empty SubRecords
+        if (token.isValid(collection))
+            return new SubRecords(collection, new ArrayList<ContentItem>(0));
+        
         SubRecords subRecords = new SubRecords(collection, getModifiedItems(token, collection),
                 getRecentTombstones(token, collection), token);
        
