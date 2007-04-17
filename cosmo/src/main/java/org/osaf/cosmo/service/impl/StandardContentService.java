@@ -17,9 +17,11 @@ package org.osaf.cosmo.service.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,12 +31,13 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.DtStamp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.calendar.util.Dates;
 import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.dao.ContentDao;
@@ -289,6 +292,22 @@ public class StandardContentService implements ContentService {
         
         removeItem(item);
     }
+    
+    /**
+     * Load all children for collection that have been updated since a given
+     * timestamp. If no timestamp is specified, then return all children.
+     * 
+     * @param collection
+     *            collection
+     * @param timestamp
+     *            timestamp
+     * @return children of collection that have been updated since timestamp, or
+     *         all children if timestamp is null
+     */
+    public Set<ContentItem> loadChildren(CollectionItem collection,
+            java.util.Date timestamp) {
+        return contentDao.loadChildren(collection, timestamp);
+    }
 
     /**
      * Create a new collection.
@@ -338,6 +357,7 @@ public class StandardContentService implements ContentService {
             // Keep track of event items (NoteItem with EventStamp) that need
             // to be indexed
             HashMap<String, NoteItem> events = new HashMap<String, NoteItem>();
+            Set<ContentItem> childrenToUpdate = new LinkedHashSet<ContentItem>();
             
             // Keep track of NoteItem modifications that need to be processed
             // after the master NoteItem.
@@ -352,52 +372,37 @@ public class StandardContentService implements ContentService {
                     // If item is a modification and the master note
                     // hasn't been created, then we need to process
                     // the master first.
-                    if(note.getModifies()!=null) {
-                        if(note.getModifies().getId()==-1) {
-                            modifications.add(note);
-                            continue;
-                        }
-                    }
+                    if(note.getModifies()!=null)
+                        modifications.add(note);
+                    else
+                        childrenToUpdate.add(note);
                     
                     // keep track of events so we can index
                     if(note.getModifies()!=null && (EventStamp.getStamp(note.getModifies())!=null))
                         events.put(note.getModifies().getUid(), note.getModifies());
                     else if(EventStamp.getStamp(note)!=null)
                         events.put(note.getUid(), note);
-                    
-                    // create item
-                    if(item.getId()==-1) {
-                        item = contentDao.createContent(collection,
-                            (ContentItem) item);
-                    } 
-                    // update item
-                    else {
-                        contentDao.addItemToCollection(item, collection);
-                        contentDao.updateContent((ContentItem) item);
-                    }
+                      
                 }
             }
             
-            // process modifications that came before master
-            for(NoteItem mod : modifications) {
-                if(mod.getModifies().getId()==-1)
-                    throw new RuntimeException("note modifies unknown item");
-                mod = (NoteItem) contentDao.createContent(collection, mod);
+            // add modifications to end of set
+            for(NoteItem mod: modifications)
+                childrenToUpdate.add(mod);
+            
+            // update all children and collection
+            collection = contentDao.updateCollection(collection, childrenToUpdate);
+            
+            // index all calendar events
+            calendarDao.indexEvents(events.values());
+            
+            // update timestamps on all collections involved
+            for(CollectionItem lockedCollection : locks) {
+                contentDao.updateCollectionTimestamp(lockedCollection.getUid());
             }
             
-            // index events
-            for(Entry<String, NoteItem> entry : events.entrySet()) {
-                NoteItem note = entry.getValue();
-                contentDao.refreshItem(note);
-                calendarDao.indexEvent(EventStamp.getStamp(note));
-            }
-                
-            // update collections involved
-            for(CollectionItem lockedCollection : locks)
-                contentDao.updateCollection(lockedCollection);
-            
-            contentDao.refreshItem(collection);
-            return collection;
+            // get latest timestamp
+            return contentDao.findCollectionByUid(collection.getUid());
             
         } finally {
            releaseLocks(locks);
@@ -457,30 +462,28 @@ public class StandardContentService implements ContentService {
         Set<CollectionItem> locks = acquireLocks(collection, updates);
         
         try {
-            
             // Keep track of event items (NoteItem with EventStamp) that need
             // to be indexed
             HashMap<String, NoteItem> events = new HashMap<String, NoteItem>();
+            Set<ContentItem> childrenToUpdate = new LinkedHashSet<ContentItem>();
             
             // Keep track of NoteItem modifications that need to be processed
             // after the master NoteItem.
             ArrayList<NoteItem> modifications = new ArrayList<NoteItem>(); 
             
-            for(Item item : updates) {
-                // for now, only process NoteItem
-                if(item instanceof NoteItem) {
+            // Either create or update each item
+            for (Item item : updates) {
+                if (item instanceof NoteItem) {
                     
-                    NoteItem  note = (NoteItem) item;
+                    NoteItem note = (NoteItem) item;
                     
                     // If item is a modification and the master note
                     // hasn't been created, then we need to process
                     // the master first.
-                    if(note.getModifies()!=null) {
-                        if(note.getModifies().getId()==-1) {
-                            modifications.add(note);
-                            continue;
-                        }
-                    }
+                    if(note.getModifies()!=null)
+                        modifications.add(note);
+                    else
+                        childrenToUpdate.add(note);
                     
                     // keep track of events so we can index
                     if(note.getModifies()!=null) {
@@ -494,48 +497,24 @@ public class StandardContentService implements ContentService {
                         if(EventStamp.getStamp(note).isDirty())
                             events.put(note.getUid(), note);
                     }
-                     
-                    // addition
-                    if(item.getId()==-1) {
-                        note = (NoteItem) contentDao.createContent(collection,
-                                                 note);
-                    }
-                    // deletion
-                    else if(item.getIsActive()==false) {
-                        item.setIsActive(true);
-                        contentDao.removeItemFromCollection(item, collection);
-                    }
-                    // update
-                    else {
-                        
-                        // Add item to collection if necessary
-                        if(!item.getParents().contains(collection))
-                            contentDao.addItemToCollection(item, collection);
-                        contentDao.updateContent((ContentItem) item);
-                    }
                 }
             }
             
-            // process modifications that came before master
-            for(NoteItem mod : modifications) {
-                if(mod.getModifies().getId()==-1)
-                    throw new RuntimeException("note modifies unknown item");
-                mod = (NoteItem) contentDao.createContent(collection, mod);
+            for(NoteItem mod: modifications)
+                childrenToUpdate.add(mod);
+            
+            collection = contentDao.updateCollection(collection, childrenToUpdate);
+            
+            calendarDao.indexEvents(events.values());
+            
+            // update collections involved
+            for(CollectionItem lockedCollection : locks) {
+                contentDao.updateCollectionTimestamp(lockedCollection.getUid());
             }
             
-            // index events
-            for(Entry<String, NoteItem> entry : events.entrySet()) {
-                NoteItem note = entry.getValue();
-                contentDao.refreshItem(note);
-                calendarDao.indexEvent(EventStamp.getStamp(note));
-            }
+            // get latest timestamp
+            return contentDao.findCollectionByUid(collection.getUid());
             
-            // update collections
-            for(CollectionItem parent : locks)
-                contentDao.updateCollection(parent);
-            
-            contentDao.refreshItem(collection);
-            return collection;
         } finally {
             releaseLocks(locks);
         }
@@ -949,6 +928,9 @@ public class StandardContentService implements ContentService {
         // get list of exceptions (VEVENT with RECURRENCEID)
         for (Iterator<VEvent> i = vevents.iterator(); i.hasNext();) {
             VEvent event = i.next();
+            // make sure event has DTSTAMP, otherwise validation will fail
+            if(event.getDateStamp()==null)
+                event.getProperties().add(new DtStamp(new DateTime()));
             if (event.getRecurrenceId() != null)
                 exceptions.put(event.getRecurrenceId().getDate(), event);
         }
@@ -1041,8 +1023,7 @@ public class StandardContentService implements ContentService {
         noteMod.setBody(exceptionStamp.getSummary());
         noteMod.setIcalUid(masterNote.getIcalUid());
         noteMod.setModifies(masterNote);
-        noteMod = (NoteItem) contentDao.createContent(noteMod);
-        noteMod.getModifications().add(noteMod);
+        noteMod = (NoteItem) contentDao.createContent(masterNote.getParents(), noteMod);
     }
 
     private void updateNoteModification(NoteItem noteMod, VEvent event) {

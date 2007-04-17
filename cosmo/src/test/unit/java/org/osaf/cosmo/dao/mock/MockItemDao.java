@@ -365,10 +365,12 @@ public class MockItemDao implements ItemDao {
     public void refreshItem(Item item) {
         // do nothing
     }
-
+    
+    public void initializeItem(Item item) {
+        // do nothing
+    }
+    
     // Dao methods
-
-   
     /**
      * Initializes the DAO, sanity checking required properties
      * and defaulting optional properties.

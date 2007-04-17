@@ -15,6 +15,8 @@
  */
 package org.osaf.cosmo.dao.mock;
 
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.osaf.cosmo.dao.ContentDao;
@@ -298,4 +300,41 @@ public class MockContentDao extends MockItemDao implements ContentDao {
 
         return content;
     }
+
+    public CollectionItem updateCollection(CollectionItem collection, Set<ContentItem> children) {
+        for(ContentItem child : children) {
+            if(child.getId()==-1) {
+                createContent(collection, child);
+            }
+            else if(child.getIsActive()==false) {
+                removeContent(child);
+            } else {
+                if(!child.getParents().contains(collection)) {
+                    addItemToCollection(child, collection);
+                    updateContent(child);
+                }
+            }
+            
+        }
+        return collection;
+    }
+
+    public void updateCollectionTimestamp(String collectionUid) {
+        CollectionItem col = findCollectionByUid(collectionUid);
+        col.setModifiedDate(new Date());
+    }
+
+    public Set<ContentItem> loadChildren(CollectionItem collection, Date timestamp) {
+        Set<ContentItem> items = new HashSet<ContentItem>();
+        for(Item item : collection.getChildren()) {
+            if(item instanceof ContentItem) {
+                if(timestamp==null || item.getModifiedDate().after(timestamp))
+                    items.add((ContentItem) item);
+            }
+        }
+        return items;
+    }
+    
+    
+    
 }

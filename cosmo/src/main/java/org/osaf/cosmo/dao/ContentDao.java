@@ -15,12 +15,11 @@
  */
 package org.osaf.cosmo.dao;
 
+import java.util.Date;
 import java.util.Set;
 
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
-import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.User;
 
 /**
  * Interface for DAO that provides base operations for content items.
@@ -42,6 +41,17 @@ public interface ContentDao extends ItemDao {
      */
     public CollectionItem createCollection(CollectionItem parent,
             CollectionItem collection);
+    
+    /**
+     * Update collection and children.  The set of children can contain
+     * new items, existing items, and item removals.  An item removal
+     * is recognized by Item.isActive==false.
+     * @param collection collection to update
+     * @param children children to updated
+     * @return updated collection
+     */
+    public CollectionItem updateCollection(CollectionItem collection,
+            Set<ContentItem> children);
 
     /**
      * Update an existing collection.
@@ -150,5 +160,22 @@ public interface ContentDao extends ItemDao {
      *            collection item to remove
      */
     public void removeCollection(CollectionItem collection);
+    
+    /**
+     * Update timestamp on collection.
+     * @param collectionUid collection to update
+     */
+    public void updateCollectionTimestamp(String collectionUid);
+    
+    /**
+     * Load all children for collection that have been updated since a
+     * given timestamp.  If no timestamp is specified, then return all 
+     * children.
+     * @param collection collection
+     * @param timestamp timestamp
+     * @return children of collection that have been updated since 
+     *         timestamp, or all children if timestamp is null
+     */
+    public Set<ContentItem> loadChildren(CollectionItem collection, Date timestamp);
 
 }

@@ -16,13 +16,11 @@
 package org.osaf.cosmo.eim.schema.event.alarm;
 
 import java.text.ParseException;
-import java.util.Iterator;
 
+import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.component.VAlarm;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.Action;
+import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.property.Trigger;
 
 import org.apache.commons.logging.Log;
@@ -35,6 +33,7 @@ import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValidationException;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
 import org.osaf.cosmo.eim.schema.text.DurationFormat;
+import org.osaf.cosmo.mc.ValidationException;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
@@ -59,17 +58,16 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
     
     @Override
     protected void applyDeletion(EimRecord record) throws EimSchemaException {
-        VEvent event = getEvent(record);    
+        BaseEventStamp eventStamp = getEventStamp();    
         
         // Require event to continue
-        if(event==null)
-            throw new EimSchemaException("No event to delete");
+        if(eventStamp==null)
+            throw new EimSchemaException("No alarm to delete");
         
-        VAlarm alarm = getDisplayAlarm(event);
+        eventStamp.removeDisplayAlarm();
         
-        // remove alarm
-        if(alarm != null)
-            event.getAlarms().remove(alarm);
+        // remove reminder on NoteItem
+        applyDeletionNonEvent(record);
     }
     
     protected void applyDeletionNonEvent(EimRecord record) throws EimSchemaException {
@@ -79,6 +77,8 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
 
     @Override
     public void applyRecord(EimRecord record) throws EimSchemaException {
+        // stamp could have been added before record is processed
+        setStamp(BaseEventStamp.getStamp(getItem()));
         
         // If item is not an event, then process differently
         if(getEventStamp()==null) {
@@ -93,9 +93,11 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
         }
         
         BaseEventStamp eventStamp = getEventStamp();
-        VEvent event = getEvent(record);
+        NoteItem note = (NoteItem) getItem();
         
-        getOrCreateDisplayAlarm(event);
+        // create display alarm if it doesn't exist
+        if(eventStamp.getDisplayAlarm()==null)
+            eventStamp.creatDisplayAlarm();
             
         for (EimRecordField field : record.getFields()) {
             if(field.getName().equals(FIELD_DESCRIPTION)) {
@@ -114,7 +116,10 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
                 else {
                     String value = EimFieldValidator.validateText(field, MAXLEN_TRIGGER);
                     Trigger newTrigger = EimValueConverter.toIcalTrigger(value);
+                    if(newTrigger==null)
+                        throw new ValidationException(FIELD_TRIGGER + " required");
                     eventStamp.setDisplayAlarmTrigger(newTrigger);
+                    setReminderTime(note, getEventStamp(), newTrigger);
                 }
             }
             else if (field.getName().equals(FIELD_DURATION)) {
@@ -137,6 +142,8 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
                 }
                 else {
                     Integer value = EimFieldValidator.validateInteger(field);
+                    if(value!=null && value.intValue()==0)
+                        value = null;
                     eventStamp.setDisplayAlarmRepeat(value);
                 }
             }
@@ -167,11 +174,9 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
                 else {
                     String value = EimFieldValidator.validateText(field, MAXLEN_TRIGGER);
                     Trigger trigger = EimValueConverter.toIcalTrigger(value);
-                    
-                    // for non-events, the trigger has to be absolute
-                    if(trigger.getDuration()!=null)
-                        throw new EimSchemaException("non-absolute triggers not supported on non-events");
-                    note.setReminderTime(trigger.getDate());
+                    if(trigger==null)
+                        throw new ValidationException(FIELD_TRIGGER + " required");
+                    setReminderTime(note, trigger);
                 }
             }
             else if (field.getName().equals(FIELD_DURATION)) {
@@ -197,69 +202,37 @@ public class DisplayAlarmApplicator extends BaseStampApplicator
         return null;
     }
         
-   
-    /**
-     * get the current display alarm, or create a new one
-     */
-    private VAlarm getOrCreateDisplayAlarm(VEvent event) {
-        VAlarm alarm = getDisplayAlarm(event);
-        if(alarm==null)
-            alarm = creatDisplayAlarm(event);
-        return alarm;
-    }
-    
-    /**
-     * create new display alarm and add to event
-     */
-    private VAlarm creatDisplayAlarm(VEvent event) {
-        VAlarm alarm = new VAlarm();
-        alarm.getProperties().add(Action.DISPLAY);
-        event.getAlarms().add(alarm);
-        return alarm;
-    }
-    
-    /**
-     * Get the first display alarm from an event, or create one
-     */
-    private VAlarm getDisplayAlarm(VEvent event) {
-        VAlarm alarm = null;
-        
-        // Find the first display alarm
-        for(Iterator it = event.getAlarms().iterator();it.hasNext();) {
-            VAlarm currAlarm = (VAlarm) it.next();
-            if (currAlarm.getProperties().getProperty(Property.ACTION).equals(
-                    Action.DISPLAY))
-                alarm = currAlarm;
-        }
-        
-        return alarm;
-    }
-    
-    /**
-     * Get the event associated with the displayAlarm record.
-     */
-    private VEvent getEvent(EimRecord record) throws EimSchemaException {
-        
-        BaseEventStamp eventStamp = getEventStamp();
-        
-        if(eventStamp==null)
-            throw new EimSchemaException("EventStamp required");
-        
-        return eventStamp.getEvent();
-    }
     
     private BaseEventStamp getEventStamp() {
         return BaseEventStamp.getStamp(getItem());
     }
     
-    @Override
-    protected Stamp getParentStamp() {
-        NoteItem noteMod = (NoteItem) getItem();
-        NoteItem parentNote = noteMod.getModifies();
+    private void setReminderTime(NoteItem note, BaseEventStamp eventStamp, Trigger trigger) {
         
-        if(parentNote!=null)
-            return parentNote.getStamp(BaseEventStamp.class);
-        else
-            return null;
+        // If there is no duration, then reminderTime will be the
+        // trigger datetime
+        if(trigger.getDuration()==null) {
+            note.setReminderTime(trigger.getDateTime());
+            return;
+        }
+        
+        // Calculate reminderTime based on event start and trigger duration
+        Date start = eventStamp.getStartDate();
+        if(!(start instanceof DateTime))
+            start = new DateTime(start);
+            
+        Period period = new Period((DateTime) start, trigger.getDuration());
+        note.setReminderTime(period.getEnd());        
+    }
+    
+    private void setReminderTime(NoteItem note, Trigger trigger)
+            throws EimSchemaException {
+        // non events only support absolute triggers
+        if (trigger.getDateTime() != null) {
+            note.setReminderTime(trigger.getDateTime());
+        } else {
+            throw new ValidationException(
+                    "trigger for non event must be absolute");
+        }
     }
 }

@@ -36,7 +36,7 @@ public class Ticket {
     public String getTicketKey() {
         return ticketKey;
     }
-    public void setTicketId(String ticketId) {
+    public void setTicketKey(String ticketId) {
         this.ticketKey = ticketId;
     }
  }

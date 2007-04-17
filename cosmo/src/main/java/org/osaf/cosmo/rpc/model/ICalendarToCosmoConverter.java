@@ -43,6 +43,8 @@ import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.TimeZone;
+import net.fortuna.ical4j.model.TimeZoneRegistry;
+import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.parameter.Range;
@@ -57,6 +59,7 @@ import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.RecurrenceId;
 import net.fortuna.ical4j.util.Dates;
 
+import org.apache.commons.lang.StringUtils;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.util.ICalendarUtils;
@@ -81,7 +84,7 @@ public class ICalendarToCosmoConverter {
     private enum EventType { NORMAL, ANYTIME, ALLDAY, ATTIME};
     
     private static Map<EventType, String[]> eventTypesToEventProperties = new HashMap<EventType, String[]>();
-    
+
     static{
         eventTypesToEventProperties.put(EventType.NORMAL, new String[]{});
         eventTypesToEventProperties.put(EventType.ANYTIME, new String[]{EVENT_ANYTIME, EVENT_START, EVENT_END});
@@ -328,8 +331,10 @@ public class ICalendarToCosmoConverter {
                 Parameter.TZID);
         TimeZone masterTimezone = null;
         if (masterStartDate instanceof DateTime) {
-            DateTime masterStartDateTime = (DateTime) masterStartDate;
-            masterTimezone = masterStartDateTime.getTimeZone();
+            if (StringUtils.isNotBlank(tzid)) {
+                VTimeZone vtz = ICalendarUtils.getVTimeZone(calendar, tzid);
+                masterTimezone = new TimeZone(vtz);
+            }
         }
         for (int x = 0; x < startDateList.size(); x++) {
             net.fortuna.ical4j.model.Date instanceStartDate = (net.fortuna.ical4j.model.Date) startDateList
@@ -339,7 +344,7 @@ public class ICalendarToCosmoConverter {
                 DateTime instanceStartDateTime = (DateTime) instanceStartDate;
                 instanceStartDateTime.setTimeZone(masterTimezone);
             }
-
+            
             VEvent vInstance = null;
             try {
                 vInstance = (VEvent) masterVEvent.copy();

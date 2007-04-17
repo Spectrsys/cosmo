@@ -62,6 +62,7 @@
     <property name="annotatedClasses">
         <list>
             <value>org.osaf.cosmo.model.Attribute</value>
+            <value>org.osaf.cosmo.model.AttributeTombstone</value>
             <value>org.osaf.cosmo.model.BinaryAttribute</value>
             <value>org.osaf.cosmo.model.BooleanAttribute</value>
             <value>org.osaf.cosmo.model.CalendarAttribute</value>
@@ -94,6 +95,7 @@
             <value>org.osaf.cosmo.model.TimestampAttribute</value>
             <value>org.osaf.cosmo.model.Tombstone</value>
             <value>org.osaf.cosmo.model.User</value>
+            <value>org.osaf.cosmo.model.PasswordRecovery</value>
         </list>
     </property>
     <property name="entityInterceptor">
@@ -138,8 +140,10 @@
         </property>
   </bean>
 
-
   <bean id="accountActivator"
          class="org.osaf.cosmo.service.account.AutomaticAccountActivator"/>
+
+  <bean id="passwordRecoverer"
+         class="org.osaf.cosmo.service.account.MockPasswordRecoverer"/>
 
 </beans>

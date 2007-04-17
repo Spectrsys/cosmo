@@ -16,18 +16,15 @@
 package org.osaf.cosmo.mc;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
-import org.osaf.cosmo.eim.EimRecordSet;
+import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordSetIterator;
 import org.osaf.cosmo.eim.schema.ItemTranslationIterator;
 import org.osaf.cosmo.eim.schema.TombstoneTranslationIterator;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
-import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemTombstone;
-import org.osaf.cosmo.model.NoteItem;
-import org.osaf.cosmo.model.Tombstone;
 
 /**
  * Bean class that aggregates all of the EIM records for a subscribe
@@ -45,18 +42,20 @@ public class SubRecords {
     private SyncToken prevToken;
 
     /** */
-    public SubRecords(CollectionItem collection) {
-        this(collection, null);
+    public SubRecords(CollectionItem collection, List<ContentItem> items) {
+        this(collection, items, new ArrayList<ItemTombstone>(0), null);
     }
 
     /** */
-    public SubRecords(CollectionItem collection,
+    public SubRecords(CollectionItem collection, 
+            List<ContentItem> items, 
+            List<ItemTombstone> tombstones,
                       SyncToken prevToken) {
         this.collection = collection;
         this.prevToken = prevToken;
         this.token = SyncToken.generate(collection);
-        this.itemIterator = createItemIterator();
-        this.tombstoneIterator = createTombstoneIterator();
+        this.itemIterator = createItemIterator(items);
+        this.tombstoneIterator = createTombstoneIterator(tombstones);
     }
 
     /** */
@@ -90,71 +89,16 @@ public class SubRecords {
     }
 
     /** */
-    protected ItemTranslationIterator createItemIterator() {
-        ArrayList<ContentItem> items = new ArrayList<ContentItem>();
-
-        if (prevToken != null) {
-            addModifiedContentItems(items);
-            return new ItemTranslationIterator(items,
-                                               prevToken.getTimestamp());
-        }
-
-        addAllContentItems(items);
-        return new ItemTranslationIterator(items);
+    protected ItemTranslationIterator createItemIterator(List<ContentItem> items) {
+        if(prevToken!=null)
+            return new ItemTranslationIterator(items, prevToken.getTimestamp());
+        else
+            return new ItemTranslationIterator(items);
+            
     }
 
     /** */
-    protected TombstoneTranslationIterator createTombstoneIterator() {
-        ArrayList<ItemTombstone> tombstones = new ArrayList<ItemTombstone>();
-
-        if (prevToken != null)
-            addRecentTombstones(tombstones);
-        else
-            addAllTombstones(tombstones);
-
+    protected TombstoneTranslationIterator createTombstoneIterator(List<ItemTombstone> tombstones) {
         return new TombstoneTranslationIterator(tombstones);
-    }
-
-    private void addModifiedContentItems(ArrayList<ContentItem> items) {
-        if (prevToken.isValid(collection))
-            return;
-
-        for (Item child : collection.getChildren()) {
-            if (! isShareableItem(child))
-                continue;
-            if (prevToken.hasItemChanged(child))
-                items.add((ContentItem)child);
-        }
-    }
-
-    private void addAllContentItems(ArrayList<ContentItem> items) {
-        for (Item child : collection.getChildren()) {
-            if (! isShareableItem(child))
-                continue;
-            items.add((ContentItem)child);
-        }
-    }
-
-    private void addRecentTombstones(ArrayList<ItemTombstone> tombstones) {
-        if (prevToken.isValid(collection))
-            return;
-
-        for (Tombstone tombstone : collection.getTombstones()) {
-            if(tombstone instanceof ItemTombstone)
-                if (prevToken.isTombstoneRecent(tombstone))
-                    tombstones.add((ItemTombstone) tombstone);
-        }
-    }
-
-    private void addAllTombstones(ArrayList<ItemTombstone> tombstones) {
-        for (Tombstone tombstone : collection.getTombstones())
-            if(tombstone instanceof ItemTombstone)
-                tombstones.add((ItemTombstone) tombstone);
-    }
-
-    private boolean isShareableItem(Item item) {
-        // only share NoteItems until Chandler and Cosmo UI can cope
-        // with non-Note items
-        return item instanceof NoteItem;
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,7 +96,8 @@ public abstract class Item extends AuditableObject {
      * @return
      */
     @OneToMany(mappedBy = "item", fetch=FetchType.LAZY)
-    @Fetch(FetchMode.SUBSELECT)
+    // turns out this creates a query that is unoptimized for MySQL
+    //@Fetch(FetchMode.SUBSELECT)
     @Cascade( {CascadeType.ALL, CascadeType.DELETE_ORPHAN })
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public Set<Stamp> getStamps() {
@@ -186,7 +188,8 @@ public abstract class Item extends AuditableObject {
     }
 
     @OneToMany(mappedBy = "item", fetch=FetchType.LAZY)
-    @Fetch(FetchMode.SUBSELECT)
+    // turns out this creates a query that is unoptimized for MySQL
+    //@Fetch(FetchMode.SUBSELECT)
     @Cascade( {CascadeType.ALL, CascadeType.DELETE_ORPHAN }) 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     public Map<QName, Attribute> getAttributes() {
@@ -199,6 +202,17 @@ public abstract class Item extends AuditableObject {
     }
 
     public void addAttribute(Attribute attribute) {
+        if (attribute == null)
+            throw new IllegalArgumentException("attribute cannot be null");
+
+        // remove old tombstone if exists
+        for(Iterator<Tombstone> it=tombstones.iterator();it.hasNext();) {
+            Tombstone ts = it.next();
+            if(ts instanceof AttributeTombstone)
+                if(((AttributeTombstone) ts).getQName().equals(attribute.getQName()))
+                    it.remove();
+        }
+        
         validateAttribute(attribute);
         attribute.setItem(this);
         attributes.put(attribute.getQName(), attribute);
@@ -217,8 +231,10 @@ public abstract class Item extends AuditableObject {
      * @param qname qualifed name of attribute to remove.
      */
     public void removeAttribute(QName qname) {
-        if(attributes.containsKey(qname))
+        if(attributes.containsKey(qname)) {
             attributes.remove(qname);
+            tombstones.add(new AttributeTombstone(this, qname));
+        }
     }
 
     /**
@@ -226,10 +242,14 @@ public abstract class Item extends AuditableObject {
      * @param namespace namespace of attributes to remove
      */
     public void removeAttributes(String namespace) {
+        ArrayList<QName> toRemove = new ArrayList<QName>();
         for (QName qname: attributes.keySet()) {
             if (qname.getNamespace().equals(namespace))
-                attributes.remove(qname);
+                toRemove.add(qname);
         }
+        
+        for(QName qname: toRemove)
+            removeAttribute(qname);
     }
 
     /**
@@ -576,9 +596,7 @@ public abstract class Item extends AuditableObject {
         return parents.iterator().next();
     }
 
-    @Column(name="isactive", nullable=false)
-    @Type(type="boolean_integer")
-    @Index(name="idx_itemisactive")
+    @Transient
     public Boolean getIsActive() {
         return isActive;
     }

@@ -16,9 +16,9 @@
 package org.osaf.cosmo.eim.schema.event.alarm;
 
 import junit.framework.Assert;
-
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
+import net.fortuna.ical4j.model.Period;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,18 +43,26 @@ public class DisplayAlarmApplicatorTest extends BaseApplicatorTestCase
         NoteItem noteItem = new NoteItem();
         EventStamp eventStamp = new EventStamp(noteItem);
         eventStamp.createCalendar();
+        eventStamp.setStartDate(new DateTime(true));
         noteItem.addStamp(eventStamp);
-
+        
         EimRecord record = makeTestRecord();
 
         DisplayAlarmApplicator applicator =
             new DisplayAlarmApplicator(noteItem);
         applicator.applyRecord(record);
 
+        Period period = new Period((DateTime) eventStamp.getStartDate(), new Dur("PT15M"));
+        
         Assert.assertEquals(eventStamp.getDisplayAlarmDescription(), "My alarm");
         Assert.assertEquals(eventStamp.getDisplayAlarmTrigger().getValue(), "PT15M");
         Assert.assertEquals(eventStamp.getDisplayAlarmDuration().toString(), "P1W");
         Assert.assertEquals(eventStamp.getDisplayAlarmRepeat(), new Integer(1));
+        
+        // verify that NoteItem.reminderTime was updated
+        Assert.assertNotNull(noteItem.getReminderTime());
+        // it should be the end date of the period of eventStart,trigger duration
+        Assert.assertEquals(period.getEnd().getTime(), noteItem.getReminderTime().getTime());
     }
     
     public void testApplyFieldNonEvent() throws Exception {
@@ -93,10 +101,10 @@ public class DisplayAlarmApplicatorTest extends BaseApplicatorTestCase
             new DisplayAlarmApplicator(modNote);
         applicator.applyRecord(record);
 
-        Assert.assertEquals(modEvent.getDisplayAlarmDescription(), "My alarm");
-        Assert.assertEquals(modEvent.getDisplayAlarmTrigger().getValue(), "-PT15M");
-        Assert.assertEquals(modEvent.getDisplayAlarmDuration().toString(), "P1W");
-        Assert.assertEquals(modEvent.getDisplayAlarmRepeat(), new Integer(1));
+        Assert.assertNull(modEvent.getDisplayAlarmDescription());
+        Assert.assertNull(modEvent.getDisplayAlarmTrigger());
+        Assert.assertNull(modEvent.getDisplayAlarmDuration());
+        Assert.assertNull(modEvent.getDisplayAlarmRepeat());
     }
     
     private EimRecord makeTestRecord() {

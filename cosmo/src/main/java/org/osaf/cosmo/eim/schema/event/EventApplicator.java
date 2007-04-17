@@ -17,9 +17,11 @@ package org.osaf.cosmo.eim.schema.event;
 
 import java.text.ParseException;
 
+import net.fortuna.ical4j.model.DateTime;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.osaf.cosmo.calendar.ICalDate;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.schema.BaseStampApplicator;
@@ -27,7 +29,6 @@ import org.osaf.cosmo.eim.schema.EimFieldValidator;
 import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValidationException;
 import org.osaf.cosmo.eim.schema.EimValueConverter;
-import org.osaf.cosmo.eim.schema.ICalDate;
 import org.osaf.cosmo.eim.schema.text.DurationFormat;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.EventExceptionStamp;
@@ -72,8 +73,17 @@ public class EventApplicator extends BaseStampApplicator
             eventStamp.createCalendar();
             String recurrenceId = note.getUid().split(
                     EventExceptionStamp.RECURRENCEID_DELIMITER)[1];
-            eventStamp.setRecurrenceId(EimValueConverter.toICalDate(
-                    recurrenceId).getDate());
+            ICalDate icd = EimValueConverter.toICalDate(recurrenceId);
+            eventStamp.setRecurrenceId(icd.getDate());
+        }
+        
+        // need to copy reminderTime to alarm in event
+        if(note.getReminderTime()!=null) {
+            eventStamp.creatDisplayAlarm();
+            eventStamp.setDisplayAlarmDescription("display alarm");
+            DateTime dt = new DateTime(true);
+            dt.setTime(note.getReminderTime().getTime());
+            eventStamp.setDisplayAlarmTriggerDate(dt);
         }
         
         return eventStamp;
@@ -93,7 +103,7 @@ public class EventApplicator extends BaseStampApplicator
 
         if (field.getName().equals(FIELD_DTSTART)) {
             if(field.isMissing()) {
-                handleMissingAttribute("startDate");
+                handleMissingDtStart();
                 handleMissingAttribute("anyTime");
             }
             else {
@@ -104,12 +114,16 @@ public class EventApplicator extends BaseStampApplicator
                 event.setAnyTime(icd.isAnyTime());
             }
         } else if (field.getName().equals(FIELD_DURATION)) {
-            String value =
-                EimFieldValidator.validateText(field, MAXLEN_DURATION);
-            try {
-                event.setDuration(DurationFormat.getInstance().parse(value));
-            } catch (ParseException e) {
-                throw new EimValidationException("Illegal duration", e);
+            if(field.isMissing()) {
+                handleMissingAttribute("duration");
+            } else {
+                String value =
+                    EimFieldValidator.validateText(field, MAXLEN_DURATION);
+                try {
+                    event.setDuration(DurationFormat.getInstance().parse(value));
+                } catch (ParseException e) {
+                    throw new EimValidationException("Illegal duration " + value, e);
+                }
             }
         } else if (field.getName().equals(FIELD_LOCATION)) {
             if(field.isMissing()) {
@@ -150,14 +164,11 @@ public class EventApplicator extends BaseStampApplicator
         }
     }
     
-    @Override
-    protected Stamp getParentStamp() {
-        NoteItem noteMod = (NoteItem) getItem();
-        NoteItem parentNote = noteMod.getModifies();
-        
-        if(parentNote!=null)
-            return parentNote.getStamp(BaseEventStamp.class);
-        else
-            return null;
+    private void handleMissingDtStart() throws EimSchemaException {
+        checkIsModification();
+        // A missing dtstart on a modification means that the start date
+        // is equal to the recurrenceId
+        BaseEventStamp event = (BaseEventStamp) getStamp();
+        event.setStartDate(event.getRecurrenceId());
     }
 }

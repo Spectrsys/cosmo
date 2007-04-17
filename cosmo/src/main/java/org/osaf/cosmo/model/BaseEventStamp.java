@@ -272,6 +272,17 @@ public abstract class BaseEventStamp extends Stamp
     public void setDuration(Dur dur) {
         Duration duration = (Duration)
             getEvent().getProperties().getProperty(Property.DURATION);
+        
+        setDirty(true);
+        
+        // remove DURATION if dur is null
+        if(dur==null) {
+            if(duration != null) 
+                getEvent().getProperties().remove(duration);
+            return;
+        }
+        
+        // update dur on existing DURATION
         if (duration != null)
             duration.setDuration(dur);
         else {
@@ -282,7 +293,6 @@ public abstract class BaseEventStamp extends Stamp
             duration = new Duration(dur);
             getEvent().getProperties().add(duration);
         }
-        setDirty(true);
     }
 
     /**
@@ -452,6 +462,21 @@ public abstract class BaseEventStamp extends Stamp
         return null;
     }
     
+    public void removeDisplayAlarm() {
+        VEvent event = getEvent();
+        
+        if(event==null)
+            return;
+         
+        for(Iterator it = event.getAlarms().iterator();it.hasNext();) {
+            VAlarm alarm = (VAlarm) it.next();
+            if (alarm.getProperties().getProperty(Property.ACTION).equals(
+                    Action.DISPLAY)) {
+                it.remove();
+            }
+        }
+    }
+    
     /**
      * Return the description of the first display alarm on the event.
      * @return alarm description
@@ -523,6 +548,29 @@ public abstract class BaseEventStamp extends Stamp
         if (oldTrigger != null)
             alarm.getProperties().remove(oldTrigger);
 
+        if(newTrigger!=null)
+            alarm.getProperties().add(newTrigger);
+    }
+    
+    /**
+     * Set the trigger property of the first display alarm on the event 
+     * to be a absolute trigger.
+     * @param triggerDate date display alarm triggers
+     */
+    public void setDisplayAlarmTriggerDate(DateTime triggerDate) {
+        VAlarm alarm = getDisplayAlarm();
+        if(alarm==null)
+            return;
+
+        Trigger oldTrigger = (Trigger) alarm.getProperties().getProperty(
+                Property.TRIGGER);
+        if (oldTrigger != null)
+            alarm.getProperties().remove(oldTrigger);
+        
+        Trigger newTrigger = new Trigger();
+        newTrigger.getParameters().add(Value.DATE_TIME);
+        newTrigger.setDateTime(triggerDate);
+        
         alarm.getProperties().add(newTrigger);
     }
     
@@ -702,24 +750,29 @@ public abstract class BaseEventStamp extends Stamp
      * @return true if the event is an anytime event
      */
     @Transient
-    public boolean isAnyTime() {
+    public Boolean isAnyTime() {
         DtStart dtStart = getEvent().getStartDate();
         if (dtStart == null)
-            return false;
+            return Boolean.FALSE;
         Parameter parameter = dtStart.getParameters()
             .getParameter(PARAM_X_OSAF_ANYTIME);
         if (parameter == null) {
-            return false;
+            return Boolean.FALSE;
         }
 
-        return VALUE_TRUE.equals(parameter.getValue());
+        return new Boolean(VALUE_TRUE.equals(parameter.getValue()));
+    }
+    
+    @Transient
+    public Boolean getAnyTime() {
+        return isAnyTime();
     }
     
     /**
      * Toggle the event anytime parameter.
      * @param isAnyTime true if the event occurs anytime
      */
-    public void setAnyTime(boolean isAnyTime) {
+    public void setAnyTime(Boolean isAnyTime) {
         DtStart dtStart = getEvent().getStartDate();
         if (dtStart == null)
             throw new IllegalStateException("event has no start date");
@@ -729,7 +782,7 @@ public abstract class BaseEventStamp extends Stamp
         setDirty(true);
         
         // add X-OSAF-ANYTIME if it doesn't exist
-        if (parameter == null && isAnyTime) {
+        if (parameter == null && Boolean.TRUE.equals(isAnyTime)) {
             dtStart.getParameters().add(getAnyTimeXParam());
             return;
         }
@@ -738,9 +791,9 @@ public abstract class BaseEventStamp extends Stamp
         if (parameter != null) {
             String value = parameter.getValue();
             boolean currIsAnyTime = VALUE_TRUE.equals(value);
-            if (currIsAnyTime && !isAnyTime)
+            if (currIsAnyTime && !Boolean.TRUE.equals(isAnyTime))
                 dtStart.getParameters().remove(parameter);
-            else if (!currIsAnyTime && isAnyTime) {
+            else if (!currIsAnyTime && Boolean.TRUE.equals(isAnyTime)) {
                 dtStart.getParameters().remove(parameter);
                 dtStart.getParameters().add(getAnyTimeXParam());
             }

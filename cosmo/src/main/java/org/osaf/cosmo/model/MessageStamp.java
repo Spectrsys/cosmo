@@ -15,6 +15,8 @@
  */
 package org.osaf.cosmo.model;
 
+import java.io.Reader;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
@@ -37,8 +39,14 @@ public class MessageStamp extends Stamp implements
      */
     private static final long serialVersionUID = -6100568628972081120L;
     
-    public static final QName ATTR_MESSAGE_SUBJECT = new QName(
-            MessageStamp.class, "subject");
+    public static final QName ATTR_MESSAGE_ID = new QName(
+            MessageStamp.class, "messageId");
+    
+    public static final QName ATTR_MESSAGE_HEADERS = new QName(
+            MessageStamp.class, "headers");
+    
+    public static final QName ATTR_MESSAGE_FROM = new QName(
+            MessageStamp.class, "from");
     
     public static final QName ATTR_MESSAGE_TO = new QName(
             MessageStamp.class, "to");
@@ -49,11 +57,8 @@ public class MessageStamp extends Stamp implements
     public static final QName ATTR_MESSAGE_BCC = new QName(
             MessageStamp.class, "bcc");
     
-    public static final QName ATTR_MESSAGE_WHO_FROM = new QName(
-            MessageStamp.class, "whoFrom");
-    
-    public static final QName ATTR_MESSAGE_SENDER = new QName(
-            MessageStamp.class, "sender");
+    public static final QName ATTR_MESSAGE_ORIGINATORS = new QName(
+            MessageStamp.class, "originators");
     
     public static final QName ATTR_MESSAGE_DATE_SENT = new QName(
             MessageStamp.class, "dateSent");
@@ -79,80 +84,93 @@ public class MessageStamp extends Stamp implements
     
     // Property accessors
     @Transient
-    public String getBcc() {
-        // bcc stored as TextAttribute on Item
-        return TextAttribute.getValue(getItem(), ATTR_MESSAGE_BCC);
+    public String getMessageId() {
+        // id stored as StringAttribute on Item
+        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_ID);
     }
 
-    public void setBcc(String bcc) {
-        //bcc stored as TextAttribute on Item
-        TextAttribute.setValue(getItem(), ATTR_MESSAGE_BCC, bcc);
+    public void setMessageId(String id) {
+        // id stored as StringAttribute on Item
+        StringAttribute.setValue(getItem(), ATTR_MESSAGE_ID, id);
+        updateTimestamp();
     }
-
+    
     @Transient
-    public String getCc() {
-        // cc stored as TextAttribute on Item
-        return TextAttribute.getValue(getItem(), ATTR_MESSAGE_CC);
+    public String getHeaders() {
+        // headers stored as TextAttribute on Item
+        return TextAttribute.getValue(getItem(), ATTR_MESSAGE_HEADERS);
     }
 
-    public void setCc(String cc) {
-        // cc stored as TextAttribute on Item
-        TextAttribute.setValue(getItem(), ATTR_MESSAGE_CC, cc);
+    public void setHeaders(String headers) {
+        // headers stored as TextAttribute on Item
+        TextAttribute.setValue(getItem(), ATTR_MESSAGE_HEADERS, headers);
+        updateTimestamp();
     }
-
+    
+    public void setHeaders(Reader headers) {
+        // headers stored as TextAttribute on Item
+        TextAttribute.setValue(getItem(), ATTR_MESSAGE_HEADERS, headers);
+        updateTimestamp();
+    }
+    
     @Transient
-    public String getSubject() {
-        // subject stored as TextAttribute on Item
-        return TextAttribute.getValue(getItem(), ATTR_MESSAGE_SUBJECT);
+    public String getFrom() {
+        // from stored as StringAttribute on Item
+        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_FROM);
     }
 
-    public void setSubject(String subject) {
-        // subject stored as TextAttribute on Item
-        TextAttribute.setValue(getItem(), ATTR_MESSAGE_SUBJECT, subject);
+    public void setFrom(String from) {
+        // from stored as StringAttribute on Item
+        StringAttribute.setValue(getItem(), ATTR_MESSAGE_FROM, from);
+        updateTimestamp();
     }
 
     @Transient
     public String getTo() {
-        // to stored as TextAttribute on Item
-        return TextAttribute.getValue(getItem(), ATTR_MESSAGE_TO);
+        // to stored as StringAttribute on Item
+        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_TO);
     }
 
     public void setTo(String to) {
-        // to stored as TextAttribute on Item
-        TextAttribute.setValue(getItem(), ATTR_MESSAGE_TO, to);
+        // to stored as StringAttribute on Item
+        StringAttribute.setValue(getItem(), ATTR_MESSAGE_TO, to);
+        updateTimestamp();
     }
     
     @Transient
-    public String getWhoFrom() {
-        // whoFrom stored as StringAttribute on Item
-        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_WHO_FROM);
+    public String getBcc() {
+        // bcc stored as StringAttribute on Item
+        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_BCC);
     }
 
-    public void setWhoFrom(String whoFrom) {
-        // whoFrom stored as TextAttribute on Item
-        StringAttribute.setValue(getItem(), ATTR_MESSAGE_WHO_FROM, whoFrom);
+    public void setBcc(String bcc) {
+        //bcc stored as StringAttribute on Item
+        StringAttribute.setValue(getItem(), ATTR_MESSAGE_BCC, bcc);
+        updateTimestamp();
     }
-    
+
     @Transient
-    public String getSender() {
-        // sender stored as StringAttribute on Item
-        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_SENDER);
+    public String getCc() {
+        // cc stored as StringAttribute on Item
+        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_CC);
     }
 
-    public void setSender(String sender) {
-        // sender stored as TextAttribute on Item
-        StringAttribute.setValue(getItem(), ATTR_MESSAGE_SENDER, sender);
+    public void setCc(String cc) {
+        // cc stored as StringAttribute on Item
+        StringAttribute.setValue(getItem(), ATTR_MESSAGE_CC, cc);
+        updateTimestamp();
     }
-    
+ 
     @Transient
-    public String getInReplyTo() {
-        // inReployTo stored as StringAttribute on Item
-        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_IN_REPLY_TO);
+    public String getOriginators() {
+        // originators stored as StringAttribute on Item
+        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_ORIGINATORS);
     }
 
-    public void setInReplyTo(String inReplyTo) {
-        // inReployTo stored as TextAttribute on Item
-        StringAttribute.setValue(getItem(), ATTR_MESSAGE_IN_REPLY_TO, inReplyTo);
+    public void setOriginators(String originators) {
+        // originators stored as StringAttribute on Item
+        StringAttribute.setValue(getItem(), ATTR_MESSAGE_ORIGINATORS, originators);
+        updateTimestamp();
     }
     
     @Transient
@@ -164,8 +182,21 @@ public class MessageStamp extends Stamp implements
     public void setDateSent(String dateSent) {
         // inReployTo stored as TextAttribute on Item
         StringAttribute.setValue(getItem(), ATTR_MESSAGE_DATE_SENT, dateSent);
+        updateTimestamp();
     }
     
+    @Transient
+    public String getInReplyTo() {
+        // inReployTo stored as StringAttribute on Item
+        return StringAttribute.getValue(getItem(), ATTR_MESSAGE_IN_REPLY_TO);
+    }
+
+    public void setInReplyTo(String inReplyTo) {
+        // inReployTo stored as TextAttribute on Item
+        StringAttribute.setValue(getItem(), ATTR_MESSAGE_IN_REPLY_TO, inReplyTo);
+        updateTimestamp();
+    }
+
     @Transient
     public String getReferences() {
         // references stored as TextAttribute on Item
@@ -175,6 +206,13 @@ public class MessageStamp extends Stamp implements
     public void setReferences(String references) {
         // references stored as TextAttribute on Item
         TextAttribute.setValue(getItem(), ATTR_MESSAGE_REFERENCES, references);
+        updateTimestamp();
+    }
+    
+    public void setReferences(Reader references) {
+        // references stored as TextAttribute on Item
+        TextAttribute.setValue(getItem(), ATTR_MESSAGE_REFERENCES, references);
+        updateTimestamp();
     }
 
     /**
@@ -188,14 +226,15 @@ public class MessageStamp extends Stamp implements
     
     public Stamp copy(Item item) {
         MessageStamp stamp = new MessageStamp();
-        stamp.setSubject(getSubject());
+        stamp.setMessageId(getMessageId());
         stamp.setTo(getTo());
         stamp.setBcc(getBcc());
         stamp.setCc(getCc());
         stamp.setInReplyTo(getInReplyTo());
         stamp.setReferences(getReferences());
-        stamp.setSender(getSender());
-        stamp.setWhoFrom(getWhoFrom());
+        stamp.setFrom(getFrom());
+        stamp.setHeaders(getHeaders());
+        stamp.setOriginators(getOriginators());
         stamp.setDateSent(getDateSent());
         return stamp;
     }

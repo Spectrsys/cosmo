@@ -16,6 +16,7 @@
 package org.osaf.cosmo.service;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Set;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -128,6 +129,17 @@ public interface ContentService extends Service {
      *            path of item to remove
      */
     public void removeItem(String path);
+    
+    /**
+     * Load all children for collection that have been updated since a
+     * given timestamp.  If no timestamp is specified, then return all 
+     * children.
+     * @param collection collection
+     * @param timestamp timestamp
+     * @return children of collection that have been updated since 
+     *         timestamp, or all children if timestamp is null
+     */
+    public Set<ContentItem> loadChildren(CollectionItem collection, Date timestamp);
 
     /**
      * Create a new collection.

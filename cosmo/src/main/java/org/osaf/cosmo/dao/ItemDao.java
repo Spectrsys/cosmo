@@ -195,9 +195,15 @@ public interface ItemDao extends Dao {
     public void removeItemFromCollection(Item item, CollectionItem collection);
     
     /**
-     * Refresh item.
+     * Refresh item with persistent state.
      *
      * @param item the item
      */
     public void refreshItem(Item item);
+    
+    /**
+     * Initialize item, ensuring any proxied associations will be loaded.
+     * @param item
+     */
+    public void initializeItem(Item item);
 }

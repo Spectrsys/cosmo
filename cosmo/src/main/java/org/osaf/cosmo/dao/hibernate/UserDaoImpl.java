@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.apache.commons.id.IdentifierGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
+import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -33,11 +34,11 @@ import org.hibernate.criterion.Order;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.DuplicateEmailException;
 import org.osaf.cosmo.model.DuplicateUsernameException;
+import org.osaf.cosmo.model.PasswordRecovery;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.util.ArrayPagedList;
 import org.osaf.cosmo.util.PageCriteria;
 import org.osaf.cosmo.util.PagedList;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -73,9 +74,10 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
                 user.setUid(getIdGenerator().nextIdentifier().toString());
 
             getSession().save(user);
+            getSession().flush();
             return user;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
 
     }
@@ -84,7 +86,7 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
         try {
             return findUserByUsername(username);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
     
@@ -95,7 +97,7 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
         try {
             return findUserByUid(uid);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -106,7 +108,7 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
         try {
             return findUserByActivationId(id);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -117,7 +119,7 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
         try {
             return findUserByEmail(email);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -130,7 +132,7 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
 
             return users;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -146,7 +148,7 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
 
             return new ArrayPagedList<User, User.SortType>(pageCriteria, results, size.intValue());
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -155,45 +157,76 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
             User user = findUserByUsername(username);
             // delete user
             if (user != null)
-                getSession().delete(user);
+                removeUser(user);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
     public void removeUser(User user) {
         try {
+            // TODO: should probably let db take care of this with
+            // cacade constaint
+            deleteAllPasswordRecoveries(user);
+            
             getSession().delete(user);
+            getSession().flush();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
     public User updateUser(User user) {
         try {
-            
-            // Evict user from session cache to prevent auto flush occuring
-            // when searching for duplicates
-            if(getSession().contains(user))
-                getSession().evict(user);
-            
-            User findUser = findUserByUsernameIgnoreCase(user.getUsername());
-            if (findUser!=null && !findUser.getId().equals(user.getId()))
-                throw new DuplicateUsernameException(user.getUsername());
-            
-            findUser = findUserByEmailIgnoreCase(user.getEmail());
-            if (findUser!=null && !findUser.getId().equals(user.getId()))
-                throw new DuplicateEmailException(user.getEmail());
+            // prevent auto flushing when querying for existing users
+            getSession().setFlushMode(FlushMode.MANUAL);
+
+            User findUser = findUserByUsernameOrEmailIgnoreCaseAndId(user
+                    .getId(), user.getUsername(), user.getEmail());
+
+            if (findUser != null) {
+                if (findUser.getEmail().equals(user.getEmail()))
+                    throw new DuplicateEmailException(user.getEmail());
+                else
+                    throw new DuplicateUsernameException(user.getUsername());
+            }
 
             user.setDateModified(new Date());
-            
-            // merge transient instance with persistent instance
-            getSession().merge(user);
-           
-            // return persistent instance
-            return (User) getSession().load(User.class, user.getId());
+            getSession().update(user);
+            getSession().flush();
+
+            return user;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
+        }
+    }
+    
+    public void createPasswordRecovery(PasswordRecovery passwordRecovery){
+        try {
+            getSession().save(passwordRecovery);
+            getSession().flush();
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
+        } 
+    }
+    
+    public PasswordRecovery getPasswordRecovery(String key){
+        try {
+            Query hibQuery = getSession().getNamedQuery("passwordRecovery.byKey")
+                    .setParameter("key", key);
+            hibQuery.setCacheable(true);
+            return (PasswordRecovery) hibQuery.uniqueResult();
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
+        }
+    }
+    
+    public void deletePasswordRecovery(PasswordRecovery passwordRecovery) {
+        try {
+            getSession().delete(passwordRecovery);
+            getSession().flush();
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -235,6 +268,22 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
         else
             return null;
     }
+    
+    private User findUserByUsernameOrEmailIgnoreCaseAndId(Long userId,
+            String username, String email) {
+        Session session = getSession();
+        Query hibQuery = session.getNamedQuery(
+                "user.byUsernameOrEmail.ignorecase.ingoreId").setParameter(
+                "username", username).setParameter("email", email)
+                .setParameter("userid", userId);
+        hibQuery.setCacheable(true);
+        hibQuery.setFlushMode(FlushMode.MANUAL);
+        List users = hibQuery.list();
+        if (users.size() > 0)
+            return (User) users.get(0);
+        else
+            return null;
+    }
 
     private User findUserByEmail(String email) {
         Session session = getSession();
@@ -266,6 +315,12 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
                 "uid", uid);
         hibQuery.setCacheable(true);
         return (User) hibQuery.uniqueResult();
+    }
+    
+    private void deleteAllPasswordRecoveries(User user) {
+        Session session = getSession();
+        session.getNamedQuery("passwordRecovery.delete.byUser").setParameter(
+                "user", user).executeUpdate();
     }
 
     private User findUserByActivationId(String id) {
@@ -302,6 +357,8 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
                 orders.add(createOrder(pageCriteria, "dateCreated"));
             else if (sort.equals(User.SortType.LAST_MODIFIED))
                 orders.add(createOrder(pageCriteria, "dateModified"));
+            else if (sort.equals(User.SortType.ACTIVATED))
+                orders.add(createOrder(pageCriteria, "activationId"));
             else
                 orders.add(createOrder(pageCriteria, "username"));
 
@@ -314,5 +371,4 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
                    Order.desc(property);
         }
     }
-
 }

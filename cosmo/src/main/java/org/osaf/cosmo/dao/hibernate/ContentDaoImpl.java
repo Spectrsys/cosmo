@@ -16,17 +16,23 @@
 package org.osaf.cosmo.dao.hibernate;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.validator.InvalidStateException;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemTombstone;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.User;
 
 /**
@@ -85,6 +91,59 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             throw ise;
         }
     }
+    
+    
+    /* (non-Javadoc)
+     * @see org.osaf.cosmo.dao.ContentDao#updateCollection(org.osaf.cosmo.model.CollectionItem, java.util.Set)
+     */
+    public CollectionItem updateCollection(CollectionItem collection, Set<ContentItem> children) {
+        
+        int count = 0;
+        int batchSize = 20;
+        
+        try {
+            collection = updateCollection(collection);
+            
+            // Either create, update, or delete each item
+            for (ContentItem item : children) {
+                
+                // periodically clear the session to improve performance
+                count++;
+                if(count%batchSize==0)
+                    getSession().clear();
+                
+                // create item
+                if(item.getId()==-1) {
+                    item = createContent(collection, item);
+                }
+                // delete item
+                else if(item.getIsActive()==false) {
+                    removeItemFromCollection(item, collection);
+                }
+                // update item
+                else {
+                    // Here is the tricky part.  If the session has
+                    // been cleared, then in order to prevent Hibernate
+                    // exceptions like "found two representations of the
+                    // same collection..", we need to merge the transient
+                    // item state with the persistent state, and pass the
+                    // peristent object into updateContent().
+                    if(!getSession().contains(item)) {
+                        item = (ContentItem) getSession().merge(item);
+                    }
+                    if(!item.getParents().contains(collection))
+                        addItemToCollection(item, collection);
+                    updateContent(item);
+                }
+            }
+            
+            return collection;
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
+        }
+    }
+
+
 
     /*
      * (non-Javadoc)
@@ -173,9 +232,6 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         if(parents==null)
             throw new IllegalArgumentException("parent cannot be null");
         
-        if(parents.size()==0)
-            throw new IllegalArgumentException("content must have at least one parent");
-        
         if (content == null)
             throw new IllegalArgumentException("content cannot be null");
 
@@ -186,6 +242,10 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             throw new IllegalArgumentException("content must have owner");
         
         try {
+            if(parents.size()==0)
+                throw new IllegalArgumentException("content must have at least one parent");
+            
+            
             User owner = content.getOwner();
 
             // verify uid not in use
@@ -278,6 +338,17 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         }
     }
 
+    public void updateCollectionTimestamp(String collectionUid) {
+        try {
+            CollectionItem collection = findCollectionByUid(collectionUid);
+            collection.setModifiedDate(new Date());
+            getSession().flush();
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
+        }
+    }
+    
+    
     /*
      * (non-Javadoc)
      * 
@@ -288,6 +359,8 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             
             if (collection == null)
                 throw new IllegalArgumentException("collection cannot be null");
+            
+            getSession().update(collection);
             
             if (collection.getOwner() == null)
                 throw new IllegalArgumentException("collection must have owner");
@@ -300,7 +373,6 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             
             collection.setModifiedDate(new Date());
             
-            getSession().update(collection);
             getSession().flush();
             
             return collection;
@@ -322,6 +394,8 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             
             if (content == null)
                 throw new IllegalArgumentException("content cannot be null");
+             
+            getSession().update(content);
             
             if (content.getOwner() == null)
                 throw new IllegalArgumentException("content must have owner");
@@ -333,7 +407,6 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             
             content.setModifiedDate(new Date());
             
-            getSession().update(content);
             getSession().flush();
             
             return content;
@@ -384,6 +457,57 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
     }
     
     
+    /* (non-Javadoc)
+     * @see org.osaf.cosmo.dao.ContentDao#loadChildren(org.osaf.cosmo.model.CollectionItem, java.util.Date)
+     */
+    public Set<ContentItem> loadChildren(CollectionItem collection, Date timestamp) {
+        try {
+            Set<ContentItem> children = new HashSet<ContentItem>();
+            Query query = null;
+
+            // use custom HQL query that will eager fetch all associations
+            if (timestamp == null)
+                query = getSession().getNamedQuery("contentItem.by.parent")
+                        .setParameter("parent", collection);
+            else
+                query = getSession().getNamedQuery("contentItem.by.parent.timestamp")
+                        .setParameter("parent", collection).setParameter(
+                                "timestamp", timestamp);
+
+            List results = query.list();
+            for (Iterator it = results.iterator(); it.hasNext();) {
+                ContentItem content = (ContentItem) it.next();
+                initializeItem(content);
+                children.add(content);
+            }
+
+            return children;
+            
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
+        }
+    }
+
+
+    @Override
+    public void initializeItem(Item item) {
+        super.initializeItem(item);
+        
+        // Initialize master NoteItem if applicable
+        try {
+           if(item instanceof NoteItem) {
+               NoteItem note = (NoteItem) item;
+               if(note.getModifies()!=null) {
+                   Hibernate.initialize(note.getModifies());
+                   initializeItem(note.getModifies());
+               }
+           }
+        } catch (HibernateException e) {
+            throw convertHibernateAccessException(e);
+        }
+        
+    }
+
     @Override
     public void removeItem(Item item) {
         if(item instanceof ContentItem)
@@ -440,7 +564,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         // its children.  Instead, the association to all the
         // children is removed, and any children who have no
         // parent collection are then removed.
-        for(Item item: collection.getAllChildren()) {
+        for(Item item: collection.getChildren()) {
             if(item instanceof CollectionItem) {
                 removeCollectionRecursive((CollectionItem) item);
             } else if(item instanceof ContentItem) {                    
