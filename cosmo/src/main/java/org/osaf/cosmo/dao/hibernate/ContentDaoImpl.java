@@ -118,6 +118,8 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                 }
                 // delete item
                 else if(item.getIsActive()==false) {
+                    if(!getSession().contains(collection))
+                        collection = (CollectionItem) getSession().merge(collection);
                     removeItemFromCollection(item, collection);
                 }
                 // update item
@@ -131,8 +133,11 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                     if(!getSession().contains(item)) {
                         item = (ContentItem) getSession().merge(item);
                     }
-                    if(!item.getParents().contains(collection))
+                    if(!item.getParents().contains(collection)) {
+                        if(!getSession().contains(collection))
+                            collection = (CollectionItem) getSession().merge(collection);
                         addItemToCollection(item, collection);
+                    }
                     updateContent(item);
                 }
             }
