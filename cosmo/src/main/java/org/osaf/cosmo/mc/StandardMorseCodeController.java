@@ -383,10 +383,6 @@ public class StandardMorseCodeController implements MorseCodeController {
         // The set of items that need to be updated/created/deleted
         HashSet<Item> children = new HashSet<Item>();
         
-        // The list of modification records that need to be processed
-        // at theh end of the recordset
-        ArrayList<EimRecordSet> modRecords = new ArrayList<EimRecordSet>(); 
-
         try {
             while (i.hasNext()) {
                 EimRecordSet recordset = i.next();
@@ -395,38 +391,18 @@ public class StandardMorseCodeController implements MorseCodeController {
                         contentService.findItemByUid(recordset.getUuid());
                     if (item != null && ! (item instanceof ContentItem))
                         throw new ValidationException("Child item " + recordset.getUuid() + " is not a content item");
+                    
+                   
                     ContentItem child = (item != null) ?
                         (ContentItem) item :
                         createChildItem(collection, recordset);
-             
-                    // If child is null, it means that the item is a 
-                    // modification and the parent item has not been processed.
-                    // In this case, keep track of and retry at the end of the
-                    // recordset.
-                    if(child==null) {
-                        modRecords.add(recordset);
-                    }
-                    else {
-                        children.add(child);
-                        new ItemTranslator(child).applyRecords(recordset);
-                    }
+                        
+                    collection.getChildren().add(child);
+                    children.add(child);
+                    new ItemTranslator(child).applyRecords(recordset);
                 } catch (EimValidationException e) {
                     throw new ValidationException("could not apply EIM recordset " + recordset.getUuid() + " due to invalid data", e);
                 }
-            }
-            
-            // Re-try any records that represent item modifications where the
-            // parent item could not be found.  This ensures that all master
-            // items are processed before the modification items.
-            for(EimRecordSet recordset: modRecords) {
-                ContentItem child = createChildItem(collection, recordset);
-                if(child==null) {
-                    log.debug("could not find parent item for " + recordset.getUuid());
-                    throw new ValidationException("no parent found for " + recordset.getUuid());
-                } else {
-                    children.add(child);
-                    new ItemTranslator(child).applyRecords(recordset);
-                }   
             }
             
         } catch (EimException e) {
@@ -449,13 +425,12 @@ public class StandardMorseCodeController implements MorseCodeController {
         // If the master item hasn't been created, then we need to return null,
         // and try again at the end of the recordset.
         if(child.getUid().indexOf(EventExceptionStamp.RECURRENCEID_DELIMITER)>0)
-            if(handleModificationItem(child, collection)==false)
-                return null;
+            handleModificationItem(child, collection);
+                
                   
         // Add reference to parent collection so that applicator can
         // access parent (and children) if necessary
         child.getParents().add(collection);
-        collection.getChildren().add(child);
         return child;
     }
     
@@ -471,7 +446,8 @@ public class StandardMorseCodeController implements MorseCodeController {
             }
         }
         
-        return false;
+        log.debug("could not find parent item for " + noteMod.getUid());
+        throw new ValidationException("no parent found for " + noteMod.getUid());
     }
     
     private List<ContentItem> getAllItems(CollectionItem collection) {
