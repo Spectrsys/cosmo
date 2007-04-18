@@ -710,25 +710,7 @@ public abstract class BaseEventStamp extends Stamp
         }
         
         recurrenceId.setDate(date);
-        
-        // set VALUE param to DATE or DATE-TIME
-        Value value = (Value) recurrenceId.getParameter(Parameter.VALUE);
-        
-        if(date instanceof DateTime) {
-            if(value==null)
-                recurrenceId.getParameters().add(Value.DATE_TIME);
-            else if(!value.equals(Value.DATE_TIME)) {
-                recurrenceId.getParameters().remove(value);
-                recurrenceId.getParameters().add(Value.DATE_TIME);
-            }
-        } else {
-            if(value==null)
-                recurrenceId.getParameters().add(Value.DATE);
-            else if(!value.equals(Value.DATE)) {
-                recurrenceId.getParameters().remove(value);
-                recurrenceId.getParameters().add(Value.DATE);
-            }
-        }
+        setDatePropertyValue(recurrenceId, date);
     }
 
     /**
