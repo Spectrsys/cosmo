@@ -17,7 +17,6 @@ package org.osaf.cosmo.service.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,6 +34,7 @@ import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.DtStamp;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
@@ -931,8 +931,10 @@ public class StandardContentService implements ContentService {
             // make sure event has DTSTAMP, otherwise validation will fail
             if(event.getDateStamp()==null)
                 event.getProperties().add(new DtStamp(new DateTime()));
-            if (event.getRecurrenceId() != null)
-                exceptions.put(event.getRecurrenceId().getDate(), event);
+            if (event.getRecurrenceId() != null) {
+                Date recurrenceIdDate = event.getRecurrenceId().getDate();
+                exceptions.put(recurrenceIdDate, event);
+            }
         }
         
         // Remove all exceptions from master calendar as these
@@ -1019,8 +1021,9 @@ public class StandardContentService implements ContentService {
                 + Dates.fromDateToString(event.getRecurrenceId().getDate()));
         noteMod.setOwner(masterNote.getOwner());
         noteMod.setName(noteMod.getUid());
-        noteMod.setDisplayName(exceptionStamp.getDescription());
-        noteMod.setBody(exceptionStamp.getSummary());
+        // for now displayName is limited to 255 chars
+        noteMod.setDisplayName(StringUtils.substring(exceptionStamp.getSummary(),0,255));
+        noteMod.setBody(exceptionStamp.getDescription());
         noteMod.setIcalUid(masterNote.getIcalUid());
         noteMod.setModifies(masterNote);
         noteMod = (NoteItem) contentDao.createContent(masterNote.getParents(), noteMod);
