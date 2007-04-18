@@ -111,7 +111,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                 count++;
                 if(count%batchSize==0)
                     getSession().clear();
-                
+                 
                 // create item
                 if(item.getId()==-1) {
                     item = createContent(collection, item);
@@ -119,7 +119,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                 // delete item
                 else if(item.getIsActive()==false) {
                     if(!getSession().contains(collection))
-                        collection = (CollectionItem) getSession().merge(collection);
+                        getSession().load(collection, collection.getId());
                     removeItemFromCollection(item, collection);
                 }
                 // update item
@@ -135,7 +135,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                     }
                     if(!item.getParents().contains(collection)) {
                         if(!getSession().contains(collection))
-                            collection = (CollectionItem) getSession().merge(collection);
+                            getSession().load(collection, collection.getId());
                         addItemToCollection(item, collection);
                     }
                     updateContent(item);
