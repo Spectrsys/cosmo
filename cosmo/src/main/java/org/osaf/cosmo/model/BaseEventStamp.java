@@ -708,7 +708,27 @@ public abstract class BaseEventStamp extends Stamp
             recurrenceId = new RecurrenceId();
             getEvent().getProperties().add(recurrenceId);
         }
+        
         recurrenceId.setDate(date);
+        
+        // set VALUE param to DATE or DATE-TIME
+        Value value = (Value) recurrenceId.getParameter(Parameter.VALUE);
+        
+        if(date instanceof DateTime) {
+            if(value==null)
+                recurrenceId.getParameters().add(Value.DATE_TIME);
+            else if(!value.equals(Value.DATE_TIME)) {
+                recurrenceId.getParameters().remove(value);
+                recurrenceId.getParameters().add(Value.DATE_TIME);
+            }
+        } else {
+            if(value==null)
+                recurrenceId.getParameters().add(Value.DATE);
+            else if(!value.equals(Value.DATE)) {
+                recurrenceId.getParameters().remove(value);
+                recurrenceId.getParameters().add(Value.DATE);
+            }
+        }
     }
 
     /**
@@ -826,11 +846,21 @@ public abstract class BaseEventStamp extends Stamp
         
         // VEVENT UID is the NoteItem's icalUid
         // if it exists, or just the Item's uid
-        if(note!=null && note.getIcalUid() != null)
+        if(note.getIcalUid()!=null)
             uid.setValue(note.getIcalUid());
-        else
-            uid.setValue(getItem().getUid());
-            
+        else {
+            // A modifications UID will be the parent's icaluid
+            // or uid
+            if(note.getModifies()!=null) {
+                if(note.getModifies().getIcalUid()!=null)
+                    uid.setValue(note.getModifies().getIcalUid());
+                else
+                    uid.setValue(note.getModifies().getUid());
+            } else {
+                uid.setValue(note.getUid());
+            }
+        }
+     
         vevent.getProperties().add(uid);
        
         cal.getComponents().add(vevent);

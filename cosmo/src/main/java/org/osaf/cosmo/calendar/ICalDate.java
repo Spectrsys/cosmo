@@ -231,8 +231,11 @@ public class ICalDate implements ICalendarConstants {
     private void parseDates(String str)
         throws ParseException {
         String[] strs = str.split(",");
-        if (strs.length == 1)
+        if (strs.length == 1) {
             date = isDate() ? new Date(str) : new DateTime(str, tz);
+            if(isDate() && tz != null)
+                throw new ParseException("DATE cannot have timezone",0);
+        }
 
         dates = isDate() ?
             new DateList(Value.DATE) :
