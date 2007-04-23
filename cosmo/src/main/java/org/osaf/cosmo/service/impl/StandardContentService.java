@@ -913,13 +913,7 @@ public class StandardContentService implements ContentService {
     private void updateEventInternal(NoteItem masterNote, Calendar calendar) {
         HashMap<Date, VEvent> exceptions = new HashMap<Date, VEvent>();
         
-        // Clone Calendar as it will be the basis for the master event's calendar
-        Calendar masterCalendar = null;
-        try {
-            masterCalendar = new Calendar(calendar);
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot copy calendar", e);
-        }
+        Calendar masterCalendar = calendar;
         
         ComponentList vevents = masterCalendar.getComponents().getComponents(
                 Component.VEVENT);

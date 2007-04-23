@@ -98,19 +98,15 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
      */
     public CollectionItem updateCollection(CollectionItem collection, Set<ContentItem> children) {
         
-        int count = 0;
-        int batchSize = 20;
-        
         try {
             collection = updateCollection(collection);
             
             // Either create, update, or delete each item
             for (ContentItem item : children) {
                 
-                // periodically clear the session to improve performance
-                count++;
-                if(count%batchSize==0)
-                    getSession().clear();
+                // clear the session each iteration to improve performance
+                getSession().clear();
+                getSession().load(collection, collection.getId());
                  
                 // create item
                 if(item.getId()==-1) {
@@ -118,8 +114,7 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                 }
                 // delete item
                 else if(item.getIsActive()==false) {
-                    if(!getSession().contains(collection))
-                        getSession().load(collection, collection.getId());
+                    getSession().load(item, item.getId());
                     removeItemFromCollection(item, collection);
                 }
                 // update item
@@ -130,12 +125,9 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                     // same collection..", we need to merge the transient
                     // item state with the persistent state, and pass the
                     // peristent object into updateContent().
-                    if(!getSession().contains(item)) {
-                        item = (ContentItem) getSession().merge(item);
-                    }
+                    item = (ContentItem) getSession().merge(item);
+                    
                     if(!item.getParents().contains(collection)) {
-                        if(!getSession().contains(collection))
-                            getSession().load(collection, collection.getId());
                         addItemToCollection(item, collection);
                     }
                     updateContent(item);
