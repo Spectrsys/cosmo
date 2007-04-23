@@ -38,6 +38,7 @@ import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.parameter.XParameter;
 import net.fortuna.ical4j.model.property.Action;
 import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.DateListProperty;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.DtEnd;
@@ -242,6 +243,21 @@ public abstract class BaseEventStamp extends Stamp
         prop.getParameters().add(value);
         setDirty(true);
     }
+    
+    @Transient
+    protected void setDateListPropertyValue(DateListProperty prop,
+                                        Date date) {
+        if (prop == null)
+            return;
+        Value value = (Value)
+            prop.getParameters().getParameter(Parameter.VALUE);
+        if (value != null)
+            prop.getParameters().remove(value);
+        
+        value = date instanceof DateTime ? Value.DATE_TIME : Value.DATE;
+        prop.getParameters().add(value);
+        setDirty(true);
+    }
 
     /**
      * Returns the duration of the event as calculated from the
@@ -425,7 +441,10 @@ public abstract class BaseEventStamp extends Stamp
             pl.remove(rdate);
         if (dates.isEmpty())
             return;
-        pl.add(new RDate(dates));
+        
+        RDate rDate = new RDate(dates);
+        setDateListPropertyValue(rDate, (Date) dates.get(0));
+        pl.add(rDate);   
     }
 
     /**
@@ -673,7 +692,10 @@ public abstract class BaseEventStamp extends Stamp
             pl.remove(exdate);
         if (dates.isEmpty())
             return;
-        pl.add(new ExDate(dates));
+        
+        ExDate exDate = new ExDate(dates);
+        setDateListPropertyValue(exDate, (Date) dates.get(0));
+        pl.add(exDate);
     }
 
     /**
