@@ -417,10 +417,20 @@ public abstract class BaseEventStamp extends Stamp
      */
     @Transient
     public DateList getRecurrenceDates() {
-        DateList l = new DateList(Value.DATE_TIME);
+        
+        DateList l = null;
+        
         for (RDate rdate : (List<RDate>) getEvent().getProperties().
-                 getProperties(Property.RDATE))
+                 getProperties(Property.RDATE)) {
+            if(l==null) {
+                if(Value.DATE.equals(rdate.getParameter(Parameter.VALUE)))
+                    l = new DateList(Value.DATE);
+                else
+                    l = new DateList(Value.DATE_TIME);
+            }
             l.addAll(rdate.getDates());
+        }
+            
         return l;
     }
 
@@ -453,10 +463,18 @@ public abstract class BaseEventStamp extends Stamp
      */
     @Transient
     public DateList getExceptionDates() {
-        DateList l = new DateList(Value.DATE_TIME);
+        DateList l = null;
         for (ExDate exdate : (List<ExDate>) getEvent().getProperties().
-                 getProperties(Property.EXDATE))
+                 getProperties(Property.EXDATE)) {
+            if(l==null) {
+                if(Value.DATE.equals(exdate.getParameter(Parameter.VALUE)))
+                    l = new DateList(Value.DATE);
+                else
+                    l = new DateList(Value.DATE_TIME);
+            }
             l.addAll(exdate.getDates());
+        }
+            
         return l;
     }
     
