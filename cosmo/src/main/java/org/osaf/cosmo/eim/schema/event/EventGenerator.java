@@ -96,6 +96,9 @@ public class EventGenerator extends BaseStampGenerator
             record.addField(generateMissingField(new TextField(FIELD_DURATION, null)));
         } else {
             value = DurationFormat.getInstance().format(stamp.getDuration());
+            // Empty duration translates to None
+            if("".equals(value))
+                value = null;
             record.addField(new TextField(FIELD_DURATION, value));
         }
         
