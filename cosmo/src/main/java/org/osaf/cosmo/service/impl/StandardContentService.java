@@ -486,7 +486,7 @@ public class StandardContentService implements ContentService {
                         childrenToUpdate.add(note);
                     
                     // keep track of events so we can index
-                    if(note.getModifies()!=null) {
+                    if(note.getModifies()!=null && note.getModifies().getIsActive()==true) {
                         EventStamp masterEvent = EventStamp.getStamp(note.getModifies());
                         EventExceptionStamp exEvent = EventExceptionStamp.getStamp(note);
                         // only index event if the eventstamp is dirty
@@ -500,8 +500,13 @@ public class StandardContentService implements ContentService {
                 }
             }
             
-            for(NoteItem mod: modifications)
-                childrenToUpdate.add(mod);
+            for(NoteItem mod: modifications) {
+                // Only update modification if master has not been
+                // deleted because master deletion will take care
+                // of modification deletion.
+                if(mod.getModifies().getIsActive()==true)
+                    childrenToUpdate.add(mod);
+            }
             
             collection = contentDao.updateCollection(collection, childrenToUpdate);
             
