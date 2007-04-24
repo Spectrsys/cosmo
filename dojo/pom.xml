@@ -22,7 +22,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dojo</artifactId>
-    <version>0.4.1-061</version>
+    <version>0.4.1-061-CP-r4220-20070424</version>
     <packaging>jar</packaging>
     <name>Dojo Build</name>
     <dependencies>
