@@ -1027,8 +1027,9 @@ public class StandardContentService implements ContentService {
         EventExceptionStamp exceptionStamp = EventExceptionStamp
                 .getStamp(noteMod);
         exceptionStamp.setExceptionEvent(event);
-        noteMod.setDisplayName(exceptionStamp.getDescription());
-        noteMod.setBody(exceptionStamp.getSummary());
+        // for now displayName is limited to 255 chars
+        noteMod.setDisplayName(StringUtils.substring(exceptionStamp.getSummary(),0,255));
+        noteMod.setBody(exceptionStamp.getDescription());
         contentDao.updateContent(noteMod);
     }
 }
