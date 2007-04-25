@@ -309,7 +309,8 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
             } catch (ValidationException e) {
                 //                log.warn("Recordset contains invalid data", e);
                 Throwable cause = e.getCause();
-                String msg = cause != null ? ": " + cause.getMessage() : "";
+                String msg = ": " + e.getMessage();
+                msg += cause != null ? ": " + cause.getMessage() : "";
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
                                "Recordset contains invalid data" + msg);
                 return;
@@ -413,7 +414,8 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
             } catch (ValidationException e) {
                 //                log.warn("Recordset contains invalid data", e);
                 Throwable cause = e.getCause();
-                String msg = cause != null ? ": " + cause.getMessage() : "";
+                String msg = ": " + e.getMessage();
+                msg += cause != null ? ": " + cause.getMessage() : "";
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
                                "Recordset contains invalid data" + msg);
                 return;
