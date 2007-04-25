@@ -489,6 +489,11 @@ public abstract class BaseEventStamp extends Stamp
         if(event==null)
             return null;
         
+        return getDisplayAlarm(event);
+    }
+    
+    @Transient
+    protected VAlarm getDisplayAlarm(VEvent event) {
         for(Iterator it = event.getAlarms().iterator();it.hasNext();) {
             VAlarm alarm = (VAlarm) it.next();
             if (alarm.getProperties().getProperty(Property.ACTION).equals(

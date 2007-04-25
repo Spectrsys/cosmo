@@ -15,6 +15,9 @@
  */
 package org.osaf.cosmo.model;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,6 +38,8 @@ import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
@@ -95,11 +100,15 @@ public class EventStamp extends BaseEventStamp implements
     @Transient
     public Calendar getCalendar() {
         Calendar masterCal = null;
+        
         try {
             masterCal = new Calendar(calendar);
         } catch (Exception e) {
             throw new RuntimeException("Cannot copy calendar", e);
         }
+        
+        VEvent masterEvent = (VEvent) masterCal.getComponents(Component.VEVENT).get(0);
+        VAlarm masterAlarm = getDisplayAlarm(masterEvent);
         
         // build timezone map that includes all timezones in master calendar
         ComponentList timezones = masterCal.getComponents(Component.VTIMEZONE);
@@ -131,7 +140,25 @@ public class EventStamp extends BaseEventStamp implements
             EventExceptionStamp exceptionStamp = EventExceptionStamp.getStamp(exception);
             if(exceptionStamp==null)
                 continue;
-            sortedMap.put(exceptionStamp.getRecurrenceId().toString(), exceptionStamp.getExceptionEvent());
+            
+            // Get exception event copy
+            VEvent exceptionEvent = null;
+            try {
+                exceptionEvent = (VEvent) exceptionStamp.getExceptionEvent().copy();
+            } catch (Exception e) {
+                throw new RuntimeException("Cannot copy calendar", e);
+            }
+            
+            // check for inherited displayAlarm
+            VAlarm displayAlarm = getDisplayAlarm(exceptionEvent);
+            if(displayAlarm !=null && displayAlarm.getProperty(Property.TRIGGER)==null) {
+                if(masterAlarm!=null) {
+                    exceptionEvent.getAlarms().remove(displayAlarm);
+                    exceptionEvent.getAlarms().add(masterAlarm);
+                }
+            }
+            
+            sortedMap.put(exceptionStamp.getRecurrenceId().toString(), exceptionEvent);
             
             // verify that timezones are present for exceptions, and add if not
             tzid = getTzId(exceptionStamp.getStartDate());
