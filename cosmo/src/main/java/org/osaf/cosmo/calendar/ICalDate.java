@@ -23,17 +23,13 @@ import net.fortuna.ical4j.model.DateList;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.TimeZone;
-import net.fortuna.ical4j.model.TimeZoneRegistry;
-import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.parameter.TzId;
 import net.fortuna.ical4j.model.parameter.Value;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.osaf.cosmo.calendar.TimeZoneTranslator;
-import org.osaf.cosmo.calendar.UnknownTimeZoneException;
+import org.osaf.cosmo.eim.schema.EimConversionException;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
 
 /**
@@ -43,9 +39,6 @@ import org.osaf.cosmo.icalendar.ICalendarConstants;
 public class ICalDate implements ICalendarConstants {
     private static final Log log = LogFactory.getLog(ICalDate.class);
 
-    private static final TimeZoneRegistry TIMEZONE_REGISTRY =
-        TimeZoneRegistryFactory.getInstance().createRegistry();
-    
     private static TimeZoneTranslator tzTranslator = TimeZoneTranslator.getInstance();
 
     private Value value;
@@ -55,7 +48,7 @@ public class ICalDate implements ICalendarConstants {
     private TimeZone tz;
     private Date date;
     private DateList dates;
-
+   
     /**
      * Constructs an <code>ICalDate</code> by parsing an EIM text
      * value containing a serialized iCalendar property value with
@@ -222,6 +215,11 @@ public class ICalDate implements ICalendarConstants {
         tz = tzTranslator.translateToOlsonTz(str);
         if (tz == null)
             throw new UnknownTimeZoneException(str);
+        
+        // If the timezone ids don't match, give an indication of the
+        // correct timezone
+        if(!tz.getID().equals(str))
+            throw new UnknownTimeZoneException(str + " perhaps you meant " + tz.getID());
     }
 
     private void parseAnyTime(String str) {
