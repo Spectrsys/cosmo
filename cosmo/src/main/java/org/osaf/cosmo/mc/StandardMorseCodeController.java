@@ -42,6 +42,7 @@ import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.service.ContentService;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.ConcurrencyFailureException;
 
 /**
@@ -159,9 +160,13 @@ public class StandardMorseCodeController implements MorseCodeController {
         for (Ticket.Type type : ticketTypes)
             collection.addTicket(new Ticket(type));
 
-        // throws UidinUseException
-        collection =
-            contentService.createCollection(parent, collection, children);
+        try {
+            // throws UidinUseException
+            collection =
+                contentService.createCollection(parent, collection, children);
+        } catch (CannotAcquireLockException e) {
+            throw new ServerBusyException("Database is busy", e);
+        }
 
         return new PubCollection(collection);
     }

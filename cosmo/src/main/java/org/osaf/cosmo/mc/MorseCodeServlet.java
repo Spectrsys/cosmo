@@ -26,25 +26,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.eim.EimException;
-import org.osaf.cosmo.eim.EimRecord;
-import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.EimRecordSetIterator;
 import org.osaf.cosmo.eim.eimml.EimmlConstants;
+import org.osaf.cosmo.eim.eimml.EimmlStreamException;
 import org.osaf.cosmo.eim.eimml.EimmlStreamReader;
 import org.osaf.cosmo.eim.eimml.EimmlStreamReaderIterator;
 import org.osaf.cosmo.eim.eimml.EimmlStreamWriter;
-import org.osaf.cosmo.eim.eimml.EimmlStreamException;
 import org.osaf.cosmo.model.CollectionLockedException;
-import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.Ticket;
+import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.server.CollectionPath;
-
 import org.springframework.beans.BeansException;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -98,6 +93,10 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
      */
     public static final String HEADER_TICKET =
         "X-MorseCode-Ticket";
+    /**
+     * The HTTP reponse header <code>Retry-After</code>
+     */
+    public static final String HEADER_RETRY_AFTER = "Retry-After";
     /**
      * The response status code indicating that a collection is locked
      * for updates: <code>423</code>.
@@ -419,6 +418,12 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
                                "Recordset contains invalid data" + msg);
                 return;
+            } catch (ServerBusyException e){
+                    log.debug("received ServerBusyException during PUT");
+                    resp.setIntHeader(HEADER_RETRY_AFTER, 5);
+                    resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+                                   "The server was busy, try again later");
+                    return;
             } catch (MorseCodeException e) {
                 Throwable root = e.getCause();
                 if (root != null && root instanceof EimmlStreamException) {
