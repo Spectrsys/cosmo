@@ -30,6 +30,7 @@ import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.Recur;
+import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VAlarm;
@@ -899,6 +900,20 @@ public abstract class BaseEventStamp extends Stamp
             setSummary(note.getDisplayName());
             setDescription(note.getBody());
         }
+    }
+    
+    /**
+     * Determine if an event is recurring
+     * @return true if the underlying event is a recurring event
+     */
+    @Transient
+    public boolean isRecurring() {
+       if(getRecurrenceRules().size()>0)
+           return true;
+       
+       DateList rdates = getRecurrenceDates();
+       
+       return (rdates!=null && rdates.size()>0);
     }
     
     /**

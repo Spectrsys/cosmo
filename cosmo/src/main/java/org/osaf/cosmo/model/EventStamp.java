@@ -15,9 +15,6 @@
  */
 package org.osaf.cosmo.model;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,6 +36,7 @@ import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
@@ -132,6 +130,11 @@ public class EventStamp extends BaseEventStamp implements
             masterCal.getComponents().add(vtz);
             tzMap.put(tzid, vtz);
         }
+        
+        // If event is not recurring, skip all the event modification
+        // processing
+        if(!isRecurring())
+            return masterCal;
         
         // add all exception events
         NoteItem note = (NoteItem) getItem();
@@ -275,6 +278,34 @@ public class EventStamp extends BaseEventStamp implements
         }
         
         return stamp;
+    }
+    
+    
+    /**
+     * Remove any timezones in the master calendar that are
+     * found in the timezone registry.
+     */
+    public void compactTimezones() {
+        Calendar master = getMasterCalendar();
+        if(master==null)
+            return;
+        
+        // Get list of timezones in master calendar and remove all timezone
+        // definitions that are in the registry.  The idea is to not store
+        // extra data.  Instead, the timezones will be added to the calendar
+        // by the getCalendar() api.
+        ComponentList timezones = master.getComponents(Component.VTIMEZONE);
+        ArrayList toRemove = new ArrayList();
+        for(Iterator it = timezones.iterator();it.hasNext();) {
+            VTimeZone vtz = (VTimeZone) it.next();
+            String tzid = vtz.getTimeZoneId().getValue();
+            TimeZone tz = TIMEZONE_REGISTRY.getTimeZone(tzid);
+            if(tz.getID().equals(tzid))
+                toRemove.add(vtz);
+        }
+        
+        // remove known timezones from master calendar
+        master.getComponents().removeAll(toRemove);
     }
 
     private String getTzId(Date date) {

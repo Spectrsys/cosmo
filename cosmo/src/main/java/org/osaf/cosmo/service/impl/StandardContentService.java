@@ -944,15 +944,7 @@ public class StandardContentService implements ContentService {
         // Master calendar includes everything in the original calendar minus
         // any exception events (VEVENT with RECURRENCEID)
         eventStamp.setMasterCalendar(masterCalendar);
-        
-        // set content length of master NoteItem (length of entire Calendar)
-        try {
-            masterNote.setContentLength((long) calendar
-                    .toString().getBytes("UTF-8").length);
-        } catch (UnsupportedEncodingException e) {
-            // should never happen
-            throw new RuntimeException("unsupported UTF-8 encoding");
-        } 
+        eventStamp.compactTimezones();
         
         // synchronize exceptions with master NoteItem modifications
         syncExceptions(exceptions, masterNote);
@@ -985,6 +977,7 @@ public class StandardContentService implements ContentService {
     }
 
     private void syncException(VEvent event, NoteItem masterNote) {
+        
         NoteItem mod = getModification(masterNote, event.getRecurrenceId()
                 .getDate());
 

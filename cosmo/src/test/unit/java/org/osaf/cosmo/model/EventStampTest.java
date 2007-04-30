@@ -21,6 +21,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.DateList;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VAlarm;
@@ -81,6 +82,8 @@ public class EventStampTest extends TestCase {
         eventStamp.setStartDate(date);
         eventStamp.setDisplayAlarmDescription("alarm");
         eventStamp.setDisplayAlarmTrigger(EimValueConverter.toIcalTrigger("-PT15M"));
+        DateList dates = new ICalDate(";VALUE=DATE-TIME:20070212T074500,20070213T074500").getDateList();
+        eventStamp.setRecurrenceDates(dates);
         
         NoteItem mod = new NoteItem();
         mod.setModifies(master);

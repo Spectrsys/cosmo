@@ -1178,6 +1178,14 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         Assert.assertEquals(triageStatus.getCode(),
                             new Integer(TriageStatus.CODE_LATER));
         Assert.assertEquals(triageStatus.getRank(), rank);
+        
+        queryItem.setTriageStatus(null);
+        contentDao.updateContent(queryItem);
+        clearSession();
+        // should be null triagestatus
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        triageStatus = queryItem.getTriageStatus();
+        Assert.assertNull(triageStatus);
     }
     
     public void testContentDaoAttributeTombstones() throws Exception {
