@@ -70,11 +70,13 @@ import org.apache.commons.logging.LogFactory;
  * the only differences being that the timezone alias file is different and 
  * that timezone aliases are searched only after the timezone could not be loaded 
  * from a resource file located in zoneinfo.  This allows aliases to be overridden
- * by adding a resource to zoneinfo.
+ * by adding a resource to zoneinfo.  Also, cosmo uses timezone definnitions 
+ * generated from the vobject python library, which uses the timezone 
+ * definitions from icu 3.6.
  */
 public class CosmoTimeZoneRegistry implements TimeZoneRegistry {
 
-    private static final String DEFAULT_RESOURCE_PREFIX = "/zoneinfo/";
+    private static final String DEFAULT_RESOURCE_PREFIX = "/timezones/";
 
     private Log log = LogFactory.getLog(CosmoTimeZoneRegistry.class);
 
