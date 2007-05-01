@@ -607,7 +607,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
                     "item.by.ownerId.nullParent.name").setParameter("ownerid",
                     userDbId).setParameter("name", name);
         }
-
+        hibQuery.setFlushMode(FlushMode.MANUAL);
         return (Item) hibQuery.uniqueResult();
     }
     
@@ -626,7 +626,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
                     .setParameter("ownerid",
                     userDbId).setParameter("name", name);
         }
-
+        hibQuery.setFlushMode(FlushMode.MANUAL);
         return (Item) hibQuery.uniqueResult();
     }
     
@@ -635,7 +635,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
                 "homeCollection.by.ownerId").setParameter("ownerid",
                 dbUserId);
         hibQuery.setCacheable(true);
-        
+        hibQuery.setFlushMode(FlushMode.MANUAL);
 
         return (HomeCollectionItem) hibQuery.uniqueResult();
     }

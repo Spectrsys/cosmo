@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -279,9 +280,10 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
      */
     public CollectionItem findCollectionByUid(String uid) {
         try {
-            return (CollectionItem) getSession().getNamedQuery(
-                    "collectionItem.by.uid").setParameter("uid", uid)
-                    .uniqueResult();
+            Query hibQuery = getSession()
+                    .getNamedQuery("collectionItem.by.uid").setParameter("uid",uid);
+            hibQuery.setFlushMode(FlushMode.MANUAL);
+            return (CollectionItem) hibQuery.uniqueResult();
         } catch (HibernateException e) {
             throw convertHibernateAccessException(e);
         }
@@ -328,8 +330,10 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
      */
     public ContentItem findContentByUid(String uid) {
         try {
-            return (ContentItem) getSession().getNamedQuery(
-                    "contentItem.by.uid").setParameter("uid", uid).uniqueResult();
+            Query hibQuery = getSession().getNamedQuery("contentItem.by.uid")
+                    .setParameter("uid", uid);
+            hibQuery.setFlushMode(FlushMode.MANUAL);
+            return (ContentItem) hibQuery.uniqueResult();
         } catch (HibernateException e) {
             throw convertHibernateAccessException(e);
         }
@@ -470,7 +474,8 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                 query = getSession().getNamedQuery("contentItem.by.parent.timestamp")
                         .setParameter("parent", collection).setParameter(
                                 "timestamp", timestamp);
-
+            
+            query.setFlushMode(FlushMode.MANUAL);
             List results = query.list();
             for (Iterator it = results.iterator(); it.hasNext();) {
                 ContentItem content = (ContentItem) it.next();
