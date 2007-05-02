@@ -481,9 +481,11 @@ public class DavCollection extends DavResourceBase
         writer.write("<ul>");
         if (! isHomeCollection()) {
             DavResource parent = getCollection();
-            writer.write("<li><a href=\"");
-            writer.write(parent.getLocator().getHref(true));
-            writer.write("\">..</a></li>");
+            if(parent!=null) {
+                writer.write("<li><a href=\"");
+                writer.write(parent.getLocator().getHref(true));
+                writer.write("\">..</a></li>");
+            }
         };
         for (DavResourceIterator i=getMembers(); i.hasNext();) {
             DavResourceBase child = (DavResourceBase) i.nextResource();
