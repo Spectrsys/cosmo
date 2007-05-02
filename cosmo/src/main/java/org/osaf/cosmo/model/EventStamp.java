@@ -300,7 +300,7 @@ public class EventStamp extends BaseEventStamp implements
             VTimeZone vtz = (VTimeZone) it.next();
             String tzid = vtz.getTimeZoneId().getValue();
             TimeZone tz = TIMEZONE_REGISTRY.getTimeZone(tzid);
-            if(tz.getID().equals(tzid))
+            if(tz!=null && tz.getID().equals(tzid))
                 toRemove.add(vtz);
         }
         
