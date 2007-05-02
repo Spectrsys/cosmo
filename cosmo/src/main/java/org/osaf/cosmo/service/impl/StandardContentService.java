@@ -15,7 +15,6 @@
  */
 package org.osaf.cosmo.service.impl;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,6 +50,7 @@ import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
+import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.service.ContentService;
 import org.osaf.cosmo.service.lock.LockManager;
@@ -1017,6 +1017,13 @@ public class StandardContentService implements ContentService {
         noteMod.setDisplayName(StringUtils.substring(exceptionStamp.getSummary(),0,255));
         noteMod.setBody(exceptionStamp.getDescription());
         noteMod.setIcalUid(masterNote.getIcalUid());
+        noteMod.setClientCreationDate(new Date());
+        noteMod.setClientModifiedDate(noteMod.getClientCreationDate());
+        noteMod.setTriageStatus(TriageStatus.createInitialized());
+        noteMod.setLastModification(ContentItem.Action.CREATED);
+        noteMod.setLastModifiedBy(masterNote.getLastModifiedBy());
+        noteMod.setSent(Boolean.FALSE);
+        noteMod.setNeedsReply(Boolean.FALSE);
         noteMod.setModifies(masterNote);
         noteMod = (NoteItem) contentDao.createContent(masterNote.getParents(), noteMod);
     }
@@ -1028,6 +1035,9 @@ public class StandardContentService implements ContentService {
         // for now displayName is limited to 255 chars
         noteMod.setDisplayName(StringUtils.substring(exceptionStamp.getSummary(),0,255));
         noteMod.setBody(exceptionStamp.getDescription());
+        noteMod.setClientModifiedDate(new Date());
+        noteMod.setLastModifiedBy(noteMod.getModifies().getLastModifiedBy());
+        noteMod.setLastModification(ContentItem.Action.EDITED);
         contentDao.updateContent(noteMod);
     }
 }
