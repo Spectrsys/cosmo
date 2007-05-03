@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.osaf.cosmo</groupId>
     <artifactId>osaf-server</artifactId>
-    <version>0.6.1</version>
+    <version>0.6.1-CP-r4312-20070503</version>
     <packaging>pom</packaging>
     <name>OSAF Server</name>
     <url>http://cosmo.osafoundation.org</url>
