@@ -40,7 +40,7 @@ import org.osaf.cosmo.server.ServiceLocator;
  *
  * @see CollectionItem
  */
-public class CollectionService {
+public class CollectionService implements MorseCodeConstants {
     private static final Log log = LogFactory.getLog(CollectionService.class);
     private static final XMLOutputFactory XML_OUTPUT_FACTORY =
         XMLOutputFactory.newInstance();
@@ -66,23 +66,29 @@ public class CollectionService {
     public void writeTo(OutputStream out)
         throws IOException, XMLStreamException {
         XMLStreamWriter writer = XML_OUTPUT_FACTORY.createXMLStreamWriter(out);
+        writer.setPrefix(PRE_XML, NS_XML);
+        writer.setDefaultNamespace(NS_MC);
 
         try {
             writer.writeStartDocument();
-            writer.writeStartElement("service");
+            writer.writeStartElement(EL_MC_SERVICE);
+            writer.writeDefaultNamespace(NS_MC);
+            writer.writeAttribute(NS_XML, EL_XML_BASE,
+                                  locator.getMorseCodeBase());
 
             for (CollectionItem collection : collections) {
-                writer.writeStartElement("collection");
-                writer.writeAttribute("href",
-                                      locator.getMorseCodeUrl(collection));
+                writer.writeStartElement(EL_MC_COLLECTION);
+                writer.writeAttribute(ATTR_MC_UUID, collection.getUid());
+                writer.writeAttribute(ATTR_MC_HREF, href(collection));
 
-                writer.writeStartElement("name");
+                writer.writeStartElement(EL_MC_NAME);
                 writer.writeCharacters(collection.getDisplayName());
                 writer.writeEndElement();
 
                 for (Ticket ticket : collection.getTickets()) {
-                    writer.writeStartElement("ticket");
-                    writer.writeAttribute("type", ticket.getType().toString());
+                    writer.writeStartElement(EL_MC_TICKET);
+                    writer.writeAttribute(ATTR_MC_TYPE,
+                                          ticket.getType().toString());
                     writer.writeCharacters(ticket.getKey());
                     writer.writeEndElement();
                 }
@@ -93,5 +99,9 @@ public class CollectionService {
         } finally {
             writer.close();
         }
+    }
+
+    private String href(CollectionItem collection) {
+        return locator.getMorseCodeUrl(collection, false);
     }
 }

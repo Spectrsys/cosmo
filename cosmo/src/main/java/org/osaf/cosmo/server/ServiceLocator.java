@@ -214,6 +214,18 @@ public class ServiceLocator implements ServerConstants {
     }
 
     /**
+     * Returns the Morse Code URL of the collection.
+     *
+     * @param the collection
+     * @param absolute whether or not the URL should be absolute 
+     */
+    public String getMorseCodeUrl(CollectionItem collection,
+                                  boolean absolute) {
+        return calculateItemUrl(collection, factory.getMorseCodePrefix(),
+                                absolute);
+    }
+
+    /**
      * Returns the Morse Code URL of the user.
      */
     public String getMorseCodeUrl(User user) {
