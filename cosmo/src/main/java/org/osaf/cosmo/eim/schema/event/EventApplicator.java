@@ -18,6 +18,7 @@ package org.osaf.cosmo.eim.schema.event;
 import java.text.ParseException;
 
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Dur;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,6 +90,8 @@ public class EventApplicator extends BaseStampApplicator
         return eventStamp;
     }
 
+    
+    
     /**
      * Copies record field values to stamp properties and
      * attributes.
@@ -107,6 +110,12 @@ public class EventApplicator extends BaseStampApplicator
                 handleMissingAttribute("anyTime");
             }
             else {
+                // Handle the case where there is an existing dtend (no duration)
+                // and only dtstart is present in the record.  Calculate old
+                // duration and reset it on event to avoid conflicts.
+                if(event.getEndDate() != null && !hasDurationField(field.getRecord()))    
+                    event.setDuration(new Dur(event.getStartDate(), event.getEndDate())); 
+                
                 String value =
                     EimFieldValidator.validateText(field, MAXLEN_DTSTART);
                 ICalDate icd = EimValueConverter.toICalDate(value);
@@ -162,6 +171,14 @@ public class EventApplicator extends BaseStampApplicator
         } else {
             applyUnknownField(field);
         }
+    }
+    
+    private boolean hasDurationField(EimRecord record) {
+        for(EimRecordField field : record.getFields()) {
+            if(field.getName().equals(FIELD_DURATION))
+                return true;
+        }
+        return false;
     }
     
     private void handleMissingDtStart() throws EimSchemaException {
