@@ -32,6 +32,7 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.security.CosmoSecurityContext;
 
 /**
  * Provides basic information about the collections in a user's home
@@ -47,11 +48,14 @@ public class CollectionService implements MorseCodeConstants {
 
     private HashSet<CollectionItem> collections;
     private ServiceLocator locator;
+    private CosmoSecurityContext securityContext;
 
     public CollectionService(HomeCollectionItem home,
-                             ServiceLocator locator) {
-        this.locator = locator;
+                             ServiceLocator locator,
+                             CosmoSecurityContext securityContext) {
         this.collections = new HashSet<CollectionItem>();
+        this.locator = locator;
+        this.securityContext = securityContext;
 
         for (Item child : home.getChildren()) {
             if (child instanceof CollectionItem)
@@ -85,7 +89,7 @@ public class CollectionService implements MorseCodeConstants {
                 writer.writeCharacters(collection.getDisplayName());
                 writer.writeEndElement();
 
-                for (Ticket ticket : collection.getTickets()) {
+                for (Ticket ticket : visibleTickets(collection)) {
                     writer.writeStartElement(EL_MC_TICKET);
                     writer.writeAttribute(ATTR_MC_TYPE,
                                           ticket.getType().toString());
@@ -99,6 +103,10 @@ public class CollectionService implements MorseCodeConstants {
         } finally {
             writer.close();
         }
+    }
+
+    private Set<Ticket> visibleTickets(CollectionItem collection) {
+        return securityContext.findVisibleTickets(collection);
     }
 
     private String href(CollectionItem collection) {

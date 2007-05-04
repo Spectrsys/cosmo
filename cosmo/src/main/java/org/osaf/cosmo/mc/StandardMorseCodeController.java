@@ -83,7 +83,8 @@ public class StandardMorseCodeController implements MorseCodeController {
         User user = userService.getUser(username);
         HomeCollectionItem home = contentService.getRootItem(user);
 
-        return new CollectionService(home, locator);
+        return new CollectionService(home, locator,
+                                     securityManager.getSecurityContext());
     }
 
     /**
