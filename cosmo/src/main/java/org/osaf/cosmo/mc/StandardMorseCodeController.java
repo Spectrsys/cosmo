@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.EimRecordSetIterator;
@@ -33,6 +34,7 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EventExceptionStamp;
+import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemTombstone;
 import org.osaf.cosmo.model.NoteItem;
@@ -41,7 +43,10 @@ import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
+import org.osaf.cosmo.server.ServiceLocator;
 import org.osaf.cosmo.service.ContentService;
+import org.osaf.cosmo.service.UserService;
+
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.ConcurrencyFailureException;
 
@@ -56,7 +61,30 @@ public class StandardMorseCodeController implements MorseCodeController {
         LogFactory.getLog(StandardMorseCodeController.class);
 
     private ContentService contentService;
+    private UserService userService;
     private CosmoSecurityManager securityManager;
+
+    /**
+     * Returns information about every collection in the user's home
+     * collection.
+     *
+     * @param username the username of the user whose collections are
+     * to be described
+     * @param locator the service locator used to resolve collection URLs
+     *
+     * @throws DataRetrievalFailureException if the user is not found
+     * @throws MorseCodeException if an unknown error occurs
+     */
+    public CollectionService discoverCollections(String username,
+                                                 ServiceLocator locator) {
+        if (log.isDebugEnabled())
+            log.debug("discovering collections for " + username);
+
+        User user = userService.getUser(username);
+        HomeCollectionItem home = contentService.getRootItem(user);
+
+        return new CollectionService(home, locator);
+    }
 
     /**
      * Causes the identified collection and all contained items to be
@@ -355,6 +383,16 @@ public class StandardMorseCodeController implements MorseCodeController {
     }
 
     /** */
+    public UserService getUserService() {
+        return userService;
+    }
+
+    /** */
+    public void setUserService(UserService service) {
+        userService = service;
+    }
+
+    /** */
     public CosmoSecurityManager getSecurityManager() {
         return securityManager;
     }
@@ -368,6 +406,8 @@ public class StandardMorseCodeController implements MorseCodeController {
     public void init() {
         if (contentService == null)
             throw new IllegalStateException("contentService is required");
+        if (userService == null)
+            throw new IllegalStateException("userService is required");
         if (securityManager == null)
             throw new IllegalStateException("securityManager is required");
     }

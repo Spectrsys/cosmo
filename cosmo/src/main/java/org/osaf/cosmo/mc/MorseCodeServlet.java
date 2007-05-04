@@ -24,10 +24,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecordSetIterator;
 import org.osaf.cosmo.eim.eimml.EimmlConstants;
@@ -40,7 +42,12 @@ import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.server.CollectionPath;
+import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.server.ServiceLocatorFactory;
+import org.osaf.cosmo.server.UserPath;
+
 import org.springframework.beans.BeansException;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -64,6 +71,8 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
 
     private static final String BEAN_CONTROLLER =
         "morseCodeController";
+    private static final String BEAN_SERVICE_LOCATOR_FACTORY =
+        "serviceLocatorFactory";
     private static final String BEAN_SECURITY_MANAGER =
         "securityManager";
 
@@ -105,6 +114,7 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
 
     private WebApplicationContext wac;
     private MorseCodeController controller;
+    private ServiceLocatorFactory serviceLocatorFactory;
     private CosmoSecurityManager securityManager;
 
     // HttpServlet methods
@@ -142,16 +152,63 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
     }
 
     /**
-     * Handles subscribe and synchronize requests. If the
+     * <p>
+     * Handles collection discovery, subscribe and synchronize
+     * requests.
+     * </p>
+     * <p>
+     * If the request addresses a user, it is processed as a
+     * collection discovery and a collection service document
+     * is returned.
+     * </p>
+     * <p>
+     * If the request addresses a collection, then if the
      * {@link PARAM_SYNC_TOKEN} request parameter provides a
      * synchronization token, the request is processed as a
-     * synchronization; otherwise it is processed as a subscription.
+     * synchronization; otherwise it is processed as a
+     * subscription. In either of these cases, an EIMML document is
+     * returned.
+     * </p>
      */
     protected void doGet(HttpServletRequest req,
                          HttpServletResponse resp)
         throws ServletException, IOException {
         if (log.isDebugEnabled())
             log.debug("handling GET for " + req.getPathInfo());
+
+        UserPath up = UserPath.parse(req.getPathInfo());
+        if (up != null) {
+            try {
+                CollectionService svc = controller.
+                    discoverCollections(up.getUsername(),
+                                        createServiceLocator(req));
+
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.setContentType("text/xml");
+                resp.setCharacterEncoding("UTF-8");
+
+                svc.writeTo(resp.getOutputStream());
+
+                return;
+            } catch (DataRetrievalFailureException e) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND,
+                               "Unknown user " + up.getUsername());
+                return;
+            } catch (XMLStreamException e) {
+                String msg = "Error writing XML stream";
+                log.error(msg, e);
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                               msg + ": " + e.getMessage());
+                return;
+            } catch (MorseCodeException e) {
+                String msg = "Error discovering collections for user " +
+                    up.getUsername();
+                log.error(msg, e);
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                               msg + ": " + e.getMessage());
+                return;
+            }
+        }
 
         CollectionPath cp = CollectionPath.parse(req.getPathInfo());
         if (cp != null) {
@@ -212,16 +269,19 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
             } catch (NotCollectionException e) {
                 resp.sendError(HttpServletResponse.SC_PRECONDITION_FAILED,
                                "Item not a collection");
+                return;
             } catch (EimmlStreamException e) {
                 String msg = "Error writing EIMML stream";
                 log.error(msg, e);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                                msg + ": " + e.getMessage());
+                return;
             } catch (EimException e) {
                 String msg = "Error translating items to EIM records";
                 log.error(msg, e);
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                                msg + ": " + e.getMessage());
+                return;
             } catch (MorseCodeException e) {
                 String msg = tokenStr == null ?
                     "Error subscribing to collection" :
@@ -466,6 +526,10 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
             if (controller == null)
                 controller = (MorseCodeController)
                     getBean(BEAN_CONTROLLER, MorseCodeController.class);
+            if (serviceLocatorFactory == null)
+                serviceLocatorFactory = (ServiceLocatorFactory)
+                    getBean(BEAN_SERVICE_LOCATOR_FACTORY,
+                            ServiceLocatorFactory.class);
             if (securityManager == null)
                 securityManager = (CosmoSecurityManager)
                     getBean(BEAN_SECURITY_MANAGER, CosmoSecurityManager.class);
@@ -493,6 +557,18 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
 
     /**
      */
+    public ServiceLocatorFactory getServiceLocatorFactory() {
+        return serviceLocatorFactory;
+    }
+
+    /**
+     */
+    public void setServiceLocatorFactory(ServiceLocatorFactory factory) {
+        this.serviceLocatorFactory = factory;
+    }
+
+    /**
+     */
     public CosmoSecurityManager getSecurityManager() {
         return securityManager;
     }
@@ -515,6 +591,10 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                                        " of type " + clazz +
                                        " from web application context", e);
         }
+    }
+
+    private ServiceLocator createServiceLocator(HttpServletRequest req) {
+        return serviceLocatorFactory.createServiceLocator(req);
     }
 
     private boolean checkWritePreconditions(HttpServletRequest req,
