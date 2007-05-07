@@ -42,7 +42,6 @@ import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -67,7 +66,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             Item dbItem = itemPathTranslator.findItemByPath(path);
             return dbItem;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
     
@@ -83,7 +82,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             Item item = itemPathTranslator.findItemByPath(path, (CollectionItem) parent);
             return item;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -96,7 +95,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             Item dbItem = itemPathTranslator.findItemParent(path);
             return dbItem;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -116,7 +115,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             hibQuery.setFlushMode(FlushMode.MANUAL);
             return (Item) hibQuery.uniqueResult();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
     
@@ -130,7 +129,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             hibQuery.setCacheable(true);
             return (Item) hibQuery.uniqueResult();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -159,7 +158,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
         } catch(UnresolvableObjectException uoe) {
             throw new ItemNotFoundException("item not found");
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -173,7 +172,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
         try {
             return findRootItem(user.getId());
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -200,7 +199,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             getSession().flush();
             return newItem;
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } catch (InvalidStateException ise) {
             logInvalidStateException(ise);
             throw ise;
@@ -215,7 +214,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             item.getParents().add(collection);
             getSession().flush();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
     
@@ -224,6 +223,10 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             
             getSession().update(collection);
             getSession().update(item);
+            
+            // do nothing if item doesn't belong to collection
+            if(!item.getParents().contains(collection))
+                return;
             
             collection.addTombstone(new ItemTombstone(collection, item));
             item.getParents().remove(collection);
@@ -235,7 +238,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             
             getSession().flush();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } 
     }
     
@@ -247,7 +250,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             getSession().refresh(item);
             return item.getTickets();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -271,7 +274,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             item.addTicket(ticket);
             getSession().flush();
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } catch (InvalidStateException ise) {
             logInvalidStateException(ise);
             throw ise;
@@ -283,7 +286,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             getSession().refresh(item);
             return getTicketRecursive(item, key);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
 
@@ -293,7 +296,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             getSession().refresh(item);
             item.getTickets().remove(ticket);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
 
     }
@@ -309,7 +312,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
                         + " not found");
             removeItem(item);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
 
     }
@@ -325,7 +328,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
                         + " not found");
             removeItem(item);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
     
@@ -358,7 +361,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             getSession().flush();
             
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } catch (InvalidStateException ise) {
             logInvalidStateException(ise);
             throw ise;
@@ -412,7 +415,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             getSession().flush();
             
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         } catch (InvalidStateException ise) {
             logInvalidStateException(ise);
             throw ise;
@@ -427,7 +430,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
         try {
            getSession().refresh(item);
         } catch (HibernateException e) {
-            throw SessionFactoryUtils.convertHibernateAccessException(e);
+            throw convertHibernateAccessException(e);
         }
     }
     
@@ -443,7 +446,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             Hibernate.initialize(item.getStamps());
             Hibernate.initialize(item.getTombstones());
          } catch (HibernateException e) {
-             throw SessionFactoryUtils.convertHibernateAccessException(e);
+             throw convertHibernateAccessException(e);
          }
     }
     

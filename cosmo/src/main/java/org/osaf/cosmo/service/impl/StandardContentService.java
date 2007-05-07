@@ -272,6 +272,21 @@ public class StandardContentService implements ContentService {
         else
             contentDao.removeItem(item);
     }
+    
+    /**
+     * Remove an item from a collection.  The item will be deleted if
+     * it belongs to no more collections.
+     * @param item item to remove from collection
+     * @param collection item to remove item from
+     */
+    public void removeItemFromCollection(Item item, CollectionItem collection) {
+        if (log.isDebugEnabled()) {
+            log.debug("removing item " + item.getName() + " from collection "
+                    + collection.getName());
+        }
+        
+        contentDao.removeItemFromCollection(item, collection);
+    }
 
     /**
      * Remove an item.
