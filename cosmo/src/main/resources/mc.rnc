@@ -17,14 +17,16 @@ mcService =
 
 mcCollection =
    element mc:collection {
-      attribute uuid { xsd:string },
-      attribute href { xsd:string },
-      element mc:name { xsd:string },
+      attribute uuid { text },
+      attribute href { text },
+      element mc:name { text } &
       mcTicket*
    }
 
+# Describes a ticket.
+
 mcTicket =
    element mc:ticket {
-      attribute type { xsd:string },
-      xsd:string
+      attribute type { "read-only" | "read-write" | "free-busy" },
+      text
    }
