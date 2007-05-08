@@ -339,11 +339,13 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         }
     }
 
-    public void updateCollectionTimestamp(String collectionUid) {
+    public CollectionItem updateCollectionTimestamp(CollectionItem collection) {
         try {
-            CollectionItem collection = findCollectionByUid(collectionUid);
+            if(!getSession().contains(collection))
+                collection = (CollectionItem) getSession().merge(collection);
             collection.setModifiedDate(new Date());
             getSession().flush();
+            return collection;
         } catch (HibernateException e) {
             throw convertHibernateAccessException(e);
         }

@@ -241,7 +241,7 @@ public class StandardContentService implements ContentService {
                 contentDao.moveItem(fromPath, toPath);
                 // update collections involved
                 for(CollectionItem parent : locks)
-                    contentDao.updateCollection(parent);
+                    contentDao.updateCollectionTimestamp(parent);
                 
             } finally {
                 releaseLocks(locks);
@@ -413,11 +413,13 @@ public class StandardContentService implements ContentService {
             
             // update timestamps on all collections involved
             for(CollectionItem lockedCollection : locks) {
-                contentDao.updateCollectionTimestamp(lockedCollection.getUid());
+                lockedCollection = contentDao.updateCollectionTimestamp(lockedCollection);
+                if(lockedCollection.getUid().equals(collection.getUid()))
+                    collection = lockedCollection;
             }
             
             // get latest timestamp
-            return contentDao.findCollectionByUid(collection.getUid());
+            return collection;
             
         } finally {
            releaseLocks(locks);
@@ -529,11 +531,13 @@ public class StandardContentService implements ContentService {
             
             // update collections involved
             for(CollectionItem lockedCollection : locks) {
-                contentDao.updateCollectionTimestamp(lockedCollection.getUid());
+                lockedCollection = contentDao.updateCollectionTimestamp(lockedCollection);
+                if(lockedCollection.getUid().equals(collection.getUid()))
+                    collection = lockedCollection;
             }
             
             // get latest timestamp
-            return contentDao.findCollectionByUid(collection.getUid());
+            return collection;
             
         } finally {
             releaseLocks(locks);
@@ -578,7 +582,7 @@ public class StandardContentService implements ContentService {
         
         try {
             content = contentDao.createContent(parent, content);
-            contentDao.updateCollection(parent);
+            contentDao.updateCollectionTimestamp(parent);
             return content;
         } finally {
             lockManager.unlockCollection(parent);
@@ -597,7 +601,7 @@ public class StandardContentService implements ContentService {
             
             // update collections
             for(CollectionItem parent : locks)
-                contentDao.updateCollection(parent);
+                contentDao.updateCollectionTimestamp(parent);
             
             return note;
         } finally {
@@ -624,7 +628,7 @@ public class StandardContentService implements ContentService {
            
             // create modification notes if needed
             updateEventInternal(masterNote, calendar);
-            contentDao.updateCollection(parent);
+            contentDao.updateCollectionTimestamp(parent);
             return masterNote;
         } finally {
             lockManager.unlockCollection(parent);
@@ -652,7 +656,7 @@ public class StandardContentService implements ContentService {
             
             // update collections
             for(CollectionItem parent : locks)
-                contentDao.updateCollection(parent);
+                contentDao.updateCollectionTimestamp(parent);
             
             return content;
         } finally {
@@ -679,7 +683,7 @@ public class StandardContentService implements ContentService {
             contentDao.removeContent(content);
             // update collections
             for(CollectionItem parent : locks)
-                contentDao.updateCollection(parent);
+                contentDao.updateCollectionTimestamp(parent);
         } finally {
             releaseLocks(locks);
         }
