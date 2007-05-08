@@ -102,7 +102,7 @@ cosmo.account.create = new function () {
         cfg['PortNumber'] = portNum;
         cfg['UseSSL'] = isSSL;
         cfg['FullURL'] = homedirUrl.scheme + "://" + homedirUrl.host + ":" + 
-            homedirUrl.port + cosmo.env.getBaseUrl();
+            portNum + cosmo.env.getBaseUrl();
 
         return cfg;
     }
