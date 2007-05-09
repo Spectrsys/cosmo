@@ -96,6 +96,8 @@ public class CollectionService implements MorseCodeConstants {
                     writer.writeCharacters(ticket.getKey());
                     writer.writeEndElement();
                 }
+
+                writer.writeEndElement();
             }
 
             writer.writeEndElement();
