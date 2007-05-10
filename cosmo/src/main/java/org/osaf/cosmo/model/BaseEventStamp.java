@@ -30,7 +30,6 @@ import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.Recur;
-import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VAlarm;
@@ -71,6 +70,8 @@ public abstract class BaseEventStamp extends Stamp
 
     protected static final TimeZoneRegistry TIMEZONE_REGISTRY =
         TimeZoneRegistryFactory.getInstance().createRegistry();
+    
+    protected static final String VALUE_MISSING = "MISSING";
     
     public abstract VEvent getEvent();
     public abstract void setCalendar(Calendar calendar);
@@ -837,21 +838,17 @@ public abstract class BaseEventStamp extends Stamp
 
         // if it exists, update based on isAnyTime
         if (parameter != null) {
-            String value = parameter.getValue();
-            boolean currIsAnyTime = VALUE_TRUE.equals(value);
-            if (currIsAnyTime && !Boolean.TRUE.equals(isAnyTime))
-                dtStart.getParameters().remove(parameter);
-            else if (!currIsAnyTime && Boolean.TRUE.equals(isAnyTime)) {
-                dtStart.getParameters().remove(parameter);
+            dtStart.getParameters().remove(parameter);
+            if (Boolean.TRUE.equals(isAnyTime))   
                 dtStart.getParameters().add(getAnyTimeXParam());
-            }
         }
     }
     
     @Transient
-    private Parameter getAnyTimeXParam() {
+    protected Parameter getAnyTimeXParam() {
         return new XParameter(PARAM_X_OSAF_ANYTIME, VALUE_TRUE);
     }
+    
     
     /**
      * Initializes the Calendar with a default master event.

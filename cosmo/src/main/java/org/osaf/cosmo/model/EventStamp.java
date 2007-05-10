@@ -40,6 +40,7 @@ import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
+import net.fortuna.ical4j.model.property.DtStart;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -152,6 +153,17 @@ public class EventStamp extends BaseEventStamp implements
                 throw new RuntimeException("Cannot copy calendar", e);
             }
             
+            // check for inherited anyTime
+            if(exceptionStamp.isAnyTime()==null) {
+                DtStart modDtStart = exceptionEvent.getStartDate();
+                // remove "missing" value
+                modDtStart.getParameters().remove(modDtStart.getParameter(PARAM_X_OSAF_ANYTIME));
+                // add inherited value
+                if(isAnyTime()) {
+                    modDtStart.getParameters().add(getAnyTimeXParam());
+                }
+            }
+                
             // check for inherited displayAlarm
             VAlarm displayAlarm = getDisplayAlarm(exceptionEvent);
             if(displayAlarm !=null && displayAlarm.getProperty(Property.TRIGGER)==null) {

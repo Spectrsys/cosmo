@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.eim.EimException;
 import org.osaf.cosmo.eim.EimRecordSet;
 import org.osaf.cosmo.eim.EimRecordSetIterator;
@@ -33,10 +32,11 @@ import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.ContentItem;
-import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemTombstone;
+import org.osaf.cosmo.model.ModelValidationException;
+import org.osaf.cosmo.model.ModificationUid;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.Tombstone;
@@ -46,9 +46,9 @@ import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.server.ServiceLocator;
 import org.osaf.cosmo.service.ContentService;
 import org.osaf.cosmo.service.UserService;
-
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataRetrievalFailureException;
 
 /**
  * The standard implementation for
@@ -194,6 +194,7 @@ public class StandardMorseCodeController implements MorseCodeController {
             collection =
                 contentService.createCollection(parent, collection, children);
         } catch (CannotAcquireLockException e) {
+            log.debug("DEADLOCK(PUBLISH):");
             throw new ServerBusyException("Database is busy", e);
         }
 
@@ -363,6 +364,8 @@ public class StandardMorseCodeController implements MorseCodeController {
             // ConcurrencyFailureException
             collection = contentService.updateCollection(collection, children);
         } catch (ConcurrencyFailureException cfe) {
+            if(cfe instanceof CannotAcquireLockException)
+                log.debug("DEADLOCK(UPDATE)");
             // This means the data has been updated since the last sync token,
             // so a StaleCollectionException should be thrown
             throw new StaleCollectionException(uid);
@@ -470,7 +473,7 @@ public class StandardMorseCodeController implements MorseCodeController {
         // If the item is a modification, we need to find the master item.
         // If the master item hasn't been created, then we need to return null,
         // and try again at the end of the recordset.
-        if(child.getUid().indexOf(EventExceptionStamp.RECURRENCEID_DELIMITER)>0)
+        if(child.getUid().indexOf(ModificationUid.RECURRENCEID_DELIMITER)>0)
             handleModificationItem(child, collection);
                 
                   
@@ -481,8 +484,16 @@ public class StandardMorseCodeController implements MorseCodeController {
     }
     
     private boolean handleModificationItem(NoteItem noteMod, CollectionItem collection) {
-        String parentUid = noteMod.getUid().split(
-                EventExceptionStamp.RECURRENCEID_DELIMITER)[0];
+        ModificationUid modUid = null;
+        
+        try {
+            modUid = new ModificationUid(noteMod.getUid());
+        } catch (ModelValidationException e) {
+            throw new ValidationException("invalid modification uid: "
+                    + noteMod.getUid());
+        }
+        
+        String parentUid = modUid.getParentUid();
         
         // Find parent note item by looking through collection's children.
         for (Item child : collection.getChildren()) {

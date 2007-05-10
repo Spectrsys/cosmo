@@ -37,7 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.util.Dates;
 import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
@@ -48,6 +47,7 @@ import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
+import org.osaf.cosmo.model.ModificationUid;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.TriageStatus;
@@ -1027,9 +1027,8 @@ public class StandardContentService implements ContentService {
         exceptionStamp.setExceptionEvent(event);
         noteMod.addStamp(exceptionStamp);
 
-        noteMod.setUid(masterNote.getUid()
-                + EventExceptionStamp.RECURRENCEID_DELIMITER
-                + Dates.fromDateToString(event.getRecurrenceId().getDate()));
+        noteMod.setUid(new ModificationUid(masterNote, event.getRecurrenceId()
+                .getDate()).toString());
         noteMod.setOwner(masterNote.getOwner());
         noteMod.setName(noteMod.getUid());
         // for now displayName is limited to 255 chars

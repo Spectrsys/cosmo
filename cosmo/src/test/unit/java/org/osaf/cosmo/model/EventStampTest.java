@@ -22,6 +22,8 @@ import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateList;
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VAlarm;
@@ -131,6 +133,67 @@ public class EventStampTest extends TestCase {
         
         Assert.assertEquals(1, masterEvent.getAlarms().size());
         Assert.assertEquals(0, modEvent.getAlarms().size());
+    }
+    
+    public void testInheritedAnyTime() throws Exception {
+        NoteItem master = new NoteItem();
+        EventStamp eventStamp = new EventStamp(master);
+        eventStamp.createCalendar();
+        eventStamp.setStartDate(new DateTime("20070212T074500"));
+        eventStamp.setAnyTime(true);
+        DateList dates = new ICalDate(";VALUE=DATE-TIME:20070212T074500,20070213T074500").getDateList();
+        eventStamp.setRecurrenceDates(dates);
+        
+        NoteItem mod = new NoteItem();
+        mod.setModifies(master);
+        master.getModifications().add(mod);
+        EventExceptionStamp exceptionStamp = new EventExceptionStamp(mod);
+        mod.addStamp(exceptionStamp);
+        exceptionStamp.createCalendar();
+        exceptionStamp.setRecurrenceId(new DateTime("20070212T074500"));
+        exceptionStamp.setStartDate(new DateTime("20070212T074500"));
+        exceptionStamp.setAnyTime(null);
+        
+        Calendar cal = eventStamp.getCalendar();
+        ComponentList comps = cal.getComponents(Component.VEVENT);
+        Assert.assertEquals(2, comps.size());
+        VEvent masterEvent = (VEvent) comps.get(0);
+        VEvent modEvent = (VEvent) comps.get(1);
+        
+        Parameter masterAnyTime = masterEvent.getStartDate().getParameter("X-OSAF-ANYTIME");
+        Parameter modAnyTime = modEvent.getStartDate().getParameter("X-OSAF-ANYTIME");
+        
+        Assert.assertNotNull(masterAnyTime);
+        Assert.assertEquals("TRUE", masterAnyTime.getValue());
+        Assert.assertNotNull(modAnyTime);
+        Assert.assertEquals("TRUE", modAnyTime.getValue());
+        
+        // change master and verify attribute is inherited in modification
+        eventStamp.setAnyTime(false);
+        
+        cal = eventStamp.getCalendar();
+        comps = cal.getComponents(Component.VEVENT);
+        Assert.assertEquals(2, comps.size());
+        masterEvent = (VEvent) comps.get(0);
+        modEvent = (VEvent) comps.get(1);
+        
+        Assert.assertNull(masterEvent.getStartDate().getParameter("X-OSAF-ANYTIME"));
+        Assert.assertNull(modEvent.getStartDate().getParameter("X-OSAF-ANYTIME"));
+        
+        // change both and verify
+        exceptionStamp.setAnyTime(true);
+        
+        cal = eventStamp.getCalendar();
+        comps = cal.getComponents(Component.VEVENT);
+        Assert.assertEquals(2, comps.size());
+        masterEvent = (VEvent) comps.get(0);
+        modEvent = (VEvent) comps.get(1);
+        
+        modAnyTime = modEvent.getStartDate().getParameter("X-OSAF-ANYTIME");
+        
+        Assert.assertNull(masterEvent.getStartDate().getParameter("X-OSAF-ANYTIME"));
+        Assert.assertNotNull(modAnyTime);
+        Assert.assertEquals("TRUE", modAnyTime.getValue());
     }
     
     

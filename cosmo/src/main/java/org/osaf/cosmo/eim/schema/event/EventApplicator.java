@@ -35,6 +35,7 @@ import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.ModificationUid;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Stamp;
 
@@ -72,10 +73,9 @@ public class EventApplicator extends BaseStampApplicator
         else {
             eventStamp = new EventExceptionStamp(getItem());
             eventStamp.createCalendar();
-            String recurrenceId = note.getUid().split(
-                    EventExceptionStamp.RECURRENCEID_DELIMITER)[1];
-            ICalDate icd = EimValueConverter.toICalDate(recurrenceId);
-            eventStamp.setRecurrenceId(icd.getDate());
+           
+            ModificationUid modUid = new ModificationUid(note.getUid());
+            eventStamp.setRecurrenceId(modUid.getRecurrenceId()); 
         }
         
         // need to copy reminderTime to alarm in event
@@ -107,7 +107,6 @@ public class EventApplicator extends BaseStampApplicator
         if (field.getName().equals(FIELD_DTSTART)) {
             if(field.isMissing()) {
                 handleMissingDtStart();
-                handleMissingAttribute("anyTime");
             }
             else {
                 // Handle the case where there is an existing dtend (no duration)
@@ -187,5 +186,8 @@ public class EventApplicator extends BaseStampApplicator
         // is equal to the recurrenceId
         BaseEventStamp event = (BaseEventStamp) getStamp();
         event.setStartDate(event.getRecurrenceId());
+        
+        // A missing anyTime is set using null
+        event.setAnyTime(null);
     }
 }
