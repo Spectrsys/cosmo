@@ -144,7 +144,7 @@ dojo.event.topic.subscribe(
             </c:choose>
               
             <c:url var="helpUrl" 
-                value="http://wiki.osafoundation.org/bin/view/Projects/CosmoHelpPortal"/>
+                value="http://wiki.osafoundation.org/Projects/CosmoHelpRel0dot6"/>
             <a href="${helpUrl}" 
                 onclick="window.open('${helpUrl}'); 
                 return false;"><fmt:message key="Main.Help"/></a>
