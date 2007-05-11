@@ -479,7 +479,7 @@
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.1-061</version>
+                                    <version>0.4.1-061r</version>
                                     <type>jar</type>
                                   </artifactItem>
                                   <artifactItem>
@@ -525,7 +525,7 @@
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.1-061D</version>
+                                    <version>0.4.1-061Dr</version>
                                     <type>jar</type>
                                   </artifactItem>
                                   <artifactItem>
