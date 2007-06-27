@@ -132,6 +132,15 @@ public class EventStamp extends BaseEventStamp implements
             tzMap.put(tzid, vtz);
         }
         
+        // bug 9606: handle displayAlarm with no trigger by not including
+        // in exported icalendar
+        if(masterAlarm!=null) {
+            if(getDisplayAlarmTrigger()==null) {
+                masterEvent.getAlarms().remove(masterAlarm);
+                masterAlarm = null;
+            }
+        }
+        
         // If event is not recurring, skip all the event modification
         // processing
         if(!isRecurring())
