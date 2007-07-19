@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -231,7 +231,7 @@ public class DavCalendarCollection extends DavCollection
         if (cc.getTimezone() != null)
             properties.add(new CalendarTimezone(cc.getTimezone().toString()));
 
-        properties.add(new SupportedCalendarComponentSet(cc.getSupportedComponents()));
+        properties.add(new SupportedCalendarComponentSet());
         properties.add(new SupportedCalendarData());
         properties.add(new MaxResourceSize());
     }
@@ -249,18 +249,10 @@ public class DavCalendarCollection extends DavCollection
             throw new ModelValidationException("null value for property " + name);
         String value = property.getValue().toString();
 
-        if (name.equals(SUPPORTEDCALENDARDATA) ||
+        if (name.equals(SUPPORTEDCALENDARCOMPONENTSET) ||
+            name.equals(SUPPORTEDCALENDARDATA) ||
             name.equals(MAXRESOURCESIZE))
             throw new ModelValidationException("cannot set protected property " + name);
-
-        if (name.equals(SUPPORTEDCALENDARCOMPONENTSET)) {
-            // this property can only be initialized at creation time
-            if (! exists()) {
-                cc.setSupportedComponents(((SupportedCalendarComponentSet) property).getComponentTypes());
-                return;
-            }
-            throw new ModelValidationException("cannot set protected property " + name);
-        }
 
         if (name.equals(CALENDARDESCRIPTION)) {
             cc.setDescription(value);
@@ -351,7 +343,7 @@ public class DavCalendarCollection extends DavCollection
 
         // CALDAV:supported-calendar-component
         if (! cc.supportsCalendar(calendar))
-            throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Calendar object may only contain " + StringUtils.join(cc.getSupportedComponents(), ", "));
+            throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Calendar object may only contain " + StringUtils.join(SUPPORTED_COMPONENT_TYPES, ", "));
 
         // XXX CALDAV:calendar-collection-location-ok
 

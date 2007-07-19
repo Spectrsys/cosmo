@@ -74,16 +74,11 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         Assert.assertEquals("test", queryItem.getName());
         Assert.assertEquals("en", ccs.getLanguage());
         Assert.assertEquals("test description", ccs.getDescription());
-        Assert.assertEquals("VEVENT", (String) ccs
-                .getSupportedComponents().iterator().next());
 
         // test update
         queryItem.setName("test2");
         ccs.setLanguage("es");
         ccs.setDescription("test description2");
-        HashSet<String> supportedComponents = new HashSet<String>();
-        supportedComponents.add("VTODO");
-        ccs.setSupportedComponents(supportedComponents);
 
         contentDao.updateCollection(queryItem);
         Assert.assertNotNull(queryItem);
@@ -96,8 +91,6 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         Assert.assertEquals("test2", queryItem.getName());
         Assert.assertEquals("es", ccs.getLanguage());
         Assert.assertEquals("test description2", ccs.getDescription());
-        Assert.assertEquals("VTODO", (String) ccs
-                .getSupportedComponents().iterator().next());
 
         // test add event
         ContentItem event = generateEvent("test.ics", "cal1.ics",
@@ -423,10 +416,6 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         
         ccs.setDescription("test description");
         ccs.setLanguage("en");
-
-        HashSet<String> supportedComponents = new HashSet<String>();
-        supportedComponents.add("VEVENT");
-        ccs.setSupportedComponents(supportedComponents);
         
         return calendar;
     }

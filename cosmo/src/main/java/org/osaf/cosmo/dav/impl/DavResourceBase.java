@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -795,7 +795,7 @@ public abstract class DavResourceBase
         if (isLiveProperty(property.getName()))
             setLiveProperty(property);
         else {
-            item.addStringAttribute(propNameToQName(property.getName()), value);
+            item.setAttribute(propNameToQName(property.getName()), value);
         }
         
         properties.add(property);
