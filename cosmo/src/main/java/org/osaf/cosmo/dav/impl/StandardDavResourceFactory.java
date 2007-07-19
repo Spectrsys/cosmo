@@ -17,6 +17,7 @@ package org.osaf.cosmo.dav.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavMethods;
 import org.apache.jackrabbit.webdav.DavResource;
@@ -25,6 +26,7 @@ import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletRequest;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.DavSession;
+
 import org.osaf.cosmo.dav.CosmoDavMethods;
 import org.osaf.cosmo.dav.ExtendedDavResource;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
@@ -34,6 +36,7 @@ import org.osaf.cosmo.model.FileItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
+import org.osaf.cosmo.model.TaskStamp;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.server.CollectionPath;
 import org.osaf.cosmo.server.ItemPath;
@@ -167,14 +170,16 @@ public class StandardDavResourceFactory implements DavResourceFactory {
                     session);
             }
         }
-          
-        // only handle master event NoteItems for now
+
         if (item instanceof NoteItem) {
             if(item.getStamp(EventStamp.class) != null)
                 return new DavEvent((NoteItem) item, locator, this,
                         session);
+            else if (item.getStamp(TaskStamp.class) != null)
+                return new DavTask((NoteItem) item, locator, this, session);
             else 
-                return null;
+                return new DavJournal((NoteItem) item, locator, this,
+                                      session);
         } 
             
         return new DavFile((FileItem) item, locator, this, session);
