@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,10 @@ import net.fortuna.ical4j.model.property.Version;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
+
 import org.osaf.cosmo.CosmoConstants;
 import org.osaf.cosmo.hibernate.validator.Timezone;
+import org.osaf.cosmo.icalendar.ICalendarConstants;
 
 
 /**
@@ -52,22 +54,11 @@ import org.osaf.cosmo.hibernate.validator.Timezone;
         @PrimaryKeyJoinColumn(name="stampid", referencedColumnName="id")})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class CalendarCollectionStamp extends Stamp implements
-        java.io.Serializable {
-
-    // possible component types
-    public static final String COMPONENT_VEVENT = "VEVENT";
-    public static final String COMPONENT_VTODO = "VTODO";
-    public static final String COMPONENT_VJOURNAL = "VJOURNAL";
-    public static final String COMPONENT_FREEBUSY = "VFREEBUSY";
+        java.io.Serializable, ICalendarConstants {
     
     // CalendarCollection specific attributes
     public static final QName ATTR_CALENDAR_SUPPORTED_COMPONENT_SET = new QName(
             CalendarCollectionStamp.class, "supportedComponentSet");
-
-    // Default set of supported components used to intialize
-    // calendar collection 
-    protected static final String[] defaultSupportedComponents = 
-        new String[] { COMPONENT_VEVENT };
     
     private Calendar calendar;
     private Calendar timezone;
@@ -88,7 +79,7 @@ public class CalendarCollectionStamp extends Stamp implements
     public CalendarCollectionStamp(CollectionItem collection) {
         this();
         setItem(collection);
-        setSupportedComponents(getDefaultSupportedComponentSet());
+        setSupportedComponents(SUPPORTED_COMPONENT_TYPES);
     }
 
     public Stamp copy(Item item) {
@@ -157,6 +148,13 @@ public class CalendarCollectionStamp extends Stamp implements
                             ATTR_CALENDAR_SUPPORTED_COMPONENT_SET,
                             supportedComponents));       
     }
+
+	public void setSupportedComponents(String[] components) {
+		HashSet<String> set = new HashSet<String>();
+		for (String c : components)
+			set.add(c);
+		setSupportedComponents(set);
+	}
 
     /**
      * @return calendar object representing timezone
@@ -259,13 +257,6 @@ public class CalendarCollectionStamp extends Stamp implements
         }
 
         return calendar;
-    }
-    
-    protected static Set<String> getDefaultSupportedComponentSet() {
-        HashSet<String> defaultSet = new HashSet<String>();
-        for(String comp: defaultSupportedComponents)
-            defaultSet.add(comp);
-        return defaultSet;
     }
     
     /**

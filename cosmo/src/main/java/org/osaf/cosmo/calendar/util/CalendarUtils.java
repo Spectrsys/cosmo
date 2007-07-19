@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,12 @@ import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ValidationException;
 
+import org.osaf.cosmo.icalendar.ICalendarConstants;
+
 /**
- * Utility methods for parsing icalendar data.
+ * Utility methods for working with icalendar data.
  */
-public class CalendarUtils {
+public class CalendarUtils implements ICalendarConstants {
     
     
     /**
@@ -100,5 +102,11 @@ public class CalendarUtils {
         Calendar calendar = CalendarBuilderDispenser.getCalendarBuilder()
                 .build(is);
         return calendar;
+    }
+
+    public static boolean isSupportedComponent(String type) {
+        for (String s : SUPPORTED_COMPONENT_TYPES)
+            if (s.equalsIgnoreCase(type)) return true;
+        return false;
     }
 }
