@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.osaf.cosmo</groupId>
         <artifactId>osaf-server</artifactId>
-        <version>0.7.0-SNAPSHOT</version>
+        <version>0.7.0-CP-r5183-20070723</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cosmo</artifactId>
@@ -505,7 +505,7 @@
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.1-070-SNAPSHOT</version>
+                                    <version>0.4.1-070-CP-r5183-20070723</version>
                                     <type>jar</type>
                                   </artifactItem>
                                   <artifactItem>
@@ -545,7 +545,7 @@
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.1-070-SNAPSHOT</version>
+                                    <version>0.4.1-070-CP-r5183-20070723</version>
                                     <type>jar</type>
                                   </artifactItem>
                                   <artifactItem>
