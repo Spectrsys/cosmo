@@ -1,1 +1,1 @@
-${pom.version}
+${pom.version}-CP-r5172-20070723
