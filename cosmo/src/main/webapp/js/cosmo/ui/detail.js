@@ -26,6 +26,7 @@ dojo.provide("cosmo.ui.detail");
 dojo.require("dojo.event.*");
 dojo.require("dojo.lfx.*");
 dojo.require("dojo.html.style");
+dojo.require("cosmo.app.pim");
 dojo.require("cosmo.util.i18n");
 dojo.require("cosmo.util.html");
 dojo.require('cosmo.convenience');
@@ -33,6 +34,8 @@ dojo.require('cosmo.datetime.timezone');
 dojo.require("cosmo.ui.widget.Button");
 dojo.require("cosmo.ui.imagegrid");
 dojo.require("cosmo.ui.DetailFormConverter");
+dojo.require("cosmo.view.list.common");
+dojo.require("cosmo.view.cal.common");
 
 cosmo.ui.detail = new function () {
     this.item = null;
@@ -64,7 +67,7 @@ cosmo.ui.detail = new function () {
 
     this.removeItem = function () {
         dojo.event.topic.publish('/calEvent',
-            { 'action': 'removeConfirm', 'data':this.item });
+            { action: 'removeConfirm', data: this.item });
     };
 
     // Utility functions
@@ -81,6 +84,29 @@ cosmo.ui.detail = new function () {
         d.appendChild(elem);
         return d;
     };
+
+    //some convienient methods for getting at the various forms and form values.
+
+    this.getStampForm = function(stampName){
+        //summary: returns the form object for the given stamp name
+        stampName = stampName.toLowerCase();
+        return cosmo.app.pim.baseLayout.mainApp.rightSidebar
+                   .detailViewForm[stampName +"Section"].formSection.formNode;
+    }
+
+    this.getMainForm = function(){
+        return cosmo.app.pim.baseLayout.mainApp.rightSidebar.detailViewForm.mainSection.formNode;
+    }
+
+    this.isStampEnabled = function(stampName){
+        //summary: returns whether or not a particular stamp section is enabled
+        var checkBox = $("section"+ this._upperFirstChar(stampName) +"EnableToggle");
+        return checkBox.checked;
+    }
+
+    this._upperFirstChar = function(str){
+        return str.charAt(0).toUpperCase() + str.substr(1,str.length -1 );
+    }
 
 };
 
@@ -187,7 +213,7 @@ cosmo.ui.detail.DetailViewForm = function (p) {
                     var st = stamps[i];
                     var sec = self[st.stampType.toLowerCase() + 'Section'];
                     if (sec.hasBody) {
-                        sec.toggleExpando(false);
+                        sec.toggleExpando(false, true);
                     }
                 }
             }
@@ -203,21 +229,37 @@ cosmo.ui.detail.DetailViewForm = function (p) {
         var act = cmd.action;
         var item = cmd.data;
         switch (act) {
-            case 'eventsLoadPrepare':
-                //self.clear();
-                break;
             case 'eventsDisplaySuccess':
+            case 'noItems':
             case 'setSelected':
+            case 'clearSelected':
                 // An item has been clicked on, selected
                 if (item) {
-                    self.updateFromItem(item);
+                    // Only update the values in the form if
+                    // the item has actually changed -- note that
+                    // in the cal, when navigating off the week
+                    // where the selected item is displayed, the
+                    // selected item will in the selectedItemCache
+                    if (item != cosmo.ui.detail.item) {
+                        self.updateFromItem(item);
+                    }
                 }
-                // No-item means 'nothing selected'
-                else {
+                // No-item means 'clear the selection'
+                // FIXMe: We need better sematics for this --
+                // an empty collection/week-view will also pass nothing here
+                // On the other hand, the itemRegistry could now be empty
+                // because the user just removed the last item, in which
+                // case we need to clear out the form after all. We ought to
+                // have a specific 'clear the selection' flag
+                else if (act == 'clearSelected' ||
+                    cosmo.view[cosmo.app.pim.currentView].itemRegistry.length) {
                     cosmo.ui.detail.item = null;
                     self.clear(true);
                     self.buttonSection.setButtons(false);
                 }
+                break;
+            case 'saveSuccess':
+                this.markupBar.render();
                 break;
             case 'saveFailed':
                 //self.setButtons(true, true);
@@ -595,7 +637,7 @@ cosmo.ui.detail.StampSection = function (p) {
 cosmo.ui.detail.StampSection.prototype =
     new cosmo.ui.ContentBox();
 
-cosmo.ui.detail.StampSection.prototype.toggleExpando = function (p) {
+cosmo.ui.detail.StampSection.prototype.toggleExpando = function (p, accordion) {
     // Dojo bug http://trac.dojotoolkit.org/ticket/1776
     // Set processing lock: Don't trigger again until
     // animation completes -- Dojo doesn't allow an explicit
@@ -607,13 +649,28 @@ cosmo.ui.detail.StampSection.prototype.toggleExpando = function (p) {
     // from happening -- NOTE, the lock has to be removed as
     // a callback from the animation, otherwise it gets removed
     // before the animation has really completed.
-    if (cosmo.ui.detail.processingExpando) {
-        return false;
+    // -------------------------
+    // If this is being called from accordion mode, bypass
+    // the animation lock -- multiple sections need to collapse
+    // at the same time, and since this is not user-invoked,
+    // there are no issues with the Dojo bug above
+    if (accordion) {
+        // Dummy var for anim callback
+        var f = null;
     }
-    // Add the animation processing lock
-    cosmo.ui.detail.processingExpando = true;
-    // Callback to remove the lock
-    var f = function () { cosmo.ui.detail.processingExpando = false; }
+    // This is normal, user-mode -- go through the locking
+    // mechanism
+    else {
+        if (cosmo.ui.detail.processingExpando) {
+            return false;
+        }
+        else {
+            // Add the animation processing lock
+            cosmo.ui.detail.processingExpando = true;
+            // Callback to remove the lock
+            var f = function () { cosmo.ui.detail.processingExpando = false; }
+        }
+    }
 
     // Allow to be passed in explicitly, or just trigger toggle
     var doShow = typeof p == 'boolean' ? p : !this.expanded;
@@ -626,7 +683,7 @@ cosmo.ui.detail.StampSection.prototype.toggleExpando = function (p) {
                 var st = stamps[i];
                 var sec = dvForm[st.stampType.toLowerCase() + 'Section'];
                 if (sec != this && sec.hasBody) {
-                    sec.toggleExpando(false);
+                    sec.toggleExpando(false, true);
                 }
             }
         }
@@ -831,6 +888,7 @@ cosmo.ui.detail.MainSection = function () {
         maxlength: 100,
         value: '',
         className: 'inputText' });
+    elem.style.width = '220px';
     var t =  cosmo.ui.detail.createFormElemDiv(elem);
     f.appendChild(t);
     var t = cosmo.ui.detail.createLabelDiv(_(
@@ -1067,6 +1125,7 @@ cosmo.ui.detail.EventFormElements= function () {
             maxlength: 100,
             value: '',
             className: 'inputText' });
+        elem.style.width = '220px';
         var t =  cosmo.ui.detail.createFormElemDiv(elem);
         f.appendChild(t);
         // All-day checkbox
@@ -1220,6 +1279,8 @@ cosmo.ui.detail.EventFormElements= function () {
             _html.setSelectOptions(f.tzId, options);
         };
         dojo.event.connect(f.tzRegion, 'onchange', func);
+        dojo.event.connect(f.eventAllDay, 'onchange', self.hideOrShowEventStatus);
+        dojo.event.connect(f.endTime, 'onblur', self.hideOrShowEventStatus);
     }
 
     // Interface methods
@@ -1309,10 +1370,31 @@ cosmo.ui.detail.EventFormElements= function () {
             _html.setSelect(f.recurrenceInterval, '');
             _html.clearAndDisableFormElem(recurEnd, 'text');
         }
+
+        this.hideOrShowEventStatus();
     };
+
 };
+
 cosmo.ui.detail.EventFormElements.prototype =
     new cosmo.ui.detail.StampFormElements();
+
+cosmo.ui.detail.EventFormElements.prototype.hideOrShowEventStatus = function(){
+        //summary: hides the event status if item is anytime or attime,
+        //         shows it otherwise.
+        var html = cosmo.util.html;
+        var detail = cosmo.ui.detail;
+        var form = detail.getStampForm("event");
+        var show = true;
+        var endTime = html.getFormValue(form, "endTime");
+        if (html.getFormValue(form, "eventAllDay") == "0"){
+            if (!endTime || endTime == "hh:mm" ){
+                show = false;
+            }
+        }
+
+        form["eventStatus"].disabled = !show;
+}
 
 cosmo.ui.detail.ButtonSection = function () {
     var self = this;

@@ -445,6 +445,17 @@ cosmo.view.cal.lozenge.Lozenge.prototype.setDeselected = function () {
 }
 
 /**
+ * If the user has navigated off the week displaying the
+ * current selected item, it's not in the itemRegistry,
+ * it's being pulled from selectedItemCache, so its Lozenge
+ * object has been 'orphaned' -- the DOM node is not on
+ * the currently displayed canvas
+ */
+cosmo.view.cal.lozenge.Lozenge.prototype.isOrphaned = function () {
+    return !(this.domNode.parentNode);
+}
+
+/**
  * cosmo.view.cal.lozenge.HasTimeLozenge -- sub-class of Lozenge
  * Normal events, 'at-time' events -- these sit in the scrollable
  * area of the main viewing area
@@ -1028,7 +1039,6 @@ cosmo.view.cal.lozenge.NoTimeLozenge.prototype.setTitleNodePos = function (force
     var margin = (this.left < 0 && !forceToLeft) ? -this.left : 0;
     margin += BLOCK_RESIZE_LIP_HEIGHT;
     this.titleNode.style.marginLeft = margin + 'px';
-    console.log(margin);
 };
 
 /**

@@ -71,6 +71,12 @@ cosmo.view.cal.canvas = new function () {
     // UIDs for selected events keyed by the uid of
     // the currently displayed collection
     this.selectedItemIdRegistry = {};
+    // Stash references to the selected object here
+    // The current itemRegistry won't always have the
+    // selected item loaded. If it's not in the
+    // itemRegistry, pull it from here to persist the
+    // collection's selected object in the detail view
+    this.selectedItemCache = {};
     // Available lozenge colors
     this.colors = {};
     // The scrolling div for timed events
@@ -455,7 +461,7 @@ cosmo.view.cal.canvas = new function () {
         // either when user scrolls or resizes all-day event area
         var top = this.timedCanvas.scrollTop;
         // Subtract change, if any, in resized all-day event area
-        var offset = cosmo.ui.resize_area.dragSize ? 
+        var offset = cosmo.ui.resize_area.dragSize ?
             (cosmo.ui.resize_area.dragSize - ALL_DAY_RESIZE_AREA_HEIGHT) : 0;
         top -= offset;
         // Subtract height of navbar -- this lives outside the cal view
@@ -772,14 +778,11 @@ cosmo.view.cal.canvas = new function () {
         if (cosmo.view.cal.itemRegistry.length) {
             if (cosmo.view.cal.conflict.calc(cosmo.view.cal.itemRegistry) &&
                 positionLozenges()) {
-                // If no currently selected event, put selection on
-                // the final one loaded
-                //if (!self.getSelectedItem()) {
-                //    dojo.event.topic.publish('/calEvent', { 'action': 'setSelected',
-                //        'data': cosmo.view.cal.itemRegistry.getLast() });
-                //}
+                // If the selected item is not in the on-canvas itemRegistry,
+                // pull the copy from the selectedItemCache
+                var sel = self.getSelectedItem() || self.getSelectedItemCacheCopy();
                 dojo.event.topic.publish('/calEvent', { 'action':
-                    'eventsDisplaySuccess', 'data': self.getSelectedItem() });
+                    'eventsDisplaySuccess', 'data': sel });
             }
         }
         // No items displayed in the current collection
@@ -905,12 +908,25 @@ cosmo.view.cal.canvas = new function () {
         else {
             // Saved event is still in view
             var inRange = !item.isOutOfViewRange();
+            // Lozenge is in the current week, update it
             if (inRange) {
                 item.lozenge.setInputDisabled(false);
                 item.lozenge.updateDisplayMain();
             }
-            else if (cmd.qualifier.offCanvas) {
+            // Lozenge was in view, event was explicitly edited
+            // to a date that moves the lozenge off-canvas
+            else if (cmd.qualifier && cmd.qualifier.offCanvas) {
                 removeEvent(item);
+            }
+            // User has navigated off the week displaying the currently
+            // selected item -- the item is not in the itemRegistry,
+            // it's being pulled from the selectedItemCache, so it does
+            // not have a lozenge on the canvas to update -- the only
+            // drawback here is that the user now gets no feedback that
+            // the item has been successfully updated, because there's
+            // no lozenge to see
+            else if (item.lozenge.isOrphaned()) {
+                // Do nothing
             }
         }
 
@@ -973,6 +989,18 @@ cosmo.view.cal.canvas = new function () {
         var recurOpts = cosmo.view.service.recurringEventOptions;
         var removeType = opts.removeType;
         dojo.debug("removeSuccess, removeType: " + removeType);
+
+        // If the user has navigated off the week displaying the
+        // current selected item, it's not in the itemRegistry,
+        // it's being pulled from selectedItemCache, so its Lozenge
+        // object has been 'orphaned' -- the DOM node is not on
+        // the currently displayed canvas
+        // just send the 'clear selected' message
+        if (ev.lozenge.isOrphaned()) {
+            dojo.event.topic.publish('/calEvent', { 'action':
+                'clearSelected', 'data': null });
+            return;
+        }
 
         switch(removeType){
             case 'singleEvent':
@@ -1154,6 +1182,14 @@ cosmo.view.cal.canvas = new function () {
         var allDay = eventStamp.getAllDay();
         var anyTime = eventStamp.getAnyTime();
         var rrule = eventStamp.getRrule();
+
+        // If the user has navigated off the week displaying the
+        // current selected item, it's not in the itemRegistry,
+        // it's being pulled from selectedItemCache, so its Lozenge
+        // object has been 'orphaned' -- the DOM node is not on
+        // the currently displayed canvas
+        if (ev.lozenge.isOrphaned()) { return false; }
+
         if (ev.dataOrig){
             var origEventStamp = ev.dataOrig.getEventStamp();
             var origStartDate = origEventStamp.getStartDate();

@@ -196,7 +196,9 @@ public class StandardTriageStatusQueryProcessor implements
         HashSet<NoteItem> results = new HashSet<NoteItem>();
         
         // Get all occurrences that overlap current instance in time
-        InstanceList occurrences = expander.getOcurrences(eventStamp.getCalendar(), currentDate, currentDate, timezone);
+        InstanceList occurrences = expander.getOcurrences(
+                eventStamp.getEvent(), eventStamp.getExceptions(), currentDate,
+                currentDate, timezone);
         
         for(Instance instance: (Collection<Instance>) occurrences.values()) {
             // Not interested in modifications
@@ -290,8 +292,9 @@ public class StandardTriageStatusQueryProcessor implements
         RecurrenceExpander expander = new RecurrenceExpander();
         
         // calculate the next occurrence or modification
-        Instance instance = 
-            expander.getFirstInstance(eventStamp.getCalendar(), new DateTime(currentDate), new DateTime(futureDate), timezone);
+        Instance instance = expander.getFirstInstance(eventStamp.getEvent(),
+                eventStamp.getExceptions(), new DateTime(currentDate),
+                new DateTime(futureDate), timezone);
     
         if(instance!=null) {
             if(instance.isOverridden()==false) {
@@ -324,7 +327,6 @@ public class StandardTriageStatusQueryProcessor implements
         NoteItemFilter eventFilter = getRecurringEventFilter(collection);
         
         List<NoteItem> results = new ArrayList<NoteItem>();
-        Set<NoteItem> masters = new HashSet<NoteItem>();
         
         // Add all items that are have an explicit DONE triage
         for(Item item : contentDao.findItems(doneFilter)) {
@@ -334,9 +336,6 @@ public class StandardTriageStatusQueryProcessor implements
             // Don't add recurring events
             if(eventStamp==null || eventStamp.isRecurring()==false) {
                 results.add(note);
-                // keep track of masters
-                if(note.getModifies()!=null)
-                    masters.add(note.getModifies());
             }
         }
         
@@ -347,14 +346,22 @@ public class StandardTriageStatusQueryProcessor implements
             // add doneItem and master if present
             if(doneItem!=null) {
                 results.add(doneItem);
-                masters.add(note);
             }
         }
         
         // sort results before returning
         SortedSet<NoteItem> sortedResults =  sortResults(results, COMPARE_ASC, maxDone); 
-        // add masters
+        Set<NoteItem> masters = new HashSet<NoteItem>();
+        
+        // add masters for all ocurrences and modifications
+        for(NoteItem note: sortedResults)
+            if(note instanceof NoteOccurrence)
+                masters.add(((NoteOccurrence) note).getMasterNote());
+            else if(note.getModifies()!=null)
+                masters.add(note.getModifies());
+        
         sortedResults.addAll(masters);
+        
         return sortedResults;
     }
     
@@ -390,8 +397,9 @@ public class StandardTriageStatusQueryProcessor implements
         RecurrenceExpander expander = new RecurrenceExpander();
         
         // calculate the previous occurrence or modification
-        Instance instance = 
-            expander.getLatestInstance(eventStamp.getCalendar(), new DateTime(pastDate), new DateTime(currentDate), timezone);
+        Instance instance = expander.getLatestInstance(eventStamp.getEvent(),
+                eventStamp.getExceptions(), new DateTime(pastDate),
+                new DateTime(currentDate), timezone);
     
         if(instance!=null) {
             if(instance.isOverridden()==false) {

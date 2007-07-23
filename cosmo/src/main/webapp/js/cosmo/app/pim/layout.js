@@ -48,6 +48,7 @@ dojo.require("cosmo.ui.imagegrid");
 cosmo.app.pim.layout = new function () {
     this.baseLayout = null;
     this.initBaseLayout = function (node) {
+        cosmo.ui.resize.Viewports.initialize();
         this.baseLayout = new cosmo.app.pim.layout.BaseLayout(node);
         this.baseLayout.render();
         this.populateBaseLayout();
@@ -336,7 +337,7 @@ cosmo.app.pim.layout.populateBaseLayout = function () {
         calCanvas: cal });
     centerColumn.addChild(navBar);
     centerColumn.navBar = navBar;
-    navBar.render();
+    //navBar.render();
 
     // Cal selector / single cal name -- the container is a
     // ContentBox, and the contents is a Dojo widget

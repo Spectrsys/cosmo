@@ -192,9 +192,11 @@ cosmo.view.list.setSortAndDisplay = function (item) {
     setVals('startDate', sr, fm);
     // Triage
     var tr = data.getTriageStatus();
-
+    var rank = parseInt(data.getRank());
     var fm = tr ? _('Dashboard.ListEntry.Triage' +
         this.triageStatusCodeMappings[tr]) : '(NONE)';
+    tr = (tr * 10000000000);
+    tr = tr + rank;
     setVals('triage', tr, fm);
 
     // Use two separate keyword/val objs since
@@ -232,7 +234,8 @@ cosmo.view.list.createNoteItem = function (s) {
         // Make service call to save the item -- success from
         // the service will publish 'saveSuccess' action to tell
         // the UI to update appropriately
-        dojo.event.topic.publish('/calEvent', { 'action': 'save', 'data': item, 'qualifier': 'new' })
+        dojo.event.topic.publish('/calEvent', { action: 'save', data: item,
+            qualifier: 'new', saveType: 'new' })
         return cosmo.view.list.itemRegistry.getItem(id);
     }
 };

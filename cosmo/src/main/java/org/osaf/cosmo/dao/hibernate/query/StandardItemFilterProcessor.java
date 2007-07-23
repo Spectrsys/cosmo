@@ -210,16 +210,11 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
         // handle time range
         if(filter.getPeriod()!=null) {
            whereBuf.append(" and ( ");
-           whereBuf.append("(es.timeRangeIndex.isFloating=true and ((es.timeRangeIndex.dateStart < '" + filter.getFloatStart() + "'");
-           
+           whereBuf.append("(es.timeRangeIndex.isFloating=true and es.timeRangeIndex.dateStart < '" + filter.getFloatEnd() + "'");
            whereBuf.append(" and es.timeRangeIndex.dateEnd > '" + filter.getFloatStart() + "')");
-           whereBuf.append(" or (es.timeRangeIndex.dateStart >= '" + filter.getFloatStart() + "'");
-           whereBuf.append(" and es.timeRangeIndex.dateStart < '" + filter.getFloatEnd() + "')))");
            
-           whereBuf.append(" or (es.timeRangeIndex.isFloating=false and ((es.timeRangeIndex.dateStart < '" + filter.getUTCStart() + "'");
+           whereBuf.append(" or (es.timeRangeIndex.isFloating=false and es.timeRangeIndex.dateStart < '" + filter.getUTCEnd() + "'");
            whereBuf.append(" and es.timeRangeIndex.dateEnd > '" + filter.getUTCStart() + "')");
-           whereBuf.append(" or (es.timeRangeIndex.dateStart >= '" + filter.getUTCStart() + "'");
-           whereBuf.append(" and es.timeRangeIndex.dateStart < '" + filter.getUTCEnd() + "')))");
            
            whereBuf.append(")");
         }
@@ -365,9 +360,9 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
         // Otherwise, expand the recurring item to determine if it actually
         // occurs in the time range specified
         RecurrenceExpander expander = new RecurrenceExpander();
-        InstanceList instances = expander.getOcurrences(eventStamp
-                .getCalendar(), filter.getPeriod().getStart(), filter
-                .getPeriod().getEnd(), filter.getTimezone());
+        InstanceList instances = expander.getOcurrences(eventStamp.getEvent(),
+                eventStamp.getExceptions(), filter.getPeriod().getStart(),
+                filter.getPeriod().getEnd(), filter.getTimezone());
 
         // If recurring event occurs in range, add master unless the filter
         // is configured to not return the master
