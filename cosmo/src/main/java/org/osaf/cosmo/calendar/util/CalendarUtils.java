@@ -21,12 +21,15 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Iterator;
 
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ValidationException;
+import net.fortuna.ical4j.model.component.VTimeZone;
 
 import org.osaf.cosmo.icalendar.ICalendarConstants;
 
@@ -107,6 +110,23 @@ public class CalendarUtils implements ICalendarConstants {
     public static boolean isSupportedComponent(String type) {
         for (String s : SUPPORTED_COMPONENT_TYPES)
             if (s.equalsIgnoreCase(type)) return true;
+        return false;
+    }
+
+    public static boolean hasMultipleComponentTypes(Calendar calendar) {
+        String found = null;
+        for (Iterator<Component> i=calendar.getComponents().iterator();
+             i.hasNext();) {
+            Component component = i.next();
+            if (component instanceof VTimeZone)
+                continue;
+            if (found == null) {
+                found = component.getName();
+                continue;
+            }
+            if (! found.equals(component.getName()))
+                return true;
+        }
         return false;
     }
 }

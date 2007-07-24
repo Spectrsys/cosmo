@@ -165,7 +165,7 @@ public class DavCalendarCollection extends DavCollection
                 createResourceLocator(getLocator().getPrefix(),
                                       getLocator().getWorkspacePath(),
                                       memberPath, false);
-            DavEvent member = (DavEvent)
+            DavCalendarResource member = (DavCalendarResource)
                 ((StandardDavResourceFactory)getFactory()).
                 createResource(memberLocator, getSession(), memberItem);
             
@@ -326,30 +326,34 @@ public class DavCalendarCollection extends DavCollection
     /** */
     protected void saveContent(DavContent member)
         throws DavException {
-        CollectionItem collection = (CollectionItem) getItem();
-        CalendarCollectionStamp cc = getCalendarCollectionStamp();
-
-        if (! (member instanceof DavEvent))
-            throw new IllegalArgumentException("member not DavEvent");
-        ContentItem content = (ContentItem) member.getItem();
-        EventStamp event = EventStamp.getStamp(content);
-        Calendar calendar = event.getCalendar();
-
-        // CALDAV:valid-calendar-object-resource
-        if (hasMultipleComponentTypes(calendar))
-            throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Calendar object contains more than one type of component");
-        if (calendar.getProperties().getProperty(Property.METHOD) != null)
-            throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Calendar object contains METHOD property");
-
-        // CALDAV:supported-calendar-component
-        if (! cc.supportsCalendar(calendar))
-            throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Calendar object may only contain " + StringUtils.join(SUPPORTED_COMPONENT_TYPES, ", "));
+        if (! (member instanceof DavCalendarResource))
+            throw new IllegalArgumentException("member not DavCalendarResource");
 
         // XXX CALDAV:calendar-collection-location-ok
 
         // CALDAV:max-resource-size was already taken care of when
         // DavCollection.addMember called DavResourceBase.populateItem
         // on the event, though it returned a 409 rather than a 412
+
+        ContentItem content = null;
+        if (member instanceof DavEvent) {
+            saveEvent(member);
+        } else {
+            try {
+                super.saveContent(member);
+            } catch (DuplicateEventUidException e) {
+                throw new DavException(DavServletResponse.SC_CONFLICT, "Uid already in use");
+            }
+        }
+    }
+
+    private void saveEvent(DavContent member)
+        throws DavException {
+        CollectionItem collection = (CollectionItem) getItem();
+        CalendarCollectionStamp cc = getCalendarCollectionStamp();
+        ContentItem content = (ContentItem) member.getItem();
+        EventStamp event = EventStamp.getStamp(content);
+        Calendar calendar = event.getCalendar();
 
         // XXX CALDAV:min-date-time
 
@@ -364,7 +368,9 @@ public class DavCalendarCollection extends DavCollection
                 log.debug("updating event " + member.getResourcePath());
 
             try {
-                EventUtils.updateEvent(getContentService(), (NoteItem) content, event.getEventCalendar());
+                EventUtils.updateEvent(getContentService(),
+                                       (NoteItem) content,
+                                       event.getEventCalendar());
             } catch (DuplicateEventUidException e) {
                 throw new DavException(DavServletResponse.SC_CONFLICT, "Uid already in use");
             } catch (CollectionLockedException e) {
@@ -375,7 +381,9 @@ public class DavCalendarCollection extends DavCollection
                 log.debug("creating event " + member.getResourcePath());
 
             try {
-                content = EventUtils.createEvent(getContentService(), collection, (NoteItem) content, event.getEventCalendar());
+                content = EventUtils.createEvent(getContentService(), collection,
+                                                 (NoteItem) content,
+                                                 event.getEventCalendar());
             } catch (DuplicateEventUidException e) {
                 throw new DavException(DavServletResponse.SC_CONFLICT, "Uid already in use");
             } catch (CollectionLockedException e) {
@@ -389,8 +397,8 @@ public class DavCalendarCollection extends DavCollection
     /** */
     protected void removeContent(DavContent member)
         throws DavException {
-        if (! (member instanceof DavEvent))
-            throw new IllegalArgumentException("member not DavEvent");
+        if (! (member instanceof DavCalendarResource))
+            throw new IllegalArgumentException("member not DavCalendarResource");
 
         ContentItem content = (ContentItem) member.getItem();
         CollectionItem parent = (CollectionItem) getItem();
@@ -407,23 +415,6 @@ public class DavCalendarCollection extends DavCollection
         } catch (CollectionLockedException e) {
             throw new DavException(DavServletResponse.SC_LOCKED);
         }
-    }
-
-    private static boolean hasMultipleComponentTypes(Calendar calendar) {
-        String found = null;
-        for (Iterator<Component> i=calendar.getComponents().iterator();
-             i.hasNext();) {
-            Component component = i.next();
-            if (component instanceof VTimeZone)
-                continue;
-            if (found == null) {
-                found = component.getName();
-                continue;
-            }
-            if (! found.equals(component.getName()))
-                return true;
-        }
-        return false;
     }
 
     private void validateDestination(DavResource destination)

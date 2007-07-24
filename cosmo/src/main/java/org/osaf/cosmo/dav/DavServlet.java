@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2006 Open Source Applications Foundation
+ * Copyright 2005-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.fortuna.ical4j.model.Calendar;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.server.AbstractWebdavServlet;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
@@ -41,17 +45,21 @@ import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.lock.LockManager;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
+
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.CaldavRequest;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.impl.StandardDavRequest;
+import org.osaf.cosmo.dav.impl.StandardDavResourceFactory;
 import org.osaf.cosmo.dav.impl.StandardDavResponse;
 import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.dav.ticket.TicketDavRequest;
 import org.osaf.cosmo.dav.ticket.TicketDavResponse;
+import org.osaf.cosmo.icalendar.ICalendarConstants;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
+
 import org.springframework.beans.BeansException;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -61,7 +69,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * implement the methods for WebDAV and its extensions.
  */
 public class DavServlet extends AbstractWebdavServlet
-    implements CaldavConstants {
+    implements CaldavConstants, ICalendarConstants {
     private static final Log log = LogFactory.getLog(DavServlet.class);
 
     /**
@@ -282,6 +290,14 @@ public class DavServlet extends AbstractWebdavServlet
             return;
         }
 
+        ExtendedDavResource parentResource = (ExtendedDavResource)
+            resource.getCollection();
+        if (parentResource == null || !parentResource.exists()) {
+            // parent does not exist
+            response.sendError(DavServletResponse.SC_CONFLICT);
+            return;
+        }
+
         // if the request is not chunked, require a content length
         String transferEncoding = request.getHeader("Transfer-Encoding");
         if ((transferEncoding == null || transferEncoding.equals("identity")) &&
@@ -290,9 +306,57 @@ public class DavServlet extends AbstractWebdavServlet
             return;
         }
 
-        super.doPut(request, response, resource);
+        int status = resource.exists() ?
+            DavServletResponse.SC_NO_CONTENT :
+            DavServletResponse.SC_CREATED;
+
+        DavInputContext ctx = (DavInputContext)
+            getInputContext(request, request.getInputStream());
+
+        if (parentResource.isCalendarCollection() && ! resource.exists()) {
+            // replace the stand-in file resource given to us by the factory
+            // with a brand new calendar resource
+            resource = ((StandardDavResourceFactory)getResourceFactory()).
+                createCalendarResource(resource.getLocator(), request, response,
+                                       ctx.getCalendar());
+        }
         
+        parentResource.addMember(resource, ctx);
+
+        response.setStatus(status);        
         response.setHeader("ETag", resource.getETag());
+    }
+
+    protected void doMkCol(WebdavRequest request,
+                           WebdavResponse response,
+                           DavResource resource)
+        throws IOException, DavException {
+        // {DAV:resource-must-be-null}
+        if (resource.exists()) {
+            response.sendError(DavServletResponse.SC_METHOD_NOT_ALLOWED, "Resource exists");
+            return;
+        }
+
+        // {DAV:calendar-collection-location-ok}
+        DavResource parentResource = resource.getCollection();
+        if (parentResource == null || ! parentResource.exists()) {
+            response.sendError(DavServletResponse.SC_CONFLICT, "One or more intermediate collections must be created");
+            return;
+        }
+        if (! parentResource.isCollection()) {
+            response.sendError(DavServletResponse.SC_CONFLICT, "Parent must be a collection");
+            return;
+        }
+
+        if (request.getContentLength() > 0 ||
+            request.getHeader("Transfer-Encoding") != null) {
+            response.sendError(DavServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Content not allowed for MKCOL");
+            return;
+        }
+
+        parentResource.addMember(resource, getInputContext(request, null));
+            
+        response.setStatus(DavServletResponse.SC_CREATED);
     }
 
     /**
@@ -369,12 +433,9 @@ public class DavServlet extends AbstractWebdavServlet
             return;
         }
 
-        ExtendedDavResource eresource = (ExtendedDavResource) resource;
-
         // {DAV:calendar-collection-location-ok}
         ExtendedDavResource parentResource =
             (ExtendedDavResource) resource.getCollection();
-
         if (parentResource == null ||
             ! parentResource.exists()) {
             response.sendError(DavServletResponse.SC_CONFLICT,
@@ -568,14 +629,7 @@ public class DavServlet extends AbstractWebdavServlet
      */
     public InputContext getInputContext(DavServletRequest request,
                                         InputStream in) {
-        // If the request is a PUT, then we have buffered the input and
-        // know the exact length read
-        if(request.getMethod().equals(DavMethods.METHOD_PUT)) {
-            long bufferedLength = ((StandardDavRequest) request).getBufferedContentLength();
-            return new DavInputContext(request, in, bufferedLength);
-        } else {
-            return new DavInputContext(request, in);
-        }
+        return new DavInputContext(request, in);
     }
 
     /** {@inheritDoc} */

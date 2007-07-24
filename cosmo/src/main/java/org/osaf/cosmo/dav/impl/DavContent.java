@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,9 @@ import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
+
 import org.osaf.cosmo.model.ContentItem;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.User;
@@ -72,13 +74,15 @@ public abstract class DavContent extends DavResourceBase {
         registerLiveProperty(DavPropertyName.GETLASTMODIFIED);
 
         RESOURCE_TYPES = new int[] { ResourceType.DEFAULT_RESOURCE };
+
+        DEAD_PROPERTY_FILTER.add(NoteItem.class.getName());
     }
 
     /** */
     public DavContent(ContentItem item,
-                   DavResourceLocator locator,
-                   DavResourceFactory factory,
-                   DavSession session) {
+                      DavResourceLocator locator,
+                      DavResourceFactory factory,
+                      DavSession session) {
         super(item, locator, factory, session);
     }
 

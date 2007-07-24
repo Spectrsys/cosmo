@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,8 +141,8 @@ public class DavCollection extends DavResourceBase
      * Calls the following methods:
      *
      * <ol>
-     * <li> {@link #populateItem(InputContext)} on the member to
-     * populate its backing item from the input context</li>
+     * <li> {@link #populateItem()} on the member to
+     * populate its backing item</li>
      * <li> {@link #saveSubcollection(DavCollection)} or
      * {@link #saveFile(DavFile)} to actually save the
      * member into storage</li>
@@ -328,12 +328,12 @@ public class DavCollection extends DavResourceBase
         try {
             if (content.getId() != -1) {
                 if (log.isDebugEnabled())
-                    log.debug("updating file " + member.getResourcePath());
+                    log.debug("updating member " + member.getResourcePath());
 
                 content = getContentService().updateContent(content);
             } else {
                 if (log.isDebugEnabled())
-                    log.debug("creating file " + member.getResourcePath());
+                    log.debug("creating member " + member.getResourcePath());
 
                 content =
                     getContentService().createContent(collection, content);

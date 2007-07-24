@@ -160,18 +160,6 @@ public class CalendarCollectionStamp extends Stamp implements
         return calendar;
     }
 
-    /**
-     * Determines if the given <code>Calendar</code> contains at least
-     * one component supported by this collection.
-     */
-    public boolean supportsCalendar(Calendar calendar) {
-        for (String s : SUPPORTED_COMPONENT_TYPES) {
-            if (! calendar.getComponents().getComponents(s).isEmpty())
-                return true;
-        }
-        return false;
-    }
-
     private Calendar loadCalendar()
         throws IOException, ParserException {
         Calendar calendar = new Calendar();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
@@ -33,6 +34,7 @@ import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
+
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.CaldavRequest;
 import org.osaf.cosmo.dav.caldav.property.CalendarDescription;
@@ -42,6 +44,7 @@ import org.osaf.cosmo.dav.report.ReportRequest;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.dav.ticket.TicketDavRequest;
 import org.osaf.cosmo.model.Ticket;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -157,7 +160,6 @@ public class StandardDavRequest extends WebdavRequestImpl
         }
         return reportInfo;
     }
-
   
     // private methods
     private DavPropertySet parseMkCalendarRequest() {
@@ -381,14 +383,18 @@ public class StandardDavRequest extends WebdavRequestImpl
     }
 
     @Override
-    public ServletInputStream getInputStream() throws IOException {
-        if(!bufferRequestContent)
+    public ServletInputStream getInputStream()
+        throws IOException {
+        if (! bufferRequestContent)
             return super.getInputStream();
         
         BufferedServletInputStream is = 
             new BufferedServletInputStream(super.getInputStream());
-        
         bufferedContentLength = is.getLength();
+
+        long contentLength = getContentLength();
+        if (contentLength != -1 && contentLength != bufferedContentLength)
+            throw new IOException("Read only " + bufferedContentLength + " of " + contentLength + " bytes");
         
         return is;
     }

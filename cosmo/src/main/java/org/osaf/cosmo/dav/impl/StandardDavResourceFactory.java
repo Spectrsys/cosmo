@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  */
 package org.osaf.cosmo.dav.impl;
 
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,6 +33,7 @@ import org.apache.jackrabbit.webdav.DavSession;
 
 import org.osaf.cosmo.dav.CosmoDavMethods;
 import org.osaf.cosmo.dav.ExtendedDavResource;
+import org.osaf.cosmo.icalendar.ICalendarConstants;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.EventStamp;
@@ -51,7 +56,8 @@ import org.osaf.cosmo.util.PathUtil;
  * @see org.apache.jackrabbit.webdav.DavResourceFactory
  * @see org.apache.jackrabbit.webdav.DavResource
  */
-public class StandardDavResourceFactory implements DavResourceFactory {
+public class StandardDavResourceFactory
+    implements DavResourceFactory, ICalendarConstants {
     private static final Log log =
         LogFactory.getLog(StandardDavResourceFactory.class);
 
@@ -70,22 +76,14 @@ public class StandardDavResourceFactory implements DavResourceFactory {
         if (resource != null)
             return resource;
 
-        // either the resource does not exist, or we are about to
-        // create it.
-
         int methodCode = DavMethods.getMethodCode(request.getMethod());
-        if (methodCode == 0) {
+        if (methodCode == 0)
             methodCode = CosmoDavMethods.getMethodCode(request.getMethod());
-            if (methodCode == 0) {
-                // we don't understand the method presented to us
-                throw new DavException(DavServletResponse.SC_METHOD_NOT_ALLOWED);
-            }
-        }
+        if (methodCode == 0)
+             // we don't understand the method presented to us
+            throw new DavException(DavServletResponse.SC_METHOD_NOT_ALLOWED);
 
-        if (log.isDebugEnabled())
-            log.debug("instantiating resource for new item at path " +
-                      locator.getResourcePath());
-
+        // for creation methods, return a "blank" resource
         if (CosmoDavMethods.DAV_MKCALENDAR == methodCode)
             return new DavCalendarCollection(locator, this,
                                              request.getDavSession());
@@ -94,19 +92,10 @@ public class StandardDavResourceFactory implements DavResourceFactory {
             return new DavCollection(locator, this, request.getDavSession());
 
         if (DavMethods.DAV_PUT == methodCode) {
-            String parentPath =
-                PathUtil.getParentPath(locator.getResourcePath());
-            DavResourceLocator parentLocator = locator.getFactory().
-                createResourceLocator(locator.getPrefix(),
-                                      locator.getWorkspacePath(), parentPath);
-            ExtendedDavResource parent = (ExtendedDavResource)
-                createResource(parentLocator, request, response);
-
-            if (parent.isCalendarCollection())
-                return new DavEvent(locator, this, request.getDavSession());
+            return new DavFile(locator, this, request.getDavSession());
         }
 
-        return new DavFile(locator, this, request.getDavSession());
+        throw new DavException(DavServletResponse.SC_NOT_FOUND);
     }
 
     /** */
@@ -183,6 +172,21 @@ public class StandardDavResourceFactory implements DavResourceFactory {
         } 
             
         return new DavFile((FileItem) item, locator, this, session);
+    }
+
+    public DavResource createCalendarResource(DavResourceLocator locator,
+                                              DavServletRequest request,
+                                              DavServletResponse response,
+                                              Calendar calendar)
+        throws DavException {
+        if (! calendar.getComponents(Component.VEVENT).isEmpty())
+            return new DavEvent(locator, this, request.getDavSession());
+        if (! calendar.getComponents(Component.VTODO).isEmpty())
+            return new DavTask(locator, this, request.getDavSession());
+        if (! calendar.getComponents(Component.VJOURNAL).isEmpty())
+            return new DavJournal(locator, this, request.getDavSession());
+        // CALDAV:supported-calendar-component
+        throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Calendar object must contain at least one of " + StringUtils.join(SUPPORTED_COMPONENT_TYPES, ", "));
     }
 
     /** */

@@ -16,6 +16,7 @@
 package org.osaf.cosmo.dav.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -114,48 +115,31 @@ public class DavFile extends DavContent {
         throws DavException {
         super.populateItem(inputContext);
 
-        FileItem content = (FileItem) getItem();
-
-        if (inputContext.hasStream()) {
-            
-            try {
-                // make sure content length matches what was read
-                long contentLength = inputContext.getContentLength();
-                long bufferedLength = ((DavInputContext) inputContext)
-                        .getBufferedContentLength();
-
-                if (contentLength != IOUtil.UNDEFINED_LENGTH
-                        && contentLength != bufferedLength)
-                    throw new IOException("Read only " + bufferedLength
-                            + " of " + contentLength + " bytes");
-                
-                content.setContent(inputContext.getInputStream());
-            } catch (IOException e) {
-                log.error("Cannot read resource content", e);
-                throw new DavException(DavServletResponse.SC_INTERNAL_SERVER_ERROR, "Cannot read resource content: " + e.getMessage());
-            } catch (DataSizeException e) {
-                throw new DavException(DavServletResponse.SC_FORBIDDEN, "Cannot store resource content: " + e.getMessage());
-            } 
-        }
+        FileItem file = (FileItem) getItem();
 
         try {
+            InputStream content = inputContext.getInputStream();
+            if (content != null)
+                file.setContent(content);
+
             if (inputContext.getContentLanguage() != null)
-                content.setContentLanguage(inputContext.getContentLanguage());
+                file.setContentLanguage(inputContext.getContentLanguage());
 
             String contentType = inputContext.getContentType();
             if (contentType != null)
-                content.setContentType(IOUtil.getMimeType(contentType));
+                file.setContentType(IOUtil.getMimeType(contentType));
             else
-                content.setContentType(IOUtil.MIME_RESOLVER.
-                                       getMimeType(content.getName()));
+                file.setContentType(IOUtil.MIME_RESOLVER.
+                                    getMimeType(file.getName()));
 
             String contentEncoding = IOUtil.getEncoding(contentType);
             if (contentEncoding != null)
-                content.setContentEncoding(contentEncoding);
+                file.setContentEncoding(contentEncoding);
+        } catch (IOException e) {
+           throw new DavException(DavServletResponse.SC_INTERNAL_SERVER_ERROR, "Cannot save content: " + e.getMessage());
         } catch (DataSizeException e) {
-            throw new DavException(DavServletResponse.SC_FORBIDDEN, "Cannot store resource attribute: " + e.getMessage());
+           throw new DavException(DavServletResponse.SC_FORBIDDEN, "Cannot store resource attribute: " + e.getMessage());
         }
-
     }
 
     /** */
