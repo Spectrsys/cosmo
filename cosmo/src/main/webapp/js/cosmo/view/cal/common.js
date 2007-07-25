@@ -67,7 +67,10 @@ cosmo.view.cal.handlePub_calEvent = function (cmd) {
     var delta = cmd.delta;
     switch (act) {
         case 'loadCollection':
-            cosmo.view.cal.triggerLoadEvents(opts);
+            // Only try to load events if the collection exists
+            if (cosmo.app.pim.currentCollection){
+                cosmo.view.cal.triggerLoadEvents(opts);
+            }
             break;
         default:
             // Do nothing
@@ -133,6 +136,7 @@ cosmo.view.cal.loadEvents = function (o) {
     var _cal = cosmo.view.cal; // Scope-ness
     // Default to the app's currentCollection if one isn't passed
     var collection = opts.collection || cosmo.app.pim.currentCollection;
+    if (!cosmo.app.pim.currentCollection) return;
     var start = null;
     var end = null;
     var eventLoadList = null;
@@ -158,7 +162,7 @@ cosmo.view.cal.loadEvents = function (o) {
         if (e instanceof cosmo.service.exception.ResourceNotFoundException){
             cosmo.app.pim.reloadCollections();
         }
-        cosmo.app.showErr(_('Main.Error.LoadItemsFailed'), e);
+        cosmo.app.showErr(_('Main.Error.LoadItemsFailed'),"", e);
     };
     // Load the array of events
     // ======================

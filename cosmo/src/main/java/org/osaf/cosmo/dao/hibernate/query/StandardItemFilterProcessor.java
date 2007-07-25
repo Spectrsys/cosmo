@@ -79,16 +79,19 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
     public Query buildQuery(Session session, ItemFilter filter) {
         StringBuffer selectBuf = new StringBuffer();
         StringBuffer whereBuf = new StringBuffer();
+        StringBuffer orderBuf = new StringBuffer();
+        
         HashMap<String, Object> params = new HashMap<String, Object>();
         
         if(filter instanceof NoteItemFilter)
-            handleNoteItemFilter(selectBuf, whereBuf, params, (NoteItemFilter) filter);
+            handleNoteItemFilter(selectBuf, whereBuf, orderBuf, params, (NoteItemFilter) filter);
         else if(filter instanceof ContentItemFilter)
-            handleContentItemFilter(selectBuf, whereBuf, params, (ContentItemFilter) filter);
+            handleContentItemFilter(selectBuf, whereBuf, orderBuf, params, (ContentItemFilter) filter);
         else    
             handleItemFilter(selectBuf, whereBuf, params, filter);
         
         selectBuf.append(whereBuf);
+        selectBuf.append(orderBuf);
         
         if(log.isDebugEnabled()) {
             log.debug(selectBuf.toString());
@@ -98,6 +101,9 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
         
         for(Entry<String, Object> param: params.entrySet())
             hqlQuery.setParameter(param.getKey(), param.getValue());
+        
+        if(filter.getMaxResults()!=null)
+            hqlQuery.setMaxResults(filter.getMaxResults());
         
         return hqlQuery;
     }
@@ -202,9 +208,9 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
         // handle recurring event filter
         if(filter.getIsRecurring()!=null) {
             if(filter.getIsRecurring().booleanValue()==true)
-                appendWhere(whereBuf, "es.timeRangeIndex.isRecurring=true");
+                appendWhere(whereBuf, "(es.timeRangeIndex.isRecurring=true or i.modifies is not null)");
             else
-                appendWhere(whereBuf, "es.timeRangeIndex.isRecurring=false");
+                appendWhere(whereBuf, "(es.timeRangeIndex.isRecurring=false and i.modifies is null)");
         }
         
         // handle time range
@@ -221,11 +227,11 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
     }
     
     private void handleNoteItemFilter(StringBuffer selectBuf,
-            StringBuffer whereBuf, HashMap<String, Object> params,
+            StringBuffer whereBuf, StringBuffer orderBuf,  HashMap<String, Object> params,
             NoteItemFilter filter) {
         selectBuf.append("select i from NoteItem i");
         handleItemFilter(selectBuf, whereBuf, params, filter);
-        handleContentItemFilter(selectBuf, whereBuf, params, filter);
+        handleContentItemFilter(selectBuf, whereBuf, orderBuf, params, filter);
         
         // filter by icaluid
         if(filter.getIcalUid()!=null) {
@@ -256,7 +262,7 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
     }
     
     private void handleContentItemFilter(StringBuffer selectBuf,
-            StringBuffer whereBuf, HashMap<String, Object> params,
+            StringBuffer whereBuf, StringBuffer orderBuf, HashMap<String, Object> params,
             ContentItemFilter filter) {
         
         if("".equals(selectBuf.toString())) {
@@ -274,6 +280,16 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
                 params.put("triageStatus", filter.getTriageStatus());
             }
         }
+        
+        // look for triageStatusRank order
+        String order = filter.getOrderByMap().get(
+                ContentItemFilter.ORDER_BY_TRIAGE_STATUS_RANK);
+        if (order != null) {
+            if (ItemFilter.ORDER_ASC.equals(order))
+                appendOrder(orderBuf, "i.triageStatus.rank");
+            else
+                appendOrder(orderBuf, "i.triageStatus.rank desc");
+        }
     }
     
     
@@ -282,6 +298,13 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
             whereBuf.append(" where " + toAppend);
         else
             whereBuf.append(" and " + toAppend);
+    }
+    
+    private void appendOrder(StringBuffer orderBuf, String toAppend) {
+        if("".equals(orderBuf.toString()))
+            orderBuf.append(" order by " + toAppend);
+        else
+            orderBuf.append(", " + toAppend);
     }
     
     private String formatForLike(String toFormat) {
@@ -299,6 +322,7 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
     private HashSet<Item> processResults(List<Item> results, ItemFilter itemFilter) {
         boolean hasTimeRangeFilter = false;
         boolean includeMasterInResults = true;
+        boolean doTimeRangeSecondPass = true;
         
         HashSet<Item> processedResults = new HashSet<Item>();
         EventStampFilter eventFilter = (EventStampFilter) itemFilter.getStampFilter(EventStampFilter.class);
@@ -314,6 +338,13 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
         if(hasTimeRangeFilter && "false".equalsIgnoreCase(itemFilter
                 .getFilterProperty(EventStampFilter.PROPERTY_INCLUDE_MASTER_ITEMS)))
             includeMasterInResults = false;
+        
+        // Should we do a second pass to expand recurring events to determine
+        // if a recurring event actually occurs in the time-range specified,
+        // or should we just return the recurring event without double-checking.
+        if (hasTimeRangeFilter && "false".equalsIgnoreCase(itemFilter
+                 .getFilterProperty(EventStampFilter.PROPERTY_DO_TIMERANGE_SECOND_PASS)))
+            doTimeRangeSecondPass = false;
         
         for(Item item: results) {
             
@@ -336,7 +367,8 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
             else if(!hasTimeRangeFilter)
                 processedResults.add(note);
             else {
-                processedResults.addAll(processMasterNote(note, eventFilter, includeMasterInResults));
+                processedResults.addAll(processMasterNote(note, eventFilter,
+                        includeMasterInResults, doTimeRangeSecondPass));
             }
         }
         
@@ -344,16 +376,15 @@ public class StandardItemFilterProcessor implements ItemFilterProcessor {
     }
     
     private Collection<ContentItem> processMasterNote(NoteItem note,
-            EventStampFilter filter, boolean includeMasterInResults) {
+            EventStampFilter filter, boolean includeMasterInResults,
+            boolean doTimeRangeSecondPass) {
         EventStamp eventStamp = EventStamp.getStamp(note);
         ArrayList<ContentItem> results = new ArrayList<ContentItem>();
 
-        // If the event is not recurring, then return the
-        // master note unless filter is configured to not return the master item,
-        // in which case we are done.
-        if (!eventStamp.isRecurring()) {
-            if(includeMasterInResults)
-                results.add(note);
+        // If the event is not recurring or the filter is configured
+        // to not do a second pass then just return the note
+        if (!eventStamp.isRecurring() || !doTimeRangeSecondPass) {
+            results.add(note);
             return results;
         }
 

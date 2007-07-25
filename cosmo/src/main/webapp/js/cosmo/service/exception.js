@@ -18,14 +18,28 @@ dojo.provide("cosmo.service.exception");
 
 dojo.declare("cosmo.service.exception.ServiceException", Error,
     // summary: The root of all service exceptions. If your error is not an instance
-function(){}, {});
+function(){}, {           });
+
+dojo.declare("cosmo.service.exception.ServerSideError", cosmo.service.exception.ServiceException,
+    // summary: General errors that result from 5xx or 4xx Http Errors 
+{
+    initializer: function(kwArgs){
+        this.url = kwArgs.url;
+        this.statusCode = kwArgs.statusCode;
+        this.postContent = kwArgs.postContent;
+        this.responseContent = kwArgs.responseContent;
+    },
+    
+    toStringVerbose: function(){
+        return "URL: \n" + this.url + "\n\n" 
+             + "Status Code: \n" + this.statusCode + "\n\n"
+             + "Post Content: \n" + this.postContent + "\n\n"
+             + "Response Content: \n" + this.responseContent;
+    }
+});
 
 dojo.declare("cosmo.service.exception.CollectionLockedException", cosmo.service.exception.ServiceException,
     // summary: Thrown when another client is trying to update the item on the server
-function(){}, {});
-
-dojo.declare("cosmo.service.exception.CantSaveException", cosmo.service.exception.ServiceException,
-    // summary: Thrown when we encounter problems with saving an entity.
 function(){}, {});
 
 dojo.declare("cosmo.service.exception.ConflictException", cosmo.service.exception.ServiceException,

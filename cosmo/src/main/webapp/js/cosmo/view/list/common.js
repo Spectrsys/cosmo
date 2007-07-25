@@ -64,7 +64,8 @@ cosmo.view.list.handlePub_calEvent = function (cmd) {
     var delta = cmd.delta;
     switch (act) {
         case 'loadCollection':
-            if (opts.loadType == 'changeCollection') {
+            if ((opts.loadType == 'changeCollection') &&
+                cosmo.app.pim.currentCollection) {
                 cosmo.view.list.loadItems();
             }
             break;
@@ -80,10 +81,10 @@ cosmo.view.list.loadItems = function (o) {
     var note = opts.note || null;
     // Default to the app's currentCollection if one isn't passed
     var collection = opts.collection || cosmo.app.pim.currentCollection;
+    if (!cosmo.app.pim.currentCollection) return;
     var itemLoadList = null;
     var showErr = function (e) {
-        cosmo.app.showErr(_('Main.Error.LoadItemsFailed'),
-            e);
+        cosmo.app.showErr(_('Main.Error.LoadItemsFailed'),"",e);
         return false;
     };
 
@@ -182,7 +183,7 @@ cosmo.view.list.setSortAndDisplay = function (item) {
     setVals('title', t, t);
     // Who
     var m = data.getModifiedBy().userId;
-    m = m ? m : cosmo.app.currentUsername;
+    m = m ? m : ''; 
     setVals('who', m, m);
     // Start
     var st = data.getEventStamp();

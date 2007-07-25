@@ -392,7 +392,7 @@ cosmo.view.service = new function () {
                     // the itemRegistry/itemRegistry here?
                     errMsg = _('Main.Error.ItemNewSaveFailed');
                 }
-                cosmo.app.showErr(errMsg, getErrDetailMessage(err));
+                cosmo.app.showErr(errMsg, getErrDetailMessage(err), err);
 
             }
         } else {
@@ -589,7 +589,7 @@ cosmo.view.service = new function () {
         var errMsg = _('Main.Error.ItemRemoveFailed');
         if (err) {
             act = 'removeFailed';
-            cosmo.app.showErr(errMsg, getErrDetailMessage(err));
+            cosmo.app.showErr(errMsg, getErrDetailMessage(err), err);
             item.restoreEvent();
         }
         else {
@@ -609,7 +609,7 @@ cosmo.view.service = new function () {
                 msg = _('Main.Error.Concurrency');
                 break;
             default:
-               msg = err;
+               msg = null;
                break;
         }
         return msg;

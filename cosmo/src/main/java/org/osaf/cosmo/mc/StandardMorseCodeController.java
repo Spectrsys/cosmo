@@ -440,8 +440,17 @@ public class StandardMorseCodeController implements MorseCodeController {
                     // a new modification NoteItem needs to be created
                     if(child instanceof NoteOccurrence)
                         child = createChildItem((NoteOccurrence) child, collection, recordset);
-                    else if(child!=null)
+                    else if(child!=null && recordset.isDeleted()==false)
                         collection.getChildren().add(child);
+                    
+                    // Handle case where recordset is to be deleted, but the
+                    // target item doesn't exist.
+                    if(child==null && recordset.isDeleted()==true)
+                        throw new ValidationException(
+                                "Tried to delete child item "
+                                        + recordset.getUuid()
+                                        + " , but it does not exist");
+                    
                     
                     // Handle case where item doesn't exist, so create a new one
                     if(child==null)

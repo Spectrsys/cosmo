@@ -91,6 +91,11 @@ public class StandardItemFilterProcessorTest extends AbstractHibernateDaoTestCas
         filter.setTriageStatus(-1);
         query =  queryBuilder.buildQuery(session, filter);
         Assert.assertEquals("select i from ContentItem i join i.parents parent where parent=:parent and i.triageStatus.code is null", query.getQueryString());
+        
+        filter.setTriageStatus(TriageStatus.CODE_DONE);
+        filter.addOrderBy(ContentItemFilter.ORDER_BY_TRIAGE_STATUS_RANK, ItemFilter.ORDER_ASC);
+        query =  queryBuilder.buildQuery(session, filter);
+        Assert.assertEquals("select i from ContentItem i join i.parents parent where parent=:parent and i.triageStatus.code=:triageStatus order by i.triageStatus.rank", query.getQueryString());
     }
     
     public void testNoteItemQuery() throws Exception {
@@ -144,7 +149,7 @@ public class StandardItemFilterProcessorTest extends AbstractHibernateDaoTestCas
     
         eventFilter.setIsRecurring(true);
         query =  queryBuilder.buildQuery(session, filter);
-        Assert.assertEquals("select i from NoteItem i join i.parents parent, TextAttribute ta2, BaseEventStamp es where parent=:parent and i.displayName like :displayName and ta2.item=i and ta2.QName=:ta2qname and ta2.value like :ta2value and es.item=i and es.timeRangeIndex.isRecurring=true and i.icalUid=:icaluid", query.getQueryString());
+        Assert.assertEquals("select i from NoteItem i join i.parents parent, TextAttribute ta2, BaseEventStamp es where parent=:parent and i.displayName like :displayName and ta2.item=i and ta2.QName=:ta2qname and ta2.value like :ta2value and es.item=i and (es.timeRangeIndex.isRecurring=true or i.modifies is not null) and i.icalUid=:icaluid", query.getQueryString());
     }
     
     public void testEventStampTimeRangeQuery() throws Exception {
