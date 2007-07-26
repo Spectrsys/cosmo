@@ -23,6 +23,7 @@ dojo.require("dojo.string");
 dojo.require("dojo.Deferred")
 dojo.require("cosmo.env");
 dojo.require("cosmo.util.auth");
+dojo.require("cosmo.ui.conf");
 
 dojo.declare("cosmo.service.transport.Rest", null,
     {
@@ -178,7 +179,7 @@ dojo.declare("cosmo.service.transport.Rest", null,
         queryHashToString: function(/*Object*/ queryHash){
             var queryList = [];
             for (var key in queryHash){
-                queryList.push(key + "=" + queryHash[key]);
+                queryList.push(key + "=" + encodeURIComponent(queryHash[key]));
             }
             if (queryList.length > 0){
                 return "?" + queryList.join("&");
