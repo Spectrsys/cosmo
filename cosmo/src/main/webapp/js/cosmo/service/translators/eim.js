@@ -912,7 +912,8 @@ dojo.declare("cosmo.service.translators.Eim", null, {
             if (props.location !== undefined) fields.location = [type.TEXT, props.location];
             if (props.duration !== undefined) fields.duration = [type.TEXT, props.duration == null? null : props.duration.toIso8601()];
             if (props.rrule !== undefined) fields.rrule = [type.TEXT, this.rruleToICal(props.rrule)];
-            if (props.exdates && props.exdates.length != 0) fields.exdate = [type.TEXT, this.exdatesToEim(props.exdates)];
+            if (props.exdates && props.exdates.length != 0) fields.exdate = 
+                [type.TEXT, this.exdatesToEim(props.exdates, props.startDate)];
             
             return record = {
                 prefix: prefix.EVENT,
@@ -927,10 +928,15 @@ dojo.declare("cosmo.service.translators.Eim", null, {
         
     },
 
-    exdatesToEim: function(exdates){
-        return ";VALUE=DATE-TIME:" + dojo.lang.map(
+    exdatesToEim: function(exdates, start){
+        return ";VALUE=DATE-TIME" + 
+            (start.tzId? ";TZID=" + start.tzId : "") + 
+            ":" +
+            dojo.lang.map(
                 exdates,
-                function(date){return date.strftime("%Y%m%dT%H%M%S");}
+                function(date){
+                    return date.strftime("%Y%m%dT%H%M%S");
+                }
             ).join(",");
     },
     
@@ -1048,10 +1054,10 @@ dojo.declare("cosmo.service.translators.Eim", null, {
 
     modbyRecordToModbyProps: function(record){
         var props = {};
-        if (record.fields){
-            if (record.fields.userid) props.userId = record.fields.userid[1];
-            if (record.fields.timestamp) props.timeStamp = record.fields.timestamp[1];
-            if (record.fields.action) props.action = record.fields.action[1];
+        if (record.key){
+            if (record.key.userid) props.userId = record.key.userid[1];
+            if (record.key.timestamp) props.timeStamp = record.key.timestamp[1] * 1000;
+            if (record.key.action) props.action = record.key.action[1];
         }
         return props;
     },

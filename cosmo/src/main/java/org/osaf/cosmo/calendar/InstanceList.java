@@ -197,6 +197,7 @@ public class InstanceList extends TreeMap {
                     Period period = (Period) j.next();
                     Date periodStart = adjustFloatingDateIfNecessary(period.getStart());
                     Date periodEnd = adjustFloatingDateIfNecessary(period.getEnd());
+                    // Add period if it overlaps rage
                     if (periodStart.before(rangeEnd)
                             && periodEnd.after(rangeStart)) {
                         Instance instance = new Instance(comp, periodStart, periodEnd);
@@ -209,8 +210,12 @@ public class InstanceList extends TreeMap {
                     startDate = adjustFloatingDateIfNecessary(startDate);
                     Date endDate = org.osaf.cosmo.calendar.util.Dates.getInstance(duration
                             .getTime(startDate), startDate);
-                    Instance instance = new Instance(comp, startDate, endDate);
-                    put(instance.getRid().toString(), instance);
+                    // Add RDATE if it overlaps range
+                    if (startDate.before(rangeEnd)
+                            && endDate.after(rangeStart)) {
+                        Instance instance = new Instance(comp, startDate, endDate);
+                        put(instance.getRid().toString(), instance);
+                    }
                 }
             }
         }
@@ -242,9 +247,8 @@ public class InstanceList extends TreeMap {
             for (Iterator j = exDate.getDates().iterator(); j.hasNext();) {
                 Date sd = (Date) j.next();
                 sd = adjustFloatingDateIfNecessary(sd);
-                Date startDate = org.osaf.cosmo.calendar.util.Dates.getInstance(sd, start);
-                Instance instance = new Instance(comp, startDate, startDate);
-                remove(instance.getStart().toString());
+                Instance instance = new Instance(comp, sd, sd);
+                remove(instance.getRid().toString());
             }
         }
         // exception rules..
@@ -260,9 +264,8 @@ public class InstanceList extends TreeMap {
                     (start instanceof DateTime) ? Value.DATE_TIME : Value.DATE);
             for (Iterator j = startDates.iterator(); j.hasNext();) {
                 Date sd = (Date) j.next();
-                Date startDate = org.osaf.cosmo.calendar.util.Dates.getInstance(sd, start);
-                Instance instance = new Instance(comp, startDate, startDate);
-                remove(instance.getStart().toString());
+                Instance instance = new Instance(comp, sd, sd);
+                remove(instance.getRid().toString());
             }
         }
     }

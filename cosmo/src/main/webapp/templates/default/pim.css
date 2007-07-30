@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-/* Styles for the account browser.
+/* Styles for the PIM ui.
  *
  */
 
@@ -457,6 +457,12 @@
     height: 18px;
     background-color: #fbfbfb; 
     border-bottom: 1px solid #ccc;
+}
+.byline {
+	font-weight: bold;
+	font-size: smaller;
+	padding: 5px 10px;
+    color: #808080;
 }
 
 /* Minical styles

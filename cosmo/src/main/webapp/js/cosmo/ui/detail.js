@@ -36,6 +36,7 @@ dojo.require("cosmo.ui.imagegrid");
 dojo.require("cosmo.ui.DetailFormConverter");
 dojo.require("cosmo.view.list.common");
 dojo.require("cosmo.view.cal.common");
+dojo.require("cosmo.model.Item");
 
 cosmo.ui.detail = new function () {
     this.item = null;
@@ -187,6 +188,12 @@ cosmo.ui.detail.DetailViewForm = function (p) {
         this.domNode.appendChild(c.domNode);
         this[st.stampType.toLowerCase() + 'Section'] = c;
     }
+
+    var c = new cosmo.ui.detail.Byline();
+    this.children.push(c);
+    this.domNode.appendChild(c.domNode);
+    this.byline = c;
+
     var c = new cosmo.ui.detail.ButtonSection();
     this.children.push(c);
     this.domNode.appendChild(c.domNode);
@@ -212,9 +219,7 @@ cosmo.ui.detail.DetailViewForm = function (p) {
                 for (var i = 0; i < stamps.length; i++) {
                     var st = stamps[i];
                     var sec = self[st.stampType.toLowerCase() + 'Section'];
-                    if (sec.hasBody) {
-                        sec.toggleExpando(false, true);
-                    }
+                    sec.toggleExpando(false, true);
                 }
             }
         }
@@ -309,6 +314,7 @@ cosmo.ui.detail.DetailViewForm.prototype.updateFromItem =
                 doCompleteDisable: false, disableStampFormElem: true });
         }
     }
+    this.byline.updateFromItem(data);
     this.buttonSection.setButtons(true);
 };
 
@@ -606,7 +612,7 @@ cosmo.ui.detail.StampSection = function (p) {
             var a = _createElem('a');
             a.id = id + 'showHideToggle';
             self.showHideSwitch = a;
-            a.appendChild(_createText('[hide]'));
+            a.appendChild(_createText(_('Main.DetailForm.Hide')));
             d.appendChild(a);
             fg.appendChild(d);
         }
@@ -633,11 +639,13 @@ cosmo.ui.detail.StampSection = function (p) {
     }
 
     function addBehaviors() {
+        // Toggle enabled state for all form sections
+        dojo.event.connect(self.enablerSwitch, 'onclick',
+            self, 'toggleEnabled');
+        // Form sections with no body have no expando toggle link
         if (self.hasBody) {
-            // Attach events
-            dojo.event.connect(self.enablerSwitch, 'onclick',
-                self, 'toggleEnabled');
-            dojo.event.connect(self.showHideSwitch, 'onclick', self, 'toggleExpando');
+            dojo.event.connect(self.showHideSwitch, 'onclick',
+                self, 'toggleExpando');
         }
     }
 }
@@ -646,6 +654,11 @@ cosmo.ui.detail.StampSection.prototype =
     new cosmo.ui.ContentBox();
 
 cosmo.ui.detail.StampSection.prototype.toggleExpando = function (p, accordion) {
+    // Easier if we can treat all the form sections the same way
+    // Just ignore expando calls for form sections with no body
+    if (!this.bodyNode) {
+        return false;
+    }
     // Dojo bug http://trac.dojotoolkit.org/ticket/1776
     // Set processing lock: Don't trigger again until
     // animation completes -- Dojo doesn't allow an explicit
@@ -683,6 +696,7 @@ cosmo.ui.detail.StampSection.prototype.toggleExpando = function (p, accordion) {
     // Allow to be passed in explicitly, or just trigger toggle
     var doShow = typeof p == 'boolean' ? p : !this.expanded;
     var display = '';
+    var animKey = '';
     if (doShow) {
         var dvForm = this.parent;
         if (dvForm.accordionMode) {
@@ -690,26 +704,29 @@ cosmo.ui.detail.StampSection.prototype.toggleExpando = function (p, accordion) {
             for (var i = 0; i < stamps.length; i++) {
                 var st = stamps[i];
                 var sec = dvForm[st.stampType.toLowerCase() + 'Section'];
-                if (sec != this && sec.hasBody) {
+                if (sec != this) {
                     sec.toggleExpando(false, true);
                 }
             }
         }
         this.expanded = true;
-        dojo.lfx.wipeIn(this.bodyNode, 500, null, f).play();
         display = '[hide]';
+        animKey = 'wipeIn';
     }
     else {
         this.expanded = false;
-        dojo.lfx.wipeOut(this.bodyNode, 500, null, f).play();
         display = '[show]';
+        animKey = 'wipeOut';
     }
+    // Toggle the switch text
     if (dojo.render.html.ie || dojo.render.html.safari) {
         this.showHideSwitch.innerText = display;
     }
     else {
         this.showHideSwitch.textContent = display;
     }
+    // Do the expando animation
+    dojo.lfx[animKey](this.bodyNode, 500, null, f).play();
 }
 
 cosmo.ui.detail.StampSection.prototype.toggleEnabled = function (e, o) {
@@ -730,7 +747,7 @@ cosmo.ui.detail.StampSection.prototype.toggleEnabled = function (e, o) {
         this.enabled = !this.enabled;
         // Don't pass click event along to the expando
         // when enabled/expanded states already match
-        if (this.hasBody && (this.enabled != this.expanded)) { this.toggleExpando(); }
+        if (this.enabled != this.expanded) { this.toggleExpando(); }
         // Don't need to set this.enablerSwitch.checked --
         // this code was called by checking/unchecking the box
         opts.setUpDefaults = true;
@@ -1403,6 +1420,50 @@ cosmo.ui.detail.EventFormElements.prototype.hideOrShowEventStatus = function(){
 
         form["eventStatus"].disabled = !show;
 }
+
+dojo.declare("cosmo.ui.detail.Byline", null, {
+    domNode: null,
+    
+    initializer: function (){
+        this.domNode = _createElem("div");
+        this.domNode.className = "byline";
+    },
+    
+    actionToText: new function(){
+        this[cosmo.model.ACTION_EDITED] = _("Main.DetailForm.Byline.Edited");
+        this[cosmo.model.ACTION_QUEUED] = _("Main.DetailForm.Byline.Queued");
+        this[cosmo.model.ACTION_SENT] = _("Main.DetailForm.Byline.Sent");
+        this[cosmo.model.ACTION_UPDATED] = _("Main.DetailForm.Byline.Update");
+        this[cosmo.model.ACTION_CREATED] = _("Main.DetailForm.Byline.Created");
+    },
+    
+    updateFromItem: function(item){
+        
+        var modby = item.getModifiedBy();
+        var date = new cosmo.datetime.Date();
+        date.updateFromUTC(modby.getTimeStamp());
+        dojo.debug(modby.getTimeStamp())
+        var userId = modby.getUserId();
+
+        this.domNode.innerHTML = 
+            [
+            '<span class="bylineAction">', 
+            dojo.string.escapeXml(this.actionToText[modby.getAction()] || ""), '</span>',
+            userId? (_("Main.DetailForm.Byline.By") + '<span class="bylineWho">' +
+             dojo.string.escapeXml(userId) + ' </span>') : "",
+            _("Main.DetailForm.Byline.On"), '<span class="bylineDate">',
+            dojo.string.escapeXml(date.strftime(_("Main.DetailForm.Byline.DateFormat"))), '</span>',
+            _("Main.DetailForm.Byline.At"), '<span class="bylineTime">', 
+            dojo.string.escapeXml(date.strftime(_("Main.DetailForm.Byline.TimeFormat"))), '</span>'
+            
+            ].join('');
+        
+        var x = modby;
+        var y = this.domNode;
+
+    }  
+}
+);
 
 cosmo.ui.detail.ButtonSection = function () {
     var self = this;

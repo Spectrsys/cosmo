@@ -109,7 +109,6 @@ public class StandardTriageStatusQueryProcessor implements
         
         // filter for NOW triage notes
         NoteItemFilter nowFilter = getTriageStatusFilter(collection, TriageStatus.CODE_NOW);
-        nowFilter.setIsModification(null);
         
         // filter for no (null) triage status
         NoteItemFilter noTriageStatusFilter = getTriageStatusFilter(collection, -1);
@@ -167,25 +166,17 @@ public class StandardTriageStatusQueryProcessor implements
      */
     private SortedSet<NoteItem> getNow(NoteItem master, Date pointInTime, TimeZone timezone) {
         
-        // filter for NOW modifications
-        NoteItemFilter nowFilter = getTriageStatusFilter(master, TriageStatus.CODE_NOW);
-        
         // store all results here
         ArrayList<NoteItem> results = new ArrayList<NoteItem>();
-        
-        // Add all modifications triaged as NOW
-        for(Item item : contentDao.findItems(nowFilter)) {
-            NoteItem note = (NoteItem) item;
-            if(note.getModifies()!=null)
-                results.add(note);
-        }
+        results.addAll(getModificationsByTriageStatus(master, TriageStatus.CODE_NOW));
         
         // add all occurrences that occur NOW
         Set<NoteItem> occurrences = getNowFromRecurringNote(master, pointInTime, timezone);
         results.addAll(occurrences);
         
         // sort results before returning
-        SortedSet<NoteItem> sortedResults =  sortResults(results, COMPARE_ASC, -1); 
+        SortedSet<NoteItem> sortedResults =  sortResults(results, COMPARE_ASC, -1);
+        
         // add master if necessary
         if(sortedResults.size()>0)
             sortedResults.add(master);
@@ -294,6 +285,10 @@ public class StandardTriageStatusQueryProcessor implements
             results.add(result);
         }
         
+        // add all modifications with trigaeStatus LATER
+        if(results.addAll(getModificationsByTriageStatus(master, TriageStatus.CODE_LATER)))
+            results.add(master);
+        
         return results;
     }
     
@@ -305,26 +300,12 @@ public class StandardTriageStatusQueryProcessor implements
         EventStamp eventStamp = EventStamp.getStamp(note);
         Date currentDate = pointInTime;
         Date futureDate = laterDur.getTime(currentDate);
-        RecurrenceExpander expander = new RecurrenceExpander();
         
-        // calculate the next occurrence or modification
-        Instance instance = expander.getFirstInstance(eventStamp.getEvent(),
-                eventStamp.getExceptions(), new DateTime(currentDate),
-                new DateTime(futureDate), timezone);
+        // calculate the next occurrence or LATER modification
+        NoteItem first = getFirstInstanceOrModification(eventStamp,
+                currentDate, futureDate, timezone);
     
-        if(instance!=null) {
-            if(instance.isOverridden()==false) {
-                // return occurrence
-                return new NoteOccurrence(instance.getRid(), note);
-            }
-            else {
-                // return modification
-                ModificationUid modUid = new ModificationUid(note, instance.getRid());
-                return (NoteItem) contentDao.findItemByUid(modUid.toString());
-            }
-        }
-       
-        return null;
+        return first;
     }
     
     /**
@@ -412,6 +393,10 @@ public class StandardTriageStatusQueryProcessor implements
             results.add(result);
         }
         
+        // add all modifications with trigaeStatus DONE
+        if(results.addAll(getModificationsByTriageStatus(master, TriageStatus.CODE_DONE)))
+            results.add(master);
+        
         return results;
     }
     
@@ -423,28 +408,102 @@ public class StandardTriageStatusQueryProcessor implements
         EventStamp eventStamp = EventStamp.getStamp(note);
         Date currentDate = pointInTime;
         Date pastDate = doneDur.getTime(currentDate);
+       
+        // calculate the previous occurrence or modification
+        NoteItem latest = getLatestInstanceOrModification(eventStamp, pastDate,
+                currentDate, timezone);
+    
+        return latest;
+    }
+    
+    
+    /**
+     * Calculate and return the latest ocurring instance or modification for the 
+     * specified master event and date range.
+     * The instance must end before the end of the range.
+     * If the latest instance is a modification, then the modification must
+     * have a triageStatus of DONE
+     *
+     */
+    private NoteItem getLatestInstanceOrModification(EventStamp event, Date rangeStart, Date rangeEnd,
+            TimeZone timezone) {
+        NoteItem note = (NoteItem) event.getItem();
         RecurrenceExpander expander = new RecurrenceExpander();
         
-        // calculate the previous occurrence or modification
-        Instance instance = expander.getLatestInstance(eventStamp.getEvent(),
-                eventStamp.getExceptions(), new DateTime(pastDate),
-                new DateTime(currentDate), timezone);
-    
-        if(instance!=null) {
-            if(instance.isOverridden()==false) {
-                // add occurrence
-                return new NoteOccurrence(instance.getRid(), note);
+        InstanceList instances = expander.getOcurrences(event.getEvent(), event.getExceptions(),
+                new DateTime(rangeStart), new DateTime(rangeEnd), timezone);
+
+        // Find the latest occurrence that ends before the end of the range
+        while (instances.size() > 0) {
+            String lastKey = (String) instances.lastKey();
+            Instance instance = (Instance) instances.remove(lastKey);
+            if (instance.getEnd().before(rangeEnd)) {
+                if(instance.isOverridden()) {
+                    ModificationUid modUid = new ModificationUid(note, instance.getRid());
+                    NoteItem mod = (NoteItem) contentDao.findItemByUid(modUid.toString());
+                    TriageStatus status = mod.getTriageStatus();
+                    if(status==null || status.getCode().equals(TriageStatus.CODE_DONE))
+                        return mod;
+                } else {
+                    return new NoteOccurrence(instance.getRid(), note);
+                }
             }
-            else {
-                // add modification
-                ModificationUid modUid = new ModificationUid(note, instance.getRid());
-                return (NoteItem) contentDao.findItemByUid(modUid.toString());
-            }
+                
         }
-       
+
         return null;
     }
-
+    
+    
+    /**
+     * Calculate and return the first ocurring instance or modification
+     * for the specified master event and date range.
+     * The instance must begin after the start of the range and if it
+     * is a modification it must have a triageStatus of LATER.
+     * 
+     */
+    private NoteItem getFirstInstanceOrModification(EventStamp event, Date rangeStart, Date rangeEnd, TimeZone timezone) {
+        NoteItem note = (NoteItem) event.getItem();
+        RecurrenceExpander expander = new RecurrenceExpander();
+        
+        InstanceList instances = expander.getOcurrences(event.getEvent(), event.getExceptions(), new DateTime(rangeStart), new DateTime(rangeEnd), timezone );
+     
+        // Find the first occurrence that begins after the start range
+        while(instances.size()>0) {
+            String firstKey = (String) instances.firstKey();
+            Instance instance = (Instance) instances.remove(firstKey);
+            if(instance.getStart().after(rangeStart)) {
+                if(instance.isOverridden()) {
+                    ModificationUid modUid = new ModificationUid(note, instance.getRid());
+                    NoteItem mod = (NoteItem) contentDao.findItemByUid(modUid.toString());
+                    TriageStatus status = mod.getTriageStatus();
+                    if(status==null || status.getCode().equals(TriageStatus.CODE_LATER))
+                        return mod;
+                } else {
+                    return new NoteOccurrence(instance.getRid(), note);
+                }
+            }   
+        }
+        
+        return null;
+    }
+    
+    
+    private Set<NoteItem> getModificationsByTriageStatus(NoteItem master, Integer triageStatus) {
+        
+        HashSet<NoteItem> mods = new HashSet<NoteItem>();
+        
+        for(NoteItem mod: master.getModifications()) {
+            if (mod.getTriageStatus() == null
+                    || mod.getTriageStatus().getCode() == null
+                    || mod.getTriageStatus().getCode().equals(triageStatus))
+                continue;
+            
+           mods.add(mod);
+        }
+        
+        return mods;
+    }    
     
     /**
      *Sort results using rank calculated from triageStatusRank, eventStart,
@@ -472,19 +531,6 @@ public class StandardTriageStatusQueryProcessor implements
     private NoteItemFilter getTriageStatusFilter(CollectionItem collection, int code) {
         NoteItemFilter triageStatusFilter = new NoteItemFilter();
         triageStatusFilter.setParent(collection);
-        triageStatusFilter.setIsModification(Boolean.FALSE);
-        triageStatusFilter.setTriageStatus(code);
-        return triageStatusFilter;
-    }
-    
-    /**
-     * Create NoteItemFilter that matches modifications for a master item with
-     * a specific triageStatus
-     */
-    private NoteItemFilter getTriageStatusFilter(NoteItem master, int code) {
-        NoteItemFilter triageStatusFilter = new NoteItemFilter();
-        triageStatusFilter.setMasterNoteItem(master);
-        triageStatusFilter.setIsModification(Boolean.TRUE);
         triageStatusFilter.setTriageStatus(code);
         return triageStatusFilter;
     }
