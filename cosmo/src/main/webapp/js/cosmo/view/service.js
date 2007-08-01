@@ -403,13 +403,19 @@ cosmo.view.service = new function () {
         // Success/failure for all other cases
         self.processingQueue.shift();
         // Broadcast message for success/failure
-        dojo.event.topic.publish('/calEvent', {
-             'action': act,
-             'data': item,
-             'saveType': saveType,
-             'delta':delta,
-             'newItemNote':newItem
-        });
+        // Do it in window scope to avoid trapping all the
+        // subsequent UI code errors in the addErrBack for
+        // the service Deferred
+        var f = function () {
+            dojo.event.topic.publish('/calEvent', {
+                 'action': act,
+                 'data': item,
+                 'saveType': saveType,
+                 'delta':delta,
+                 'newItemNote':newItem
+            });
+        }
+        setTimeout(f, 0);
     }
 
     // Remove
@@ -511,10 +517,10 @@ cosmo.view.service = new function () {
 
 
         if (opts.removeType == "singleEvent"){
-            deferred = cosmo.app.pim.serv.deleteItem(item.data);
+            deferred = cosmo.app.pim.serv.removeItem(item.data, cosmo.app.pim.currentCollection);
             reqId = deferred.id;
         } else if (opts.removeType == OPTIONS.ALL_EVENTS){
-            deferred = cosmo.app.pim.serv.deleteItem(item.data.getMaster());
+            deferred = cosmo.app.pim.serv.removeItem(item.data.getMaster(), cosmo.app.pim.currentCollection);
             reqId = deferred.id;
         } else if (opts.removeType == OPTIONS.ALL_FUTURE_EVENTS){
             var data = item.data;

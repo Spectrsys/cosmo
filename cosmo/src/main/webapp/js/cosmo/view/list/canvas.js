@@ -240,7 +240,7 @@ cosmo.view.list.canvas.Canvas = function (p) {
             r += '</td>';
             r += '<td class="listViewDataCell' + selCss + '">' + fillCell(display.title) + '</td>';
             r += '<td class="listViewDataCell' + selCss + '">' + fillCell(display.who) + '</td>';
-            r += '<td class="listViewDataCell' + selCss + '">' + fillCell(display.startDate) + '</td>';
+            r += '<td class="listViewDataCell' + selCss + '" style="white-space: nowrap;">' + fillCell(display.startDate) + '</td>';
             r += '<td class="listViewDataCell' +
                 ' listViewTriageCell listViewTriage' +
                 _tMap[item.data.getTriageStatus()] + selCss + '">' +
@@ -448,6 +448,11 @@ cosmo.view.list.canvas.Canvas = function (p) {
             case recurOpts.ONLY_THIS_EVENT:
             case 'singleEvent':
                 self.view.itemRegistry.removeItem(item.id);
+                // If we just removed the last item, clear the form
+                if (self.view.itemRegistry.length == 0) {
+                    dojo.event.topic.publish('/calEvent', { 'action':
+                        'clearSelected', 'data': null });
+                }
                 self._doSortAndDisplay();
                 break;
         }
