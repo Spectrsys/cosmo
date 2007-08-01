@@ -70,31 +70,33 @@ public class StandardDavResourceFactory
                                       DavServletRequest request,
                                       DavServletResponse response)
         throws DavException {
-        DavResource resource =
-            createResource(locator, request.getDavSession());
-        if (resource != null)
-            return resource;
+        return createResource(locator, request.getDavSession());
 
-        int methodCode = DavMethods.getMethodCode(request.getMethod());
-        if (methodCode == 0)
-            methodCode = CosmoDavMethods.getMethodCode(request.getMethod());
-        if (methodCode == 0)
+//        DavResource resource =
+//            createResource(locator, request.getDavSession());
+//        if (resource != null)
+//            return resource;
+
+//        int methodCode = DavMethods.getMethodCode(request.getMethod());
+//        if (methodCode == 0)
+//            methodCode = CosmoDavMethods.getMethodCode(request.getMethod());
+//        if (methodCode == 0)
              // we don't understand the method presented to us
-            throw new DavException(DavServletResponse.SC_METHOD_NOT_ALLOWED);
+//            throw new DavException(DavServletResponse.SC_METHOD_NOT_ALLOWED);
 
         // for creation methods, return a "blank" resource
-        if (CosmoDavMethods.DAV_MKCALENDAR == methodCode)
-            return new DavCalendarCollection(locator, this,
-                                             request.getDavSession());
+//        if (CosmoDavMethods.DAV_MKCALENDAR == methodCode)
+//            return new DavCalendarCollection(locator, this,
+//                                             request.getDavSession());
 
-        if (DavMethods.DAV_MKCOL == methodCode)
-            return new DavCollection(locator, this, request.getDavSession());
+//        if (DavMethods.DAV_MKCOL == methodCode)
+//            return new DavCollection(locator, this, request.getDavSession());
 
-        if (DavMethods.DAV_PUT == methodCode) {
-            return new DavFile(locator, this, request.getDavSession());
-        }
+//        if (DavMethods.DAV_PUT == methodCode) {
+//            return new DavFile(locator, this, request.getDavSession());
+//       }
 
-        throw new DavException(DavServletResponse.SC_NOT_FOUND);
+//        throw new DavException(DavServletResponse.SC_NOT_FOUND);
     }
 
     /** */
