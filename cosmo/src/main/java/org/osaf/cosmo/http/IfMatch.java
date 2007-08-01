@@ -104,6 +104,6 @@ public class IfMatch {
     public static boolean allowMethod(String header,
                                       String etag)
         throws IllegalArgumentException, ParseException {
-        return allowMethod(header, new EntityTag(etag));
+        return allowMethod(header, etag != null ? new EntityTag(etag) : null);
     }
 }
