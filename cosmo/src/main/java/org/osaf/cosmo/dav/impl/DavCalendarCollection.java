@@ -34,7 +34,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
@@ -46,6 +45,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.util.CalendarBuilderDispenser;
+import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.property.CalendarDescription;
 import org.osaf.cosmo.dav.caldav.property.CalendarTimezone;
@@ -419,7 +419,8 @@ public class DavCalendarCollection extends DavCollection
 
     private void validateDestination(DavResource destination)
         throws DavException {
-        DavResource destinationCollection = destination.getCollection();
+        org.apache.jackrabbit.webdav.DavResource destinationCollection =
+            destination.getCollection();
         if (! (destinationCollection instanceof DavCollection))
             throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "A calendar collection may only be created within a collection");
         if (destinationCollection instanceof DavCalendarCollection)

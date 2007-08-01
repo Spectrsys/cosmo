@@ -455,9 +455,6 @@
 
   <!-- dav protocol resources -->
 
-  <bean id="davLockManager"
-        class="org.apache.jackrabbit.webdav.lock.SimpleLockManager"/>
-
   <bean id="davResourceFactory"
         class="org.osaf.cosmo.dav.impl.StandardDavResourceFactory">
     <property name="contentService">
@@ -484,8 +481,15 @@
     </constructor-arg>
   </bean>
 
-  <bean id="davSessionProvider"
-        class="org.osaf.cosmo.dav.impl.NoOpDavSessionProvider"/>
+  <bean id="dav"
+        class="org.osaf.cosmo.dav.servlet.StandardRequestHandler">
+    <property name="locatorFactory">
+      <ref bean="davLocatorFactory"/>
+    </property>
+    <property name="resourceFactory">
+      <ref bean="davResourceFactory"/>
+    </property>
+  </bean>
 
   <!-- atom protocol resources -->
 

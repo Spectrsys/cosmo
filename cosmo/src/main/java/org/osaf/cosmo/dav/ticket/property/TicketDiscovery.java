@@ -24,7 +24,7 @@ import org.apache.jackrabbit.webdav.property.AbstractDavProperty;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
-import org.osaf.cosmo.dav.ExtendedDavResource;
+import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.model.Ticket;
 
@@ -38,11 +38,11 @@ import org.w3c.dom.Document;
 public class TicketDiscovery extends AbstractDavProperty
     implements TicketConstants {
 
-    private ExtendedDavResource resource;
+    private DavResource resource;
 
     /**
      */
-    public TicketDiscovery(ExtendedDavResource resource) {
+    public TicketDiscovery(DavResource resource) {
         super(TICKETDISCOVERY, true);
         this.resource = resource;
     }

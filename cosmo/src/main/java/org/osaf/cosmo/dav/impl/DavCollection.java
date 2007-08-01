@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
@@ -47,6 +46,8 @@ import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.version.report.SupportedReportSetProperty;
+
+import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.caldav.report.MultigetReport;
@@ -149,7 +150,7 @@ public class DavCollection extends DavResourceBase
      * </ol>
      *
      */
-    public void addMember(DavResource member,
+    public void addMember(org.apache.jackrabbit.webdav.DavResource member,
                           InputContext inputContext)
         throws DavException {
         ((DavResourceBase)member).populateItem(inputContext);
@@ -206,7 +207,7 @@ public class DavCollection extends DavResourceBase
      * {@link #removeFile(DavFile)} to actually remove the
      * member from storage.
      */
-    public void removeMember(DavResource member)
+    public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
         throws DavException {
         if (member instanceof DavCollection) {
             removeSubcollection((DavCollection)member);
@@ -408,7 +409,7 @@ public class DavCollection extends DavResourceBase
                     createResourceLocator(getLocator().getPrefix(),
                                           getLocator().getWorkspacePath(),
                                           memberPath, false);
-                DavResource member =
+                org.apache.jackrabbit.webdav.DavResource member =
                     ((StandardDavResourceFactory)getFactory()).
                     createResource(memberLocator, getSession(), memberItem);
                 
@@ -436,7 +437,7 @@ public class DavCollection extends DavResourceBase
                 createResourceLocator(getLocator().getPrefix(),
                                       getLocator().getWorkspacePath(),
                                       memberPath, false);
-            DavResource member =
+            org.apache.jackrabbit.webdav.DavResource member =
                 ((StandardDavResourceFactory)getFactory()).
                 createResource(memberLocator, getSession(), memberItem);
 
@@ -479,7 +480,7 @@ public class DavCollection extends DavResourceBase
         writer.write(StringEscapeUtils.escapeHtml(title));
         writer.write("</h1>");
         writer.write("<ul>");
-        DavResource parent = getCollection();
+        org.apache.jackrabbit.webdav.DavResource parent = getCollection();
         if (parent != null) {
             writer.write("<li><a href=\"");
             writer.write(parent.getLocator().getHref(true));

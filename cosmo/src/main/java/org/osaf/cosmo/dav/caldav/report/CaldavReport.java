@@ -28,18 +28,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
+
 import org.osaf.cosmo.calendar.data.OutputFilter;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.dav.ExtendedDavResource;
+import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
+
 import org.w3c.dom.Element;
 
 /**
@@ -51,7 +52,7 @@ public abstract class CaldavReport
     implements Report, DavConstants, CaldavConstants {
     private static final Log log = LogFactory.getLog(CaldavReport.class);
 
-    private ExtendedDavResource resource;
+    private DavResource resource;
     private ReportInfo info;
     private CalendarFilter queryFilter;
     private OutputFilter outputFilter;
@@ -61,10 +62,10 @@ public abstract class CaldavReport
     // Report methods
 
     /** */
-    public void init(DavResource resource,
+    public void init(org.apache.jackrabbit.webdav.DavResource resource,
                      ReportInfo info)
         throws DavException {
-        this.resource = (ExtendedDavResource) resource;
+        this.resource = (DavResource) resource;
         this.info = info;
         parseReport(info);
     }
@@ -81,7 +82,7 @@ public abstract class CaldavReport
     }
 
     /** */
-    public ExtendedDavResource getResource() {
+    public DavResource getResource() {
         return resource;
     }
 
@@ -225,7 +226,7 @@ public abstract class CaldavReport
     protected void doQuery(DavResource resource,
                            boolean recurse)
         throws DavException {
-        if (((ExtendedDavResource)resource).isCalendarCollection()) {
+        if (((DavResource)resource).isCalendarCollection()) {
             try {
                 DavCalendarCollection collection = (DavCalendarCollection) resource;
                 addResults(collection.findMembers(queryFilter));
@@ -239,7 +240,7 @@ public abstract class CaldavReport
             return;
 
         for (DavResourceIterator i = resource.getMembers(); i.hasNext();) {
-            ExtendedDavResource child = (ExtendedDavResource) i.nextResource();
+            DavResource child = (DavResource) i.nextResource();
             if (child.isCollection()) {
                 doQuery(child, true);
             }

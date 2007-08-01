@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
@@ -43,6 +42,7 @@ import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
+import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.ModelValidationException;
@@ -115,7 +115,7 @@ public abstract class DavContent extends DavResourceBase {
         throws IOException;
 
     /** */
-    public void addMember(DavResource resource,
+    public void addMember(org.apache.jackrabbit.webdav.DavResource resource,
                           InputContext inputContext)
         throws DavException {
         throw new UnsupportedOperationException();
@@ -141,7 +141,7 @@ public abstract class DavContent extends DavResourceBase {
     }
 
     /** */
-    public void removeMember(DavResource member)
+    public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
         throws DavException {
         throw new UnsupportedOperationException();
     }

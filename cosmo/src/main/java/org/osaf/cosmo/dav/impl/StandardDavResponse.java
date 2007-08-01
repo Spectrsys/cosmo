@@ -25,15 +25,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
-import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.WebdavResponseImpl;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
-import org.osaf.cosmo.dav.ExtendedDavResource;
+import org.osaf.cosmo.dav.DavResponse;
+import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
-import org.osaf.cosmo.dav.ticket.TicketDavResponse;
 import org.osaf.cosmo.dav.ticket.property.TicketDiscovery;
 import org.osaf.cosmo.model.Ticket;
 
@@ -45,15 +44,14 @@ import org.w3c.dom.Element;
  * implements methods for the DAV ticket extension.
  */
 public class StandardDavResponse extends WebdavResponseImpl
-    implements TicketDavResponse, DavConstants, TicketConstants {
+    implements DavResponse, DavConstants, TicketConstants {
     private static final Log log =
         LogFactory.getLog(StandardDavResponse.class);
 
     /**
      */
-    public StandardDavResponse(HttpServletResponse response,
-                               boolean noCache) {
-        super(response, noCache);
+    public StandardDavResponse(HttpServletResponse response) {
+        super(response);
     }
 
     // TicketDavResponse methods
@@ -65,7 +63,7 @@ public class StandardDavResponse extends WebdavResponseImpl
      * @param resource the resource on which the ticket was created
      * @param ticketId the id of the newly created ticket
      */
-    public void sendMkTicketResponse(ExtendedDavResource resource,
+    public void sendMkTicketResponse(DavResource resource,
                                      String ticketId)
         throws DavException, IOException {
         setHeader(HEADER_TICKET, ticketId);
@@ -98,7 +96,7 @@ public class StandardDavResponse extends WebdavResponseImpl
      * @param resource the resource on which the ticket was deleted
      * @param ticketId the id of the deleted ticket
      */
-    public void sendDelTicketResponse(ExtendedDavResource resource,
+    public void sendDelTicketResponse(DavResource resource,
                                       String ticketId)
         throws DavException, IOException {
         setStatus(SC_NO_CONTENT);

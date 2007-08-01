@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
@@ -47,8 +46,8 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
+import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
-import org.osaf.cosmo.dav.ExtendedDavResource;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.dav.ticket.property.TicketDiscovery;
 import org.osaf.cosmo.model.Attribute;
@@ -70,7 +69,7 @@ import org.osaf.cosmo.service.ContentService;
 import org.osaf.cosmo.util.PathUtil;
 
 /**
- * Base class for implementations of <code>ExtendedDavResource</code>
+ * Base class for implementations of <code>DavResource</code>
  * which provides behavior common to all resources.
  *
  * This class defines the following live properties:
@@ -90,10 +89,10 @@ import org.osaf.cosmo.util.PathUtil;
  * This class does not define any resource types.
  *
  * @see org.apache.jackrabbit.webdav.DavResource
- * @see ExtendedDavResource
+ * @see DavResource
  */
 public abstract class DavResourceBase
-    implements ExtendedDavConstants, ExtendedDavResource, TicketConstants {
+    implements ExtendedDavConstants, DavResource, TicketConstants {
     private static final Log log =
         LogFactory.getLog(DavResourceBase.class);
 
@@ -134,7 +133,7 @@ public abstract class DavResourceBase
 
     /** */
     public String getComplianceClass() {
-        return ExtendedDavResource.COMPLIANCE_CLASS;
+        return DavResource.COMPLIANCE_CLASS;
     }
 
     /** */
@@ -342,7 +341,7 @@ public abstract class DavResourceBase
     }
 
     /** */
-    public void move(DavResource destination)
+    public void move(org.apache.jackrabbit.webdav.DavResource destination)
         throws DavException {
         if (! exists())
             throw new DavException(DavServletResponse.SC_NOT_FOUND);
@@ -363,7 +362,7 @@ public abstract class DavResourceBase
     }
 
     /** */
-    public void copy(DavResource destination,
+    public void copy(org.apache.jackrabbit.webdav.DavResource destination,
                      boolean shallow)
         throws DavException {
         if (! exists())
@@ -455,7 +454,7 @@ public abstract class DavResourceBase
         return session;
     }
 
-    // ExtendedDavResource methods
+    // DavResource methods
 
     /**
      * Returns true if this resource represents a calendar

@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2006 Open Source Applications Foundation
+ * Copyright 2005-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.util.Set;
 
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
@@ -36,7 +35,8 @@ import org.osaf.cosmo.model.Ticket;
  * An interface providing resource functionality required by WebDAV
  * extensions implemented by Cosmo.
  */
-public interface ExtendedDavResource extends DavResource {
+public interface DavResource
+    extends org.apache.jackrabbit.webdav.DavResource {
 
     /**
      * String constant representing the WebDAV 1 compliance

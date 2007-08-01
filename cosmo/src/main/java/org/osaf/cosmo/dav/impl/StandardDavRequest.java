@@ -35,14 +35,12 @@ import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
 
+import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
-import org.osaf.cosmo.dav.caldav.CaldavRequest;
 import org.osaf.cosmo.dav.caldav.property.CalendarDescription;
 import org.osaf.cosmo.dav.caldav.property.CalendarTimezone;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
-import org.osaf.cosmo.dav.report.ReportRequest;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
-import org.osaf.cosmo.dav.ticket.TicketDavRequest;
 import org.osaf.cosmo.model.Ticket;
 
 import org.w3c.dom.Document;
@@ -51,8 +49,7 @@ import org.w3c.dom.Element;
 /**
  */
 public class StandardDavRequest extends WebdavRequestImpl
-    implements CaldavRequest, ReportRequest, TicketDavRequest,
-               DavConstants, CaldavConstants, TicketConstants {
+    implements DavRequest, DavConstants, CaldavConstants, TicketConstants {
     private static final Log log =
         LogFactory.getLog(StandardDavRequest.class);
 
