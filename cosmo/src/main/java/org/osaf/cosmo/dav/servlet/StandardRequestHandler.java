@@ -22,6 +22,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.abdera.util.EntityTag;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -244,7 +246,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
                             DavResponse response,
                             DavResource resource)
         throws IOException {
-        String etag = resource != null ? resource.getETag() : null;
+        EntityTag etag = etag(resource);
         try {
             if (IfMatch.allowMethod(request.getHeader("If-Match"), etag))
                 return true;
@@ -255,7 +257,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
 
         response.sendError(412, "If-Match disallows conditional request");
         if (etag != null)
-            response.addHeader("ETag", etag);
+            response.addHeader("ETag", etag.toString());
 
         return false;
     }
@@ -264,7 +266,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
                                 DavResponse response,
                                 DavResource resource)
         throws IOException {
-        String etag = resource != null ? resource.getETag() : null;
+        EntityTag etag = etag(resource);
         try {
             if (IfNoneMatch.allowMethod(request.getHeader("If-None-Match"),
                                         etag))
@@ -280,7 +282,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
             response.sendError(412, "If-None-Match disallows conditional request");
 
         if (etag != null)
-            response.addHeader("ETag", etag);
+            response.addHeader("ETag", etag.toString());
 
         return false;
     }
@@ -329,6 +331,18 @@ public class StandardRequestHandler implements HttpRequestHandler {
 
         response.sendError(412, "If-Unmodified-Since disallows conditional request");
         return false;
+    }
+
+    private EntityTag etag(DavResource resource) {
+        if (resource == null)
+            return null;
+        String etag = resource.getETag();
+        if (etag == null)
+            return null;
+        // resource etags have doublequotes wrapped around them
+        if (etag.startsWith("\""))
+            etag = etag.substring(1, etag.length()-1);
+        return new EntityTag(etag);
     }
 
     private boolean deservesNotModified(DavRequest request) {
