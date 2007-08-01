@@ -25,19 +25,19 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResponse;
-import org.osaf.cosmo.dav.impl.DavFile;
+import org.osaf.cosmo.dav.impl.DavCollection;
 
 /**
  * <p>
  * An implementation of <code>DavProvider</code> that implements
- * access to <code>DavFile</code> resources.
+ * access to <code>DavCollection</code> resources.
  * </p>
  *
  * @see DavProvider
- * @see DavFile
+ * @see DavCollection
  */
-public class FileProvider extends BaseProvider {
-    private static final Log log = LogFactory.getLog(FileProvider.class);
+public class CollectionProvider extends BaseProvider {
+    private static final Log log = LogFactory.getLog(CollectionProvider.class);
 
     // DavProvider methods
 
