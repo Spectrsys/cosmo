@@ -90,7 +90,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
             if (e instanceof DavException)
                 wres.sendError((DavException)e);
             else
-                // XXX: send XML entity?
+                log.error("non-dav exception", e);
                 response.sendError(500, e.getMessage());
         }
     }
@@ -109,6 +109,8 @@ public class StandardRequestHandler implements HttpRequestHandler {
      * <ul>
      * <li>The <code>If-Match</code> request header</li>
      * <li>The <code>If-None-Match</code> request header</li>
+     * <li>The <code>If-Modified-Since</code> request header</li>
+     * <li>The <code>If-Unmodified-Since</code> request header</li>
      * </ul>
      */
     protected boolean preconditions(DavRequest request,
@@ -119,6 +121,12 @@ public class StandardRequestHandler implements HttpRequestHandler {
             return false;
 
         if (! ifNoneMatch(request, response, resource))
+            return false;
+
+        if (! ifModifiedSince(request, response, resource))
+            return false;
+
+        if (! ifUnmodifiedSince(request, response, resource))
             return false;
 
         return true;
@@ -236,20 +244,18 @@ public class StandardRequestHandler implements HttpRequestHandler {
                             DavResponse response,
                             DavResource resource)
         throws IOException {
+        String etag = resource != null ? resource.getETag() : null;
         try {
-            if (IfMatch.allowMethod(request.getHeader("If-Match"),
-                                    resource.getETag()))
+            if (IfMatch.allowMethod(request.getHeader("If-Match"), etag))
                 return true;
         } catch (ParseException e) {
-            // XXX: send XML error
             response.sendError(400, e.getMessage());
             return false;
         }
 
-        // XXX: send XML error
         response.sendError(412, "If-Match disallows conditional request");
-        if (resource.getETag() != null)
-            response.addHeader("ETag", resource.getETag());
+        if (etag != null)
+            response.addHeader("ETag", etag);
 
         return false;
     }
@@ -258,12 +264,12 @@ public class StandardRequestHandler implements HttpRequestHandler {
                                 DavResponse response,
                                 DavResource resource)
         throws IOException {
+        String etag = resource != null ? resource.getETag() : null;
         try {
             if (IfNoneMatch.allowMethod(request.getHeader("If-None-Match"),
-                                        resource.getETag()))
+                                        etag))
                 return true;
         } catch (ParseException e) {
-            // XXX: send XML error
             response.sendError(400, e.getMessage());
             return false;
         }
@@ -271,12 +277,57 @@ public class StandardRequestHandler implements HttpRequestHandler {
         if (deservesNotModified(request))
             response.sendError(304, "Not Modified");
         else
-            // XXX: send XML error
             response.sendError(412, "If-None-Match disallows conditional request");
 
-        if (resource.getETag() != null)
-            response.addHeader("ETag", resource.getETag());
+        if (etag != null)
+            response.addHeader("ETag", etag);
 
+        return false;
+    }
+
+    private boolean ifModifiedSince(DavRequest request,
+                                    DavResponse response,
+                                    DavResource resource)
+        throws IOException {
+        if (resource == null)
+            return true;
+
+        long mod = resource.getModificationTime();
+        if (mod == -1)
+            return true;
+        mod = mod / 1000 * 1000;
+
+        long since = request.getDateHeader("If-Modified-Since");
+        if (since == -1)
+            return true;
+
+        if (mod > since)
+            return true;
+
+        response.sendError(304, "Not Modified");
+        return false;
+    }
+
+    private boolean ifUnmodifiedSince(DavRequest request,
+                                      DavResponse response,
+                                      DavResource resource)
+        throws IOException {
+        if (resource == null)
+            return true;
+
+        long mod = resource.getModificationTime();
+        if (mod == -1)
+            return true;
+        mod = mod / 1000 * 1000;
+
+        long since = request.getDateHeader("If-Modified-Since");
+        if (since == -1)
+            return true;
+
+        if (mod <= since)
+            return true;
+
+        response.sendError(412, "If-Unmodified-Since disallows conditional request");
         return false;
     }
 

@@ -16,8 +16,11 @@
 package org.osaf.cosmo.dav.provider;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 import org.apache.jackrabbit.webdav.DavException;
+import org.apache.jackrabbit.webdav.io.OutputContext;
+import org.apache.jackrabbit.webdav.io.OutputContextImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,18 +42,21 @@ import org.osaf.cosmo.dav.impl.DavFile;
 public class FileProvider implements DavProvider {
     private static final Log log = LogFactory.getLog(FileProvider.class);
 
+    // DavProvider methods
+
     public void get(DavRequest request,
                     DavResponse response,
                     DavResource resource)
         throws DavException, IOException {
-        if (log.isDebugEnabled())
-            log.debug("getting resource " + resource.getResourcePath());
+
+        spool(request, response, resource, true);
     }
 
     public void head(DavRequest request,
                      DavResponse response,
                      DavResource resource)
         throws DavException, IOException {
+        spool(request, response, resource, false);
     }
 
     public void propfind(DavRequest request,
@@ -111,5 +117,30 @@ public class FileProvider implements DavProvider {
                           DavResponse response,
                           DavResource resource)
         throws DavException, IOException {
+    }
+
+    // our methods
+
+    protected void spool(DavRequest request,
+                         DavResponse response,
+                         DavResource resource,
+                         boolean withEntity)
+        throws DavException, IOException {
+        if (resource == null) {
+            response.sendError(404);
+            return;
+        }
+
+        if (log.isDebugEnabled())
+            log.debug("spooling resource " + resource.getResourcePath());
+
+        OutputStream out = withEntity ? response.getOutputStream() : null;
+        resource.spool(createOutputContext(response, out));
+        response.flushBuffer();
+    }
+
+    protected OutputContext createOutputContext(DavResponse response,
+                                                OutputStream out) {
+        return new OutputContextImpl(response, out);
     }
 }
