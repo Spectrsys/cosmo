@@ -17,11 +17,10 @@ package org.osaf.cosmo.dav.provider;
 
 import java.io.IOException;
 
-import org.apache.jackrabbit.webdav.DavException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResponse;
@@ -40,12 +39,6 @@ public class CollectionProvider extends BaseProvider {
     private static final Log log = LogFactory.getLog(CollectionProvider.class);
 
     // DavProvider methods
-
-    public void propfind(DavRequest request,
-                         DavResponse response,
-                         DavResource resource)
-        throws DavException, IOException {
-    }
     
     public void proppatch(DavRequest request,
                           DavResponse response,

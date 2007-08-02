@@ -15,19 +15,21 @@
  */
 package org.osaf.cosmo.dav;
 
-import java.io.IOException;
-
-import org.apache.jackrabbit.webdav.WebdavResponse;
-
-import org.osaf.cosmo.dav.ticket.TicketDavResponse;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
- * A marker interface that collects the functionality defined by
- * the various WebDAV extensions implemented by the DAV service.
+ * An exception indicating that a dav resource was not found.
  */
-public interface DavResponse
-    extends WebdavResponse, TicketDavResponse {
+public class NotFoundException extends DavException {
+    
+    public NotFoundException() {
+        super(404);
+    }
 
-    public void sendDavError(DavException e)
-        throws IOException;
+    protected void writeContent(XMLStreamWriter writer)
+        throws XMLStreamException {
+        writer.writeStartElement(NS_COSMO, "not-found");
+        writer.writeEndElement();
+    }
 }

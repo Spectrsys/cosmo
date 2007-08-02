@@ -23,9 +23,13 @@ import org.apache.jackrabbit.webdav.xml.Namespace;
  */
 public interface ExtendedDavConstants {
 
+    public static final String PRE_COSMO = "cosmo";
+    public static final String NS_COSMO =
+        "http://osafoundation.org/cosmo/DAV";
+
     /** The Cosmo XML namespace  */
     public static final Namespace NAMESPACE_COSMO =
-        Namespace.getNamespace("cosmo", "http://osafoundation.org/cosmo/DAV");
+        Namespace.getNamespace(PRE_COSMO, NS_COSMO);
 
     /** The Cosmo property name <code>exclude-free-busy-rollup</code> */
     public static final String PROPERTY_EXCLUDE_FREE_BUSY_ROLLUP =

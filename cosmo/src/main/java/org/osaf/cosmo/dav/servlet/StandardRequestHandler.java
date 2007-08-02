@@ -27,10 +27,10 @@ import org.apache.abdera.util.EntityTag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResponse;
@@ -89,11 +89,9 @@ public class StandardRequestHandler implements HttpRequestHandler {
             if (preconditions(wreq, wres, resource))
                 process(wreq, wres, resource);
         } catch (Throwable e) {
-            if (e instanceof DavException)
-                wres.sendError((DavException)e);
-            else
-                log.error("non-dav exception", e);
-                response.sendError(500, e.getMessage());
+            DavException de = e instanceof DavException ?
+                (DavException) e : new DavException(e);
+            wres.sendDavError(de);
         }
     }
 

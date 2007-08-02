@@ -15,21 +15,25 @@
  */
 package org.osaf.cosmo.dav.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.WebdavResponseImpl;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
@@ -47,6 +51,8 @@ public class StandardDavResponse extends WebdavResponseImpl
     implements DavResponse, DavConstants, TicketConstants {
     private static final Log log =
         LogFactory.getLog(StandardDavResponse.class);
+    private static final XMLOutputFactory XML_OUTPUT_FACTORY =
+        XMLOutputFactory.newInstance();
 
     /**
      */
@@ -54,7 +60,7 @@ public class StandardDavResponse extends WebdavResponseImpl
         super(response);
     }
 
-    // TicketDavResponse methods
+    // DavResponse methods
 
     /**
      * Send the <code>ticketdiscovery</code> response to a
@@ -65,7 +71,7 @@ public class StandardDavResponse extends WebdavResponseImpl
      */
     public void sendMkTicketResponse(DavResource resource,
                                      String ticketId)
-        throws DavException, IOException {
+        throws org.apache.jackrabbit.webdav.DavException, IOException {
         setHeader(HEADER_TICKET, ticketId);
 
         TicketDiscovery ticketdiscovery = (TicketDiscovery)
@@ -98,7 +104,36 @@ public class StandardDavResponse extends WebdavResponseImpl
      */
     public void sendDelTicketResponse(DavResource resource,
                                       String ticketId)
-        throws DavException, IOException {
+        throws org.apache.jackrabbit.webdav.DavException, IOException {
         setStatus(SC_NO_CONTENT);
+    }
+
+    public void sendDavError(DavException e)
+        throws IOException {
+        XMLStreamWriter writer = null;
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            writer = XML_OUTPUT_FACTORY.createXMLStreamWriter(out);
+            writer.writeStartDocument();
+            e.writeTo(writer);
+            writer.writeEndDocument();
+
+            setStatus(e.getErrorCode());
+            setContentType("text/xml; charset=UTF-8");
+            byte[] bytes = out.toByteArray();
+            setContentLength(bytes.length);
+            getOutputStream().write(bytes);
+        } catch (XMLStreamException e2) {
+            log.error("Error writing XML", e2);
+            sendError(500);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (XMLStreamException e2) {
+                    log.warn("Unable to close XML writer", e2);
+                }
+            }
+        }
     }
 }

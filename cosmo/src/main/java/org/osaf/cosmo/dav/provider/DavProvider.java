@@ -17,8 +17,7 @@ package org.osaf.cosmo.dav.provider;
 
 import java.io.IOException;
 
-import org.apache.jackrabbit.webdav.DavException;
-
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResponse;

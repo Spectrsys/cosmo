@@ -18,16 +18,17 @@ package org.osaf.cosmo.dav.provider;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.io.OutputContextImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResponse;
+import org.osaf.cosmo.dav.NotFoundException;
 
 /**
  * <p>
@@ -56,6 +57,14 @@ public abstract class BaseProvider implements DavProvider {
         spool(request, response, resource, false);
     }
 
+    public void propfind(DavRequest request,
+                         DavResponse response,
+                         DavResource resource)
+        throws DavException, IOException {
+        if (resource == null)
+            throw new NotFoundException();
+    }
+
     // our methods
 
     protected void spool(DavRequest request,
@@ -63,10 +72,8 @@ public abstract class BaseProvider implements DavProvider {
                          DavResource resource,
                          boolean withEntity)
         throws DavException, IOException {
-        if (resource == null) {
-            response.sendError(404);
-            return;
-        }
+        if (resource == null)
+            throw new NotFoundException();
 
         if (log.isDebugEnabled())
             log.debug("spooling resource " + resource.getResourcePath());
