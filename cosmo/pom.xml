@@ -346,7 +346,7 @@
         <dependency>
             <groupId>woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
-            <version>3.0.2</version>
+            <version>3.2.1</version>
         </dependency>
         <!-- Integration testing dependencies -->
         <dependency>
