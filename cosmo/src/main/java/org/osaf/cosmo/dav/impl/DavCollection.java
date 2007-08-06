@@ -33,7 +33,6 @@ import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.DavSession;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
@@ -99,17 +98,15 @@ public class DavCollection extends DavResourceBase
     /** */
     public DavCollection(CollectionItem collection,
                          DavResourceLocator locator,
-                         DavResourceFactory factory,
-                         DavSession session) {
-        super(collection, locator, factory, session);
+                         DavResourceFactory factory) {
+        super(collection, locator, factory);
         members = new ArrayList();
     }
 
     /** */
     public DavCollection(DavResourceLocator locator,
-                         DavResourceFactory factory,
-                         DavSession session) {
-        this(new CollectionItem(), locator, factory, session);
+                         DavResourceFactory factory) {
+        this(new CollectionItem(), locator, factory);
     }
 
     // DavResource
@@ -179,7 +176,8 @@ public class DavCollection extends DavResourceBase
 
     /** */
     public DavResourceIterator getMembers() {
-        loadMembers();
+        for (Item memberItem : ((CollectionItem)getItem()).getChildren())
+            members.add(memberToResource(memberItem));
         return new DavResourceIteratorImpl(members);
     }
 
@@ -190,14 +188,7 @@ public class DavCollection extends DavResourceBase
             // convert absolute href to relative
             href = href.substring(getLocator().getPrefix().length());
         }
-
-        DavResourceLocator memberLocator =
-            getLocator().getFactory().
-            createResourceLocator(getLocator().getPrefix(),
-                                  getLocator().getWorkspacePath(),
-                                  href, false);
-        return ((StandardDavResourceFactory)getFactory()).
-            createResource(memberLocator, getSession());
+        return memberToResource(href);
     }
 
     /**
@@ -397,57 +388,25 @@ public class DavCollection extends DavResourceBase
         return false;
     }
 
-    private void loadMembers() {
-        for (Iterator i=((CollectionItem)getItem()).getChildren().iterator();
-             i.hasNext();) {
-            Item memberItem = (Item) i.next();
-            
-            String memberPath = getResourcePath() + "/" + memberItem.getName();
-            try {
-                DavResourceLocator memberLocator =
-                    getLocator().getFactory().
-                    createResourceLocator(getLocator().getPrefix(),
-                                          getLocator().getWorkspacePath(),
-                                          memberPath, false);
-                org.apache.jackrabbit.webdav.DavResource member =
-                    ((StandardDavResourceFactory)getFactory()).
-                    createResource(memberLocator, getSession(), memberItem);
-                
-                if(member!=null)
-                    members.add(member);
-            } catch (DavException e) {
-                // should never happen
-                log.error("error loading member resource for item " +
-                          memberItem.getName() + " in collection " +
-                          getResourcePath(), e);
-            }
-        }
-    }
+    protected DavResource memberToResource(Item item) {
+        String path = getResourcePath() + "/" + item.getName();
+        DavResourceLocator locator = getLocator().getFactory().
+            createResourceLocator(getLocator().getPrefix(),
+                                  getLocator().getWorkspacePath(), path,
+                                  false);
+        return (DavResource)
+            ((StandardDavResourceFactory)getFactory()).
+            itemToResource(locator, item);
+    }    
 
-    // creates a DavResource wrapping the given member item and adds
-    // it to the internal members list
-    private void stashMember(Item memberItem) {
-        if (log.isDebugEnabled())
-            log.debug("stashing member " + memberItem.getName());
-
-        String memberPath = getResourcePath() + "/" + memberItem.getName();
-        try {
-            DavResourceLocator memberLocator =
-                getLocator().getFactory().
-                createResourceLocator(getLocator().getPrefix(),
-                                      getLocator().getWorkspacePath(),
-                                      memberPath, false);
-            org.apache.jackrabbit.webdav.DavResource member =
-                ((StandardDavResourceFactory)getFactory()).
-                createResource(memberLocator, getSession(), memberItem);
-
-            members.add(member);
-        } catch (DavException e) {
-            // should never happen
-            log.error("error stashing member resource for item " +
-                      memberItem.getName() + " in collection " +
-                      getResourcePath(), e);
-        }
+    protected DavResource memberToResource(String path) {
+        DavResourceLocator locator = getLocator().getFactory().
+            createResourceLocator(getLocator().getPrefix(),
+                                  getLocator().getWorkspacePath(), path,
+                                  false);
+        return (DavResource)
+            ((StandardDavResourceFactory)getFactory()).
+            itemToResource(locator, null);
     }
 
     private void writeHtmlDirectoryIndex(OutputContext context)

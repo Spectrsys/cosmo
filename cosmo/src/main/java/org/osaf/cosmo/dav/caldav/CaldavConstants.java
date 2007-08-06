@@ -33,8 +33,11 @@ public interface CaldavConstants {
         "application/x-calendar-collection";
 
     /** The CalDAV XML namespace */
+    public static final String PRE_CALDAV = "C";
+    public static final String NS_CALDAV =
+        "urn:ietf:params:xml:ns:caldav";
     public static final Namespace NAMESPACE_CALDAV =
-        Namespace.getNamespace("C", "urn:ietf:params:xml:ns:caldav");
+        Namespace.getNamespace(PRE_CALDAV, NS_CALDAV);
 
     /** The CalDAV XML element name <CALDAV:mkcalendar> */
     public static final String ELEMENT_CALDAV_MKCALENDAR = "mkcalendar";

@@ -20,10 +20,14 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.jackrabbit.webdav.DavResourceFactory;
+
+import org.osaf.cosmo.dav.ConflictException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResponse;
+import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.impl.DavFile;
 
 /**
@@ -38,65 +42,40 @@ import org.osaf.cosmo.dav.impl.DavFile;
 public class FileProvider extends BaseProvider {
     private static final Log log = LogFactory.getLog(FileProvider.class);
 
-    // DavProvider methods
+    public FileProvider(DavResourceFactory resourceFactory) {
+        super(resourceFactory);
+    }
 
-    public void propfind(DavRequest request,
-                         DavResponse response,
-                         DavResource resource)
-        throws DavException, IOException {
-    }
-    
-    public void proppatch(DavRequest request,
-                          DavResponse response,
-                          DavResource resource)
-        throws DavException, IOException {
-    }
+    // DavProvider methods
 
     public void put(DavRequest request,
                     DavResponse response,
                     DavResource resource)
         throws DavException, IOException {
-    }
+        DavResource parent = (DavResource) resource.getCollection();
+        if (! parent.exists())
+            throw new ConflictException("Parent collection must be created");
 
-    public void delete(DavRequest request,
-                       DavResponse response,
-                       DavResource resource)
-        throws DavException, IOException {
-    }
-
-    public void copy(DavRequest request,
-                     DavResponse response,
-                     DavResource resource)
-        throws DavException, IOException {
-    }
-
-    public void move(DavRequest request,
-                     DavResponse response,
-                     DavResource resource)
-        throws DavException, IOException {
+        try {
+            parent.addMember(resource, createInputContext(request));
+            response.setStatus(resource != null ? 204 : 201);
+            response.setHeader("ETag", resource.getETag());
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
     }
 
     public void mkcol(DavRequest request,
                       DavResponse response,
                       DavResource resource)
         throws DavException, IOException {
+        throw new MethodNotAllowedException("MKCOL not allowed for a file");
     }
 
     public void mkcalendar(DavRequest request,
                            DavResponse response,
                            DavResource resource)
         throws DavException, IOException {
-    }
-
-    public void mkticket(DavRequest request,
-                         DavResponse response,
-                         DavResource resource)
-        throws DavException, IOException {
-    }
-
-    public void delticket(DavRequest request,
-                          DavResponse response,
-                          DavResource resource)
-        throws DavException, IOException {
+        throw new MethodNotAllowedException("MKCALENDAR not allowed for a file");
     }
 }

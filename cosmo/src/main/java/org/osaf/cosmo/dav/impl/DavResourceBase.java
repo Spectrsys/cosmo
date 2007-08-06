@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
@@ -46,6 +47,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
+
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
@@ -101,7 +103,6 @@ public abstract class DavResourceBase
 
     private DavResourceLocator locator;
     private DavResourceFactory factory;
-    private DavSession session;
     private Item item;
     private DavPropertySet properties;
     private DavCollection parent;
@@ -118,12 +119,10 @@ public abstract class DavResourceBase
     /** */
     public DavResourceBase(Item item,
                            DavResourceLocator locator,
-                           DavResourceFactory factory,
-                           DavSession session) {
+                           DavResourceFactory factory) {
         this.item = item;
         this.locator = locator;
         this.factory = factory;
-        this.session = session;
         this.properties = new DavPropertySet();
 
         loadProperties();
@@ -326,7 +325,7 @@ public abstract class DavResourceBase
 
             try {
                 parent = (DavCollection) getFactory().
-                    createResource(parentLocator, getSession());
+                    createResource(parentLocator, null);
             } catch (ClassCastException e) {
                 // XXX: really should be able to throw DavException
                 // from this method
@@ -451,7 +450,7 @@ public abstract class DavResourceBase
 
     /** */
     public DavSession getSession() {
-        return session;
+        return null;
     }
 
     // DavResource methods

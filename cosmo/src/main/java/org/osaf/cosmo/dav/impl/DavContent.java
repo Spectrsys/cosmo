@@ -30,7 +30,6 @@ import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.DavSession;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
@@ -81,9 +80,8 @@ public abstract class DavContent extends DavResourceBase {
     /** */
     public DavContent(ContentItem item,
                       DavResourceLocator locator,
-                      DavResourceFactory factory,
-                      DavSession session) {
-        super(item, locator, factory, session);
+                      DavResourceFactory factory) {
+        super(item, locator, factory);
     }
 
 

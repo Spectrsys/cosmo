@@ -15,24 +15,18 @@
  */
 package org.osaf.cosmo.dav.impl;
 
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavMethods;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletRequest;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.DavSession;
 
-import org.osaf.cosmo.dav.CosmoDavMethods;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.EventStamp;
@@ -45,7 +39,6 @@ import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.server.CollectionPath;
 import org.osaf.cosmo.server.ItemPath;
 import org.osaf.cosmo.service.ContentService;
-import org.osaf.cosmo.util.PathUtil;
 
 /**
  * Implementation of <code>DavResourceFactory</code> that constructs
@@ -56,7 +49,7 @@ import org.osaf.cosmo.util.PathUtil;
  * @see org.apache.jackrabbit.webdav.DavResource
  */
 public class StandardDavResourceFactory
-    implements DavResourceFactory, ICalendarConstants {
+    implements DavResourceFactory {
     private static final Log log =
         LogFactory.getLog(StandardDavResourceFactory.class);
 
@@ -69,40 +62,29 @@ public class StandardDavResourceFactory
     public DavResource createResource(DavResourceLocator locator,
                                       DavServletRequest request,
                                       DavServletResponse response)
-        throws DavException {
-        return createResource(locator, request.getDavSession());
+        throws org.apache.jackrabbit.webdav.DavException {
+        DavResource resource = createResource(locator, null);
+        if (resource != null)
+            return resource;
 
-//        DavResource resource =
-//            createResource(locator, request.getDavSession());
-//        if (resource != null)
-//            return resource;
-
-//        int methodCode = DavMethods.getMethodCode(request.getMethod());
-//        if (methodCode == 0)
-//            methodCode = CosmoDavMethods.getMethodCode(request.getMethod());
-//        if (methodCode == 0)
-             // we don't understand the method presented to us
-//            throw new DavException(DavServletResponse.SC_METHOD_NOT_ALLOWED);
-
-        // for creation methods, return a "blank" resource
-//        if (CosmoDavMethods.DAV_MKCALENDAR == methodCode)
-//            return new DavCalendarCollection(locator, this,
-//                                             request.getDavSession());
-
-//        if (DavMethods.DAV_MKCOL == methodCode)
-//            return new DavCollection(locator, this, request.getDavSession());
-
-//        if (DavMethods.DAV_PUT == methodCode) {
-//            return new DavFile(locator, this, request.getDavSession());
-//       }
-
-//        throw new DavException(DavServletResponse.SC_NOT_FOUND);
+        // we didn't find an item in storage for the resource, so either
+        // the request is creating a resource or the request is targeting a
+        // nonexistent item.
+        if (request.getMethod().equals("MKCALENDAR"))
+            return new DavCalendarCollection(locator, this);
+        if (request.getMethod().equals("MKCOL"))
+            return new DavCollection(locator, this);
+        if (request.getMethod().equals("PUT"))
+            // will be replaced by the provider if a different resource
+            // type is required
+            return new DavFile(locator, this);
+        throw new NotFoundException();
     }
 
     /** */
     public DavResource createResource(DavResourceLocator locator,
                                       DavSession session)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         String path = locator.getResourcePath();
         Item item = null;
 
@@ -125,69 +107,41 @@ public class StandardDavResourceFactory
             item = contentService.findItemByPath(path);
 
         if (item == null)
-            // this means the item doesn't exist in storage -
-            // either it's about to be created, or the request will
-            // result in a not found error
             return null;
 
-        return createResource(locator, session, item);
+        return itemToResource(locator, item);
     }
 
     // our methods
 
     /** */
-    public DavResource createResource(DavResourceLocator locator,
-                                      DavSession session,
-                                      Item item)
-        throws DavException {
+    public DavResource itemToResource(DavResourceLocator locator,
+                                      Item item) {
         if (item == null)
             throw new IllegalArgumentException("item cannot be null");
 
-        if (log.isDebugEnabled())
-            log.debug("instantiating dav resource for item " + item.getUid() +
-                      " at path " + locator.getResourcePath());
-
         if (item instanceof HomeCollectionItem)
             return new DavHomeCollection((HomeCollectionItem) item, locator,
-                                         this, session);
+                                         this);
 
         if (item instanceof CollectionItem) {
-            if(item.getStamp(CalendarCollectionStamp.class) != null) {
+            if (item.getStamp(CalendarCollectionStamp.class) != null)
                 return new DavCalendarCollection((CollectionItem) item,
-                        locator, this, session);
-            } else {
-                return new DavCollection((CollectionItem) item, locator, this,
-                    session);
-            }
+                        locator, this);
+            else
+                return new DavCollection((CollectionItem) item, locator, this);
         }
 
         if (item instanceof NoteItem) {
-            if(item.getStamp(EventStamp.class) != null)
-                return new DavEvent((NoteItem) item, locator, this,
-                        session);
+            if (item.getStamp(EventStamp.class) != null)
+                return new DavEvent((NoteItem) item, locator, this);
             else if (item.getStamp(TaskStamp.class) != null)
-                return new DavTask((NoteItem) item, locator, this, session);
+                return new DavTask((NoteItem) item, locator, this);
             else 
-                return new DavJournal((NoteItem) item, locator, this,
-                                      session);
+                return new DavJournal((NoteItem) item, locator, this);
         } 
             
-        return new DavFile((FileItem) item, locator, this, session);
-    }
-
-    public DavResource createCalendarResource(DavResourceLocator locator,
-                                              DavServletRequest request,
-                                              DavServletResponse response,
-                                              Calendar calendar)
-        throws DavException {
-        if (! calendar.getComponents(Component.VEVENT).isEmpty())
-            return new DavEvent(locator, this, request.getDavSession());
-        if (! calendar.getComponents(Component.VTODO).isEmpty())
-            return new DavTask(locator, this, request.getDavSession());
-        if (! calendar.getComponents(Component.VJOURNAL).isEmpty())
-            return new DavJournal(locator, this, request.getDavSession());
-        // CALDAV:supported-calendar-component
-        throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Calendar object must contain at least one of " + StringUtils.join(SUPPORTED_COMPONENT_TYPES, ", "));
+        return new DavFile((FileItem) item, locator, this);
     }
 
     /** */
@@ -200,13 +154,11 @@ public class StandardDavResourceFactory
         contentService = service;
     }
 
-    /** */
     public CosmoSecurityManager getSecurityManager() {
         return securityManager;
     }
 
-    /** */
-    public void setSecurityManager(CosmoSecurityManager manager) {
-        securityManager = manager;
+    public void setSecurityManager(CosmoSecurityManager securityManager) {
+        this.securityManager = securityManager;
     }
 }

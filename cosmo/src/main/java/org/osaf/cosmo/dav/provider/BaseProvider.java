@@ -15,20 +15,35 @@
  */
 package org.osaf.cosmo.dav.provider;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.jackrabbit.webdav.DavConstants;
+import org.apache.jackrabbit.webdav.DavResourceFactory;
+import org.apache.jackrabbit.webdav.DavResourceLocator;
+import org.apache.jackrabbit.webdav.MultiStatus;
+import org.apache.jackrabbit.webdav.MultiStatusResponse;
+import org.apache.jackrabbit.webdav.io.InputContext;
+import org.apache.jackrabbit.webdav.io.InputContextImpl;
 import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.io.OutputContextImpl;
+import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.osaf.cosmo.dav.BadRequestException;
+import org.osaf.cosmo.dav.ContentLengthRequiredException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResponse;
+import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.NotFoundException;
+import org.osaf.cosmo.dav.PreconditionFailedException;
 
 /**
  * <p>
@@ -37,8 +52,14 @@ import org.osaf.cosmo.dav.NotFoundException;
  *
  * @see DavProvider
  */
-public abstract class BaseProvider implements DavProvider {
+public abstract class BaseProvider implements DavProvider, DavConstants {
     private static final Log log = LogFactory.getLog(BaseProvider.class);
+
+    private DavResourceFactory resourceFactory;
+
+    public BaseProvider(DavResourceFactory resourceFactory) {
+        this.resourceFactory = resourceFactory;
+    }
 
     // DavProvider methods
 
@@ -46,7 +67,6 @@ public abstract class BaseProvider implements DavProvider {
                     DavResponse response,
                     DavResource resource)
         throws DavException, IOException {
-
         spool(request, response, resource, true);
     }
 
@@ -61,8 +81,138 @@ public abstract class BaseProvider implements DavProvider {
                          DavResponse response,
                          DavResource resource)
         throws DavException, IOException {
-        if (resource == null)
+        if (! resource.exists())
             throw new NotFoundException();
+
+        try {
+            int depth = request.getDepth(DEPTH_INFINITY);
+            DavPropertyNameSet props = request.getPropFindProperties();
+            int type = request.getPropFindType();
+
+            MultiStatus ms = new MultiStatus();
+            ms.addResourceProperties(resource, props, type, depth);
+
+            response.sendMultiStatus(ms);
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
+    }
+
+    public void proppatch(DavRequest request,
+                          DavResponse response,
+                          DavResource resource)
+        throws DavException, IOException {
+        if (! resource.exists())
+            throw new NotFoundException();
+
+        try {
+            DavPropertySet set = request.getPropPatchSetProperties();
+            DavPropertyNameSet remove = request.getPropPatchRemoveProperties();
+            if (set.isEmpty() && remove.isEmpty())
+                throw new BadRequestException("No properties specified");
+
+            MultiStatus ms = new MultiStatus();
+            MultiStatusResponse msr = resource.alterProperties(set, remove);
+            ms.addResponse(msr);
+
+            response.sendMultiStatus(ms);
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
+    }
+
+    public void delete(DavRequest request,
+                       DavResponse response,
+                       DavResource resource)
+        throws DavException, IOException {
+        if (! resource.exists())
+            throw new NotFoundException();
+
+        int depth = request.getDepth(DEPTH_INFINITY);
+        if (depth != DEPTH_INFINITY)
+            throw new BadRequestException("Depth for DELETE must be Infinity");
+
+        try {
+            DavResource parent = (DavResource) resource.getCollection();
+            parent.removeMember(resource);
+            response.setStatus(204);
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
+    }
+
+    public void copy(DavRequest request,
+                     DavResponse response,
+                     DavResource resource)
+        throws DavException, IOException {
+        if (! resource.exists())
+            throw new NotFoundException();
+
+        int depth = request.getDepth(DEPTH_INFINITY);
+        if (! (depth == DEPTH_0 || depth == DEPTH_INFINITY))
+            throw new BadRequestException("Depth for COPY must be 0 or Infinity");
+
+        DavResource destination =
+            createDavResource(request.getDestinationLocator(), request,
+                              response);
+        validateDestination(request, destination);
+
+        try {
+            if (destination.exists() && request.isOverwrite())
+                destination.getCollection().removeMember(destination);
+            resource.copy(destination, depth == DEPTH_0);
+            response.setStatus(destination.exists() ? 204 : 201);
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
+    }
+
+    public void move(DavRequest request,
+                     DavResponse response,
+                     DavResource resource)
+        throws DavException, IOException {
+        if (! resource.exists())
+            throw new NotFoundException();
+
+        DavResource destination =
+            createDavResource(request.getDestinationLocator(), request,
+                              response);
+        validateDestination(request, destination);
+
+        try {
+            if (destination.exists() && request.isOverwrite())
+                destination.getCollection().removeMember(destination);
+            resource.move(destination);
+            response.setStatus(destination.exists() ? 204 : 201);
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
+    }
+
+    public void report(DavRequest request,
+                       DavResponse response,
+                       DavResource resource)
+        throws DavException, IOException {
+        if (! resource.exists())
+            throw new NotFoundException();
+
+        try {
+            resource.getReport(request.getReportInfo()).run(response);
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
+    }
+
+    public void mkticket(DavRequest request,
+                         DavResponse response,
+                         DavResource resource)
+        throws DavException, IOException {
+    }
+
+    public void delticket(DavRequest request,
+                          DavResponse response,
+                          DavResource resource)
+        throws DavException, IOException {
     }
 
     // our methods
@@ -72,19 +222,62 @@ public abstract class BaseProvider implements DavProvider {
                          DavResource resource,
                          boolean withEntity)
         throws DavException, IOException {
-        if (resource == null)
+        if (! resource.exists())
             throw new NotFoundException();
 
         if (log.isDebugEnabled())
             log.debug("spooling resource " + resource.getResourcePath());
 
-        OutputStream out = withEntity ? response.getOutputStream() : null;
-        resource.spool(createOutputContext(response, out));
+        resource.spool(createOutputContext(response, withEntity));
         response.flushBuffer();
     }
 
+    protected InputContext createInputContext(DavRequest request)
+        throws DavException, IOException {
+        String xfer = request.getHeader("Transfer-Encoding");
+        boolean chunked = xfer != null && xfer.equals("chunked");
+        if (xfer != null && ! chunked)
+            throw new BadRequestException("Unknown Transfer-Encoding " + xfer);
+        if (chunked && request.getContentLength() <= 0)
+            throw new ContentLengthRequiredException();
+
+        InputStream in = (request.getContentLength() > 0 || chunked) ?
+            request.getInputStream() : null;
+        return new InputContextImpl(request, in);
+    }
+
     protected OutputContext createOutputContext(DavResponse response,
-                                                OutputStream out) {
+                                                boolean withEntity)
+        throws IOException {
+        OutputStream out = withEntity ? response.getOutputStream() : null;
         return new OutputContextImpl(response, out);
+    }
+
+    protected DavResource createDavResource(DavResourceLocator locator,
+                                            DavRequest request,
+                                            DavResponse response)
+        throws DavException {
+        try {
+            return (DavResource)
+                resourceFactory.createResource(locator, request, response);
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
+    }
+
+    protected void validateDestination(DavRequest request,
+                                       DavResource destination)
+        throws DavException {
+        String uri = request.getHeader(HEADER_DESTINATION);
+        if (StringUtils.isBlank(uri))
+            throw new BadRequestException("Destination header not provided");
+        if (destination.getLocator().equals(request.getRequestLocator()))
+            throw new ForbiddenException("Destination URI is the same as the original resource URI");
+        if (destination.exists() && ! request.isOverwrite())
+            throw new PreconditionFailedException("Overwrite header was not specified for existing destination");
+    }
+
+    public DavResourceFactory getResourceFactory() {
+        return resourceFactory;
     }
 }

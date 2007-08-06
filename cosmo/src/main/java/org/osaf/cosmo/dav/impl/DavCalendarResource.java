@@ -27,7 +27,6 @@ import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.DavSession;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavProperty;
@@ -60,9 +59,8 @@ public abstract class DavCalendarResource extends DavContent
 
     public DavCalendarResource(NoteItem item,
                                DavResourceLocator locator,
-                               DavResourceFactory factory,
-                               DavSession session) {
-        super(item, locator, factory, session);
+                               DavResourceFactory factory) {
+        super(item, locator, factory);
     }
        
     // DavResource methods

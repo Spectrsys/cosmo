@@ -74,6 +74,11 @@ public interface DavProvider {
                       DavResource resource)
         throws DavException, IOException;
 
+    public void report(DavRequest request,
+                       DavResponse response,
+                       DavResource resource)
+        throws DavException, IOException;
+
     public void mkcalendar(DavRequest request,
                            DavResponse response,
                            DavResource resource)

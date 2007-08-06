@@ -33,16 +33,17 @@ import net.fortuna.ical4j.model.component.VTimeZone;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.DavSession;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
+
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.util.CalendarBuilderDispenser;
 import org.osaf.cosmo.dav.DavResource;
@@ -108,16 +109,14 @@ public class DavCalendarCollection extends DavCollection
     /** */
     public DavCalendarCollection(CollectionItem collection,
                                  DavResourceLocator locator,
-                                 DavResourceFactory factory,
-                                 DavSession session) {
-        super(collection, locator, factory, session);
+                                 DavResourceFactory factory) {
+        super(collection, locator, factory);
     }
 
     /** */
     public DavCalendarCollection(DavResourceLocator locator,
-                                 DavResourceFactory factory,
-                                 DavSession session) {
-        this(new CollectionItem(), locator, factory, session);
+                                 DavResourceFactory factory) {
+        this(new CollectionItem(), locator, factory);
         getItem().addStamp(new CalendarCollectionStamp((CollectionItem) getItem()));
     }
 
@@ -152,26 +151,13 @@ public class DavCalendarCollection extends DavCollection
      */
     public Set<DavCalendarResource> findMembers(CalendarFilter filter)
         throws DavException {
-        // XXX what exceptions do we need to catch?
-
         Set<DavCalendarResource> members =
             new HashSet<DavCalendarResource>();
+
         CollectionItem collection = (CollectionItem) getItem();
         for (ContentItem memberItem :
-                 getContentService().findEvents(collection, filter)) {
-            String memberPath = getResourcePath() + "/" + memberItem.getName();
-            DavResourceLocator memberLocator =
-                getLocator().getFactory().
-                createResourceLocator(getLocator().getPrefix(),
-                                      getLocator().getWorkspacePath(),
-                                      memberPath, false);
-            DavCalendarResource member = (DavCalendarResource)
-                ((StandardDavResourceFactory)getFactory()).
-                createResource(memberLocator, getSession(), memberItem);
-            
-            if(member!=null)
-                members.add(member);
-        }
+             getContentService().findEvents(collection, filter))
+            members.add((DavCalendarResource)memberToResource(memberItem));
 
         return members;
     }
@@ -181,7 +167,6 @@ public class DavCalendarCollection extends DavCollection
      * one has been set.
      */
     public VTimeZone getTimeZone() {
-       
         Calendar obj = getCalendarCollectionStamp().getTimezone();
         if (obj == null)
             return null;

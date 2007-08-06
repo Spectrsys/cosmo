@@ -20,11 +20,10 @@ import net.fortuna.ical4j.model.Calendar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavSession;
 
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.NoteItem;
 
@@ -42,18 +41,16 @@ public class DavEvent extends DavCalendarResource {
 
     /** */
     public DavEvent(DavResourceLocator locator,
-                    DavResourceFactory factory,
-                    DavSession session) {
-        this(new NoteItem(), locator, factory, session);
+                    DavResourceFactory factory) {
+        this(new NoteItem(), locator, factory);
         getItem().addStamp(new EventStamp());
     }
     
     /** */
     public DavEvent(NoteItem item,
                     DavResourceLocator locator,
-                    DavResourceFactory factory,
-                    DavSession session) {
-        super(item, locator, factory, session);
+                    DavResourceFactory factory) {
+        super(item, locator, factory);
     }
 
     // our methods

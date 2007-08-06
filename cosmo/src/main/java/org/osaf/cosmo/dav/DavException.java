@@ -29,23 +29,44 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class DavException extends org.apache.jackrabbit.webdav.DavException
     implements ExtendedDavConstants {
-    private static final DavNamespaceContext DAV_NAMESPACE_CONTEXT =
-        DavNamespaceContext.newInstance();
+
+    private DavNamespaceContext nsc;
 
     public DavException(int code) {
         super(code, null, null, null);
+        nsc = new DavNamespaceContext();
+    }
+
+    public DavException(int code,
+                        String message) {
+        super(code, message, null, null);
+        nsc = new DavNamespaceContext();
+    }
+
+    public DavException(org.apache.jackrabbit.webdav.DavException e) {
+        super(e.getErrorCode(), e.getMessage(), e, null);
+        nsc = new DavNamespaceContext();
     }
 
     public DavException(Throwable t) {
         super(500, t);
+        nsc = new DavNamespaceContext();
+    }
+
+    public boolean hasContent() {
+        return true;
+    }
+
+    public DavNamespaceContext getNamespaceContext() {
+        return nsc;
     }
 
     public void writeTo(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.setNamespaceContext(DAV_NAMESPACE_CONTEXT);
+        writer.setNamespaceContext(nsc);
         writer.writeStartElement("DAV:", "error");
-        for (String uri : DAV_NAMESPACE_CONTEXT.getNamespaceURIs())
-            writer.writeNamespace(DAV_NAMESPACE_CONTEXT.getPrefix(uri), uri);
+        for (String uri : nsc.getNamespaceURIs())
+            writer.writeNamespace(nsc.getPrefix(uri), uri);
         writeContent(writer);
         writer.writeEndElement();
     }
@@ -55,15 +76,16 @@ public class DavException extends org.apache.jackrabbit.webdav.DavException
         writer.writeCharacters(getStatusPhrase());
     }
 
-    private static class DavNamespaceContext implements NamespaceContext {
-        private static final HashMap<String,String> uris =
-            new HashMap<String,String>(2);
-        private static final HashMap<String,HashSet<String>> prefixes =
-            new HashMap<String,HashSet<String>>(2);
+    public static class DavNamespaceContext implements NamespaceContext {
+        private HashMap<String,String> uris;
+        private HashMap<String,HashSet<String>> prefixes;
 
-        static {
+        public DavNamespaceContext() {
+            uris = new HashMap<String,String>();
             uris.put("D", "DAV:");
             uris.put(PRE_COSMO, NS_COSMO);
+
+            prefixes = new HashMap<String,HashSet<String>>();
 
             HashSet<String> dav = new HashSet<String>(1);
             dav.add("D");
@@ -74,9 +96,7 @@ public class DavException extends org.apache.jackrabbit.webdav.DavException
             prefixes.put(NS_COSMO, cosmo);
         }
 
-        public static final DavNamespaceContext newInstance() {
-            return new DavNamespaceContext();
-        }
+        // NamespaceContext methods
 
         public String getNamespaceURI(String prefix) {
             return uris.get(prefix);
@@ -90,8 +110,19 @@ public class DavException extends org.apache.jackrabbit.webdav.DavException
             return prefixes.get(namespaceURI).iterator();
         }
 
+        // our methods
+
         public Set<String> getNamespaceURIs() {
             return prefixes.keySet();
+        }
+
+        public void addNamespace(String prefix,
+                                 String namespaceURI) {
+            uris.put(prefix, namespaceURI);
+
+            HashSet<String> ns = new HashSet<String>(1);
+            ns.add(prefix);
+            prefixes.put(namespaceURI, ns);
         }
     }
 }

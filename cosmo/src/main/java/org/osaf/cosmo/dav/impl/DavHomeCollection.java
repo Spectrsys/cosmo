@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavSession;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
@@ -71,9 +70,8 @@ public class DavHomeCollection extends DavCollection
     /** */
     public DavHomeCollection(HomeCollectionItem collection,
                              DavResourceLocator locator,
-                             DavResourceFactory factory,
-                             DavSession session) {
-        super(collection, locator, factory, session);
+                             DavResourceFactory factory) {
+        super(collection, locator, factory);
     }
 
     // DavResource

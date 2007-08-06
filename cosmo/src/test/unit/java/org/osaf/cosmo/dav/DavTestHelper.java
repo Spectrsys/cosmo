@@ -35,8 +35,6 @@ import org.osaf.cosmo.dao.mock.MockDaoStorage;
 import org.osaf.cosmo.dao.mock.MockUserDao;
 import org.osaf.cosmo.dav.impl.DavCollection;
 import org.osaf.cosmo.dav.impl.DavHomeCollection;
-import org.osaf.cosmo.dav.impl.NoOpDavSession;
-import org.osaf.cosmo.dav.impl.NoOpDavSessionProvider;
 import org.osaf.cosmo.dav.impl.StandardDavResourceFactory;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
@@ -67,8 +65,6 @@ public class DavTestHelper extends TestHelper {
     private StandardUserService userService;
     private StandardDavResourceFactory resourceFactory;
     private LocatorFactoryImpl locatorFactory;
-    private NoOpDavSessionProvider sessionProvider;
-    private NoOpDavSession session;
     private User user;
     private HomeCollectionItem homeCollection;
     private DavResourceLocator homeLocator;
@@ -109,9 +105,6 @@ public class DavTestHelper extends TestHelper {
         resourceFactory.setSecurityManager(securityManager);
 
         locatorFactory = new LocatorFactoryImpl(repositoryPrefix);
-
-        sessionProvider = new NoOpDavSessionProvider();
-        session = new NoOpDavSession();
     }
 
     /** */
@@ -176,16 +169,6 @@ public class DavTestHelper extends TestHelper {
     }
 
     /** */
-    public DavSessionProvider getSessionProvider() {
-        return sessionProvider;
-    }
-
-    /** */
-    public DavSession getSession() {
-        return session;
-    }
-
-    /** */
     public User getUser() {
         return user;
     }
@@ -203,7 +186,7 @@ public class DavTestHelper extends TestHelper {
     /** */
     public DavHomeCollection initializeHomeResource() {
         return new DavHomeCollection(homeCollection, homeLocator,
-                                     resourceFactory, session);
+                                     resourceFactory);
     }
 
     /** */

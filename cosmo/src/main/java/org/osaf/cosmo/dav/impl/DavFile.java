@@ -20,18 +20,19 @@ import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.DavSession;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
+
 import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.model.DataSizeException;
 import org.osaf.cosmo.model.FileItem;
@@ -64,16 +65,14 @@ public class DavFile extends DavContent {
     /** */
     public DavFile(FileItem item,
                    DavResourceLocator locator,
-                   DavResourceFactory factory,
-                   DavSession session) {
-        super(item, locator, factory, session);
+                   DavResourceFactory factory) {
+        super(item, locator, factory);
     }
 
     /** */
     public DavFile(DavResourceLocator locator,
-                   DavResourceFactory factory,
-                   DavSession session) {
-        this(new FileItem(), locator, factory, session);
+                   DavResourceFactory factory) {
+        this(new FileItem(), locator, factory);
     }
 
     // DavResource

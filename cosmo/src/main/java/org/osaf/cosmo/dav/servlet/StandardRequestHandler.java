@@ -30,14 +30,26 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
 import org.apache.jackrabbit.webdav.DavResourceFactory;
 
+import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResponse;
+import org.osaf.cosmo.dav.MethodNotAllowedException;
+import org.osaf.cosmo.dav.NotModifiedException;
+import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.dav.impl.DavCalendarCollection;
+import org.osaf.cosmo.dav.impl.DavCalendarResource;
+import org.osaf.cosmo.dav.impl.DavCollection;
+import org.osaf.cosmo.dav.impl.DavHomeCollection;
 import org.osaf.cosmo.dav.impl.StandardDavRequest;
 import org.osaf.cosmo.dav.impl.StandardDavResponse;
+import org.osaf.cosmo.dav.provider.CalendarCollectionProvider;
+import org.osaf.cosmo.dav.provider.CalendarResourceProvider;
+import org.osaf.cosmo.dav.provider.CollectionProvider;
 import org.osaf.cosmo.dav.provider.DavProvider;
 import org.osaf.cosmo.dav.provider.FileProvider;
+import org.osaf.cosmo.dav.provider.HomeCollectionProvider;
 import org.osaf.cosmo.http.IfMatch;
 import org.osaf.cosmo.http.IfNoneMatch;
 
@@ -82,12 +94,9 @@ public class StandardRequestHandler implements HttpRequestHandler {
         DavResponse wres = createDavResponse(response);
 
         try {
-            DavResource resource = (DavResource)
-                resourceFactory.createResource(wreq.getRequestLocator(),
-                                               wreq, wres);
-            
-            if (preconditions(wreq, wres, resource))
-                process(wreq, wres, resource);
+            DavResource resource = createDavResource(wreq, wres);
+            preconditions(wreq, wres, resource);
+            process(wreq, wres, resource);
         } catch (Throwable e) {
             DavException de = e instanceof DavException ?
                 (DavException) e : new DavException(e);
@@ -113,23 +122,14 @@ public class StandardRequestHandler implements HttpRequestHandler {
      * <li>The <code>If-Unmodified-Since</code> request header</li>
      * </ul>
      */
-    protected boolean preconditions(DavRequest request,
-                                    DavResponse response,
-                                    DavResource resource)
-        throws IOException {
-        if (! ifMatch(request, response, resource))
-            return false;
-
-        if (! ifNoneMatch(request, response, resource))
-            return false;
-
-        if (! ifModifiedSince(request, response, resource))
-            return false;
-
-        if (! ifUnmodifiedSince(request, response, resource))
-            return false;
-
-        return true;
+    protected void preconditions(DavRequest request,
+                                 DavResponse response,
+                                 DavResource resource)
+        throws DavException, IOException {
+        ifMatch(request, response, resource);
+        ifNoneMatch(request, response, resource);
+        ifModifiedSince(request, response, resource);
+        ifUnmodifiedSince(request, response, resource);
     }
 
     /**
@@ -165,6 +165,8 @@ public class StandardRequestHandler implements HttpRequestHandler {
             provider.move(request, response, resource);
         else if (request.getMethod().equals("MKCOL"))
             provider.mkcol(request, response, resource);
+        else if (request.getMethod().equals("REPORT"))
+            provider.report(request, response, resource);
         else if (request.getMethod().equals("MKCALENDAR"))
             provider.mkcalendar(request, response, resource);
         else if (request.getMethod().equals("MKTICKET"))
@@ -172,7 +174,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
         else if (request.getMethod().equals("DELTICKET"))
             provider.delticket(request, response, resource);
         else
-            response.setStatus(405);
+            throw new MethodNotAllowedException(request.getMethod() + " not allowed");
     }
 
     /**
@@ -189,7 +191,15 @@ public class StandardRequestHandler implements HttpRequestHandler {
      * </ul>
      */
     protected DavProvider createProvider(DavResource resource) {
-        return new FileProvider();
+        if (resource instanceof DavHomeCollection)
+            return new HomeCollectionProvider(resourceFactory);
+        if (resource instanceof DavCalendarCollection)
+            return new CalendarCollectionProvider(resourceFactory);
+        if (resource instanceof DavCollection)
+            return new CollectionProvider(resourceFactory);
+        if (resource instanceof DavCalendarResource)
+            return new CalendarResourceProvider(resourceFactory);
+        return new FileProvider(resourceFactory);
     }
 
     /**
@@ -217,6 +227,23 @@ public class StandardRequestHandler implements HttpRequestHandler {
         return new StandardDavResponse(response);
     }
 
+    /**
+     * <p>
+     * Creates an instance of <code>DavResource</code> representing the
+     * resource targeted by the request.
+     */
+    protected DavResource createDavResource(DavRequest request,
+                                            DavResponse response)
+        throws DavException {
+        try {
+            return (DavResource)
+                resourceFactory.createResource(request.getRequestLocator(),
+                                               request, response);
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
+    }
+
     public void init() {
         if (locatorFactory == null)
             throw new RuntimeException("locatorFactory must not be null");
@@ -240,95 +267,88 @@ public class StandardRequestHandler implements HttpRequestHandler {
         resourceFactory = factory;
     }
 
-    private boolean ifMatch(DavRequest request,
-                            DavResponse response,
-                            DavResource resource)
-        throws IOException {
+    private void ifMatch(DavRequest request,
+                         DavResponse response,
+                         DavResource resource)
+        throws DavException, IOException {
         EntityTag etag = etag(resource);
         try {
             if (IfMatch.allowMethod(request.getHeader("If-Match"), etag))
-                return true;
+                return;
         } catch (ParseException e) {
-            response.sendError(400, e.getMessage());
-            return false;
+            throw new BadRequestException(e.getMessage());
         }
 
-        response.sendError(412, "If-Match disallows conditional request");
         if (etag != null)
             response.addHeader("ETag", etag.toString());
 
-        return false;
+        throw new PreconditionFailedException("If-Match disallows conditional request");
     }
 
-    private boolean ifNoneMatch(DavRequest request,
-                                DavResponse response,
-                                DavResource resource)
-        throws IOException {
+    private void ifNoneMatch(DavRequest request,
+                             DavResponse response,
+                             DavResource resource)
+        throws DavException, IOException {
         EntityTag etag = etag(resource);
         try {
             if (IfNoneMatch.allowMethod(request.getHeader("If-None-Match"),
                                         etag))
-                return true;
+                return;
         } catch (ParseException e) {
-            response.sendError(400, e.getMessage());
-            return false;
+            throw new BadRequestException(e.getMessage());
         }
-
-        if (deservesNotModified(request))
-            response.sendError(304, "Not Modified");
-        else
-            response.sendError(412, "If-None-Match disallows conditional request");
 
         if (etag != null)
             response.addHeader("ETag", etag.toString());
 
-        return false;
+        if (deservesNotModified(request))
+            throw new NotModifiedException();
+        else
+            throw new PreconditionFailedException("If-None-Match disallows conditional request");
     }
 
-    private boolean ifModifiedSince(DavRequest request,
-                                    DavResponse response,
-                                    DavResource resource)
-        throws IOException {
+    private void ifModifiedSince(DavRequest request,
+                                 DavResponse response,
+                                 DavResource resource)
+        throws DavException, IOException {
         if (resource == null)
-            return true;
+            return;
 
         long mod = resource.getModificationTime();
         if (mod == -1)
-            return true;
+            return;
         mod = mod / 1000 * 1000;
 
         long since = request.getDateHeader("If-Modified-Since");
         if (since == -1)
-            return true;
+            return;
 
         if (mod > since)
-            return true;
+            return;
 
-        response.sendError(304, "Not Modified");
-        return false;
+        throw new NotModifiedException();
     }
 
-    private boolean ifUnmodifiedSince(DavRequest request,
-                                      DavResponse response,
-                                      DavResource resource)
-        throws IOException {
+    private void ifUnmodifiedSince(DavRequest request,
+                                   DavResponse response,
+                                   DavResource resource)
+        throws DavException, IOException {
         if (resource == null)
-            return true;
+            return;
 
         long mod = resource.getModificationTime();
         if (mod == -1)
-            return true;
+            return;
         mod = mod / 1000 * 1000;
 
         long since = request.getDateHeader("If-Modified-Since");
         if (since == -1)
-            return true;
+            return;
 
         if (mod <= since)
-            return true;
+            return;
 
-        response.sendError(412, "If-Unmodified-Since disallows conditional request");
-        return false;
+        throw new PreconditionFailedException("If-Unmodified-Since disallows conditional request");
     }
 
     private EntityTag etag(DavResource resource) {

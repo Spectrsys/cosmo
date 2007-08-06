@@ -110,7 +110,12 @@ public class StandardDavResponse extends WebdavResponseImpl
 
     public void sendDavError(DavException e)
         throws IOException {
+        setStatus(e.getErrorCode());
+        if (! e.hasContent())
+            return;
+
         XMLStreamWriter writer = null;
+
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             writer = XML_OUTPUT_FACTORY.createXMLStreamWriter(out);
@@ -118,7 +123,6 @@ public class StandardDavResponse extends WebdavResponseImpl
             e.writeTo(writer);
             writer.writeEndDocument();
 
-            setStatus(e.getErrorCode());
             setContentType("text/xml; charset=UTF-8");
             byte[] bytes = out.toByteArray();
             setContentLength(bytes.length);
