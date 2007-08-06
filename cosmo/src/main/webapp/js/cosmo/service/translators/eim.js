@@ -45,6 +45,10 @@ dojo.declare("cosmo.service.translators.Eim", null, {
         }}
     },
     
+    getDateFormatString: function (allDay, anyTime){
+        return (allDay || anyTime) ? "%Y%m%d": "%Y%m%dT%H%M%S";
+    },
+    
     // a hash from link rels to useful url names
     urlNameHash: {
         "edit": "atom-edit",
@@ -190,10 +194,12 @@ dojo.declare("cosmo.service.translators.Eim", null, {
             var ticketEl = this.getChildrenByClassName(subscriptionDiv, "ticket", "div")[0];
             var ticketKeyEl = this.getChildrenByClassName(ticketEl, "key", "span")[0];
             var ticket = ticketKeyEl.firstChild.nodeValue;
+            var ticketExistsEl = this.getChildrenByClassName(ticketEl, "exists", "span")[0];
+            var ticketDeleted = (ticketExistsEl.firstChild.nodeValue == "false");
             var collectionEl = this.getChildrenByClassName(subscriptionDiv, "collection", "div")[0];
             var collectionUidEl = this.getChildrenByClassName(collectionEl, "uuid", "span")[0];
-            var collectionExistsEl = this.getChildrenByClassName(collectionEl, "exists", "span")[0];
             var uid = collectionUidEl.firstChild.nodeValue;
+            var collectionExistsEl = this.getChildrenByClassName(collectionEl, "exists", "span")[0];
             var collectionDeleted = (collectionExistsEl.firstChild.nodeValue == "false");
             var collection = new cosmo.model.Collection({
                 uid: uid
@@ -205,7 +211,8 @@ dojo.declare("cosmo.service.translators.Eim", null, {
                 ticketKey: ticket,
                 uid: uid,
                 collection: collection,
-                collectionDeleted: collectionDeleted
+                collectionDeleted: collectionDeleted,
+                ticketDeleted: ticketDeleted
             })
 
             subscription.setUrls(this.getUrls(entry));
@@ -598,17 +605,20 @@ dojo.declare("cosmo.service.translators.Eim", null, {
     
     getUid: function (/*cosmo.model.Note*/ note){
         if (note instanceof cosmo.model.NoteOccurrence){
-            return note.getUid() + ":" + this.getRid(note.recurrenceId);
+            var masterEvent = note.getMaster().getEventStamp();
+            return note.getUid() + ":" + this.getRid(note.recurrenceId, 
+                                             masterEvent.getAllDay(), masterEvent.getAnyTime());
         } else {
             return note.getUid();
         }
     },
     
-    getRid: function(/*cosmo.datetime.Date*/date){
+    getRid: function(/*cosmo.datetime.Date*/date, allDay, anyTime){
+        var ridFormat = this.getDateFormatString(allDay, anyTime)
         if (date.isFloating()) {
-            return date.strftime(this.RID_FMT);
+            return date.strftime(ridFormat);
         } else {
-            return  date.createDateForTimezone("utc").strftime(this.RID_FMT + "Z");
+            return  date.createDateForTimezone("utc").strftime(ridFormat + "Z");
         }
     },
 
@@ -892,6 +902,8 @@ dojo.declare("cosmo.service.translators.Eim", null, {
     modifiedOccurrenceToEventRecord: function(modifiedOccurrence){
         var modification = modifiedOccurrence.getMaster().getModification(modifiedOccurrence.recurrenceId);
         var props = modification.getModifiedStamps().event || {};
+        if (props.allDay || props.anyTime) props.startDate = 
+            modifiedOccurrence.getEventStamp().getStartDate();
         props.uuid = modifiedOccurrence.getUid();
         var record = this.propsToEventRecord(props);
         var missingFields = [];
@@ -930,29 +942,11 @@ dojo.declare("cosmo.service.translators.Eim", null, {
 
     exdatesToEim: function(exdates, start, allDay, anyTime){
         return this.datesToEim(exdates, start, allDay, anyTime);
-        /*";VALUE=DATE-TIME" + 
-            (start.tzId? ";TZID=" + start.tzId : "") + 
-            ":" +
-            dojo.lang.map(
-                exdates,
-                function(date){
-                    return date.strftime("%Y%m%dT%H%M%S");
-                }
-            ).join(",");*/
     },
     
     dateToEimDtstart: function (start, allDay, anyTime){
         return (anyTime? ";X-OSAF-ANYTIME=TRUE" : "") +
                this.datesToEim([start], start, allDay, anyTime);
-/*                (start.tzId? ";TZID=" + start.tzId : ""),
-                ";VALUE=",
-                ((allDay || anyTime)? "DATE" : "DATE-TIME"),
-                ":",
-                ((allDay || anyTime)?
-                    start.strftime("%Y%m%d"):
-                    start.strftime("%Y%m%dT%H%M%S"))
-                ].join("");*/
-        
     },
     
     datesToEim: function (dates, start, allDay, anyTime){
@@ -960,9 +954,7 @@ dojo.declare("cosmo.service.translators.Eim", null, {
                 ";VALUE=",
                 ((allDay || anyTime)? "DATE" : "DATE-TIME"),
                 ":"].join("");
-          var formatString = (allDay || anyTime)?
-                    "%Y%m%d":
-                    "%Y%m%dT%H%M%S";
+          var formatString = this.getDateFormatString(allDay, anyTime);
           date += dojo.lang.map(
                   dates,
                   function(date){
@@ -1013,6 +1005,11 @@ dojo.declare("cosmo.service.translators.Eim", null, {
                 var dateParams = this.dateParamsFromEimDate(record.fields.dtstart[1]);
                 if (dateParams.anyTime !== undefined) properties.anyTime = dateParams.anyTime;
                 if (dateParams.allDay !== undefined) properties.allDay = dateParams.allDay;
+                // Only one of these properties can be true, and we
+                // need to do this to ensure modifications don't inherit
+                // their parents' anyTime.
+                if (properties.anyTime) properties.allDay = false;
+                if (properties.allDay) properties.anyTime = false;
             }
             if (record.fields.duration) properties.duration =
                     new cosmo.model.Duration(record.fields.duration[1]);
