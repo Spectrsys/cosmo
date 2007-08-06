@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.DavSession;
@@ -49,6 +48,7 @@ import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.dav.ticket.property.TicketDiscovery;
@@ -309,33 +309,15 @@ public abstract class DavResourceBase
             if (isHomeCollection())
                 return null;
 
-            // XXX: if we have an item, wrap its parent rather than
-            // doing a full lookup
-
-            if (log.isDebugEnabled())
-                log.debug("getting parent collection for resource " +
-                          getResourcePath());
-
             String parentPath = PathUtil.getParentPath(getResourcePath());
             DavResourceLocator parentLocator =
                 getLocator().getFactory().
-                createResourceLocator(getLocator().getPrefix(),
-                                      getLocator().getWorkspacePath(),
-                                      parentPath);
-
-            try {
-                parent = (DavCollection) getFactory().
-                    createResource(parentLocator, null);
-            } catch (ClassCastException e) {
-                // XXX: really should be able to throw DavException
-                // from this method
-                throw new RuntimeException("Parent of requested resource is not a collection");
-            } catch (DavException e) {
-                log.error("could not instantiate parent resource " +
-                          parentPath + " for resource " + getResourcePath());
-                throw new RuntimeException("could not instantiate parent resource", e);
-            }
+                    createResourceLocator(getLocator().getPrefix(),
+                                          getLocator().getWorkspacePath(),
+                                          parentPath);
+            parent = (DavCollection) factory.resolve(parentLocator);
         }
+
         return parent;
     }
 
@@ -444,8 +426,8 @@ public abstract class DavResourceBase
     }
 
     /** */
-    public DavResourceFactory getFactory() {
-        return factory;
+    public org.apache.jackrabbit.webdav.DavResourceFactory getFactory() {
+        return null;
     }
 
     /** */
@@ -534,16 +516,20 @@ public abstract class DavResourceBase
             findVisibleTickets(item);
     }
 
+    public DavResourceFactory getResourceFactory() {
+        return factory;
+    }
+
     // our methods
 
     /** */
     protected ContentService getContentService() {
-        return ((StandardDavResourceFactory) factory).getContentService();
+        return factory.getContentService();
     }
 
     /** */
     protected CosmoSecurityManager getSecurityManager() {
-        return ((StandardDavResourceFactory) factory).getSecurityManager();
+        return factory.getSecurityManager();
     }
 
     /** */

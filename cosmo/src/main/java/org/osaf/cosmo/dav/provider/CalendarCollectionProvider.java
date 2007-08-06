@@ -20,11 +20,10 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavResourceFactory;
-
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
@@ -52,8 +51,9 @@ public class CalendarCollectionProvider extends CollectionProvider {
                           DavResponse response,
                           DavResource resource)
         throws DavException, IOException {
-        if (resource.isCalendarCollection())
-            throw new MethodNotAllowedException("MKCALENDAR not allowed for calendar collection");
+        DavResource parent = (DavResource) resource.getCollection();
+        if (parent.isCalendarCollection())
+            throw new MethodNotAllowedException("MKCALENDAR not allowed within a calendar collection");
         super.mkcalendar(request, response, resource);
     }
 }

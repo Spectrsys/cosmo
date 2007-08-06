@@ -30,11 +30,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 
 import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.model.TaskStamp;
 import org.osaf.cosmo.model.NoteItem;

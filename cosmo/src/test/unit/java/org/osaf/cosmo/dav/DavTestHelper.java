@@ -23,9 +23,6 @@ import org.apache.jackrabbit.webdav.DavLocatorFactory;
 import org.apache.jackrabbit.webdav.DavResource;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavResourceFactory;
-import org.apache.jackrabbit.webdav.DavSession;
-import org.apache.jackrabbit.webdav.DavSessionProvider;
 import org.apache.jackrabbit.webdav.simple.LocatorFactoryImpl;
 
 import org.osaf.cosmo.TestHelper;
@@ -33,9 +30,10 @@ import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
 import org.osaf.cosmo.dao.mock.MockUserDao;
+import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.StandardResourceFactory;
 import org.osaf.cosmo.dav.impl.DavCollection;
 import org.osaf.cosmo.dav.impl.DavHomeCollection;
-import org.osaf.cosmo.dav.impl.StandardDavResourceFactory;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Ticket;
@@ -63,7 +61,7 @@ public class DavTestHelper extends TestHelper {
     private MockSecurityManager securityManager;
     private StandardContentService contentService;
     private StandardUserService userService;
-    private StandardDavResourceFactory resourceFactory;
+    private StandardResourceFactory resourceFactory;
     private LocatorFactoryImpl locatorFactory;
     private User user;
     private HomeCollectionItem homeCollection;
@@ -100,9 +98,8 @@ public class DavTestHelper extends TestHelper {
         userService.setPasswordGenerator(new SessionIdGenerator());
         userService.init();
 
-        resourceFactory = new StandardDavResourceFactory();
-        resourceFactory.setContentService(contentService);
-        resourceFactory.setSecurityManager(securityManager);
+        resourceFactory =
+            new StandardResourceFactory(contentService, securityManager);
 
         locatorFactory = new LocatorFactoryImpl(repositoryPrefix);
     }

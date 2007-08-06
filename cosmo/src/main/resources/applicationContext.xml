@@ -456,13 +456,9 @@
   <!-- dav protocol resources -->
 
   <bean id="davResourceFactory"
-        class="org.osaf.cosmo.dav.impl.StandardDavResourceFactory">
-    <property name="contentService">
-      <ref local="contentService"/>
-    </property>
-    <property name="securityManager">
-      <ref local="securityManager"/>
-    </property>
+        class="org.osaf.cosmo.dav.StandardResourceFactory">
+    <constructor-arg><ref local="contentService"/></constructor-arg>
+    <constructor-arg><ref local="securityManager"/></constructor-arg>
   </bean>
 
   <bean id="davLocatorFactory"

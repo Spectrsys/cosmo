@@ -23,9 +23,9 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
@@ -42,6 +42,7 @@ import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
 import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.ModelValidationException;

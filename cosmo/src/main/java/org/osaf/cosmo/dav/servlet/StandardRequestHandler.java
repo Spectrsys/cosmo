@@ -28,12 +28,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
-import org.apache.jackrabbit.webdav.DavResourceFactory;
 
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.NotModifiedException;
@@ -94,7 +94,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
         DavResponse wres = createDavResponse(response);
 
         try {
-            DavResource resource = createDavResource(wreq, wres);
+            DavResource resource = resolveTarget(wreq);
             preconditions(wreq, wres, resource);
             process(wreq, wres, resource);
         } catch (Throwable e) {
@@ -231,17 +231,11 @@ public class StandardRequestHandler implements HttpRequestHandler {
      * <p>
      * Creates an instance of <code>DavResource</code> representing the
      * resource targeted by the request.
+     * </p>
      */
-    protected DavResource createDavResource(DavRequest request,
-                                            DavResponse response)
+    protected DavResource resolveTarget(DavRequest request)
         throws DavException {
-        try {
-            return (DavResource)
-                resourceFactory.createResource(request.getRequestLocator(),
-                                               request, response);
-        } catch (org.apache.jackrabbit.webdav.DavException e) {
-            throw new DavException(e);
-        }
+        return resourceFactory.resolve(request.getRequestLocator(), request);
     }
 
     public void init() {

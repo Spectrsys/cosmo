@@ -27,6 +27,7 @@ import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 
+import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.caldav.report.CaldavReport;
 import org.osaf.cosmo.dav.ticket.TicketDavRequest;
 import org.osaf.cosmo.model.Ticket;
@@ -100,4 +101,6 @@ public interface DavResource
      */
     public Report getReport(ReportInfo info)
         throws DavException;
+
+    public DavResourceFactory getResourceFactory();
 }

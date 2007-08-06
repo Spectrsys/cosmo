@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
@@ -47,6 +46,7 @@ import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.version.report.SupportedReportSetProperty;
 
 import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.caldav.report.MultigetReport;
@@ -394,9 +394,7 @@ public class DavCollection extends DavResourceBase
             createResourceLocator(getLocator().getPrefix(),
                                   getLocator().getWorkspacePath(), path,
                                   false);
-        return (DavResource)
-            ((StandardDavResourceFactory)getFactory()).
-            itemToResource(locator, item);
+        return getResourceFactory().createResource(locator, item);
     }    
 
     protected DavResource memberToResource(String path) {
@@ -404,9 +402,7 @@ public class DavCollection extends DavResourceBase
             createResourceLocator(getLocator().getPrefix(),
                                   getLocator().getWorkspacePath(), path,
                                   false);
-        return (DavResource)
-            ((StandardDavResourceFactory)getFactory()).
-            itemToResource(locator, null);
+        return getResourceFactory().resolve(locator);
     }
 
     private void writeHtmlDirectoryIndex(OutputContext context)

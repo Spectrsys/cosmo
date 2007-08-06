@@ -34,10 +34,12 @@ import org.apache.commons.logging.LogFactory;
  * </p>
  * <p>
  * A URI pattern looks like
- * <code>/collection/{uid}/{projection}?/{format}?</code>. Each path
+ * <code>/collection/{uid}/{projection}?/{format}?/*</code>. Each path
  * segment can be either a literal or a variable (the latter enclosed
  * in curly braces}. A segment can be further denoted as optional, in
- * which case the segment is trailed by a question mark.
+ * which case the segment is trailed by a question mark. A final segment of
+ * <code>*</code> indicates that the remainder of the candidate URI after the
+ * previous segment is matched.
  * </p>
  * <p>
  * Inspired by the .NET UriTemplate class.
@@ -79,8 +81,9 @@ public class UriTemplate {
         Iterator<String> vi = variables.iterator();
 
         Iterator<Segment> si = segments.iterator();
+        Segment segment = null;
         while (si.hasNext()) {
-            Segment segment = si.next();
+            segment = si.next();
 
             if (segment.isVariable()) {
                 String value = null;
@@ -101,7 +104,11 @@ public class UriTemplate {
         }
 
         if (vi.hasNext())
-            throw new IllegalArgumentException("Too many values");
+            if (segment.isAll()) {
+                while (vi.hasNext())
+                    buf.append(escape(vi.next()));
+            } else
+                throw new IllegalArgumentException("Too many values");
 
         return buf.toString();
     }
@@ -119,7 +126,10 @@ public class UriTemplate {
      * optional. For each variable segment in the template, an entry
      * is added to the <code>Match</code> to be returned; the entry
      * key is the variable name from the template, and the entry value
-     * is the corresponding (unescaped) token from the uri-path.
+     * is the corresponding (unescaped) token from the uri-path. If the
+     * template includes an "all" segment, a match entry with key
+     * <code>*</code> is also included containing the remainder of the
+     * uri-path after the last matching segment.
      * </p>
      *
      * @param path the candidate uri-path
@@ -135,10 +145,15 @@ public class UriTemplate {
         StrTokenizer candidate = new StrTokenizer(path, '/');
         Iterator<Segment> si = segments.iterator();
 
-        while (si.hasNext()) {
-            Segment segment = si.next();
+        Segment segment = null;
+        while (si.hasNext() || segment.isAll()) {
+            segment = si.next();
 
             if (! candidate.hasNext()) {
+                // if the segment is consuming all remaining data, then we're
+                // done, since there is no more data
+                if (segment.isAll())
+                    break;
                 // if the segment is optional, the candidate doesn't
                 // have to have a matching segment
                 if (segment.isOptional())
@@ -149,7 +164,11 @@ public class UriTemplate {
 
             String token = candidate.nextToken();
 
-            if (segment.isVariable())
+            if (segment.isAll()) {
+                String saved = match.get("*");
+                saved += "/" + unescape(token);
+                match.put("*", saved);
+            } else if (segment.isVariable())
                 match.put(segment.getData(), unescape(token));
             else if (! segment.getData().equals(token))
                 // literal segment doesn't match, so path is not a match
@@ -179,6 +198,7 @@ public class UriTemplate {
         private String data;
         private boolean variable = false;
         private boolean optional = false;
+        private boolean all = false;
 
         public Segment(String data) {
             if (data.startsWith("{")) {
@@ -193,9 +213,11 @@ public class UriTemplate {
             } else if (data.endsWith("?")) {
                 optional = true;
                 this.data = data.substring(0, data.length()-1);
+            } else if (data.equals("*")) {
+                all = true;
             }
 
-            if (this.data == null)
+            if (this.data == null && ! all)
                 this.data = data;
         }
 
@@ -209,6 +231,10 @@ public class UriTemplate {
 
         public boolean isOptional() {
             return optional;
+        }
+
+        public boolean isAll() {
+            return all;
         }
     }
 

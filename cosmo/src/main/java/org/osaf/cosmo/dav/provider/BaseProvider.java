@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.DavResourceFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
@@ -40,6 +39,7 @@ import org.osaf.cosmo.dav.ContentLengthRequiredException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.NotFoundException;
@@ -153,8 +153,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new BadRequestException("Depth for COPY must be 0 or Infinity");
 
         DavResource destination =
-            createDavResource(request.getDestinationLocator(), request,
-                              response);
+            resourceFactory.resolve(request.getDestinationLocator(), request);
         validateDestination(request, destination);
 
         try {
@@ -175,8 +174,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new NotFoundException();
 
         DavResource destination =
-            createDavResource(request.getDestinationLocator(), request,
-                              response);
+            resourceFactory.resolve(request.getDestinationLocator(), request);
         validateDestination(request, destination);
 
         try {
@@ -251,18 +249,6 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         throws IOException {
         OutputStream out = withEntity ? response.getOutputStream() : null;
         return new OutputContextImpl(response, out);
-    }
-
-    protected DavResource createDavResource(DavResourceLocator locator,
-                                            DavRequest request,
-                                            DavResponse response)
-        throws DavException {
-        try {
-            return (DavResource)
-                resourceFactory.createResource(locator, request, response);
-        } catch (org.apache.jackrabbit.webdav.DavException e) {
-            throw new DavException(e);
-        }
     }
 
     protected void validateDestination(DavRequest request,
