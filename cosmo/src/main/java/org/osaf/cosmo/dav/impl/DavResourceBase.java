@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.server.io.IOUtil;
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.DavSession;
@@ -47,6 +46,8 @@ import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
+import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
@@ -142,12 +143,19 @@ public abstract class DavResourceBase
 
     /** */
     public boolean isCollection() {
-        return item instanceof CollectionItem;
+        throw new UnsupportedOperationException();
     }
 
     /** */
     public String getDisplayName() {
         return item.getDisplayName();
+    }
+
+    /** */
+    public String getETag() {
+        if (getItem() == null)
+            return null;
+        return "\"" + getItem().getEntityTag() + "\"";
     }
 
     /** */
@@ -191,7 +199,7 @@ public abstract class DavResourceBase
      * @see #setLiveProperty(DavProperty)
      */
     public void setProperty(DavProperty property)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
             throw new DavException(DavServletResponse.SC_NOT_FOUND);
 
@@ -223,7 +231,7 @@ public abstract class DavResourceBase
      * @see #removeLiveProperty(DavPropertyName)
      */
     public void removeProperty(DavPropertyName propertyName)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
             throw new DavException(DavServletResponse.SC_NOT_FOUND);
 
@@ -254,7 +262,7 @@ public abstract class DavResourceBase
      */
     public MultiStatusResponse alterProperties(DavPropertySet setProperties,
                                                DavPropertyNameSet removePropertyNames)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
             throw new DavException(DavServletResponse.SC_NOT_FOUND);
 
@@ -305,25 +313,12 @@ public abstract class DavResourceBase
 
     /** */
     public DavResource getCollection() {
-        if (parent == null) {
-            if (isHomeCollection())
-                return null;
-
-            String parentPath = PathUtil.getParentPath(getResourcePath());
-            DavResourceLocator parentLocator =
-                getLocator().getFactory().
-                    createResourceLocator(getLocator().getPrefix(),
-                                          getLocator().getWorkspacePath(),
-                                          parentPath);
-            parent = (DavCollection) factory.resolve(parentLocator);
-        }
-
-        return parent;
+        return getParent();
     }
 
     /** */
     public void move(org.apache.jackrabbit.webdav.DavResource destination)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
             throw new DavException(DavServletResponse.SC_NOT_FOUND);
        
@@ -345,7 +340,7 @@ public abstract class DavResourceBase
     /** */
     public void copy(org.apache.jackrabbit.webdav.DavResource destination,
                      boolean shallow)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
             throw new DavException(DavServletResponse.SC_NOT_FOUND);
 
@@ -396,7 +391,7 @@ public abstract class DavResourceBase
 
     /** */
     public ActiveLock lock(LockInfo reqLockInfo)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         // nothing is lockable at the moment
         throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED,
                                "Resource not lockable");
@@ -405,7 +400,7 @@ public abstract class DavResourceBase
     /** */
     public ActiveLock refreshLock(LockInfo reqLockInfo,
                                   String lockToken)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         // nothing is lockable at the moment
         throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED,
                                "Resource not lockable");
@@ -413,7 +408,7 @@ public abstract class DavResourceBase
 
     /** */
     public void unlock(String lockToken)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         // nothing is lockable at the moment
         throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED,
                                "Resource not lockable");
@@ -437,29 +432,20 @@ public abstract class DavResourceBase
 
     // DavResource methods
 
-    /**
-     * Returns true if this resource represents a calendar
-     * collection.
-     */
-    public boolean isCalendarCollection() {
-        return item.getStamp(CalendarCollectionStamp.class)!=null;
+    public DavCollection getParent() {
+        if (parent == null) {
+            String parentPath = PathUtil.getParentPath(getResourcePath());
+            DavResourceLocator parentLocator =
+                getLocator().getFactory().
+                    createResourceLocator(getLocator().getPrefix(),
+                                          getLocator().getWorkspacePath(),
+                                          parentPath);
+            parent = (DavCollection) factory.resolve(parentLocator);
+        }
+
+        return parent;
     }
 
-    /**
-     * Returns true if this resource represents a calendar
-     * collection.
-     */
-    public boolean isHomeCollection() {
-        // home collections cannot be created through dav, so if the
-        // item does not exist, then it's just a collection that
-        // hasn't been saved yet.
-        return (item instanceof HomeCollectionItem);
-    }
-
-    /**
-     * Associates a ticket with this resource and saves it into
-     * persistent storage.
-     */
     public void saveTicket(Ticket ticket)
         throws DavException {
         if (ticket == null) {
@@ -472,10 +458,6 @@ public abstract class DavResourceBase
         getContentService().createTicket(item, ticket);
     }
 
-    /**
-     * Removes the association between the ticket and this resource
-     * and deletes the ticket from persistent storage.
-     */
     public void removeTicket(Ticket ticket)
         throws DavException {
         if (ticket == null || ticket.getKey() == null) {
@@ -489,9 +471,6 @@ public abstract class DavResourceBase
         getContentService().removeTicket(item, ticket);
     }
 
-    /**
-     * Returns the ticket with the given id on this resource.
-     */
     public Ticket getTicket(String id) {
         if (id == null) {
             throw new IllegalArgumentException("no ticket id provided");
@@ -506,11 +485,6 @@ public abstract class DavResourceBase
         return null;
     }
 
-    /**
-     * Returns all visible tickets (those owned by the currently
-     * authenticated user) on this resource, or an empty
-     * <code>Set</code> if there are no visible tickets.
-     */
     public Set<Ticket> getTickets() {
         return getSecurityManager().getSecurityContext().
             findVisibleTickets(item);
@@ -522,22 +496,18 @@ public abstract class DavResourceBase
 
     // our methods
 
-    /** */
     protected ContentService getContentService() {
         return factory.getContentService();
     }
 
-    /** */
     protected CosmoSecurityManager getSecurityManager() {
         return factory.getSecurityManager();
     }
 
-    /** */
     protected Item getItem() {
         return item;
     }
 
-    /** */
     protected void setItem(Item item) {
         this.item = item;
         loadProperties();

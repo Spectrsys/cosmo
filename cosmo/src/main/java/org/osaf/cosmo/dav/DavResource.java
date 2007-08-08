@@ -27,6 +27,8 @@ import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 
+import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.caldav.report.CaldavReport;
 import org.osaf.cosmo.dav.ticket.TicketDavRequest;
@@ -47,15 +49,9 @@ public interface DavResource
     public String COMPLIANCE_CLASS = "1, calendar-access, ticket";
 
     /**
-     * Returns true if this resource represents a calendar
-     * collection.
+     * Returns the parent collection for this resource.
      */
-    public boolean isCalendarCollection();
-
-    /**
-     * Returns true if this resource represents a home collection.
-     */
-    public boolean isHomeCollection();
+    public DavCollection getParent();
 
     /**
      * Associates a ticket with this resource and saves it into
@@ -80,20 +76,6 @@ public interface DavResource
      * <code>Set</code> if there are no visible tickets.
      */
     public Set<Ticket> getTickets();
-
-    /**
-     * Adds a new member to this resource and set the member properties.
-     */
-    public MultiStatusResponse addMember(DavResource member,
-                                         InputContext inputContext,
-                                         DavPropertySet setProperties)
-        throws DavException;
-
-    /**
-     * Returns the member resource at the given absolute href.
-     */
-    public DavResource findMember(String href)
-        throws DavException;
 
     /**
      * Return the report that matches the given report info if it is

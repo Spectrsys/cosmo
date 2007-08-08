@@ -17,6 +17,8 @@ package org.osaf.cosmo.dav.provider;
 
 import java.io.IOException;
 
+import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
@@ -51,7 +53,7 @@ public interface DavProvider {
 
     public void put(DavRequest request,
                     DavResponse response,
-                    DavResource resource)
+                    DavContent content)
         throws DavException, IOException;
 
     public void delete(DavRequest request,
@@ -71,7 +73,7 @@ public interface DavProvider {
 
     public void mkcol(DavRequest request,
                       DavResponse response,
-                      DavResource resource)
+                      DavCollection collection)
         throws DavException, IOException;
 
     public void report(DavRequest request,
@@ -81,7 +83,7 @@ public interface DavProvider {
 
     public void mkcalendar(DavRequest request,
                            DavResponse response,
-                           DavResource resource)
+                           DavCollection collection)
         throws DavException, IOException;
 
     public void mkticket(DavRequest request,

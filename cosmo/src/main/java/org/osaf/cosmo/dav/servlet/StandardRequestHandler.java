@@ -30,6 +30,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
 
 import org.osaf.cosmo.dav.BadRequestException;
+import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
@@ -40,7 +42,7 @@ import org.osaf.cosmo.dav.NotModifiedException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
-import org.osaf.cosmo.dav.impl.DavCollection;
+import org.osaf.cosmo.dav.impl.DavCollectionBase;
 import org.osaf.cosmo.dav.impl.DavHomeCollection;
 import org.osaf.cosmo.dav.impl.StandardDavRequest;
 import org.osaf.cosmo.dav.impl.StandardDavResponse;
@@ -156,7 +158,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
         else if (request.getMethod().equals("PROPPATCH"))
             provider.proppatch(request, response, resource);
         else if (request.getMethod().equals("PUT"))
-            provider.put(request, response, resource);
+            provider.put(request, response, (DavContent)resource);
         else if (request.getMethod().equals("DELETE"))
             provider.delete(request, response, resource);
         else if (request.getMethod().equals("COPY"))
@@ -164,11 +166,11 @@ public class StandardRequestHandler implements HttpRequestHandler {
         else if (request.getMethod().equals("MOVE"))
             provider.move(request, response, resource);
         else if (request.getMethod().equals("MKCOL"))
-            provider.mkcol(request, response, resource);
+            provider.mkcol(request, response, (DavCollection)resource);
         else if (request.getMethod().equals("REPORT"))
             provider.report(request, response, resource);
         else if (request.getMethod().equals("MKCALENDAR"))
-            provider.mkcalendar(request, response, resource);
+            provider.mkcalendar(request, response, (DavCollection)resource);
         else if (request.getMethod().equals("MKTICKET"))
             provider.mkticket(request, response, resource);
         else if (request.getMethod().equals("DELTICKET"))

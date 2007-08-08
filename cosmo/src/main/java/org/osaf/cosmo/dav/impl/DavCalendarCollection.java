@@ -34,7 +34,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
@@ -45,6 +44,9 @@ import org.apache.jackrabbit.webdav.property.ResourceType;
 
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.util.CalendarBuilderDispenser;
+import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavContent;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
@@ -84,7 +86,7 @@ import org.osaf.cosmo.service.util.EventUtils;
  * @see DavCollection
  * @see CalendarCollectionItem
  */
-public class DavCalendarCollection extends DavCollection
+public class DavCalendarCollection extends DavCollectionBase
     implements CaldavConstants, ICalendarConstants {
     private static final Log log =
         LogFactory.getLog(DavCalendarCollection.class);
@@ -120,7 +122,7 @@ public class DavCalendarCollection extends DavCollection
         getItem().addStamp(new CalendarCollectionStamp((CollectionItem) getItem()));
     }
 
-    // DavResource
+    // Jackrabbit DavResource
 
     /** */
     public String getSupportedMethods() {
@@ -130,7 +132,7 @@ public class DavCalendarCollection extends DavCollection
 
     /** */
     public void move(DavResource destination)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         validateDestination(destination);
         super.move(destination);
     }
@@ -138,9 +140,15 @@ public class DavCalendarCollection extends DavCollection
     /** */
     public void copy(DavResource destination,
                      boolean shallow)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         validateDestination(destination);
         super.copy(destination, shallow);
+    }
+
+    // DavCollection
+
+    public boolean isCalendarCollection() {
+        return true;
     }
 
     // our methods
@@ -336,7 +344,8 @@ public class DavCalendarCollection extends DavCollection
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
         CalendarCollectionStamp cc = getCalendarCollectionStamp();
-        ContentItem content = (ContentItem) member.getItem();
+        ContentItem content = (ContentItem)
+            ((DavResourceBase)member).getItem();
         EventStamp event = EventStamp.getStamp(content);
         Calendar calendar = event.getCalendar();
 
@@ -376,7 +385,7 @@ public class DavCalendarCollection extends DavCollection
             }
         }
 
-        member.setItem(content);
+        ((DavResourceBase)member).setItem(content);
     }
 
     /** */
@@ -385,7 +394,8 @@ public class DavCalendarCollection extends DavCollection
         if (! (member instanceof DavCalendarResource))
             throw new IllegalArgumentException("member not DavCalendarResource");
 
-        ContentItem content = (ContentItem) member.getItem();
+        ContentItem content = (ContentItem)
+            ((DavResourceBase)member).getItem();
         CollectionItem parent = (CollectionItem) getItem();
         
         // XXX: what exceptions need to be caught?

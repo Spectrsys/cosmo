@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.server.io.IOUtil;
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
@@ -41,7 +40,8 @@ import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
-import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.DavContent;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.NoteItem;
@@ -60,10 +60,12 @@ import org.osaf.cosmo.model.User;
  * <li><code>DAV:getlastmodified</code> (protected)</li>
  * </ul>
  *
+ * @see DavContent
  * @see DavResourceBase
  * @see ContentItem
  */
-public abstract class DavContent extends DavResourceBase {
+public abstract class DavContentBase extends DavResourceBase
+    implements DavContent {
     private static final Log log = LogFactory.getLog(DavContent.class);
     private static final int[] RESOURCE_TYPES;
     private static final Set<String> DEAD_PROPERTY_FILTER =
@@ -79,14 +81,14 @@ public abstract class DavContent extends DavResourceBase {
     }
 
     /** */
-    public DavContent(ContentItem item,
-                      DavResourceLocator locator,
-                      DavResourceFactory factory) {
+    public DavContentBase(ContentItem item,
+                          DavResourceLocator locator,
+                          DavResourceFactory factory) {
         super(item, locator, factory);
     }
 
 
-    // DavResource
+    // Jackrabbit DavResource
 
     /** */
     public String getSupportedMethods() {
@@ -103,47 +105,25 @@ public abstract class DavContent extends DavResourceBase {
     }
 
     /** */
-    public String getETag() {
-        if (getItem() == null)
-            return null;
-        return "\"" + getItem().getEntityTag() + "\"";
-    }
-
-    /** */
     public abstract void spool(OutputContext outputContext)
         throws IOException;
 
-    /** */
-    public void addMember(org.apache.jackrabbit.webdav.DavResource resource,
+    public void addMember(org.apache.jackrabbit.webdav.DavResource member,
                           InputContext inputContext)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         throw new UnsupportedOperationException();
     }
 
-    /** */
-    public MultiStatusResponse addMember(DavResource member,
-                                         InputContext inputContext,
-                                         DavPropertySet setProperties)
-        throws DavException {
-        throw new UnsupportedOperationException();
-    }
-
-    /** */
     public DavResourceIterator getMembers() {
-        return new DavResourceIteratorImpl(new ArrayList());
-    }
-
-    /** */
-    public DavResource findMember(String href)
-        throws DavException {
-        throw new DavException(DavServletResponse.SC_BAD_REQUEST);
-    }
-
-    /** */
-    public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
-        throws DavException {
         throw new UnsupportedOperationException();
     }
+
+    public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
+        throws org.apache.jackrabbit.webdav.DavException {
+        throw new UnsupportedOperationException();
+    }
+
+    // DavResource methods
 
     /** */
     public Report getReport(ReportInfo reportInfo)

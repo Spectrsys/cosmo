@@ -20,12 +20,17 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.jackrabbit.webdav.MultiStatus;
+import org.apache.jackrabbit.webdav.MultiStatusResponse;
+import org.apache.jackrabbit.webdav.property.DavPropertySet;
+
+import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
-import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResponse;
-import org.osaf.cosmo.dav.MethodNotAllowedException;
+import org.osaf.cosmo.dav.ExistsException;
+import org.osaf.cosmo.dav.caldav.CalendarCollectionLocationException;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 
 /**
@@ -48,12 +53,32 @@ public class CalendarCollectionProvider extends CollectionProvider {
     // DavProvider methods
 
     public void mkcalendar(DavRequest request,
-                          DavResponse response,
-                          DavResource resource)
+                           DavResponse response,
+                           DavCollection collection)
         throws DavException, IOException {
-        DavResource parent = (DavResource) resource.getCollection();
-        if (parent.isCalendarCollection())
-            throw new MethodNotAllowedException("MKCALENDAR not allowed within a calendar collection");
-        super.mkcalendar(request, response, resource);
+        if (collection.exists())
+            throw new ExistsException();
+        if (! collection.getParent().exists())
+            throw new CalendarCollectionLocationException("One or more intermediate collections must be created");
+        if (collection.getParent().isCalendarCollection())
+            throw new CalendarCollectionLocationException("A calendar collection may not be created within a calendar collection");
+
+        if (log.isDebugEnabled())
+            log.debug("MKCALENDAR at " + collection.getResourcePath());
+
+        DavPropertySet properties = request.getMkCalendarSetProperties();
+        MultiStatusResponse msr =
+            collection.getParent().addCollection(collection, properties);
+
+        if (properties.isEmpty() || ! msr.hasNonOk()) {
+            response.setStatus(201);
+            response.setHeader("Cache-control", "no-cache");
+            response.setHeader("Pragma", "no-cache");
+            return;
+        }
+
+        MultiStatus ms = new MultiStatus();
+        ms.addResponse(msr);
+        response.sendMultiStatus(ms);
     }
 }

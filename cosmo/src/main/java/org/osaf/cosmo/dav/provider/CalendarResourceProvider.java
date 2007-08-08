@@ -26,9 +26,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 
 import org.osaf.cosmo.dav.ConflictException;
+import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
-import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.caldav.SupportedCalendarComponentException;
@@ -59,32 +59,26 @@ public class CalendarResourceProvider extends FileProvider {
 
     public void put(DavRequest request,
                     DavResponse response,
-                    DavResource resource)
+                    DavContent content)
         throws DavException, IOException {
-        DavResource parent = (DavResource) resource.getCollection();
-        if (! parent.exists())
-            throw new ConflictException("Parent collection must be created");
+        if (! content.getParent().exists())
+            throw new ConflictException("One or more intermediate collections must be created");
 
-        try {
-            int status = resource != null ? 204 : 201;
-            DavInputContext ctx = (DavInputContext)
-                createInputContext(request);
-            if (! resource.exists())
-                resource = createCalendarResource(request, response,
-                                                  resource.getLocator(),
-                                                  ctx.getCalendar());
-            parent.addMember(resource, ctx);
-            response.setStatus(status);
-            response.setHeader("ETag", resource.getETag());
-        } catch (org.apache.jackrabbit.webdav.DavException e) {
-            throw new DavException(e);
-        }
+        int status = content.exists() ? 204 : 201;
+        DavInputContext ctx = (DavInputContext) createInputContext(request);
+        if (! content.exists())
+            content = createCalendarResource(request, response,
+                                             content.getLocator(),
+                                             ctx.getCalendar());
+        content.getParent().addContent(content, ctx);
+        response.setStatus(status);
+        response.setHeader("ETag", content.getETag());
     }
 
-    protected DavResource createCalendarResource(DavRequest request,
-                                                 DavResponse response,
-                                                 DavResourceLocator locator,
-                                                 Calendar calendar)
+    protected DavContent createCalendarResource(DavRequest request,
+                                                DavResponse response,
+                                                DavResourceLocator locator,
+                                                Calendar calendar)
         throws DavException {
         if (! calendar.getComponents(Component.VEVENT).isEmpty())
             return new DavEvent(locator, getResourceFactory());

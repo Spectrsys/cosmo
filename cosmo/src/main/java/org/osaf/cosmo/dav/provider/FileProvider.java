@@ -21,9 +21,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.dav.ConflictException;
+import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
-import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
@@ -49,31 +50,26 @@ public class FileProvider extends BaseProvider {
 
     public void put(DavRequest request,
                     DavResponse response,
-                    DavResource resource)
+                    DavContent content)
         throws DavException, IOException {
-        DavResource parent = (DavResource) resource.getCollection();
-        if (! parent.exists())
-            throw new ConflictException("Parent collection must be created");
+        if (! content.getParent().exists())
+            throw new ConflictException("One or more intermediate collections must be created");
 
-        try {
-            parent.addMember(resource, createInputContext(request));
-            response.setStatus(resource != null ? 204 : 201);
-            response.setHeader("ETag", resource.getETag());
-        } catch (org.apache.jackrabbit.webdav.DavException e) {
-            throw new DavException(e);
-        }
+        content.getParent().addContent(content, createInputContext(request));
+        response.setStatus(content != null ? 204 : 201);
+        response.setHeader("ETag", content.getETag());
     }
 
     public void mkcol(DavRequest request,
                       DavResponse response,
-                      DavResource resource)
+                      DavCollection collection)
         throws DavException, IOException {
         throw new MethodNotAllowedException("MKCOL not allowed for a file");
     }
 
     public void mkcalendar(DavRequest request,
                            DavResponse response,
-                           DavResource resource)
+                           DavCollection collection)
         throws DavException, IOException {
         throw new MethodNotAllowedException("MKCALENDAR not allowed for a file");
     }

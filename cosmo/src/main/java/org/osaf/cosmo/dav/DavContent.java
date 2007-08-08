@@ -15,22 +15,8 @@
  */
 package org.osaf.cosmo.dav;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
 /**
- * An exception indicating that the request is not allowed to be processed.
+ * An interface for WebDAV content resources.
  */
-public class ForbiddenException extends DavException {
-    
-    public ForbiddenException(String message) {
-        super(403, message);
-    }
-
-    protected void writeContent(XMLStreamWriter writer)
-        throws XMLStreamException {
-        writer.writeStartElement(NS_COSMO, "forbidden");
-        writer.writeCharacters(getMessage());
-        writer.writeEndElement();
-    }
+public interface DavContent extends DavResource {
 }

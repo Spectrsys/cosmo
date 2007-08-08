@@ -24,8 +24,8 @@ import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
 import org.osaf.cosmo.dav.BaseDavTestCase;
+import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.impl.DavHomeCollection;
-import org.osaf.cosmo.dav.impl.DavCollection;
 import org.osaf.cosmo.model.CollectionItem;
 
 import org.w3c.dom.Document;
@@ -46,9 +46,6 @@ public class FreeBusyReportTest extends BaseDavTestCase
         FreeBusyReport report = new FreeBusyReport();
         report.init(home, makeReportInfo("freebusy1.xml", DEPTH_1));
 
-        // XXX: currently erroring out because ical4j requires a
-        // vfreebusy to contain a uid and a dtstamp, and we don't
-        // generate those.
         report.runQuery();
     }
 

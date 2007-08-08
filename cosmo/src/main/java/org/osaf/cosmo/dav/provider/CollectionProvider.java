@@ -21,13 +21,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.dav.ConflictException;
+import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
-import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResponse;
+import org.osaf.cosmo.dav.DavException;
+import org.osaf.cosmo.dav.ExistsException;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
-import org.osaf.cosmo.dav.impl.DavCollection;
 
 /**
  * <p>
@@ -49,34 +51,29 @@ public class CollectionProvider extends BaseProvider {
 
     public void put(DavRequest request,
                     DavResponse response,
-                    DavResource resource)
+                    DavContent content)
         throws DavException, IOException {
         throw new MethodNotAllowedException("PUT not allowed for a collection");
     }
 
     public void mkcol(DavRequest request,
                       DavResponse response,
-                      DavResource resource)
+                      DavCollection collection)
         throws DavException, IOException {
-        DavResource parent = (DavResource) resource.getCollection();
-        if (parent == null || ! parent.exists())
-            throw new ConflictException("Parent collection must be created");
-        if (! parent.isCollection())
-            throw new ConflictException("Parent resource is not a collection");
-        if (resource.exists())
-            throw new MethodNotAllowedException("MKCOL not allowed on existing resource");
+        if (collection.exists())
+            throw new ExistsException();
+        if (! collection.getParent().exists())
+            throw new ConflictException("One or more intermediate collections must be created");
 
-        try {
-            parent.addMember(resource, createInputContext(request));
-            response.setStatus(201);
-        } catch (org.apache.jackrabbit.webdav.DavException e) {
-            throw new DavException(e);
-        }
+        collection.getParent().addCollection(collection, null);
+        response.setStatus(201);
     }
+    
 
     public void mkcalendar(DavRequest request,
                            DavResponse response,
-                           DavResource resource)
-        throws DavException, IOException {
+                           DavCollection collection)
+        throws DavException, IOException {  
+        throw new UnsupportedOperationException();
     }
 }

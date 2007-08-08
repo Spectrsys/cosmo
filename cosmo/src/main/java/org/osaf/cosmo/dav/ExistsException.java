@@ -19,17 +19,18 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * An exception indicating that the request is not allowed to be processed.
+ * An exception indicating that a request method is forbidden on a resource
+ * that already exists.
  */
-public class ForbiddenException extends DavException {
+public class ExistsException extends ForbiddenException {
     
-    public ForbiddenException(String message) {
-        super(403, message);
+    public ExistsException() {
+        super("A resource exists at the request URI");
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_COSMO, "forbidden");
+        writer.writeStartElement("DAV:", "resource-must-be-null");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

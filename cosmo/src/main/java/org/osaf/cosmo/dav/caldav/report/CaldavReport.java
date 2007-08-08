@@ -26,8 +26,8 @@ import net.fortuna.ical4j.model.ValidationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.version.report.Report;
@@ -36,6 +36,7 @@ import org.apache.jackrabbit.webdav.xml.DomUtil;
 
 import org.osaf.cosmo.calendar.data.OutputFilter;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
@@ -226,9 +227,10 @@ public abstract class CaldavReport
     protected void doQuery(DavResource resource,
                            boolean recurse)
         throws DavException {
-        if (((DavResource)resource).isCalendarCollection()) {
+        if (resource instanceof DavCalendarCollection) {
             try {
-                DavCalendarCollection collection = (DavCalendarCollection) resource;
+                DavCalendarCollection collection =
+                    (DavCalendarCollection) resource;
                 addResults(collection.findMembers(queryFilter));
             } catch (Exception e) {
                 log.error("cannot run report query", e);

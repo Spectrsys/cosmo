@@ -21,14 +21,17 @@ import net.fortuna.ical4j.model.component.VTimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.webdav.DavException;
+
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
+
 import org.osaf.cosmo.calendar.query.CalendarFilter;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.caldav.CaldavRequestHelper;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
+
 import org.w3c.dom.Element;
 
 /**

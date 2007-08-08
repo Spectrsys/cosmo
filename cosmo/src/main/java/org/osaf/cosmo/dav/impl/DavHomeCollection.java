@@ -50,7 +50,7 @@ import org.osaf.cosmo.model.ModelValidationException;
  * @see DavCollection
  * @see org.osaf.cosmo.model.CollectionItem
  */
-public class DavHomeCollection extends DavCollection
+public class DavHomeCollection extends DavCollectionBase
     implements AclConstants, CaldavConstants {
     private static final Log log =
         LogFactory.getLog(DavHomeCollection.class);
@@ -79,6 +79,12 @@ public class DavHomeCollection extends DavCollection
     /** */
     public String getSupportedMethods() {
         return "OPTIONS, GET, HEAD, TRACE, PROPFIND, PROPPATCH, MKTICKET, DELTICKET, MKCOL, MKCALENDAR";
+    }
+
+    // DavCollection
+
+    public boolean isHomeCollection() {
+        return true;
     }
 
     // DavResourceBase

@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.server.io.IOUtil;
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
@@ -32,6 +31,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.model.DataSizeException;
@@ -53,7 +53,7 @@ import org.osaf.cosmo.model.ModelValidationException;
  * @see DavContent
  * @see FileItem
  */
-public class DavFile extends DavContent {
+public class DavFile extends DavContentBase {
     private static final Log log = LogFactory.getLog(DavFile.class);
 
     static {

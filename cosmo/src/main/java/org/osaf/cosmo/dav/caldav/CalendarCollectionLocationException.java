@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.dav;
+package org.osaf.cosmo.dav.caldav;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.osaf.cosmo.dav.PreconditionFailedException;
+
 /**
- * An exception indicating that the request is not allowed to be processed.
+ * An exception indicating that a calendar resource did not contain any
+ * supported calendar components.
  */
-public class ForbiddenException extends DavException {
+public class CalendarCollectionLocationException
+    extends PreconditionFailedException implements CaldavConstants {
     
-    public ForbiddenException(String message) {
-        super(403, message);
+    public CalendarCollectionLocationException(String message) {
+        super(message);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_COSMO, "forbidden");
+        writer.writeStartElement(NS_CALDAV, "calendar-collection-location-ok");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

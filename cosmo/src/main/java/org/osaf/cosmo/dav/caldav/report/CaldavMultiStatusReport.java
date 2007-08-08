@@ -19,11 +19,13 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.webdav.DavException;
+
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
+
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.caldav.property.CalendarData;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 

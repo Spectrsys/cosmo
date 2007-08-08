@@ -22,8 +22,8 @@ import net.fortuna.ical4j.model.Calendar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.server.io.IOUtil;
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
@@ -34,6 +34,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 
 import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.io.DavInputContext;
@@ -47,7 +48,7 @@ import org.osaf.cosmo.model.NoteItem;
 /**
  * Abstract calendar resource.
  */
-public abstract class DavCalendarResource extends DavContent
+public abstract class DavCalendarResource extends DavContentBase
     implements ICalendarConstants {
     private static final Log log =
         LogFactory.getLog(DavCalendarResource.class);
@@ -67,7 +68,7 @@ public abstract class DavCalendarResource extends DavContent
 
     /** */
     public void move(DavResource destination)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         validateDestination(destination);
         super.move(destination);
     }
@@ -75,10 +76,12 @@ public abstract class DavCalendarResource extends DavContent
     /** */
     public void copy(DavResource destination,
                      boolean shallow)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         validateDestination(destination);
         super.copy(destination, shallow);
     }
+
+    // DavResourceBase methods
 
     @Override
     protected void populateItem(InputContext inputContext)

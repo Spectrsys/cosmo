@@ -26,7 +26,7 @@ import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
-import org.osaf.cosmo.dav.impl.DavCollection;
+import org.osaf.cosmo.dav.impl.DavCollectionBase;
 import org.osaf.cosmo.dav.impl.DavEvent;
 import org.osaf.cosmo.dav.impl.DavFile;
 import org.osaf.cosmo.dav.impl.DavHomeCollection;
@@ -82,7 +82,7 @@ public class StandardResourceFactory implements DavResourceFactory {
      * The type of resource to create is chosen as such:
      * <ul>
      * <li><code>MKCALENDAR</code>: {@link DavCalendarCollection}</li>
-     * <li><code>MKCOL</code>: {@link DavCollection}</li>
+     * <li><code>MKCOL</code>: {@link DavCollectionBase}</li>
      * <li><code>PUT</code>, <code>COPY</code>, <code>MOVE</code></li>:
      * {@link DavFile}</li>
      * </ul>
@@ -100,7 +100,7 @@ public class StandardResourceFactory implements DavResourceFactory {
         if (request.getMethod().equals("MKCALENDAR"))
             return new DavCalendarCollection(locator, this);
         if (request.getMethod().equals("MKCOL"))
-            return new DavCollection(locator, this);
+            return new DavCollectionBase(locator, this);
         if (request.getMethod().equals("PUT") ||
             request.getMethod().equals("COPY") ||
             request.getMethod().equals("MOVE"))
@@ -157,7 +157,7 @@ public class StandardResourceFactory implements DavResourceFactory {
                 return new DavCalendarCollection((CollectionItem) item,
                                                  locator, this);
             else
-                return new DavCollection((CollectionItem) item, locator, this);
+                return new DavCollectionBase((CollectionItem) item, locator, this);
         }
 
         if (item instanceof NoteItem) {

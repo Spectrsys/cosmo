@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.io.IOUtil;
-import org.apache.jackrabbit.webdav.DavException;
+
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
@@ -45,6 +45,9 @@ import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.version.report.SupportedReportSetProperty;
 
+import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavContent;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
@@ -72,8 +75,8 @@ import org.osaf.cosmo.model.ModelValidationException;
  * @see DavResourceBase
  * @see CollectionItem
  */
-public class DavCollection extends DavResourceBase
-    implements ExtendedDavConstants {
+public class DavCollectionBase extends DavResourceBase
+    implements DavCollection, ExtendedDavConstants {
     private static final Log log = LogFactory.getLog(DavCollection.class);
     private static final int[] RESOURCE_TYPES;
     private static final Set<String> DEAD_PROPERTY_FILTER =
@@ -96,24 +99,29 @@ public class DavCollection extends DavResourceBase
     }
 
     /** */
-    public DavCollection(CollectionItem collection,
-                         DavResourceLocator locator,
-                         DavResourceFactory factory) {
+    public DavCollectionBase(CollectionItem collection,
+                             DavResourceLocator locator,
+                             DavResourceFactory factory) {
         super(collection, locator, factory);
         members = new ArrayList();
     }
 
     /** */
-    public DavCollection(DavResourceLocator locator,
-                         DavResourceFactory factory) {
+    public DavCollectionBase(DavResourceLocator locator,
+                             DavResourceFactory factory) {
         this(new CollectionItem(), locator, factory);
     }
 
-    // DavResource
+    // Jackrabbit DavResource
 
     /** */
     public String getSupportedMethods() {
         return "OPTIONS, GET, HEAD, TRACE, PROPFIND, PROPPATCH, COPY, DELETE, MOVE, MKTICKET, DELTICKET, MKCOL, MKCALENDAR";
+    }
+
+    /** */
+    public boolean isCollection() {
+        return true;
     }
 
     /** */
@@ -122,84 +130,25 @@ public class DavCollection extends DavResourceBase
     }
 
     /** */
-    public String getETag() {
-        return "";
-    }
-
-    /** */
     public void spool(OutputContext outputContext)
         throws IOException {
         writeHtmlDirectoryIndex(outputContext);
     }
 
-    /**
-     * Adds the given member resource to the collection (or updates it
-     * if it is an existing file resource).
-     *
-     * Calls the following methods:
-     *
-     * <ol>
-     * <li> {@link #populateItem()} on the member to
-     * populate its backing item</li>
-     * <li> {@link #saveSubcollection(DavCollection)} or
-     * {@link #saveFile(DavFile)} to actually save the
-     * member into storage</li>
-     * </ol>
-     *
-     */
     public void addMember(org.apache.jackrabbit.webdav.DavResource member,
                           InputContext inputContext)
-        throws DavException {
-        ((DavResourceBase)member).populateItem(inputContext);
-
-        if (member instanceof DavCollection) {
-            saveSubcollection((DavCollection)member);
-        } else {
-            saveContent((DavContent)member);
-        }
-
-        members.add(member);
+        throws org.apache.jackrabbit.webdav.DavException {
+        throw new UnsupportedOperationException();
     }
 
-    /** */
-    public MultiStatusResponse addMember(DavResource member,
-                                         InputContext inputContext,
-                                         DavPropertySet properties)
-        throws DavException {
-        MultiStatusResponse msr =
-            ((DavResourceBase)member).populateAttributes(properties);
-
-        addMember(member, inputContext);
-
-        return msr;
-    }
-
-    /** */
     public DavResourceIterator getMembers() {
         for (Item memberItem : ((CollectionItem)getItem()).getChildren())
             members.add(memberToResource(memberItem));
         return new DavResourceIteratorImpl(members);
     }
 
-    /** */
-    public DavResource findMember(String href)
-        throws DavException {
-        if (href.startsWith(getLocator().getPrefix())) {
-            // convert absolute href to relative
-            href = href.substring(getLocator().getPrefix().length());
-        }
-        return memberToResource(href);
-    }
-
-    /**
-     * Removes the given member resource from the collection.
-     *
-     * Calls {@link #removeSubcollection(DavCollection)} or
-     * {@link #removeFile(DavFile)} to actually remove the
-     * member from storage.
-     */
     public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
-        throws DavException {
+        throws org.apache.jackrabbit.webdav.DavException {
         if (member instanceof DavCollection) {
             removeSubcollection((DavCollection)member);
         } else {
@@ -209,7 +158,8 @@ public class DavCollection extends DavResourceBase
         members.remove(member);
     }
 
-    /** */
+    // DavResource
+
     public Report getReport(ReportInfo reportInfo)
         throws DavException {
         if (! exists())
@@ -218,15 +168,55 @@ public class DavCollection extends DavResourceBase
         if (! isSupportedReport(reportInfo))
             throw new DavException(DavServletResponse.SC_UNPROCESSABLE_ENTITY, "Unknown report " + reportInfo.getReportName());
 
-        return ReportType.getType(reportInfo).createReport(this, reportInfo);
+        try {
+            return ReportType.getType(reportInfo).createReport(this, reportInfo);
+        } catch (org.apache.jackrabbit.webdav.DavException e){
+            throw new DavException(e);
+        }
     }
 
-    // our methods
+    // DavCollection
 
-    /** */
+    public boolean isCalendarCollection() {
+        return false;
+    }
+
+    public boolean isHomeCollection() {
+        return false;
+    }
+
     public boolean isExcludedFromFreeBusyRollups() {
         return ((CollectionItem) getItem()).isExcludeFreeBusyRollup();
     }
+
+    public void addContent(DavContent content,
+                           InputContext context)
+        throws DavException {
+        ((DavResourceBase)content).populateItem(context);
+        saveContent(content);
+        members.add(content);
+    }
+
+    public MultiStatusResponse addCollection(DavCollection collection,
+                                             DavPropertySet properties)
+        throws DavException {
+        MultiStatusResponse msr =
+            ((DavResourceBase)collection).populateAttributes(properties);
+        saveSubcollection(collection);
+        members.add(collection);
+        return msr;
+    }
+
+    public DavResource findMember(String href)
+        throws DavException {
+        if (href.startsWith(getLocator().getPrefix())) {
+            // convert absolute href to relative
+            href = href.substring(getLocator().getPrefix().length());
+        }
+        return memberToResource(href);
+    }
+
+    // our methods
 
     /** */
     protected int[] getResourceTypes() {
@@ -295,7 +285,8 @@ public class DavCollection extends DavResourceBase
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
 
-        CollectionItem subcollection = (CollectionItem) member.getItem();
+        CollectionItem subcollection = (CollectionItem)
+            ((DavResourceBase)member).getItem();
 
         if (log.isDebugEnabled())
             log.debug("creating collection " + member.getResourcePath());
@@ -303,7 +294,7 @@ public class DavCollection extends DavResourceBase
         try {
             subcollection = getContentService().
                 createCollection(collection, subcollection);
-            member.setItem(subcollection);
+            ((DavResourceBase)member).setItem(subcollection);
         } catch (CollectionLockedException e) {
             throw new DavException(DavServletResponse.SC_LOCKED);
         }
@@ -315,7 +306,8 @@ public class DavCollection extends DavResourceBase
     protected void saveContent(DavContent member)
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
-        ContentItem content = (ContentItem) member.getItem();
+        ContentItem content = (ContentItem)
+            ((DavResourceBase)member).getItem();
 
         try {
             if (content.getId() != -1) {
@@ -334,7 +326,7 @@ public class DavCollection extends DavResourceBase
             throw new DavException(DavServletResponse.SC_LOCKED);
         }
 
-        member.setItem(content);
+        ((DavResourceBase)member).setItem(content);
     }
 
     /**
@@ -343,8 +335,8 @@ public class DavCollection extends DavResourceBase
     protected void removeSubcollection(DavCollection member)
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
-
-        CollectionItem subcollection = (CollectionItem) member.getItem();
+        CollectionItem subcollection = (CollectionItem)
+            ((DavResourceBase)member).getItem();
 
         if (log.isDebugEnabled())
             log.debug("removing collection " + subcollection.getName() +
@@ -363,7 +355,7 @@ public class DavCollection extends DavResourceBase
     protected void removeContent(DavContent member)
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
-        ContentItem content = (ContentItem) member.getItem();
+        ContentItem content = (ContentItem) ((DavResourceBase)member).getItem();
 
         if (log.isDebugEnabled())
             log.debug("removing content " + content.getName() +

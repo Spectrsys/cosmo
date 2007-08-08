@@ -51,7 +51,7 @@ public class HomeCollectionProvider extends CollectionProvider {
                        DavResponse response,
                        DavResource resource)
         throws DavException, IOException {
-        if (resource.isHomeCollection())
+        if (resource instanceof DavHomeCollection)
             throw new MethodNotAllowedException("DELETE not allowed for home collection");
         super.delete(request, response, resource);
     }
@@ -60,7 +60,7 @@ public class HomeCollectionProvider extends CollectionProvider {
                      DavResponse response,
                      DavResource resource)
         throws DavException, IOException {
-        if (resource.isHomeCollection())
+        if (resource instanceof DavHomeCollection)
             throw new MethodNotAllowedException("COPY not allowed for home collection");
         super.delete(request, response, resource);
     }
@@ -69,7 +69,7 @@ public class HomeCollectionProvider extends CollectionProvider {
                      DavResponse response,
                      DavResource resource)
         throws DavException, IOException {
-        if (resource.isHomeCollection())
+        if (resource instanceof DavHomeCollection)
             throw new MethodNotAllowedException("MOVE not allowed for home collection");
         super.delete(request, response, resource);
     }
