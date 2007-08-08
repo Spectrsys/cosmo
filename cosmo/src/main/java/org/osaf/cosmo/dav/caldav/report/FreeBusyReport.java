@@ -65,6 +65,7 @@ import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.query.ComponentFilter;
 import org.osaf.cosmo.calendar.query.TimeRangeFilter;
 import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 import org.osaf.cosmo.dav.impl.DavCollection;
@@ -147,6 +148,9 @@ public class FreeBusyReport extends CaldavSingleResourceReport {
      */
     protected void runQuery()
         throws DavException {
+        if (! (getResource() instanceof DavCollection))
+            throw new MethodNotAllowedException(REPORT_TYPE_CALDAV_FREEBUSY.getReportName() + " REPORT can only be run against a collection");
+
         // if the collection or any of its parent is excluded from
         // free busy rollups, deny the query
         DavCollection dc = (DavCollection) getResource();

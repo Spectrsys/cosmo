@@ -29,6 +29,7 @@ import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.io.OutputContextImpl;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
+import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -44,6 +45,8 @@ import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
+import org.osaf.cosmo.model.Ticket;
 
 /**
  * <p>
@@ -195,7 +198,14 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new NotFoundException();
 
         try {
-            resource.getReport(request.getReportInfo()).run(response);
+            ReportInfo info = request.getReportInfo();
+
+            // Since the report type could not be determined in the security
+            // filter in order to check ticket permissions on REPORT, the
+            // check must be done manually here.
+            checkReportAccess(info);
+
+            resource.getReport(info).run(response);
         } catch (org.apache.jackrabbit.webdav.DavException e) {
             throw new DavException(e);
         }
@@ -263,7 +273,35 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new PreconditionFailedException("Overwrite header was not specified for existing destination");
     }
 
+    protected void checkReportAccess(ReportInfo info)
+        throws DavException {
+        Ticket ticket = getResourceFactory().getSecurityManager().
+            getSecurityContext().getTicket();
+        if (ticket == null)
+            return;
+
+        if (isFreeBusyReport(info)) {
+            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_FREEBUSY))
+                return;
+            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_READ))
+                return;
+            // Do not allow the client to know that this resource actually
+            // exists, as per CalDAV report definition
+            throw new NotFoundException();
+        }
+
+        if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_READ))
+            return;
+
+       throw new ForbiddenException("Ticket privileges deny access");
+    }
+
     public DavResourceFactory getResourceFactory() {
         return resourceFactory;
+    }
+
+    private boolean isFreeBusyReport(ReportInfo info) {
+        return FreeBusyReport.REPORT_TYPE_CALDAV_FREEBUSY.
+            isRequestedReportType(info);
     }
 }
