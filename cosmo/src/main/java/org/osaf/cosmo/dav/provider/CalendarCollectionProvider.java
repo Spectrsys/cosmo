@@ -30,7 +30,8 @@ import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.ExistsException;
-import org.osaf.cosmo.dav.caldav.CalendarCollectionLocationException;
+import org.osaf.cosmo.dav.caldav.InvalidCalendarLocationException;
+import org.osaf.cosmo.dav.caldav.MissingParentException;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 
 /**
@@ -59,9 +60,9 @@ public class CalendarCollectionProvider extends CollectionProvider {
         if (collection.exists())
             throw new ExistsException();
         if (! collection.getParent().exists())
-            throw new CalendarCollectionLocationException("One or more intermediate collections must be created");
+            throw new MissingParentException("One or more intermediate collections must be created");
         if (collection.getParent().isCalendarCollection())
-            throw new CalendarCollectionLocationException("A calendar collection may not be created within a calendar collection");
+            throw new InvalidCalendarLocationException("A calendar collection may not be created within a calendar collection");
 
         if (log.isDebugEnabled())
             log.debug("MKCALENDAR at " + collection.getResourcePath());

@@ -18,22 +18,22 @@ package org.osaf.cosmo.dav.caldav;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.dav.ForbiddenException;
 
 /**
- * An exception indicating that a calendar resource did not contain any
- * supported calendar components.
+ * An exception indicating that a calendar resource contains missing or
+ * invalid calendar data.
  */
-public class CalendarCollectionLocationException
-    extends PreconditionFailedException implements CaldavConstants {
+public class InvalidCalendarDataException
+    extends ForbiddenException implements CaldavConstants {
     
-    public CalendarCollectionLocationException(String message) {
+    public InvalidCalendarDataException(String message) {
         super(message);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "calendar-collection-location-ok");
+        writer.writeStartElement(NS_CALDAV, "valid-calendar-data");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

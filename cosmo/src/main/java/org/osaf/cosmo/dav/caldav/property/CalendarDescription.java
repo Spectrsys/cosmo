@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.apache.jackrabbit.webdav.property.AbstractDavProperty;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
@@ -41,7 +43,7 @@ public class CalendarDescription extends AbstractDavProperty
     /**
      */
     public CalendarDescription(String text) {
-        this(text, Locale.getDefault().getLanguage());
+        this(text, null);
     }
 
     /**
@@ -49,6 +51,8 @@ public class CalendarDescription extends AbstractDavProperty
     public CalendarDescription(String text, String language) {
         super(CALENDARDESCRIPTION, true);
         this.text = text;
+        if (StringUtils.isBlank(language))
+            language = Locale.getDefault().getLanguage();
         this.language = language;
     }
 

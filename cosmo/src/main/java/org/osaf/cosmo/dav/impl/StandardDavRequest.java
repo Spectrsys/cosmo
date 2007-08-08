@@ -21,11 +21,11 @@ import java.util.HashSet;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.WebdavRequestImpl;
@@ -35,8 +35,11 @@ import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
 
+import org.osaf.cosmo.dav.BadRequestException;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.dav.caldav.InvalidCalendarDataException;
 import org.osaf.cosmo.dav.caldav.property.CalendarDescription;
 import org.osaf.cosmo.dav.caldav.property.CalendarTimezone;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
@@ -106,10 +109,10 @@ public class StandardDavRequest extends WebdavRequestImpl
      * An <code>IllegalArgumentException</code> is raised if the request body can not
      * be parsed
      */
-    public DavPropertySet getMkCalendarSetProperties() {
-        if (mkcalendarSet == null) {
+    public DavPropertySet getMkCalendarSetProperties()
+        throws DavException {
+        if (mkcalendarSet == null)
             mkcalendarSet = parseMkCalendarRequest();
-        }
         return mkcalendarSet;
     }
 
@@ -159,147 +162,65 @@ public class StandardDavRequest extends WebdavRequestImpl
     }
   
     // private methods
-    private DavPropertySet parseMkCalendarRequest() {
+
+    private DavPropertySet parseMkCalendarRequest()
+        throws DavException {
         DavPropertySet propertySet = new DavPropertySet();
 
         Document requestDocument = getRequestDocument();
-
-        if (requestDocument == null) {
-            //The request did not contain an XML body
-            log.info("parseMkCalendarRequest requestDocument is null");
+        if (requestDocument == null)
             return propertySet;
-        }
 
         Element root = requestDocument.getDocumentElement();
-        if (! DomUtil.matches(root, ELEMENT_CALDAV_MKCALENDAR,
-                              NAMESPACE_CALDAV)) {
-            throw new IllegalArgumentException("MKCALENDAR request missing DAV:mkcalendar");
-        }
-
-        Element set =
-            DomUtil.getChildElement(root, XML_SET, NAMESPACE);
-
-        if (set == null) {
-            throw new IllegalArgumentException("MKCALENDAR request missing DAV:set element");
-        }
-        Element prop =
-            DomUtil.getChildElement(set, XML_PROP, NAMESPACE);
-        if (prop == null) {
-            throw new IllegalArgumentException("MKCALENDAR request missing DAV:prop element");
-        }
-
+        if (! DomUtil.matches(root, "mkcalendar", NAMESPACE_CALDAV))
+            throw new BadRequestException("Expected CALDAV:mkcalendar root element");
+        Element set = DomUtil.getChildElement(root, "set", NAMESPACE);
+        if (set == null)
+            throw new BadRequestException("Expected DAV:set child of CALDAV:mkcalendar");
+        Element prop =DomUtil.getChildElement(set, "prop", NAMESPACE);
+        if (prop == null)
+            throw new BadRequestException("Expected DAV:prop child of DAV:set");
         ElementIterator i = DomUtil.getChildren(prop);
-
         while (i.hasNext()) {
             Element e = i.nextElement();
-
-            //{CALDAV:calendar-timezone}
-            if (DomUtil.matches(e, PROPERTY_CALDAV_CALENDAR_TIMEZONE,
-                                NAMESPACE_CALDAV)) {
+            if (DomUtil.matches(e, "calendar-timezone", NAMESPACE_CALDAV))
                 parseCalendarTimezone(propertySet, e);
-
-            }
-            // {CALDAV:supported-calendar-component-set}
-            else if (DomUtil.matches(e, PROPERTY_CALDAV_SUPPORTED_CALENDAR_COMPONENT_SET,
-                                     NAMESPACE_CALDAV)) {
-                parseSupportedCalendarSet(propertySet, e);
-            }
-            //CALDAV:calendar-description
-            else if (DomUtil.matches(e, PROPERTY_CALDAV_CALENDAR_DESCRIPTION,
-                                     NAMESPACE_CALDAV)) {
+            else if (DomUtil.matches(e, "calendar-description",
+                                     NAMESPACE_CALDAV))
                 parseDescription(propertySet, e);
-            }
-            //CALDAV:supported-calendar-data
-            else if (DomUtil.matches(e, PROPERTY_CALDAV_SUPPORTED_CALENDAR_DATA,
-                                     NAMESPACE_CALDAV)) {
-                throw new IllegalArgumentException("MKCALENDAR CALDAV:supported-calendar-data " +
-                                                   "property is not allowed");
-
-            }
-            //CALDAV: namespace
-            else if (DomUtil.getNamespace(e).equals(NAMESPACE_CALDAV)) {
-                //No other properties should be specifed in the CALDAV namespace.
-                //Raise error if one or more found.
-                throw new IllegalArgumentException("Invalid MKCALENDAR property in " +
-                                                   "CALDAV namespace: " + e.toString());
-            }
-            //DAV:displayname
-            else if (DomUtil.matches(e, PROPERTY_DISPLAYNAME, NAMESPACE)) {
+            else if (DomUtil.getNamespace(e).equals(NAMESPACE_CALDAV))
+                throw new BadRequestException("CALDAV:" + e.getTagName() + " is a protected or unknown property");
+            else if (DomUtil.matches(e, "displayname", NAMESPACE))
                 propertySet.add(DefaultDavProperty.createFromXml(e));
-            }
-            //DAV: namespace
-            else if (DomUtil.getNamespace(e).equals(NAMESPACE)) {
-                //No other properties should be specifed in the DAV namespace. Verify and 
-                //raise error if one or more found.
-                throw new IllegalArgumentException("Invalid MKCALENDAR property in " +
-                                                   "DAV namespace: " + e.toString());
-            }
-            //Handle all dead properties
-            else {
+            else if (DomUtil.getNamespace(e).equals(NAMESPACE))
+                throw new BadRequestException("DAV:" + e.getTagName() + " is a protected or unknown property");
+            else
                 propertySet.add(DefaultDavProperty.createFromXml(e));
-            }
         }
 
         return propertySet;
     }
 
-    private void parseDescription(DavPropertySet propertySet, Element e) {
+    private void parseDescription(DavPropertySet propertySet,
+                                  Element e)
+        throws DavException {
         DefaultDavProperty d = DefaultDavProperty.createFromXml(e);
 
-        String lang = DomUtil.getAttribute(e, XML_LANG, NAMESPACE_XML);
+        String value = (String) d.getValue();
+        String lang = DomUtil.getAttribute(e, "lang", NAMESPACE_XML);
 
-        if (lang != null) {
-            propertySet.add(new CalendarDescription((String) d.getValue(), lang));
-        } else {
-            propertySet.add(new CalendarDescription((String) d.getValue()));
-        }
+        propertySet.add(new CalendarDescription(value, lang));
     }
 
-    private void parseCalendarTimezone(DavPropertySet propertySet, Element e) {
-        String icalTz = DomUtil.getTextTrim(e);
+    private void parseCalendarTimezone(DavPropertySet propertySet,
+                                       Element e)
+        throws DavException {
+        String ical = DomUtil.getTextTrim(e);
+        if (StringUtils.isBlank(ical))
+            throw new InvalidCalendarDataException("Expected calendar object in CALDAV:calendar-timezone value");
 
-        if (icalTz == null)
-            throw new IllegalArgumentException("MKCALENDAR request error parsing " +
-                                               "calendar:timezone CDATA required");
-
-        propertySet.add(new CalendarTimezone(icalTz));
+        propertySet.add(new CalendarTimezone(ical));
     }
-
-    private void parseSupportedCalendarSet(DavPropertySet propertySet, Element e) {
-        ElementIterator i = DomUtil.getChildren(e);
-
-        if (! i.hasNext()) {
-            //No C:comp elements were contained in the supported-calendar-component-set
-            throw new IllegalArgumentException("MKCALENDAR request error parsing " +
-                                             "supported-calendar-component-set " + 
-                                             " no comp elements found");
-        }
-
-        HashSet<String> types = new HashSet<String>();
-
-        while (i.hasNext()) {
-            Element el = i.nextElement();
-
-            if (!DomUtil.matches(el, ELEMENT_CALDAV_COMP, NAMESPACE_CALDAV)) {
-                    throw new IllegalArgumentException("MKCALENDAR request error parsing " +
-                                                       "supported-calendar-component-set " +
-                                                       "only comp elements allowed");
-            }
-
-            String type = el.getAttribute(ATTR_CALDAV_NAME);
-
-            if (type == null) {
-                throw new IllegalArgumentException("MKCALENDAR request error parsing " +
-                                                   "supported-calendar-component-set " +
-                                                   "comp element missing name attribute");
-             }
-
-            types.add(type);
-        }
-
-        propertySet.add(new SupportedCalendarComponentSet(types));
-    }
-
 
     private Ticket parseTicketRequest() {
         Document requestDocument = getRequestDocument();
@@ -375,8 +296,12 @@ public class StandardDavRequest extends WebdavRequestImpl
             throw new DavException(DavServletResponse.SC_BAD_REQUEST,
                                    "Report content must not be empty");
         }
-        return new ReportInfo(requestDocument.getDocumentElement(),
-                              getDepth(DEPTH_0));
+        try {
+            return new ReportInfo(requestDocument.getDocumentElement(),
+                                  getDepth(DEPTH_0));
+        } catch (org.apache.jackrabbit.webdav.DavException e) {
+            throw new DavException(e);
+        }
     }
 
     @Override
