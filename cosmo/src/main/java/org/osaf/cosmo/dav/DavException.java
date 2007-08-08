@@ -49,7 +49,7 @@ public class DavException extends org.apache.jackrabbit.webdav.DavException
     }
 
     public DavException(Throwable t) {
-        super(500, t);
+        super(500, t.getMessage(), t, null);
         nsc = new DavNamespaceContext();
     }
 
@@ -73,7 +73,9 @@ public class DavException extends org.apache.jackrabbit.webdav.DavException
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeCharacters(getStatusPhrase());
+        writer.writeStartElement(NS_COSMO, "internal-server-error");
+        writer.writeCharacters(getMessage());
+        writer.writeEndElement();
     }
 
     public static class DavNamespaceContext implements NamespaceContext {
@@ -103,10 +105,14 @@ public class DavException extends org.apache.jackrabbit.webdav.DavException
         }
 
         public String getPrefix(String namespaceURI) {
+            if (prefixes.get(namespaceURI) == null)
+                return null;
             return prefixes.get(namespaceURI).iterator().next();
         }
 
         public Iterator getPrefixes(String namespaceURI) {
+            if (prefixes.get(namespaceURI) == null)
+                return null;
             return prefixes.get(namespaceURI).iterator();
         }
 

@@ -15,13 +15,15 @@
  */
 package org.osaf.cosmo.dav;
 
+import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**
  * Provides constants defined by Cosmo proprietary *DAV extensions.
  */
-public interface ExtendedDavConstants {
+public interface ExtendedDavConstants extends DavConstants {
 
     public static final String PRE_COSMO = "cosmo";
     public static final String NS_COSMO =
@@ -46,4 +48,10 @@ public interface ExtendedDavConstants {
     /** The Cosmo property <code>cosmo:uuid</code> */
     public static final DavPropertyName UUID =
         DavPropertyName.create(PROPERTY_UUID, NAMESPACE_COSMO);
+
+    
+    public static final String QN_SET =
+        DomUtil.getQualifiedName(XML_SET, NAMESPACE);
+    public static final String QN_PROP =
+        DomUtil.getQualifiedName(XML_PROP, NAMESPACE);
 }

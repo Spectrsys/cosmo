@@ -17,6 +17,7 @@ package org.osaf.cosmo.dav.caldav;
 
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.ResourceType;
+import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**
@@ -41,6 +42,8 @@ public interface CaldavConstants {
 
     /** The CalDAV XML element name <CALDAV:mkcalendar> */
     public static final String ELEMENT_CALDAV_MKCALENDAR = "mkcalendar";
+    public static final String QN_MKCALENDAR = 
+        DomUtil.getQualifiedName(ELEMENT_CALDAV_MKCALENDAR, NAMESPACE_CALDAV);
     /** The CalDAV XML element name <CALDAV:calendar> */
     public static final String ELEMENT_CALDAV_CALENDAR = "calendar";
     /** The CalDAV XML element name <CALDAV:comp> */

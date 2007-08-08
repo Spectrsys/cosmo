@@ -129,6 +129,7 @@ public class StandardDavResponse extends WebdavResponseImpl
             getOutputStream().write(bytes);
         } catch (XMLStreamException e2) {
             log.error("Error writing XML", e2);
+            log.error("Original exception", e);
             sendError(500);
         } finally {
             if (writer != null) {

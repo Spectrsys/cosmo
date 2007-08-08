@@ -29,6 +29,7 @@ public class MissingParentException
     
     public MissingParentException(String message) {
         super(message);
+        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)

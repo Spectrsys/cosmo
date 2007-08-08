@@ -100,8 +100,13 @@ public class StandardRequestHandler implements HttpRequestHandler {
             preconditions(wreq, wres, resource);
             process(wreq, wres, resource);
         } catch (Throwable e) {
-            DavException de = e instanceof DavException ?
-                (DavException) e : new DavException(e);
+            DavException de = null;
+            if (e instanceof DavException) {
+                de = (DavException) e;
+            } else {
+                log.error("Unknown error", e);
+                de = new DavException(e);
+            }
             wres.sendDavError(de);
         }
     }

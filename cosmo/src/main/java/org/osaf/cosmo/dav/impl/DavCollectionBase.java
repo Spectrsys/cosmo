@@ -200,8 +200,9 @@ public class DavCollectionBase extends DavResourceBase
     public MultiStatusResponse addCollection(DavCollection collection,
                                              DavPropertySet properties)
         throws DavException {
-        MultiStatusResponse msr =
-            ((DavResourceBase)collection).populateAttributes(properties);
+        DavResourceBase base = (DavResourceBase) collection;
+        base.populateItem(null);
+        MultiStatusResponse msr = base.populateAttributes(properties);
         saveSubcollection(collection);
         members.add(collection);
         return msr;
