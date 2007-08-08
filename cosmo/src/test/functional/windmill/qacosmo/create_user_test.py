@@ -2,17 +2,16 @@
 from windmill.authoring import WindmillTestClient
 
 def test():
-
     client = WindmillTestClient(__name__)
 
     client.wait(milliseconds=3000)
     client.click(link=u'Click here.')
     client.wait(milliseconds=3000)
     client.click(jsid=u'windmill.testingApp.cosmo.app.modalDialog.btnsRight[0].domNode.id')
-    client.type(text=u'%random%', id=u'username')
+    client.type(text=u'{$random}', id=u'username')
     client.type(text=u'tester', id=u'firstName')
     client.type(text=u'tester', id=u'lastName')
-    client.type(text=u'%random%@osafoundation.org', id=u'email')
+    client.type(text=u'{$random}@osafoundation.org', id=u'email')
     client.type(text=u'testers', id=u'password')
     client.type(text=u'tester', id=u'confirm')
     client.click(jsid=u'windmill.testingApp.cosmo.app.modalDialog.btnsRight[0].domNode.id')

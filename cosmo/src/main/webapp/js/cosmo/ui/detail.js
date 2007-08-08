@@ -88,24 +88,24 @@ cosmo.ui.detail = new function () {
 
     //some convienient methods for getting at the various forms and form values.
 
-    this.getStampForm = function(stampName){
+    this.getStampForm = function (stampName){
         //summary: returns the form object for the given stamp name
         stampName = stampName.toLowerCase();
         return cosmo.app.pim.baseLayout.mainApp.rightSidebar
                    .detailViewForm[stampName +"Section"].formSection.formNode;
     }
 
-    this.getMainForm = function(){
+    this.getMainForm = function (){
         return cosmo.app.pim.baseLayout.mainApp.rightSidebar.detailViewForm.mainSection.formNode;
     }
 
-    this.isStampEnabled = function(stampName){
+    this.isStampEnabled = function (stampName){
         //summary: returns whether or not a particular stamp section is enabled
         var checkBox = $("section"+ this._upperFirstChar(stampName) +"EnableToggle");
         return checkBox.checked;
     }
 
-    this._upperFirstChar = function(str){
+    this._upperFirstChar = function (str){
         return str.charAt(0).toUpperCase() + str.substr(1,str.length -1 );
     }
 
@@ -251,6 +251,12 @@ cosmo.ui.detail.DetailViewForm = function (p) {
                     // selected item will in the selectedItemCache
                     if (item != cosmo.ui.detail.item) {
                         self.updateFromItem(item);
+                        // For brand-new items auto-focus the Title field
+                        // to allow people to change the placeholder
+                        // 'New Event' text quickly
+                        if (cmd.saveType == 'new') {
+                            this.mainSection.formNode.noteTitle.focus();
+                        }
                     }
                 }
                 // No-item means 'clear the selection'
@@ -314,6 +320,8 @@ cosmo.ui.detail.DetailViewForm.prototype.updateFromItem =
     // "null" if we don't convert to empty string first
     f.noteTitle.value = data.getDisplayName() || '';
     f.noteDescription.value = data.getBody() || '';
+    var func = cosmo.util.html.handleTextInputFocus;
+    dojo.event.connect(f.noteTitle, 'onfocus', func);
     for (var i = 0; i < stamps.length; i++) {
         var st = stamps[i];
         stamp = data['get' + st.stampType + 'Stamp']();
@@ -980,6 +988,8 @@ cosmo.ui.detail.MailFormElements = function () {
                 value: '',
                 className: 'inputText' });
             elem.style.width = '182px';
+            var func = cosmo.util.html.handleTextInputFocus;
+            dojo.event.connect(elem, 'onfocus', func);
             td.appendChild(elem);
             tr.appendChild(td);
             return tr;
@@ -1316,8 +1326,8 @@ cosmo.ui.detail.EventFormElements= function () {
             _html.setSelectOptions(f.tzId, options);
         };
         dojo.event.connect(f.tzRegion, 'onchange', func);
-        dojo.event.connect(f.eventAllDay, 'onchange', self.hideOrShowEventStatus);
-        dojo.event.connect(f.endTime, 'onblur', self.hideOrShowEventStatus);
+        dojo.event.connect(f.eventAllDay, 'onchange', self.enableDisableEventStatus);
+        dojo.event.connect(f.endTime, 'onblur', self.enableDisableEventStatus);
     }
 
     // Interface methods
@@ -1405,7 +1415,7 @@ cosmo.ui.detail.EventFormElements= function () {
             _html.clearAndDisableFormElem(recurEnd, 'text');
         }
 
-        this.hideOrShowEventStatus();
+        this.enableDisableEventStatus();
     };
 
 };
@@ -1413,9 +1423,13 @@ cosmo.ui.detail.EventFormElements= function () {
 cosmo.ui.detail.EventFormElements.prototype =
     new cosmo.ui.detail.StampFormElements();
 
-cosmo.ui.detail.EventFormElements.prototype.hideOrShowEventStatus = function(){
-        //summary: hides the event status if item is anytime or attime,
-        //         shows it otherwise.
+cosmo.ui.detail.EventFormElements.prototype.enableDisableEventStatus = function (){
+        //summary: disable the event status if item is anytime or attime,
+        //         enable it otherwise.
+        // FIXME: Since these types of items are supposed to have no
+        // status, we should probably setting the value of the select
+        // to 'empty' by dynamically adding an empty option  --
+        // right now it looks like the items have a 'Confirmed' status
         var html = cosmo.util.html;
         var detail = cosmo.ui.detail;
         var form = detail.getStampForm("event");
@@ -1432,44 +1446,43 @@ cosmo.ui.detail.EventFormElements.prototype.hideOrShowEventStatus = function(){
 
 dojo.declare("cosmo.ui.detail.Byline", null, {
     domNode: null,
-    
+
     initializer: function (){
         this.domNode = _createElem("div");
-        this.domNode.className = "byline";
+        this.domNode.id = "detailViewByline";
     },
-    
-    actionToText: new function(){
+
+    actionToText: new function (){
         this[cosmo.model.ACTION_EDITED] = _("Main.DetailForm.Byline.Edited");
         this[cosmo.model.ACTION_QUEUED] = _("Main.DetailForm.Byline.Queued");
         this[cosmo.model.ACTION_SENT] = _("Main.DetailForm.Byline.Sent");
         this[cosmo.model.ACTION_UPDATED] = _("Main.DetailForm.Byline.Update");
         this[cosmo.model.ACTION_CREATED] = _("Main.DetailForm.Byline.Created");
     },
-    
-    updateFromItem: function(item){
-        
-        var modby = item.getModifiedBy();
-        var date = new cosmo.datetime.Date();
-        date.updateFromUTC(modby.getTimeStamp());
-        var userId = modby.getUserId();
 
-        this.domNode.innerHTML = 
+    updateFromItem: function (item){
+
+        var modby = item.getModifiedBy();
+        var dt = new cosmo.datetime.Date();
+        dt.updateFromUTC(modby.getTimeStamp());
+        var userId = modby.getUserId();
+        this.domNode.innerHTML =
             [
-            '<span class="bylineAction">', 
+            '<span id="detailViewBylineAction">',
             dojo.string.escapeXml(this.actionToText[modby.getAction()] || ""), '</span>',
-            userId? (_("Main.DetailForm.Byline.By") + '<span class="bylineWho">' +
+            userId? (_("Main.DetailForm.Byline.By") + '<span id="detailViewBylineWho">' +
              dojo.string.escapeXml(userId) + ' </span>') : "",
-            _("Main.DetailForm.Byline.On"), '<span class="bylineDate">',
-            dojo.string.escapeXml(date.strftime(_("Main.DetailForm.Byline.DateFormat"))), '</span>',
-            _("Main.DetailForm.Byline.At"), '<span class="bylineTime">', 
-            dojo.string.escapeXml(date.strftime(_("Main.DetailForm.Byline.TimeFormat"))), '</span>'
-            
+            _("Main.DetailForm.Byline.On"), '<span id="detailViewBylineDate">',
+            dojo.string.escapeXml(dt.strftime(_("Main.DetailForm.Byline.DateFormat"))), '</span>',
+            _("Main.DetailForm.Byline.At"), '<span id="detailViewBylineTime">',
+            dojo.string.escapeXml(dt.strftime(_("Main.DetailForm.Byline.TimeFormat"))), '</span>'
+
             ].join('');
-        
+
         var x = modby;
         var y = this.domNode;
 
-    }  
+    }
 }
 );
 
