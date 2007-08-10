@@ -52,7 +52,6 @@ import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
@@ -63,9 +62,11 @@ import org.osaf.cosmo.calendar.InstanceList;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.query.ComponentFilter;
 import org.osaf.cosmo.calendar.query.TimeRangeFilter;
+import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
@@ -114,28 +115,33 @@ public class FreeBusyReport extends CaldavSingleResourceReport {
      */
     protected void parseReport(ReportInfo info)
         throws DavException {
-        if (! getType().isRequestedReportType(info)) {
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "report not of type " + getType());
-        }
+        if (! getType().isRequestedReportType(info))
+            throw new BadRequestException("Report not of type " + getType());
 
         Element tre =
             info.getContentElement(ELEMENT_CALDAV_TIME_RANGE,
                                    NAMESPACE_CALDAV);
-        if (tre == null) {
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "CALDAV:free-busy-query must contain one time-range element");
+        if (tre == null)
+            throw new BadRequestException("Expected " + QN_CALDAV_TIME_RANGE);
+
+        DateTime sdt = null;
+        try {
+            String start = DomUtil.getAttribute(tre, ATTR_CALDAV_START, null);
+            sdt = new DateTime(start);
+        } catch (ParseException e) {
+            throw new BadRequestException("Attribute " + ATTR_CALDAV_START + " not parseable: " + e.getMessage());
         }
 
-        String start = DomUtil.getAttribute(tre, ATTR_CALDAV_START, null);
-        String end = DomUtil.getAttribute(tre, ATTR_CALDAV_END, null);
+        DateTime edt = null;
         try {
-            DateTime sdt = new DateTime(start);
-            DateTime edt = new DateTime(end);
-            setQueryFilter(createQueryFilter(tre.getOwnerDocument(), sdt, edt));
-            freeBusyRange = new Period(sdt, edt);
+            String end = DomUtil.getAttribute(tre, ATTR_CALDAV_END, null);
+            edt = new DateTime(end);
         } catch (ParseException e) {
-            log.error("cannot parse CALDAV:time-range", e);
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "cannot parse CALDAV:time-range: " + e.getMessage());
+            throw new BadRequestException("Attribute " + ATTR_CALDAV_END + " not parseable: " + e.getMessage());
         }
+
+        setQueryFilter(createQueryFilter(tre.getOwnerDocument(), sdt, edt));
+        freeBusyRange = new Period(sdt, edt);
     }
 
     // CaldavSingleResourceReport
@@ -156,7 +162,7 @@ public class FreeBusyReport extends CaldavSingleResourceReport {
         DavCollection dc = (DavCollection) getResource();
         while (dc != null) {
             if (dc.isExcludedFromFreeBusyRollups())
-                throw new DavException(DavServletResponse.SC_FORBIDDEN, "Targeted collection does not participate in freebusy rollups");
+                throw new ForbiddenException("Targeted collection does not participate in freebusy rollups");
             dc = (DavCollection) dc.getCollection();
         }
 
@@ -175,8 +181,7 @@ public class FreeBusyReport extends CaldavSingleResourceReport {
                 addBusyPeriods(calendar, tz, busyPeriods, busyTentativePeriods,
                                busyUnavailablePeriods);
             } catch (ModelConversionException e) {
-                log.error("cannot parse calendar for resource " + child.getResourcePath(), e);
-                throw new DavException(DavServletResponse.SC_INTERNAL_SERVER_ERROR,  "cannot parse calendar data: " + e.getMessage());
+                throw new DavException(e);
             }
         }
 
@@ -221,11 +226,8 @@ public class FreeBusyReport extends CaldavSingleResourceReport {
             outputter.output(calendar, out);
             output = out.toString();
             out.close();
-        } catch (IOException e) {
-            log.error("cannot generate freebusy", e);
-            throw new DavException(DavServletResponse.SC_INTERNAL_SERVER_ERROR, "cannot generate freebusy: " + e.getMessage());
-        } catch (ValidationException e) {
-            throw new DavException(DavServletResponse.SC_INTERNAL_SERVER_ERROR, "invalid freebusy generated: " + e.getMessage());
+        } catch (Exception e) {
+            throw new DavException(e);
         }
 
         // NB ical4j's outputter generates \r\n line ends but we
@@ -254,8 +256,7 @@ public class FreeBusyReport extends CaldavSingleResourceReport {
 
     CalendarFilter createQueryFilter(Document doc,
                                      DateTime start,
-                                     DateTime end)
-        throws DavException {
+                                     DateTime end) {
         // Create a fake calendar-filter element designed to match
         // VEVENTs/VFREEBUSYs within the specified time range.
         //

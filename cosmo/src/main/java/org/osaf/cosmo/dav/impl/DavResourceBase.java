@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.DavSession;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
@@ -46,11 +45,20 @@ import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
+import org.osaf.cosmo.dav.BadRequestException;
+import org.osaf.cosmo.dav.ConflictException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.ExistsException;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
+import org.osaf.cosmo.dav.ForbiddenException;
+import org.osaf.cosmo.dav.LockedException;
+import org.osaf.cosmo.dav.NotFoundException;
+import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
+import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.dav.ticket.property.TicketDiscovery;
 import org.osaf.cosmo.model.Attribute;
@@ -62,8 +70,6 @@ import org.osaf.cosmo.model.DuplicateItemNameException;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
-import org.osaf.cosmo.model.ModelConversionException;
-import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
@@ -201,23 +207,9 @@ public abstract class DavResourceBase
     public void setProperty(DavProperty property)
         throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
-            throw new DavException(DavServletResponse.SC_NOT_FOUND);
+            throw new NotFoundException();
 
-        try {
-            setResourceProperty(property);
-        } catch (ModelConversionException e) {
-            throw new DavException(DavServletResponse.SC_CONFLICT);
-        } catch (ModelValidationException e) {
-            throw new DavException(DavServletResponse.SC_CONFLICT);
-        } catch (DataSizeException e) {
-            throw new DavException(DavServletResponse.SC_FORBIDDEN, "Property cannot be stored: " + e.getMessage());
-        }
-
-        try {
-            getContentService().updateItem(item);
-        } catch (CollectionLockedException e) {
-            throw new DavException(DavServletResponse.SC_LOCKED);
-        }
+        setResourceProperty(property);
     }
 
     /**
@@ -233,20 +225,14 @@ public abstract class DavResourceBase
     public void removeProperty(DavPropertyName propertyName)
         throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
-            throw new DavException(DavServletResponse.SC_NOT_FOUND);
+            throw new NotFoundException();
 
-        try {
-            removeResourceProperty(propertyName);
-        } catch (ModelConversionException e) {
-            throw new DavException(DavServletResponse.SC_CONFLICT);
-        } catch (ModelValidationException e) {
-            throw new DavException(DavServletResponse.SC_CONFLICT);
-        }
+        removeResourceProperty(propertyName);
 
         try {
             getContentService().updateItem(item);
         } catch (CollectionLockedException e) {
-            throw new DavException(DavServletResponse.SC_LOCKED);
+            throw new LockedException();
         }
     }
 
@@ -264,7 +250,7 @@ public abstract class DavResourceBase
                                                DavPropertyNameSet removePropertyNames)
         throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
-            throw new DavException(DavServletResponse.SC_NOT_FOUND);
+            throw new NotFoundException();
 
         MultiStatusResponse msr = new MultiStatusResponse(getHref(), null);
 
@@ -273,16 +259,10 @@ public abstract class DavResourceBase
 
             try {
                 setResourceProperty(property);
-                msr.add(property.getName(), DavServletResponse.SC_OK);
-            } catch (ModelConversionException e) {
+                msr.add(property.getName(), 200);
+            } catch (DavException e) {
                 log.warn("Property " + property.getName() + " cannot be stored: " + e.getMessage());
-                msr.add(property.getName(), DavServletResponse.SC_CONFLICT);
-            } catch (ModelValidationException e) {
-                log.warn("Property " + property.getName() + " cannot be stored: " + e.getMessage());
-                msr.add(property.getName(), DavServletResponse.SC_CONFLICT);
-            } catch (DataSizeException e) {
-                log.warn("Property " + property.getName() + " cannot be stored: " + e.getMessage());
-                msr.add(property.getName(), DavServletResponse.SC_FORBIDDEN);
+                msr.add(property.getName(), e.getErrorCode());
             }
         }
 
@@ -292,20 +272,17 @@ public abstract class DavResourceBase
 
             try {
                 removeResourceProperty(name);
-                msr.add(name, DavServletResponse.SC_OK);
-            } catch (ModelConversionException e) {
+                msr.add(name, 200);
+            } catch (DavException e) {
                 log.warn("Property " + name + " cannot be removed: " + e.getMessage());
-                msr.add(name, DavServletResponse.SC_CONFLICT);
-            } catch (ModelValidationException e) {
-                log.warn("Property " + name + " cannot be removed: " + e.getMessage());
-                msr.add(name, DavServletResponse.SC_CONFLICT);
+                msr.add(name, e.getErrorCode());
             }
         }
 
         try {
             getContentService().updateItem(item);
         } catch (CollectionLockedException e) {
-            throw new DavException(DavServletResponse.SC_LOCKED);
+            throw new LockedException();
         }
 
         return msr;
@@ -320,7 +297,7 @@ public abstract class DavResourceBase
     public void move(org.apache.jackrabbit.webdav.DavResource destination)
         throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
-            throw new DavException(DavServletResponse.SC_NOT_FOUND);
+            throw new NotFoundException();
        
         if (log.isDebugEnabled())
             log.debug("moving resource " + getResourcePath() + " to " +
@@ -329,11 +306,11 @@ public abstract class DavResourceBase
         try {
             getContentService().moveItem(getResourcePath(), destination.getResourcePath());
         } catch (ItemNotFoundException e) {
-            throw new DavException(DavServletResponse.SC_CONFLICT);
+            throw new ConflictException("One or more intermediate collections must be created");
         } catch (DuplicateItemNameException e) {
-            throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED);
+            throw new ExistsException();
         } catch (CollectionLockedException e) {
-            throw new DavException(DavServletResponse.SC_LOCKED);
+            throw new LockedException();
         }
     }
 
@@ -342,7 +319,7 @@ public abstract class DavResourceBase
                      boolean shallow)
         throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
-            throw new DavException(DavServletResponse.SC_NOT_FOUND);
+            throw new NotFoundException();
 
         if (log.isDebugEnabled())
             log.debug("copying resource " + getResourcePath() + " to " +
@@ -352,13 +329,11 @@ public abstract class DavResourceBase
             getContentService().copyItem(item, destination.getResourcePath(),
                                          ! shallow);
         } catch (ItemNotFoundException e) {
-            throw new DavException(DavServletResponse.SC_CONFLICT,
-                                   "Parent collection not found");
+            throw new ConflictException("One or more intermediate collections must be created");
         } catch (DuplicateItemNameException e) {
-            throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED,
-                                   "Item with that name already exists");
+            throw new ExistsException();
         } catch (CollectionLockedException e) {
-            throw new DavException(DavServletResponse.SC_LOCKED);
+            throw new LockedException();
         }
     }
 
@@ -393,8 +368,7 @@ public abstract class DavResourceBase
     public ActiveLock lock(LockInfo reqLockInfo)
         throws org.apache.jackrabbit.webdav.DavException {
         // nothing is lockable at the moment
-        throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED,
-                               "Resource not lockable");
+        throw new PreconditionFailedException("Resource not lockable");
     }
 
     /** */
@@ -402,16 +376,14 @@ public abstract class DavResourceBase
                                   String lockToken)
         throws org.apache.jackrabbit.webdav.DavException {
         // nothing is lockable at the moment
-        throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED,
-                               "Resource not lockable");
+        throw new PreconditionFailedException("Resource not lockable");
     }
 
     /** */
     public void unlock(String lockToken)
         throws org.apache.jackrabbit.webdav.DavException {
         // nothing is lockable at the moment
-        throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED,
-                               "Resource not lockable");
+        throw new PreconditionFailedException("Resource not lockable");
     }
 
     /** */
@@ -448,10 +420,6 @@ public abstract class DavResourceBase
 
     public void saveTicket(Ticket ticket)
         throws DavException {
-        if (ticket == null) {
-            throw new DavException(DavServletResponse.SC_CONFLICT);
-        }
-
         if (log.isDebugEnabled())
             log.debug("adding ticket for " + item.getName());
 
@@ -460,10 +428,6 @@ public abstract class DavResourceBase
 
     public void removeTicket(Ticket ticket)
         throws DavException {
-        if (ticket == null || ticket.getKey() == null) {
-            throw new DavException(DavServletResponse.SC_CONFLICT);
-        }
-
         if (log.isDebugEnabled())
             log.debug("removing ticket " + ticket.getKey() + " on " +
                       item.getName());
@@ -472,16 +436,11 @@ public abstract class DavResourceBase
     }
 
     public Ticket getTicket(String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("no ticket id provided");
-        }
-
         for (Iterator i=item.getTickets().iterator(); i.hasNext();) {
             Ticket t = (Ticket) i.next();
             if (t.getKey().equals(id))
                 return t;
         }
-
         return null;
     }
 
@@ -561,7 +520,6 @@ public abstract class DavResourceBase
             log.debug("populating attributes for " + getResourcePath());
 
         MultiStatusResponse msr = new MultiStatusResponse(getHref(), null);
-
         if (properties == null)
             return msr;
 
@@ -570,16 +528,10 @@ public abstract class DavResourceBase
 
             try {
                 setResourceProperty(property);
-                msr.add(property.getName(), DavServletResponse.SC_OK);
-            } catch (ModelConversionException e) {
+                msr.add(property.getName(), 200);
+            } catch (DavException e) {
                 log.warn("Property " + property.getName() + " cannot be stored: " + e.getMessage());
-                msr.add(property.getName(), DavServletResponse.SC_CONFLICT);
-            } catch (ModelValidationException e) {
-                log.warn("Property " + property.getName() + " cannot be stored: " + e.getMessage());
-                msr.add(property.getName(), DavServletResponse.SC_CONFLICT);
-            } catch (DataSizeException e) {
-                log.warn("Property " + property.getName() + " cannot be stored: " + e.getMessage());
-                msr.add(property.getName(), DavServletResponse.SC_FORBIDDEN);
+                msr.add(property.getName(), e.getErrorCode());
             }
         }
 
@@ -656,22 +608,23 @@ public abstract class DavResourceBase
      *
      * @param property the property to set
      *
-     * @throws ModelValidationException if the property is protected
+     * @throws DavException if the property is protected
      * or if a null value is specified for a property that does not
      * accept them
      */
-    protected void setLiveProperty(DavProperty property) {
+    protected void setLiveProperty(DavProperty property)
+        throws DavException {
         if (item == null)
             return;
 
         DavPropertyName name = property.getName();
         if (property.getValue() == null)
-            throw new ModelValidationException("null value for property " + name);
+            throw new UnprocessableEntityException("Property " + name + " requires a value");
         String value = property.getValue().toString();
 
         if (name.equals(TICKETDISCOVERY) ||
             name.equals(UUID))
-            throw new ModelValidationException("cannot set protected property " + name);
+            throw new ProtectedPropertyModificationException(name);
 
         if (name.equals(DavPropertyName.DISPLAYNAME))
             item.setDisplayName(value);
@@ -688,16 +641,17 @@ public abstract class DavResourceBase
      *
      * @param name the name of the property to remove
      *
-     * @throws ModelValidationException if the property is protected
+     * @throws DavException if the property is protected
      */
-    protected void removeLiveProperty(DavPropertyName name) {
+    protected void removeLiveProperty(DavPropertyName name)
+        throws DavException {
         if (item == null)
             return;
 
         if (name.equals(TICKETDISCOVERY) ||
             name.equals(UUID) ||
             name.equals(DavPropertyName.DISPLAYNAME))
-            throw new ModelValidationException("cannot remove protected property " + name);
+            throw new ProtectedPropertyModificationException(name);
     }
 
     /**
@@ -737,7 +691,8 @@ public abstract class DavResourceBase
         }
     }
 
-    private void setResourceProperty(DavProperty property) {
+    private void setResourceProperty(DavProperty property)
+        throws DavException {
         String value = property.getValue() != null ?
             property.getValue().toString() :
             null;
@@ -749,13 +704,18 @@ public abstract class DavResourceBase
         if (isLiveProperty(property.getName()))
             setLiveProperty(property);
         else {
-            item.setAttribute(propNameToQName(property.getName()), value);
+            try {
+                item.setAttribute(propNameToQName(property.getName()), value);
+            } catch (DataSizeException e) {
+                throw new ForbiddenException(e.getMessage());
+            }
         }
         
         properties.add(property);
     }
 
-    private void removeResourceProperty(DavPropertyName name) {
+    private void removeResourceProperty(DavPropertyName name)
+        throws DavException {
         if (log.isDebugEnabled())
             log.debug("removing property " + name + " on " +
                       getResourcePath());
@@ -776,7 +736,6 @@ public abstract class DavResourceBase
     }
 
     private DavPropertyName qNameToPropName(QName qname) {
-     
         // no namespace at all
         if ("".equals(qname.getNamespace()))
             return DavPropertyName.create(qname.getLocalName());

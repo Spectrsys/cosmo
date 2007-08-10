@@ -37,12 +37,14 @@ import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.ForbiddenException;
+import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.EventStamp;
-import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.NoteItem;
 
 /**
@@ -110,17 +112,14 @@ public abstract class DavCalendarResource extends DavContentBase
 
     private void validateDestination(DavResource destination)
         throws DavException {
-        org.apache.jackrabbit.webdav.DavResource destinationCollection =
-            destination.getCollection();
-
         if (log.isDebugEnabled())
             log.debug("validating destination " + destination.getResourcePath());
 
         // XXX: we should allow items to be moved/copied out of
         // calendar collections into regular collections, but they
         // need to be stripped of their calendar-ness
-        if (! (destinationCollection instanceof DavCalendarCollection))
-            throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Destination collection not a calendar collection");
+        if (! (destination.getParent() instanceof DavCalendarCollection))
+            throw new PreconditionFailedException("Destination collection must be a calendar collection");
     }
     
     @Override    
@@ -173,7 +172,8 @@ public abstract class DavCalendarResource extends DavContentBase
     }
 
     /** */
-    protected void setLiveProperty(DavProperty property) {
+    protected void setLiveProperty(DavProperty property)
+        throws DavException {
         super.setLiveProperty(property);
 
         DavPropertyName name = property.getName();
@@ -181,15 +181,16 @@ public abstract class DavCalendarResource extends DavContentBase
 
         if (name.equals(DavPropertyName.GETCONTENTLENGTH) ||
             name.equals(DavPropertyName.GETCONTENTTYPE))
-            throw new ModelValidationException("cannot set property " + name);
+            throw new ProtectedPropertyModificationException(name);
     }
 
     /** */
-    protected void removeLiveProperty(DavPropertyName name) {
+    protected void removeLiveProperty(DavPropertyName name)
+        throws DavException {
         super.removeLiveProperty(name);
 
         if (name.equals(DavPropertyName.GETCONTENTLENGTH) ||
             name.equals(DavPropertyName.GETCONTENTTYPE))
-            throw new ModelValidationException("cannot remove property " + name);
+            throw new ProtectedPropertyModificationException(name);
     }
 }

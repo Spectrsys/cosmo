@@ -24,7 +24,9 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.acl.AclConstants;
 import org.osaf.cosmo.dav.acl.property.AlternateUriSet;
 import org.osaf.cosmo.dav.acl.property.GroupMembership;
@@ -32,7 +34,6 @@ import org.osaf.cosmo.dav.acl.property.PrincipalUrl;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.property.CalendarHomeSet;
 import org.osaf.cosmo.model.HomeCollectionItem;
-import org.osaf.cosmo.model.ModelValidationException;
 
 /**
  * Extends <code>DavCollection</code> to adapt the Cosmo
@@ -111,7 +112,8 @@ public class DavHomeCollection extends DavCollectionBase
     }
 
     /** */
-    protected void setLiveProperty(DavProperty property) {
+    protected void setLiveProperty(DavProperty property)
+        throws DavException {
         super.setLiveProperty(property);
 
         HomeCollectionItem hc = (HomeCollectionItem) getItem();
@@ -124,11 +126,12 @@ public class DavHomeCollection extends DavCollectionBase
             name.equals(ALTERNATEURISET) ||
             name.equals(PRINCIPALURL) ||
             name.equals(GROUPMEMBERSHIP))
-            throw new ModelValidationException("cannot set protected property " + name);
+            throw new ProtectedPropertyModificationException(name);
     }
 
     /** */
-    protected void removeLiveProperty(DavPropertyName name) {
+    protected void removeLiveProperty(DavPropertyName name)
+        throws DavException {
         super.removeLiveProperty(name);
 
         HomeCollectionItem hc = (HomeCollectionItem) getItem();
@@ -139,7 +142,7 @@ public class DavHomeCollection extends DavCollectionBase
             name.equals(ALTERNATEURISET) ||
             name.equals(PRINCIPALURL) ||
             name.equals(GROUPMEMBERSHIP))
-            throw new ModelValidationException("cannot remove protected property " + name);
+            throw new ProtectedPropertyModificationException(name);
     }
 
     // our methods

@@ -76,8 +76,7 @@ public abstract class CaldavMultiStatusReport extends CaldavReport {
      */
     protected void output(DavServletResponse response)
         throws IOException {
-        response.sendXmlResponse(multistatus,
-                                 DavServletResponse.SC_MULTI_STATUS);
+        response.sendXmlResponse(multistatus, 207);
     }
 
     /** */

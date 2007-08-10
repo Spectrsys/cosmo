@@ -19,19 +19,18 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * An exception indicating that processing the request would cause a
- * conflict between the targeted resource and another resource.
+ * An exception indicating that the targeted dav resource is locked by
+ * another party.
  */
-public class ConflictException extends DavException {
+public class LockedException extends DavException {
     
-    public ConflictException(String message) {
-        super(409, message);
+    public LockedException() {
+        super(423);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_COSMO, "conflict");
-        writer.writeCharacters(getMessage());
+        writer.writeStartElement("DAV:", "locked");
         writer.writeEndElement();
     }
 }

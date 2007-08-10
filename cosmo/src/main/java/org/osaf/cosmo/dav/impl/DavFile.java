@@ -18,6 +18,7 @@ package org.osaf.cosmo.dav.impl;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,8 +32,11 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 
+import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.ForbiddenException;
+import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.model.DataSizeException;
 import org.osaf.cosmo.model.FileItem;
@@ -135,9 +139,9 @@ public class DavFile extends DavContentBase {
             if (contentEncoding != null)
                 file.setContentEncoding(contentEncoding);
         } catch (IOException e) {
-           throw new DavException(DavServletResponse.SC_INTERNAL_SERVER_ERROR, "Cannot save content: " + e.getMessage());
+            throw new DavException(e);
         } catch (DataSizeException e) {
-           throw new DavException(DavServletResponse.SC_FORBIDDEN, "Cannot store resource attribute: " + e.getMessage());
+            throw new ForbiddenException(e.getMessage());
         }
     }
 
@@ -174,7 +178,8 @@ public class DavFile extends DavContentBase {
     }
 
     /** */
-    protected void setLiveProperty(DavProperty property) {
+    protected void setLiveProperty(DavProperty property)
+        throws DavException {
         super.setLiveProperty(property);
 
         FileItem content = (FileItem) getItem();
@@ -191,15 +196,16 @@ public class DavFile extends DavContentBase {
 
         if (name.equals(DavPropertyName.GETCONTENTTYPE)) {
             String type = IOUtil.getMimeType(value);
-            if (type == null)
-                throw new ModelValidationException("null mime type for property " + name);
+            if (StringUtils.isBlank(type))
+                throw new BadRequestException("Property " + name + " requires a valid media type");
             content.setContentType(type);
             content.setContentEncoding(IOUtil.getEncoding(value));
         }
     }
 
     /** */
-    protected void removeLiveProperty(DavPropertyName name) {
+    protected void removeLiveProperty(DavPropertyName name)
+        throws DavException {
         super.removeLiveProperty(name);
 
         FileItem content = (FileItem) getItem();
@@ -212,6 +218,6 @@ public class DavFile extends DavContentBase {
         }
 
         if (name.equals(DavPropertyName.GETCONTENTTYPE))
-            throw new ModelValidationException("cannot remove property " + name);
+            throw new ProtectedPropertyModificationException(name);
     }
 }

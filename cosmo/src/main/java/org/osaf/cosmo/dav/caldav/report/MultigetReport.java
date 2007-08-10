@@ -22,14 +22,15 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 
+import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
@@ -75,9 +76,8 @@ public class MultigetReport extends CaldavMultiStatusReport {
      */
     protected void parseReport(ReportInfo info)
         throws DavException {
-        if (! getType().isRequestedReportType(info)) {
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "report not of type " + getType());
-        }
+        if (! getType().isRequestedReportType(info))
+            throw new BadRequestException("Report not of type " + getType());
 
         setPropFindProps(info.getPropertyNameSet());
         if (info.containsContentElement(XML_ALLPROP, NAMESPACE)) {
@@ -91,11 +91,10 @@ public class MultigetReport extends CaldavMultiStatusReport {
 
         List<Element> hrefElements =
             info.getContentElements(XML_HREF, NAMESPACE);
-        if (hrefElements.size() == 0) {
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "multiget report must contain at least one href element");
-        }
-        if (! getResource().isCollection() && hrefElements.size() > 1)
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "multiget report against a calendar object resource may only contain one href");
+        if (hrefElements.size() == 0) 
+            throw new BadRequestException("Expected at least one " + QN_HREF);
+        if (getResource() instanceof DavContent && hrefElements.size() > 1)
+            throw new BadRequestException("Expected at most one " + QN_HREF);
 
         String parentHref = getResource().getHref();
         String host = parentHref.substring(0, parentHref.indexOf("/", 8));
@@ -112,14 +111,12 @@ public class MultigetReport extends CaldavMultiStatusReport {
 
             // Check if the href represents the requested resource or
             // a child of it
-            if (getResource().isCollection()) {
-                if (! isDescendentOrEqual(parentHref, href)) {
-                    throw new DavException(DavServletResponse.SC_BAD_REQUEST, "href " + href + " does no refer to a child of the requested collection or the collection itself");
-                } 
+            if (getResource() instanceof DavCollection) {
+                if (! isDescendentOrEqual(parentHref, href))
+                    throw new BadRequestException("Href " + href + " does not refer to a descendent of the requested collection or the collection itself");
             } else {
-                if (! href.equals(parentHref)) {
-                    throw new DavException(DavServletResponse.SC_BAD_REQUEST, "href " + href + " does not refer to the requested calendar object resource");
-                }
+                if (! href.equals(parentHref))
+                    throw new BadRequestException("Href " + href + " does not refer to the requested resource ");
             }
 
             hrefs.add(href);
@@ -137,10 +134,15 @@ public class MultigetReport extends CaldavMultiStatusReport {
                 DavCalendarResource target = (DavCalendarResource)
                     collection.findMember(href);
                 if (target != null)
-                    getMultiStatus().addResponse(buildMultiStatusResponse(target));
+                    getMultiStatus().
+                        addResponse(buildMultiStatusResponse(target));
                 else
-                    getMultiStatus().addResponse(new MultiStatusResponse(href, DavServletResponse.SC_NOT_FOUND));
+                    getMultiStatus().
+                        addResponse(new MultiStatusResponse(href,404));
             }
+        } else if (getResource() instanceof DavCalendarResource) {
+            DavCalendarResource target = (DavCalendarResource) getResource();
+            getMultiStatus().addResponse(buildMultiStatusResponse(target));
         } else {
             throw new MethodNotAllowedException("REPORT not allowed for content resource");
         }

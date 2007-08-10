@@ -51,6 +51,10 @@ import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
+import org.osaf.cosmo.dav.LockedException;
+import org.osaf.cosmo.dav.NotFoundException;
+import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
+import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.caldav.report.MultigetReport;
 import org.osaf.cosmo.dav.caldav.report.QueryReport;
@@ -59,7 +63,6 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.ModelValidationException;
 
 /**
  * Extends <code>DavResourceBase</code> to adapt the Cosmo
@@ -163,10 +166,10 @@ public class DavCollectionBase extends DavResourceBase
     public Report getReport(ReportInfo reportInfo)
         throws DavException {
         if (! exists())
-            throw new DavException(DavServletResponse.SC_NOT_FOUND);
+            throw new NotFoundException();
 
         if (! isSupportedReport(reportInfo))
-            throw new DavException(DavServletResponse.SC_UNPROCESSABLE_ENTITY, "Unknown report " + reportInfo.getReportName());
+            throw new UnprocessableEntityException("Unknown report " + reportInfo.getReportName());
 
         try {
             return ReportType.getType(reportInfo).createReport(this, reportInfo);
@@ -239,7 +242,8 @@ public class DavCollectionBase extends DavResourceBase
     }
 
     /** */
-    protected void setLiveProperty(DavProperty property) {
+    protected void setLiveProperty(DavProperty property)
+        throws DavException {
         super.setLiveProperty(property);
 
         CollectionItem cc = (CollectionItem) getItem();
@@ -248,11 +252,11 @@ public class DavCollectionBase extends DavResourceBase
 
         DavPropertyName name = property.getName();
         if (property.getValue() == null)
-            throw new ModelValidationException("null value for property " + name);
+            throw new UnprocessableEntityException("Property " + name + " requires a value");
         String value = property.getValue().toString();
 
         if (name.equals(DeltaVConstants.SUPPORTED_REPORT_SET))
-            throw new ModelValidationException("cannot set protected property " + name);
+            throw new ProtectedPropertyModificationException(name);
 
         if (name.equals(EXCLUDEFREEBUSYROLLUP)) {
             cc.setExcludeFreeBusyRollup(Boolean.valueOf(value));
@@ -260,7 +264,8 @@ public class DavCollectionBase extends DavResourceBase
     }
 
     /** */
-    protected void removeLiveProperty(DavPropertyName name) {
+    protected void removeLiveProperty(DavPropertyName name)
+        throws DavException {
         super.removeLiveProperty(name);
 
         CollectionItem cc = (CollectionItem) getItem();
@@ -268,7 +273,7 @@ public class DavCollectionBase extends DavResourceBase
             return;
 
         if (name.equals(DeltaVConstants.SUPPORTED_REPORT_SET))
-            throw new ModelValidationException("cannot remove protected property " + name);
+            throw new ProtectedPropertyModificationException(name);
 
         if (name.equals(EXCLUDEFREEBUSYROLLUP))
             cc.setExcludeFreeBusyRollup(false);
@@ -297,7 +302,7 @@ public class DavCollectionBase extends DavResourceBase
                 createCollection(collection, subcollection);
             ((DavResourceBase)member).setItem(subcollection);
         } catch (CollectionLockedException e) {
-            throw new DavException(DavServletResponse.SC_LOCKED);
+            throw new LockedException();
         }
     }
 
@@ -324,7 +329,7 @@ public class DavCollectionBase extends DavResourceBase
                     getContentService().createContent(collection, content);
             }
         } catch (CollectionLockedException e) {
-            throw new DavException(DavServletResponse.SC_LOCKED);
+            throw new LockedException();
         }
 
         ((DavResourceBase)member).setItem(content);
@@ -346,7 +351,7 @@ public class DavCollectionBase extends DavResourceBase
         try {
             getContentService().removeCollection(subcollection);
         } catch (CollectionLockedException e) {
-            throw new DavException(DavServletResponse.SC_LOCKED);
+            throw new LockedException();
         }
     }
 
@@ -365,7 +370,7 @@ public class DavCollectionBase extends DavResourceBase
         try {
             getContentService().removeContent(content);
         } catch (CollectionLockedException e) {
-            throw new DavException(DavServletResponse.SC_LOCKED);
+            throw new LockedException();
         }
     }
 

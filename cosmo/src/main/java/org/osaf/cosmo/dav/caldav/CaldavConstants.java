@@ -50,6 +50,8 @@ public interface CaldavConstants {
     public static final String ELEMENT_CALDAV_COMP = "comp";
     /** The CalDAV XML element name <CALDAV:calendar-data> */
     public static final String ELEMENT_CALDAV_CALENDAR_DATA = "calendar-data";
+    public static final String QN_CALDAV_CALENDAR_DATA = 
+        DomUtil.getQualifiedName(ELEMENT_CALDAV_CALENDAR_DATA, NAMESPACE_CALDAV);
     /** The CalDAV XML element name <CALDAV:timezone> */
     public static final String ELEMENT_CALDAV_TIMEZONE = "timezone";
     /** The CalDAV XML element name <CALDAV:allcomp> */
@@ -76,6 +78,8 @@ public interface CaldavConstants {
     public static final String ELEMENT_CALDAV_PARAM_FILTER = "param-filter";
     /** The CalDAV XML element name <CALDAV:time-range> */
     public static final String ELEMENT_CALDAV_TIME_RANGE = "time-range";
+    public static final String QN_CALDAV_TIME_RANGE = 
+        DomUtil.getQualifiedName(ELEMENT_CALDAV_TIME_RANGE, NAMESPACE_CALDAV);
     /** The CalDAV XML element name <CALDAV:is-not-defined> */
     public static final String ELEMENT_CALDAV_IS_NOT_DEFINED = "is-not-defined";
     /** The (old) CalDAV XML element name <CALDAV:is-defined> */

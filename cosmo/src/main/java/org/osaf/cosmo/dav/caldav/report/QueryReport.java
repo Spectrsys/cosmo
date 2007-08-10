@@ -22,14 +22,14 @@ import net.fortuna.ical4j.model.component.VTimeZone;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 
 import org.osaf.cosmo.calendar.query.CalendarFilter;
+import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
-import org.osaf.cosmo.dav.caldav.CaldavRequestHelper;
+import org.osaf.cosmo.dav.caldav.TimeZoneExtractor;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 
 import org.w3c.dom.Element;
@@ -72,9 +72,8 @@ public class QueryReport extends CaldavMultiStatusReport {
      */
     protected void parseReport(ReportInfo info)
         throws DavException {
-        if (! getType().isRequestedReportType(info)) {
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "report not of type " + getType());
-        }
+        if (! getType().isRequestedReportType(info))
+            throw new BadRequestException("Report not of type " + getType());
 
         setPropFindProps(info.getPropertyNameSet());
         if (info.containsContentElement(XML_ALLPROP, NAMESPACE)) {
@@ -105,12 +104,7 @@ public class QueryReport extends CaldavMultiStatusReport {
         }
         String icaltz = DomUtil.getTextTrim(tzdata);
 
-        try {
-            return CaldavRequestHelper.extractTimeZone(icaltz);
-        } catch (Exception e) {
-            log.error("unable to extract CALDAV:timezone", e);
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "unable to extract CALDAV:timezone: " + e.getMessage());
-        }
+        return TimeZoneExtractor.extract(icaltz);
     }
 
     private CalendarFilter findQueryFilter(ReportInfo info)
@@ -134,7 +128,7 @@ public class QueryReport extends CaldavMultiStatusReport {
         try {
             return new CalendarFilter(filterdata, tz);
         } catch (ParseException e) {
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "Unable to parse calendar filter: " + e.getMessage());
+            throw new BadRequestException("Calendar filter not parseable: " + e.getMessage());
         }
     }
 }

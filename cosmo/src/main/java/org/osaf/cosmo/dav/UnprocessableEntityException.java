@@ -19,18 +19,18 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * An exception indicating that processing the request would cause a
- * conflict between the targeted resource and another resource.
+ * An exception indicating that while the request entity has correct syntax,
+ * it includes instructions that cannot be processed.
  */
-public class ConflictException extends DavException {
+public class UnprocessableEntityException extends DavException {
     
-    public ConflictException(String message) {
-        super(409, message);
+    public UnprocessableEntityException(String message) {
+        super(422, message);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_COSMO, "conflict");
+        writer.writeStartElement(NS_COSMO, "unprocessable-entity");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

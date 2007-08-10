@@ -15,23 +15,25 @@
  */
 package org.osaf.cosmo.dav;
 
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * An exception indicating that processing the request would cause a
- * conflict between the targeted resource and another resource.
+ * An exception indicating that the request attempted to modify a
+ * protected property.
  */
-public class ConflictException extends DavException {
+public class ProtectedPropertyModificationException
+    extends ForbiddenException {
     
-    public ConflictException(String message) {
-        super(409, message);
+    public ProtectedPropertyModificationException(DavPropertyName name) {
+        super("Property " + name + " is protected");
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_COSMO, "conflict");
-        writer.writeCharacters(getMessage());
+        writer.writeStartElement("DAV:", "cannot-modify-protected-property");
         writer.writeEndElement();
     }
 }

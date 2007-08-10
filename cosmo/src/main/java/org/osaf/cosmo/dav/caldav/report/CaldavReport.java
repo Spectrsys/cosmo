@@ -27,7 +27,6 @@ import net.fortuna.ical4j.model.ValidationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.version.report.Report;
@@ -38,6 +37,7 @@ import org.osaf.cosmo.calendar.data.OutputFilter;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
@@ -50,7 +50,7 @@ import org.w3c.dom.Element;
  * Based on code originally written by Cyrus Daboo.
  */
 public abstract class CaldavReport
-    implements Report, DavConstants, CaldavConstants {
+    implements Report, ExtendedDavConstants, CaldavConstants {
     private static final Log log = LogFactory.getLog(CaldavReport.class);
 
     private DavResource resource;
@@ -192,12 +192,7 @@ public abstract class CaldavReport
         if (cdata == null) {
             return null;
         }
-        try {
-            return CaldavOutputFilter.createFromXml(cdata);
-        } catch (ParseException e) {
-            log.error("error parsing CALDAV:calendar-data", e);
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "error parsing CALDAV:calendar-data: " + e.getMessage());
-        }
+        return CaldavOutputFilter.createFromXml(cdata);
     }
 
     /**
@@ -228,14 +223,9 @@ public abstract class CaldavReport
                            boolean recurse)
         throws DavException {
         if (resource instanceof DavCalendarCollection) {
-            try {
-                DavCalendarCollection collection =
-                    (DavCalendarCollection) resource;
-                addResults(collection.findMembers(queryFilter));
-            } catch (Exception e) {
-                log.error("cannot run report query", e);
-                throw new DavException(DavServletResponse.SC_INTERNAL_SERVER_ERROR, "cannot run report query: " + e.getMessage());
-            }
+            DavCalendarCollection collection =
+                (DavCalendarCollection) resource;
+            addResults(collection.findMembers(queryFilter));
         }
 
         if (! recurse)

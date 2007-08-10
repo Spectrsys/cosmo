@@ -43,9 +43,9 @@ import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.NoteItem;
-import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.User;
 
@@ -178,7 +178,8 @@ public abstract class DavContentBase extends DavResourceBase
     }
 
     /** */
-    protected void setLiveProperty(DavProperty property) {
+    protected void setLiveProperty(DavProperty property)
+        throws DavException {
         super.setLiveProperty(property);
 
         ContentItem content = (ContentItem) getItem();
@@ -190,14 +191,13 @@ public abstract class DavContentBase extends DavResourceBase
 
         if (name.equals(DavPropertyName.GETCONTENTLENGTH) ||
             name.equals(DavPropertyName.GETETAG) ||
-            name.equals(DavPropertyName.GETLASTMODIFIED)) {
-            throw new ModelValidationException("cannot set protected property " + name);
-        }
-
+            name.equals(DavPropertyName.GETLASTMODIFIED))
+            throw new ProtectedPropertyModificationException(name);
     }
 
     /** */
-    protected void removeLiveProperty(DavPropertyName name) {
+    protected void removeLiveProperty(DavPropertyName name)
+        throws DavException {
         super.removeLiveProperty(name);
 
         ContentItem content = (ContentItem) getItem();
@@ -206,12 +206,9 @@ public abstract class DavContentBase extends DavResourceBase
 
         if (name.equals(DavPropertyName.GETCONTENTLENGTH) ||
             name.equals(DavPropertyName.GETETAG) ||
-            name.equals(DavPropertyName.GETLASTMODIFIED)) {
-            throw new ModelValidationException("cannot remove protected property " + name);
-        }
-
-        if (name.equals(DavPropertyName.GETCONTENTTYPE))
-            throw new ModelValidationException("cannot remove property " + name);
+            name.equals(DavPropertyName.GETLASTMODIFIED) ||
+            name.equals(DavPropertyName.GETCONTENTTYPE))
+            throw new ProtectedPropertyModificationException(name);
     }
 
     /** */

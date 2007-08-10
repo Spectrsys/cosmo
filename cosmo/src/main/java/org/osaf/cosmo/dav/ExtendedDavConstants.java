@@ -55,4 +55,6 @@ public interface ExtendedDavConstants extends DavConstants {
         DomUtil.getQualifiedName(XML_PROP, NAMESPACE);
     public static final String QN_PRIVILEGE =
         DomUtil.getQualifiedName(XML_PRIVILEGE, NAMESPACE);
+    public static final String QN_HREF =
+        DomUtil.getQualifiedName(XML_HREF, NAMESPACE);
 }
