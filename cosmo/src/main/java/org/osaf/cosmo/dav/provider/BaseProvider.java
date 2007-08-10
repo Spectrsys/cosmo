@@ -252,7 +252,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
 
         resource.removeTicket(ticket);
 
-        response.sendDelTicketResponse(resource, ticket.getKey());
+        response.setStatus(204);
     }
 
     // our methods

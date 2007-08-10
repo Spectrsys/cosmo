@@ -96,18 +96,6 @@ public class StandardDavResponse extends WebdavResponseImpl
         }
     }
 
-    /**
-     * Send the response to a <code>DELTICKET</code> request.
-     *
-     * @param resource the resource on which the ticket was deleted
-     * @param ticketId the id of the deleted ticket
-     */
-    public void sendDelTicketResponse(DavResource resource,
-                                      String ticketId)
-        throws DavException, IOException {
-        setStatus(SC_NO_CONTENT);
-    }
-
     public void sendDavError(DavException e)
         throws IOException {
         setStatus(e.getErrorCode());
