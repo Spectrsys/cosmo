@@ -47,6 +47,8 @@ import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.model.Ticket;
+import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.security.CosmoSecurityContext;
 
 /**
  * <p>
@@ -136,8 +138,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new BadRequestException("Depth for DELETE must be Infinity");
 
         try {
-            DavResource parent = (DavResource) resource.getCollection();
-            parent.removeMember(resource);
+            resource.getParent().removeMember(resource);
             response.setStatus(204);
         } catch (org.apache.jackrabbit.webdav.DavException e) {
             throw new DavException(e);
@@ -215,12 +216,43 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
                          DavResponse response,
                          DavResource resource)
         throws DavException, IOException {
+        if (! resource.exists())
+            throw new NotFoundException();
+
+        if (log.isDebugEnabled())
+            log.debug("MKTICKET for " + resource.getResourcePath());
+
+        Ticket ticket = request.getTicketInfo();
+        User user = getSecurityContext().getUser();
+        if (user == null)
+            throw new ForbiddenException("MKTICKET requires an authenticated user");
+        ticket.setOwner(user);
+
+        resource.saveTicket(ticket);
+
+        response.sendMkTicketResponse(resource, ticket.getKey());
     }
 
     public void delticket(DavRequest request,
                           DavResponse response,
                           DavResource resource)
         throws DavException, IOException {
+        if (! resource.exists())
+            throw new NotFoundException();
+
+        if (log.isDebugEnabled())
+            log.debug("DELTICKET for " + resource.getResourcePath());
+
+        String key = request.getTicketKey();
+        Ticket ticket = resource.getTicket(key);
+        if (ticket == null)
+            throw new PreconditionFailedException("Ticket " + key + " does not exist");
+
+        checkDelTicketAccess(ticket);
+
+        resource.removeTicket(ticket);
+
+        response.sendDelTicketResponse(resource, ticket.getKey());
     }
 
     // our methods
@@ -275,8 +307,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
 
     protected void checkReportAccess(ReportInfo info)
         throws DavException {
-        Ticket ticket = getResourceFactory().getSecurityManager().
-            getSecurityContext().getTicket();
+        Ticket ticket = getSecurityContext().getTicket();
         if (ticket == null)
             return;
 
@@ -294,6 +325,27 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             return;
 
        throw new ForbiddenException("Ticket privileges deny access");
+    }
+
+    private void checkDelTicketAccess(Ticket ticket)
+        throws DavException {
+        User user = getSecurityContext().getUser();
+        if (user != null) {
+            // user must either own the ticket or be an administrator
+            if (! (ticket.getOwner().equals(user) || getSecurityContext().isAdmin()))
+                throw new ForbiddenException("Authenticated user not ticket owner");
+            return;
+        }
+        Ticket authTicket = getSecurityContext().getTicket();
+        if (authTicket != null)
+            // security layer has already validated this ticket
+            return;
+
+        throw new ForbiddenException("Anonymous user not ticket owner");
+    }
+
+    protected CosmoSecurityContext getSecurityContext() {
+        return getResourceFactory().getSecurityManager().getSecurityContext();
     }
 
     public DavResourceFactory getResourceFactory() {

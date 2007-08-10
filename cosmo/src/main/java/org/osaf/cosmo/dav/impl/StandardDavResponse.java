@@ -71,7 +71,7 @@ public class StandardDavResponse extends WebdavResponseImpl
      */
     public void sendMkTicketResponse(DavResource resource,
                                      String ticketId)
-        throws org.apache.jackrabbit.webdav.DavException, IOException {
+        throws DavException, IOException {
         setHeader(HEADER_TICKET, ticketId);
 
         TicketDiscovery ticketdiscovery = (TicketDiscovery)
@@ -104,7 +104,7 @@ public class StandardDavResponse extends WebdavResponseImpl
      */
     public void sendDelTicketResponse(DavResource resource,
                                       String ticketId)
-        throws org.apache.jackrabbit.webdav.DavException, IOException {
+        throws DavException, IOException {
         setStatus(SC_NO_CONTENT);
     }
 

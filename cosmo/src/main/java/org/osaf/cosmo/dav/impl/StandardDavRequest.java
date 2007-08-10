@@ -63,15 +63,11 @@ public class StandardDavRequest extends WebdavRequestImpl
     private boolean bufferRequestContent = false;
     private long bufferedContentLength = -1;
 
-    /**
-     */
     public StandardDavRequest(HttpServletRequest request,
                               DavLocatorFactory factory) {
         super(request, factory);
     }
-    
-    /**
-     */
+
     public StandardDavRequest(HttpServletRequest request,
                               DavLocatorFactory factory,
                               boolean bufferRequestContent) {
@@ -81,10 +77,6 @@ public class StandardDavRequest extends WebdavRequestImpl
 
     // CosmoDavRequest methods
 
-    /**
-     * Return the base URL for this request (including scheme, server
-     * name, and port if not the scheme's default port).
-     */
     public String getBaseUrl() {
         StringBuffer buf = new StringBuffer();
         buf.append(getScheme());
@@ -103,13 +95,6 @@ public class StandardDavRequest extends WebdavRequestImpl
 
     // CaldavRequest methods
 
-    /**
-     * Return the list of 'set' entries in the MKCALENDAR request
-     * body. The list is empty if the request body did not
-     * contain any 'set' elements.
-     * An <code>IllegalArgumentException</code> is raised if the request body can not
-     * be parsed
-     */
     public DavPropertySet getMkCalendarSetProperties()
         throws DavException {
         if (mkcalendarSet == null)
@@ -119,60 +104,36 @@ public class StandardDavRequest extends WebdavRequestImpl
 
     // TicketDavRequest methods
 
-    /**
-     * Return a {@link Ticket} representing the information about a
-     * ticket to be created by a <code>MKTICKET</code> request.
-     *
-     * @throws IllegalArgumentException if there is no ticket
-     * information in the request or if the ticket information exists
-     * but is invalid
-     */
-    public Ticket getTicketInfo() {
-        if (ticket == null) {
+    public Ticket getTicketInfo()
+        throws DavException {
+        if (ticket == null)
             ticket = parseTicketRequest();
-        }
         return ticket;
     }
 
-    /**
-     * Return the ticket id included in this request, if any. If
-     * different ticket ids are included in the headers and URL, the
-     * one from the URL is used.
-     */
-    public String getTicketId() {
-        String ticketId = getParameter(PARAM_TICKET);
-        if (ticketId == null) {
-            ticketId = getHeader(HEADER_TICKET);
-        }
-        return ticketId;
+    public String getTicketKey()
+        throws DavException {
+        String key = getParameter(PARAM_TICKET);
+        if (key == null)
+            key = getHeader(HEADER_TICKET);
+        if (key != null)
+            return key;
+        throw new BadRequestException("Request does not contain a ticket key");
     }
 
-    /**
-     * Return the report information, if any, included in the
-     * request.
-     *
-     * @throws DavException if there is no report information in the
-     * request or if the report information is invalid
-     */
     public ReportInfo getReportInfo()
         throws DavException {
-        if (reportInfo == null) {
+        if (reportInfo == null)
             reportInfo = parseReportRequest();
-        }
         return reportInfo;
     }
   
     // private methods
 
-    private DavPropertySet parseMkCalendarRequest()
+    private Document getSafeRequestDocument()
         throws DavException {
-        DavPropertySet propertySet = new DavPropertySet();
-
-        Document requestDocument = null;
         try {
-            requestDocument = getRequestDocument();
-            if (requestDocument == null)
-                return propertySet;
+            return getRequestDocument();
         } catch (IllegalArgumentException e) {
             Throwable cause = e.getCause();
             String msg = e.getCause() != null ?
@@ -181,6 +142,15 @@ public class StandardDavRequest extends WebdavRequestImpl
                 msg = "Unknown error parsing request document";
             throw new BadRequestException(msg);
         }
+    }
+
+    private DavPropertySet parseMkCalendarRequest()
+        throws DavException {
+        DavPropertySet propertySet = new DavPropertySet();
+
+        Document requestDocument = getSafeRequestDocument();
+        if (requestDocument == null)
+            return propertySet;
 
         Element root = requestDocument.getDocumentElement();
         if (! DomUtil.matches(root, ELEMENT_CALDAV_MKCALENDAR,
@@ -233,47 +203,40 @@ public class StandardDavRequest extends WebdavRequestImpl
         propertySet.add(new CalendarTimezone(ical));
     }
 
-    private Ticket parseTicketRequest() {
-        Document requestDocument = getRequestDocument();
-        if (requestDocument == null) {
-            throw new IllegalArgumentException("ticket request missing body");
-        }
+    private Ticket parseTicketRequest()
+        throws DavException {
+        Document requestDocument = getSafeRequestDocument();
+        if (requestDocument == null)
+            throw new BadRequestException("MKTICKET requires entity body");
 
         Element root = requestDocument.getDocumentElement();
         if (! DomUtil.matches(root, ELEMENT_TICKET_TICKETINFO,
-                              NAMESPACE_TICKET)) {
-            throw new IllegalArgumentException("ticket request has missing ticket:ticketinfo");
-        }
-
+                              NAMESPACE_TICKET))
+            throw new BadRequestException("Expected " + QN_TICKET_TICKETINFO + " root element");
         if (DomUtil.hasChildElement(root, ELEMENT_TICKET_ID,
-                                    NAMESPACE_TICKET)) {
-            throw new IllegalArgumentException("ticket request must not include ticket:id");
-        }
-        if (DomUtil.hasChildElement(root, XML_OWNER, NAMESPACE)) {
-            throw new IllegalArgumentException("ticket request must not include ticket:owner");
-        }
+                                    NAMESPACE_TICKET))
+            throw new BadRequestException(QN_TICKET_TICKETINFO + " may not contain child " + QN_TICKET_ID);
+        if (DomUtil.hasChildElement(root, XML_OWNER, NAMESPACE))
+            throw new BadRequestException(QN_TICKET_TICKETINFO + " may not contain child " + QN_TICKET_OWNER);
 
         String timeout =
             DomUtil.getChildTextTrim(root, ELEMENT_TICKET_TIMEOUT,
                                      NAMESPACE_TICKET);
-        if (timeout != null &&
-            ! timeout.equals(TIMEOUT_INFINITE)) {
+        if (timeout != null && ! timeout.equals(TIMEOUT_INFINITE)) {
             try {
                 int seconds = Integer.parseInt(timeout.substring(7));
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("malformed ticket:timeout value " + timeout);
+                throw new BadRequestException("Malformed " + QN_TICKET_TIMEOUT + " value " + timeout);
             }
-        } else {
+        } else
             timeout = TIMEOUT_INFINITE;
-        }
 
         // visit limits are not supported
 
         Element privilege =
             DomUtil.getChildElement(root, XML_PRIVILEGE, NAMESPACE);
-        if (privilege == null) {
-            throw new IllegalArgumentException("ticket request missing DAV:privileges");
-        }
+        if (privilege == null)
+            throw new BadRequestException("Expected " + QN_PRIVILEGE + " child of " + QN_TICKET_TICKETINFO);
         Element read =
             DomUtil.getChildElement(privilege, XML_READ, NAMESPACE);
         Element write =
@@ -281,32 +244,27 @@ public class StandardDavRequest extends WebdavRequestImpl
         Element freebusy =
             DomUtil.getChildElement(privilege, ELEMENT_TICKET_FREEBUSY,
                                     NAMESPACE);
-        if (read == null && write == null && freebusy == null) {
-            throw new IllegalArgumentException("ticket request contains empty or invalid DAV:privileges");
-        }
+        if (read == null && write == null && freebusy == null)
+            throw new BadRequestException("Empty or invalid " + QN_PRIVILEGE);
 
         Ticket ticket = new Ticket();
         ticket.setTimeout(timeout);
-        if (read != null) {
+        if (read != null)
             ticket.getPrivileges().add(Ticket.PRIVILEGE_READ);
-        }
-        if (write != null) {
+        if (write != null)
             ticket.getPrivileges().add(Ticket.PRIVILEGE_WRITE);
-        }
-        if (freebusy != null) {
+        if (freebusy != null)
             ticket.getPrivileges().add(Ticket.PRIVILEGE_FREEBUSY);
-        }
 
         return ticket;
     }
 
     private ReportInfo parseReportRequest()
         throws DavException {
-        Document requestDocument = getRequestDocument();
-        if (requestDocument == null) {
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST,
-                                   "Report content must not be empty");
-        }
+        Document requestDocument = getSafeRequestDocument();
+        if (requestDocument == null)
+            throw new BadRequestException("REPORT requires entity body");
+
         try {
             return new ReportInfo(requestDocument.getDocumentElement(),
                                   getDepth(DEPTH_0));

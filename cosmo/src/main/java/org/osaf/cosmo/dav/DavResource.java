@@ -18,7 +18,6 @@ package org.osaf.cosmo.dav;
 import java.io.InputStream;
 import java.util.Set;
 
-import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
@@ -29,6 +28,7 @@ import org.apache.jackrabbit.webdav.version.report.ReportType;
 
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.caldav.report.CaldavReport;
 import org.osaf.cosmo.dav.ticket.TicketDavRequest;
