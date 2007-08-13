@@ -42,8 +42,6 @@ import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.InvalidCalendarDataException;
-import org.osaf.cosmo.dav.caldav.property.CalendarDescription;
-import org.osaf.cosmo.dav.caldav.property.CalendarTimezone;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.model.Ticket;
@@ -59,6 +57,8 @@ public class StandardDavRequest extends WebdavRequestImpl
     private static final Log log =
         LogFactory.getLog(StandardDavRequest.class);
 
+    private int propfindType = PROPFIND_ALL_PROP;
+    private DavPropertyNameSet propfindProps;
     private DavPropertySet proppatchSet;
     private DavPropertyNameSet proppatchRemove;
     private DavPropertySet mkcalendarSet;
@@ -96,6 +96,20 @@ public class StandardDavRequest extends WebdavRequestImpl
     }
 
     // DavRequest methods
+
+    public int getPropFindType()
+        throws DavException {
+        if (propfindProps == null)
+            parsePropFindRequest();
+        return propfindType;
+    }
+
+    public DavPropertyNameSet getPropFindProperties()
+        throws DavException {
+        if (propfindProps == null)
+            parsePropFindRequest();
+        return propfindProps;
+    }
 
     public DavPropertySet getProppatchSetProperties()
         throws DavException {
@@ -160,6 +174,38 @@ public class StandardDavRequest extends WebdavRequestImpl
                 msg = "Unknown error parsing request document";
             throw new BadRequestException(msg);
         }
+    }
+
+    private void parsePropFindRequest()
+        throws DavException {
+        Document requestDocument = getSafeRequestDocument();
+        if (requestDocument == null)
+            throw new BadRequestException("PROPFIND requires entity body");
+
+        Element root = requestDocument.getDocumentElement();
+        if (! DomUtil.matches(root, XML_PROPFIND, NAMESPACE))
+            throw new BadRequestException("Expected " + QN_PROPFIND + " root element");
+
+        Element prop = DomUtil.getChildElement(root, XML_PROP, NAMESPACE);
+        if (prop != null) {
+            propfindType = PROPFIND_BY_PROPERTY;
+            propfindProps = new DavPropertyNameSet(prop);
+            return;
+        }
+
+        if (DomUtil.getChildElement(root, XML_PROPNAME, NAMESPACE) != null) {
+            propfindType = PROPFIND_PROPERTY_NAMES;
+            propfindProps = new DavPropertyNameSet();
+            return;
+        }
+
+        if (DomUtil.getChildElement(root, XML_ALLPROP, NAMESPACE) != null) {
+            propfindType = PROPFIND_ALL_PROP;
+            propfindProps = new DavPropertyNameSet();
+            return;
+        }
+
+        throw new BadRequestException("Expected one of " + XML_PROP + ", " + XML_PROPNAME + ", or " + XML_ALLPROP + " as child of " + QN_PROPFIND);
     }
 
     private void parsePropPatchRequest()

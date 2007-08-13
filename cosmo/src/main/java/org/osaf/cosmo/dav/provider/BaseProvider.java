@@ -89,18 +89,14 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         if (! resource.exists())
             throw new NotFoundException();
 
-        try {
-            int depth = request.getDepth(DEPTH_INFINITY);
-            DavPropertyNameSet props = request.getPropFindProperties();
-            int type = request.getPropFindType();
+        int depth = request.getDepth(DEPTH_INFINITY);
+        DavPropertyNameSet props = request.getPropFindProperties();
+        int type = request.getPropFindType();
 
-            MultiStatus ms = new MultiStatus();
-            ms.addResourceProperties(resource, props, type, depth);
+        MultiStatus ms = new MultiStatus();
+        ms.addResourceProperties(resource, props, type, depth);
 
-            response.sendMultiStatus(ms);
-        } catch (org.apache.jackrabbit.webdav.DavException e) {
-            throw new DavException(e);
-        }
+        response.sendMultiStatus(ms);
     }
 
     public void proppatch(DavRequest request,
@@ -112,8 +108,6 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
 
         DavPropertySet set = request.getProppatchSetProperties();
         DavPropertyNameSet remove = request.getProppatchRemoveProperties();
-        if (set.isEmpty() && remove.isEmpty())
-            throw new BadRequestException("No properties specified");
 
         MultiStatus ms = new MultiStatus();
         MultiStatusResponse msr = resource.updateProperties(set, remove);

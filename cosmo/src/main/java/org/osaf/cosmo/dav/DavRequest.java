@@ -31,6 +31,12 @@ import org.osaf.cosmo.dav.ticket.TicketDavRequest;
 public interface DavRequest
     extends WebdavRequest, CaldavRequest, ReportRequest, TicketDavRequest {
 
+    public int getPropFindType()
+        throws DavException;
+
+    public DavPropertyNameSet getPropFindProperties()
+        throws DavException;
+        
     public DavPropertySet getProppatchSetProperties()
         throws DavException;
 
