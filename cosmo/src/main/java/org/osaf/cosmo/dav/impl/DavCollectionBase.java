@@ -206,8 +206,10 @@ public class DavCollectionBase extends DavResourceBase
         DavResourceBase base = (DavResourceBase) collection;
         base.populateItem(null);
         MultiStatusResponse msr = base.populateAttributes(properties);
-        saveSubcollection(collection);
-        members.add(collection);
+        if (! msr.hasNonOk()) {
+            saveSubcollection(collection);
+            members.add(collection);
+        }
         return msr;
     }
 

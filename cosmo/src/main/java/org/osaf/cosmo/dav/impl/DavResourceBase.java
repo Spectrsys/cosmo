@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.dav.impl;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -523,17 +524,40 @@ public abstract class DavResourceBase
         if (properties == null)
             return msr;
 
+        DavProperty property = null;
+        ArrayList<DavPropertyName> df = new ArrayList<DavPropertyName>();
+        DavException error = null;
+        DavPropertyName failed = null;
         for (DavPropertyIterator i=properties.iterator(); i.hasNext();) {
-            DavProperty property = i.nextProperty();
-
             try {
+                property = i.nextProperty();
                 setResourceProperty(property);
+                df.add(property.getName());
                 msr.add(property.getName(), 200);
             } catch (DavException e) {
-                log.warn("Property " + property.getName() + " cannot be stored: " + e.getMessage());
-                msr.add(property.getName(), e.getErrorCode());
+                // we can only report one error message in the
+                // responsedescription, so even if multiple properties would
+                // fail, we return 424 for the second and subsequent failures
+                // as well
+                if (error == null) {
+                    error = e;
+                    failed = property.getName();
+                } else {
+                    df.add(property.getName());
+                }
             }
         }
+
+        if (error == null)
+            return msr;
+
+        // replace the other response with a new one, since we have to
+        // change the response code for each of the properties that would
+        // have been set successfully
+        msr = new MultiStatusResponse(getHref(), error.getMessage());
+        for (DavPropertyName n : df)
+            msr.add(n, 424);
+        msr.add(failed, error.getErrorCode());
 
         return msr;
     }
