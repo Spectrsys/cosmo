@@ -163,44 +163,10 @@ public class StandardDavRequest extends WebdavRequestImpl
         if (prop == null)
             throw new BadRequestException("Expected " + QN_PROP + " child of " + QN_SET);
         ElementIterator i = DomUtil.getChildren(prop);
-        while (i.hasNext()) {
-            Element e = i.nextElement();
-            if (DomUtil.matches(e, PROPERTY_CALDAV_CALENDAR_TIMEZONE, NAMESPACE_CALDAV))
-                parseCalendarTimezone(propertySet, e);
-            else if (DomUtil.matches(e, PROPERTY_CALDAV_CALENDAR_DESCRIPTION, NAMESPACE_CALDAV))
-                parseDescription(propertySet, e);
-            else if (DomUtil.getNamespace(e).equals(NAMESPACE_CALDAV))
-                throw new BadRequestException(DomUtil.getQualifiedName(e.getLocalName(), NAMESPACE_CALDAV) + " is a protected or unknown property");
-            else if (DomUtil.matches(e, "displayname", NAMESPACE))
-                propertySet.add(DefaultDavProperty.createFromXml(e));
-            else if (DomUtil.getNamespace(e).equals(NAMESPACE))
-                throw new BadRequestException(DomUtil.getQualifiedName(e.getLocalName(), NAMESPACE) + " is a protected or unknown property");
-            else
-                propertySet.add(DefaultDavProperty.createFromXml(e));
-        }
+        while (i.hasNext())
+            propertySet.add(DefaultDavProperty.createFromXml(i.nextElement()));
 
         return propertySet;
-    }
-
-    private void parseDescription(DavPropertySet propertySet,
-                                  Element e)
-        throws DavException {
-        DefaultDavProperty d = DefaultDavProperty.createFromXml(e);
-
-        String value = (String) d.getValue();
-        String lang = DomUtil.getAttribute(e, XML_LANG, NAMESPACE_XML);
-
-        propertySet.add(new CalendarDescription(value, lang));
-    }
-
-    private void parseCalendarTimezone(DavPropertySet propertySet,
-                                       Element e)
-        throws DavException {
-        String ical = DomUtil.getTextTrim(e);
-        if (StringUtils.isBlank(ical))
-            throw new InvalidCalendarDataException("Expected calendar object in " + PROPERTY_CALDAV_CALENDAR_TIMEZONE + " value");
-
-        propertySet.add(new CalendarTimezone(ical));
     }
 
     private Ticket parseTicketRequest()
