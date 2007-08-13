@@ -45,6 +45,7 @@ import org.osaf.cosmo.dav.caldav.InvalidCalendarDataException;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.model.Ticket;
+import org.osaf.cosmo.util.BufferedServletInputStream;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
