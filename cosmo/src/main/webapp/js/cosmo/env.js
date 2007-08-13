@@ -34,6 +34,7 @@ cosmo.env._cosmoConfig["baseUrl"] = djConfig['staticBaseUrl'];
 cosmo.env._NULL = {};
 cosmo.env._FALSE_OR_ZERO = {};
 cosmo.env._version = null;
+cosmo.env._staticUrlPathCache = {};
 
 cosmo.env._getCachePropGetterPopulator = function(propName, calculatorFunction ){
    var _calcy = calculatorFunction;
@@ -54,7 +55,6 @@ cosmo.env._getCachePropGetterPopulator = function(propName, calculatorFunction )
 
        return prop;
    }
-
 
    prop = _calcy();
 
@@ -104,15 +104,86 @@ cosmo.env.getBaseUrl = function(){
     if (typeof(result) == "undefined"){
         throw new Error("You must setBaseUrl before calling this function");
     }
-	return result;
+    return result;
 }
 
 /**
- * Sets the base url of the application. Provided by the server somehow.
+ * Sets the base url of the application. Provided by the server and set during bootstrap.
  * @param {String} baseUrl
  */
 cosmo.env.setBaseUrl = function(baseUrl){
     cosmo.env._cosmoConfig["baseUrl"] = baseUrl;
+}
+
+/**
+ * Sets the base url for static resources. Provided by the server and set during bootstrap.
+ * @param {String} baseUrl
+ */
+cosmo.env.setStaticBaseUrlTemplate = function(staticBaseUrl){
+    cosmo.env._cosmoConfig["staticBaseUrlTemplate"] = staticBaseUrl;
+}
+
+cosmo.env.getStaticBaseUrlTemplate = function(){
+    return cosmo.env._cosmoConfig["staticBaseUrlTemplate"];
+}
+
+cosmo.env.setStaticBaseUrlRange = function(staticBaseUrlRange){
+    if (staticBaseUrlRange){
+        var parsedRange = staticBaseUrlRange.split("\.\.");
+        this._cosmoConfig.rangeLow = parsedRange[0];
+        this._cosmoConfig.rangeHigh = parsedRange[1];
+    }
+}
+
+cosmo.env.getStaticBaseUrlRangeLow = function(){
+    return cosmo.env._cosmoConfig["rangeLow"];
+}
+
+cosmo.env.getStaticBaseUrlRangeHigh = function(){
+    return cosmo.env._cosmoConfig["rangeHigh"];
+}
+
+cosmo.env._doesHaveRange = function(){
+    return !!cosmo.env._cosmoConfig["rangeLow"];    
+}
+
+cosmo.env._getNextSuffix = function(){
+    var current = this._currentSuffix;
+    var low = this.getStaticBaseUrlRangeLow();
+    var high = this.getStaticBaseUrlRangeHigh();
+    
+    if (!current || (current == high)){
+        current =  low;
+    } else {
+        current++;
+    }
+    this._currentSuffix = current;
+    return current;
+}
+
+/**
+ * Returns the url for a static resource. Uses a round-robin algorithm to 
+ * distribute urls across various hosts.
+ */
+cosmo.env.getStaticUrl = function(resourcePath){
+    var url = this.getStaticBaseUrlTemplate();
+    if (!url){
+        return this.getBaseUrl() + resourcePath;   
+    }
+    
+    var cached = this._staticUrlPathCache[resourcePath];
+    if (cached){
+        return cached;
+    }
+    
+    
+    if (this._doesHaveRange()){
+        var suffix = this._getNextSuffix();
+        url = url.replace("*", suffix);
+    }
+    url += resourcePath;
+    this._staticUrlPathCache[resourcePath] = url; 
+    return url;
 }
 
 /**
@@ -131,8 +202,8 @@ cosmo.env.setTimeoutSeconds = function(timeoutSeconds) {
     }
 }
 
-cosmo.env.getImagesUrl = function(){
-	s = cosmo.env.getBaseUrl() + '/templates' + TEMPLATE_DIRECTORY + '/images/';
+cosmo.env.getImageUrl = function(image){
+    s = cosmo.env.getStaticUrl('/templates' + TEMPLATE_DIRECTORY + '/images/' + image);
   return s;
 }
 
@@ -142,7 +213,12 @@ cosmo.env.urls = {
     "Logout": "/logout",
     "Redirect": "/logout",
     "Auth": "/security_check",
-    "Notices": function(){return _("About.NoticesUrl")}
+    "Notices": function(){return _("About.NoticesUrl")},
+    "Browse": "/browse",
+    "UserList": '/admin/users',
+    "TermsOfService": "/help/tos",
+    "PrivacyPolicy": "/help/privacy",
+    "About": "/help/about"
 }
 
 cosmo.env.getFullUrl = function (urlKey) {
@@ -153,20 +229,20 @@ cosmo.env.getFullUrl = function (urlKey) {
 
 cosmo.env.getRedirectUrl = function(){
     dojo.deprecated("cosmo.env.getRedirectUrl", "please use cosmo.env.getFullUrl instead", "0.8");
-	return cosmo.env.getBaseUrl() + '/logout';}
+    return cosmo.env.getBaseUrl() + '/logout';}
 
 cosmo.env.getLoginRedirect = function(){
     dojo.deprecated("cosmo.env.getLoginRedirect", "please use cosmo.env.getFullUrl instead", "0.8");
-	return cosmo.env.getBaseUrl() + "/login";
+    return cosmo.env.getBaseUrl() + "/login";
 }
 
 cosmo.env.getAuthProc = function(){
     dojo.deprecated("cosmo.env.getAuthProc", "please use cosmo.env.getFullUrl instead", "0.8");
-	return cosmo.env.getBaseUrl() + "/security_check";
+    return cosmo.env.getBaseUrl() + "/security_check";
 }
 
 cosmo.env.getVersion = function(){
-	return this._version;
+    return this._version;
 }
 
 cosmo.env.setVersion = function(version){

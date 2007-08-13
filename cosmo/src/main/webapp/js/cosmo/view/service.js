@@ -24,7 +24,6 @@ dojo.require("cosmo.model");
 dojo.require("cosmo.view.BaseItem");
 dojo.require("cosmo.datetime");
 dojo.require("cosmo.datetime.util");
-dojo.require('cosmo.view.dialog');
 dojo.require("cosmo.service.exception");
 
 dojo.require("cosmo.util.debug");
@@ -39,7 +38,6 @@ cosmo.view.service = new function () {
         'monthly': [dojo.date.dateParts.MONTH, 1],
         'yearly': [dojo.date.dateParts.YEAR, 1]
     };
-    this._recurrenceDialog = new cosmo.view.dialog.RecurrenceDialog();
 
     // Public attributes
     // ********************
@@ -124,7 +122,7 @@ cosmo.view.service = new function () {
             dojo.event.topic.publish('/calEvent', {action: 'save', data: item, delta: delta });
         } 
         else {
-            cosmo.app.showDialog(self._recurrenceDialog.getProps('saveRecurConfirm',
+            cosmo.app.showDialog(cosmo.view.recurrenceDialog.getProps('saveRecurConfirm',
                 { changeTypes: changeTypes, delta: delta, saveItem: item }));
         }
     }
@@ -256,42 +254,26 @@ cosmo.view.service = new function () {
                     break;
                 case OPTIONS.ALL_FUTURE_EVENTS:
                     dojo.debug("about to save note in ALL FUTURE EVENTS")
-                    var newItemDeferred = cosmo.app.pim.serv.
-                        createItem(newItem, cosmo.app.pim.currentCollection);
+                    //saveThisAndFuture(oldOccurrence, newMaster, kwArgs)
+                    var newItemDeferred = cosmo.app.pim.serv.saveThisAndFuture(note, newItem);
                     var requestId = newItemDeferred.id;
                     self.processingQueue.push(requestId);
 
-                    newItemDeferred.addCallback(function(result){
-                            //get rid of the id from the processing queue
-                            self.processingQueue.shift()
 
-                            //success at saving new item (the one broken off from the original recurrence chain!
-                            // Now let's save the original.
-                            var originalDeferred = cosmo.app.pim.serv.saveItem(note.getMaster());
-                            originalDeferred.addCallback(function(){
-                                handleSaveItem(item,
-                                    null,
-                                    originalDeferred.id,
-                                    opts.saveType,
-                                    delta,
-                                    newItem);
-                            });
-                            originalDeferred.addErrback(function(error){
-                                handleSaveItem(item,
-                                    error,
-                                    originalDeferred.id,
-                                    opts.saveType,
-                                    delta,
-                                    newItem);
-                            });
-                            self.processingQueue.push(originalDeferred.id);
-                            self.lastSent = item;
-                    });
                     
+                    newItemDeferred.addCallback(function(){
+                        handleSaveItem(item,
+                            null,
+                            newItemDeferred.id,
+                            opts.saveType,
+                            delta,
+                            newItem);
+                    });
+              //    function handleSaveItem(item, err, reqId, saveType, delta, newItem) {
                     newItemDeferred.addErrback(function(error){
                         //if there was an error, pass it to handleSaveItem, with the original
                         //item
-                        handleSaveItem(item, newItemDeferred, error, requestId,opts.saveType, delta);
+                        handleSaveItem(item, error, newItemDeferred.id, opts.saveType, delta);
                     });
 
                     dojo.debug("about to save note in ALL FUTURE EVENTS")
@@ -447,7 +429,7 @@ cosmo.view.service = new function () {
         else {
             str = 'removeConfirm';
         }
-        cosmo.app.showDialog(self._recurrenceDialog.getProps(str, opts));
+        cosmo.app.showDialog(cosmo.view.recurrenceDialog.getProps(str, opts));
     }
 
     /**

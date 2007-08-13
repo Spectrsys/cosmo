@@ -15,6 +15,7 @@
 import davclient
 import copy
 import xmlobjects
+import pdb
 
 from xml.etree import ElementTree
 
@@ -29,7 +30,7 @@ def dict_to_elem(parent, dict_vals, namespace=None):
 class CosmoClient(davclient.DAVClient):
     """Class for adding cosmo specific functionality to DAVClient"""
     
-    _cosmo_path = '/cosmo/'
+    _cosmo_path = '/'
     _cmp_path = _cosmo_path+'cmp'
     _collections_store = {}
     
@@ -78,7 +79,7 @@ class CosmoClient(davclient.DAVClient):
     
     def get_all_events(self, user, collection='/'):
         """Get all the events for a given user. Returns list of dict objects with 'href' and 'body'"""
-        self.propfind(self._cosmo_path+'home/'+user+collection)
+        self.propfind(self._cosmo_path+'dav/'+user+collection)
         hrefs = self.response.tree.findall('//{DAV:}href')
         events = []
         for ref in hrefs:
@@ -102,6 +103,24 @@ class CosmoClient(davclient.DAVClient):
             all_events[user] = events
             
         return all_events
+        
+    def get_all_dav_resources_for_user(self, user, collection='/'):
+        all_items = []
+        self.propfind(self._cosmo_path+'dav/'+user+collection)
+        hrefs = [ response.find('{DAV:}href').text for response in self.response.tree.getchildren() if (
+                      response.find('{DAV:}href').text.find('http') is not -1) and ( not
+                      response.find('{DAV:}href').text.endswith('/') )]
+        print hrefs
+        for ref in hrefs:
+            item = {'href':ref}
+            print ref.replace(self._url.geturl(), '')
+            self.get(ref.replace(self._url.geturl(), ''))
+            item['body'] = copy.copy(self.response.body)
+            all_items.append(item)
+        return all_items
+        
+    def get_user_count(self):
+        return len(self.get_users())
         
     def mc_get_collection(self, uuid):
         """Get a collections xml as a string object by uuid"""

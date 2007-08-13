@@ -35,10 +35,12 @@ import org.apache.abdera.model.Feed;
 import org.apache.abdera.parser.ParseException;
 import org.apache.abdera.protocol.server.provider.RequestContext;
 import org.apache.abdera.protocol.server.provider.ResponseContext;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.atom.generator.GeneratorException;
 import org.osaf.cosmo.atom.generator.ItemFeedGenerator;
@@ -346,6 +348,10 @@ public class ItemProvider extends BaseProvider implements AtomConstants {
     }
 
     // ExtendedProvider methods
+  
+    public ResponseContext createCollection(RequestContext request) {
+        return methodnotallowed(getAbdera(), request, ALLOWED_COLL_METHODS);
+    }
 
     public ResponseContext updateCollection(RequestContext request) {
         CollectionTarget target = (CollectionTarget) request.getTarget();

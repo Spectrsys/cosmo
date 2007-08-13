@@ -293,7 +293,7 @@ cosmo.view.cal.lozenge.Lozenge.prototype.setLozengeAppearance = function (stateI
                 textColor = '#ffffff';
                 borderColor = '#ffffff';
                 lozengeColor = colors['darkSel'];
-                imgPath = cosmo.env.getImagesUrl() + 'block_gradient_dark.png';
+                imgPath = cosmo.env.getImageUrl('block_gradient_dark.png');
             }
             break;
         // Unselected
@@ -308,7 +308,7 @@ cosmo.view.cal.lozenge.Lozenge.prototype.setLozengeAppearance = function (stateI
                 textColor = '#ffffff';
                 borderColor = '#ffffff';
                 lozengeColor = colors['darkUnsel'];
-                imgPath = cosmo.env.getImagesUrl() + 'block_gradient_light.png';
+                imgPath = cosmo.env.getImageUrl('block_gradient_light.png');
             }
             break;
         // Processing
@@ -453,7 +453,18 @@ cosmo.view.cal.lozenge.Lozenge.prototype.setDeselected = function () {
  */
 cosmo.view.cal.lozenge.Lozenge.prototype.isOrphaned = function () {
     return !(this.domNode.parentNode);
-}
+};
+
+/**
+ * Convenience function for restoring the lozenge to
+ * its original location/time -- used in fallback
+ * from failed save/remove, and when cancelling changes
+ */
+cosmo.view.cal.lozenge.Lozenge.prototype.restore = function (item) {
+    this.updateFromEvent(item);
+    this.updateElements();
+    return true;
+};
 
 /**
  * cosmo.view.cal.lozenge.HasTimeLozenge -- sub-class of Lozenge

@@ -524,6 +524,10 @@
       <ref local="contentService"/>
     </property>
   </bean>
+  
+  <bean id="atomDetachedItemProvider"
+        class="org.osaf.cosmo.atom.provider.DetachedItemProvider"
+        init-method="init" parent="atomItemProvider"/>
 
   <bean id="atomExpandedItemProvider"
         class="org.osaf.cosmo.atom.provider.ExpandedItemProvider"
@@ -556,6 +560,9 @@
             init-method="init">
         <property name="itemProvider">
           <ref local="atomItemProvider"/>
+        </property>
+        <property name="detachedItemProvider">
+          <ref local="atomDetachedItemProvider"/>
         </property>
         <property name="expandedItemProvider">
           <ref local="atomExpandedItemProvider"/>
@@ -761,7 +768,9 @@
          /admin/user/**=ROLE_ROOT
          /error=ROLE_ANONYMOUS,ROLE_USER,ROLE_ROOT
          /error/**=ROLE_ANONYMOUS,ROLE_USER,ROLE_ROOT
+         /help/privacy=ROLE_ROOT,ROLE_USER,ROLE_ANONYMOUS
          /help/about=ROLE_ROOT,ROLE_USER,ROLE_ANONYMOUS
+         /help/tos=ROLE_ROOT,ROLE_USER,ROLE_ANONYMOUS
          /help=ROLE_ROOT,ROLE_USER
          /help/**=ROLE_ROOT,ROLE_USER
          /**=ROLE_ROOT
@@ -883,5 +892,13 @@
   <bean id="httpLoggingFormat" class="java.lang.String">
     <constructor-arg type="java.lang.String"><value>${cosmo.log.HttpLoggingFilter.format}</value></constructor-arg>
   </bean>
-
+   
+  <!-- give JSP tag functions access to config properties -->
+  <bean id="jspConfigProps" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetClass"><value>org.osaf.cosmo.ui.TagFunctions</value></property>
+    <property name="targetMethod"><value>setPropertyPlaceholderConfigurer</value></property>
+    <property name="arguments">
+        <list><ref bean="propertyPlaceholderConfigurer"/></list>
+    </property>
+  </bean>
 </beans>

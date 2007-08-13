@@ -62,7 +62,7 @@ cosmo.ui.detail = new function () {
 
             this.item.makeSnapshot();
             dojo.event.topic.publish('/calEvent', {
-              action: 'saveConfirm', delta: delta, data: this.item });
+                action: 'saveConfirm', delta: delta, data: this.item });
         }
     };
 
@@ -975,7 +975,7 @@ cosmo.ui.detail.MailFormElements = function () {
             td = _createElem('td');
             td.style.width = '36px';
             td.style.textAlign = 'right';
-            td.innerHTML = label + ':&nbsp;';
+            td.innerHTML = label;
             td.className = 'labelTextHoriz';
             tr.appendChild(td);
             td = _createElem('td');
@@ -1000,10 +1000,10 @@ cosmo.ui.detail.MailFormElements = function () {
         table.cellSpacing = '0';
         table.appendChild(tbody);
 
-        tbody.appendChild(mailRow('Fr', 'From'));
-        tbody.appendChild(mailRow('To', 'To'));
-        tbody.appendChild(mailRow('Cc', 'Cc'));
-        tbody.appendChild(mailRow('Bcc', 'Bcc'));
+        tbody.appendChild(mailRow(_('Main.DetailForm.From'), 'From'));
+        tbody.appendChild(mailRow(_('Main.DetailForm.To'), 'To'));
+        tbody.appendChild(mailRow(_('Main.DetailForm.Cc'), 'Cc'));
+        tbody.appendChild(mailRow(_('Main.DetailForm.Bcc'), 'Bcc'));
 
         f.appendChild(table);
         d.appendChild(f);

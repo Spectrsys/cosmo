@@ -20,7 +20,6 @@
 
 <%@ include file="/WEB-INF/jsp/taglibs.jsp"  %>
 <%@ include file="/WEB-INF/jsp/tagfiles.jsp" %>
-
 <fmt:setBundle basename="PimMessageResources"/>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -36,12 +35,11 @@
       </fmt:message>
       
     </title>
-	<cosmo:staticbaseurl var="staticBaseUrl"/>
-	<cosmo:dojoBoilerplate/>
-	<cosmo:stylesheets stylesheets="login"/>
-	
+    <cosmo:staticbaseurl var="staticBaseUrl"/>
+    <cosmo:dojoBoilerplate/>
+    <cosmo:stylesheets stylesheets="login"/>
     <link rel="self" type="text/html" href="${staticBaseUrl}/login"/>
-    
+
     <%--
         Login and account-creation stuff
         Note: button.js still needed to do preloading of button images
@@ -63,14 +61,14 @@
             cosmo.util.cookie.destroy('JSESSIONID', '${staticBaseUrl}');
             cosmo.util.cookie.destroy('inputTimestamp');
             cosmo.util.cookie.destroy('username');
-		    cosmo.util.auth.clearAuth();
-		    
+            cosmo.util.auth.clearAuth();
+            
             cosmo.app.init();
             if (cosmo.util.uri.parseQueryString(location.search)['signup']
-				== 'true'){
-				cosmo.account.create.showForm();
-			}
-			            
+                == 'true'){
+                cosmo.account.create.showForm();
+            }
+                        
         }
     </script>
   </head>
@@ -81,19 +79,22 @@
       <div style="padding-top:24px; text-align:center">
         <fmt:message key="Login.CreateAccount"/>
         <a href="javascript:cosmo.account.create.showForm();">
-        <fmt:message key="Login.ClickHere"/>
+        <fmt:message key="Login.CreateClickHere"/>
         </a>
       </div>
 
       <div style="padding-top:4px; text-align:center;">
         <fmt:message key="Login.Forgot"/>
         <a href="${staticBaseUrl}/account/password/recover">
-        <fmt:message key="Login.ClickHere"/>
+        <fmt:message key="Login.ForgotClickHere"/>
         </a>
-	  </div>
+      </div>
       
       <div style="padding-top:36px; text-align:center;">
-	      <cosmo:aboutPopupLink/>
+          <cosmo:aboutPopupLink/>
+      </div>
+      <div style="padding-top:36px; text-align:center;">
+	      <fmt:message key="Login.Extra"/>
       </div>
     </div>
   </body>
