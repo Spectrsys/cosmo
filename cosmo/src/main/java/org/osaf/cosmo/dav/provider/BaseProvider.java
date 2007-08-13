@@ -110,20 +110,16 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         if (! resource.exists())
             throw new NotFoundException();
 
-        try {
-            DavPropertySet set = request.getPropPatchSetProperties();
-            DavPropertyNameSet remove = request.getPropPatchRemoveProperties();
-            if (set.isEmpty() && remove.isEmpty())
-                throw new BadRequestException("No properties specified");
+        DavPropertySet set = request.getProppatchSetProperties();
+        DavPropertyNameSet remove = request.getProppatchRemoveProperties();
+        if (set.isEmpty() && remove.isEmpty())
+            throw new BadRequestException("No properties specified");
 
-            MultiStatus ms = new MultiStatus();
-            MultiStatusResponse msr = resource.alterProperties(set, remove);
-            ms.addResponse(msr);
+        MultiStatus ms = new MultiStatus();
+        MultiStatusResponse msr = resource.updateProperties(set, remove);
+        ms.addResponse(msr);
 
-            response.sendMultiStatus(ms);
-        } catch (org.apache.jackrabbit.webdav.DavException e) {
-            throw new DavException(e);
-        }
+        response.sendMultiStatus(ms);
     }
 
     public void delete(DavRequest request,

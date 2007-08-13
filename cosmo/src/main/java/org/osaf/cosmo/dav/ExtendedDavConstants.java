@@ -49,8 +49,12 @@ public interface ExtendedDavConstants extends DavConstants {
     public static final DavPropertyName UUID =
         DavPropertyName.create(PROPERTY_UUID, NAMESPACE_COSMO);
 
+    public static final String QN_PROPERTYUPDATE =
+        DomUtil.getQualifiedName(XML_PROPERTYUPDATE, NAMESPACE);
     public static final String QN_SET =
         DomUtil.getQualifiedName(XML_SET, NAMESPACE);
+    public static final String QN_REMOVE =
+        DomUtil.getQualifiedName(XML_REMOVE, NAMESPACE);
     public static final String QN_PROP =
         DomUtil.getQualifiedName(XML_PROP, NAMESPACE);
     public static final String QN_PRIVILEGE =

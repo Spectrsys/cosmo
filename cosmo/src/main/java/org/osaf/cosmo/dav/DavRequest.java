@@ -16,7 +16,10 @@
 package org.osaf.cosmo.dav;
 
 import org.apache.jackrabbit.webdav.WebdavRequest;
+import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.caldav.CaldavRequest;
 import org.osaf.cosmo.dav.report.ReportRequest;
 import org.osaf.cosmo.dav.ticket.TicketDavRequest;
@@ -27,4 +30,10 @@ import org.osaf.cosmo.dav.ticket.TicketDavRequest;
  */
 public interface DavRequest
     extends WebdavRequest, CaldavRequest, ReportRequest, TicketDavRequest {
+
+    public DavPropertySet getProppatchSetProperties()
+        throws DavException;
+
+    public DavPropertyNameSet getProppatchRemoveProperties()
+        throws DavException;
 }

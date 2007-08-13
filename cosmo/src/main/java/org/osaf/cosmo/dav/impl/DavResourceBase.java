@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -237,47 +238,78 @@ public abstract class DavResourceBase
         }
     }
 
-    /**
-     * Sets and removes the specified DAV properties for the
-     * resource.
-     *
-     * @param setProperties the properties to set
-     * @param removePropertyNames the names of properties to remove
-     *
-     * @see #setLiveProperty(DavProperty)
-     * @see #removeLiveProperty(DavPropertyName)
-     */
-    public MultiStatusResponse alterProperties(DavPropertySet setProperties,
-                                               DavPropertyNameSet removePropertyNames)
+    public MultiStatusResponse
+        alterProperties(DavPropertySet setProperties,
+                        DavPropertyNameSet removePropertyNames)
         throws org.apache.jackrabbit.webdav.DavException {
+        throw new UnsupportedOperationException();
+    }
+
+    public MultiStatusResponse
+        updateProperties(DavPropertySet setProperties,
+                         DavPropertyNameSet removePropertyNames)
+        throws DavException {
         if (! exists())
             throw new NotFoundException();
 
         MultiStatusResponse msr = new MultiStatusResponse(getHref(), null);
 
-        for (DavPropertyIterator i=setProperties.iterator(); i.hasNext();) {
-            DavProperty property = i.nextProperty();
+        ArrayList<DavPropertyName> df = new ArrayList<DavPropertyName>();
+        DavException error = null;
+        DavPropertyName failed = null;
 
+        DavProperty property = null;
+        for (DavPropertyIterator i=setProperties.iterator(); i.hasNext();) {
             try {
+                property = i.nextProperty();
                 setResourceProperty(property);
+                df.add(property.getName());
                 msr.add(property.getName(), 200);
             } catch (DavException e) {
-                log.warn("Property " + property.getName() + " cannot be stored: " + e.getMessage());
-                msr.add(property.getName(), e.getErrorCode());
+                // we can only report one error message in the
+                // responsedescription, so even if multiple properties would
+                // fail, we return 424 for the second and subsequent failures
+                // as well
+                if (error == null) {
+                    error = e;
+                    failed = property.getName();
+                } else {
+                    df.add(property.getName());
+                }
             }
         }
 
+        DavPropertyName name = null;
         for (DavPropertyNameIterator i=removePropertyNames.iterator();
              i.hasNext();) {
-            DavPropertyName name = (DavPropertyName) i.next();
-
             try {
+                name = (DavPropertyName) i.next();
                 removeResourceProperty(name);
+                df.add(name);
                 msr.add(name, 200);
             } catch (DavException e) {
-                log.warn("Property " + name + " cannot be removed: " + e.getMessage());
-                msr.add(name, e.getErrorCode());
+                // we can only report one error message in the
+                // responsedescription, so even if multiple properties would
+                // fail, we return 424 for the second and subsequent failures
+                // as well
+                if (error == null) {
+                    error = e;
+                    failed = name;
+                } else {
+                    df.add(name);
+                }
             }
+        }
+
+        if (error != null) {
+            // replace the other response with a new one, since we have to
+            // change the response code for each of the properties that would
+            // have been set successfully
+            msr = new MultiStatusResponse(getHref(), error.getMessage());
+            for (DavPropertyName n : df)
+                msr.add(n, 424);
+            msr.add(failed, error.getErrorCode());
+            return msr;
         }
 
         try {
@@ -728,6 +760,9 @@ public abstract class DavResourceBase
         if (isLiveProperty(property.getName()))
             setLiveProperty(property);
         else {
+            if (property.getValue() == null ||
+                StringUtils.isBlank(property.getValue().toString()))
+                throw new UnprocessableEntityException("Property " + property.getName() + " requires a value");
             try {
                 item.setAttribute(propNameToQName(property.getName()), value);
             } catch (DataSizeException e) {

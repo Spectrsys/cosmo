@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavLocatorFactory;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.WebdavRequestImpl;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
@@ -57,6 +59,8 @@ public class StandardDavRequest extends WebdavRequestImpl
     private static final Log log =
         LogFactory.getLog(StandardDavRequest.class);
 
+    private DavPropertySet proppatchSet;
+    private DavPropertyNameSet proppatchRemove;
     private DavPropertySet mkcalendarSet;
     private Ticket ticket;
     private ReportInfo reportInfo;
@@ -75,8 +79,6 @@ public class StandardDavRequest extends WebdavRequestImpl
         this.bufferRequestContent = bufferRequestContent;
     }
 
-    // CosmoDavRequest methods
-
     public String getBaseUrl() {
         StringBuffer buf = new StringBuffer();
         buf.append(getScheme());
@@ -91,6 +93,22 @@ public class StandardDavRequest extends WebdavRequestImpl
             buf.append(getContextPath());
         }
         return buf.toString();
+    }
+
+    // DavRequest methods
+
+    public DavPropertySet getProppatchSetProperties()
+        throws DavException {
+        if (proppatchSet == null)
+            parsePropPatchRequest();
+        return proppatchSet;
+    }
+
+    public DavPropertyNameSet getProppatchRemoveProperties()
+        throws DavException {
+        if (proppatchRemove == null)
+            parsePropPatchRequest();
+        return proppatchRemove;
     }
 
     // CaldavRequest methods
@@ -141,6 +159,47 @@ public class StandardDavRequest extends WebdavRequestImpl
             if (msg == null)
                 msg = "Unknown error parsing request document";
             throw new BadRequestException(msg);
+        }
+    }
+
+    private void parsePropPatchRequest()
+        throws DavException {
+        Document requestDocument = getSafeRequestDocument();
+        if (requestDocument == null)
+            throw new BadRequestException("PROPPATCH requires entity body");
+
+        Element root = requestDocument.getDocumentElement();
+        if (! DomUtil.matches(root, XML_PROPERTYUPDATE,NAMESPACE))
+            throw new BadRequestException("Expected " + QN_PROPERTYUPDATE + " root element");
+
+        Element set = DomUtil.getChildElement(root, XML_SET, NAMESPACE);
+        Element remove = DomUtil.getChildElement(root, XML_REMOVE, NAMESPACE);
+        if (set == null && remove == null)
+            throw new BadRequestException("Expected at least one of " + QN_REMOVE + " and " + QN_SET + " as a child of " + QN_PROPERTYUPDATE);
+
+        Element prop = null;
+        ElementIterator i = null;
+
+        proppatchSet = new DavPropertySet();
+        if (set != null) {
+            prop = DomUtil.getChildElement(set, XML_PROP, NAMESPACE);
+            if (prop == null)
+                throw new BadRequestException("Expected " + QN_PROP + " child of " + QN_SET);
+            i = DomUtil.getChildren(prop);
+            while (i.hasNext())
+                proppatchSet.add(DefaultDavProperty.
+                                 createFromXml(i.nextElement()));
+        }
+
+        proppatchRemove = new DavPropertyNameSet();
+        if (remove != null) {
+            prop = DomUtil.getChildElement(remove, XML_PROP, NAMESPACE);
+            if (prop == null)
+                throw new BadRequestException("Expected " + QN_PROP + " child of " + QN_REMOVE);
+            i = DomUtil.getChildren(prop);
+            while (i.hasNext())
+                proppatchRemove.add(DavPropertyName.
+                                    createFromXml(i.nextElement()));
         }
     }
 

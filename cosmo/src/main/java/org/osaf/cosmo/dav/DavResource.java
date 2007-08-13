@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.Set;
 
 import org.apache.jackrabbit.webdav.io.InputContext;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
@@ -52,6 +53,11 @@ public interface DavResource
      * Returns the parent collection for this resource.
      */
     public DavCollection getParent();
+
+    public MultiStatusResponse
+        updateProperties(DavPropertySet setProperties,
+                         DavPropertyNameSet removePropertyNames)
+        throws DavException;
 
     /**
      * Associates a ticket with this resource and saves it into
