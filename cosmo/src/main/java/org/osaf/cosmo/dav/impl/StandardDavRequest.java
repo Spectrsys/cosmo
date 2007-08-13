@@ -18,6 +18,8 @@ package org.osaf.cosmo.dav.impl;
 import java.io.IOException;
 import java.util.HashSet;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
@@ -40,6 +42,7 @@ import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
+import org.osaf.cosmo.dav.UnsupportedMediaTypeException;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.InvalidCalendarDataException;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
@@ -57,6 +60,17 @@ public class StandardDavRequest extends WebdavRequestImpl
     TicketConstants {
     private static final Log log =
         LogFactory.getLog(StandardDavRequest.class);
+    private static final MimeType APPLICATION_XML =
+        registerMimeType("application/xml");
+    private static final MimeType TEXT_XML = registerMimeType("text/xml");
+
+    private static final MimeType registerMimeType(String s) {
+        try {
+            return new MimeType(s);
+        } catch (Exception e) {
+            throw new RuntimeException("Can't register MIME type " + s, e);
+        }
+    }
 
     private int propfindType = PROPFIND_ALL_PROP;
     private DavPropertyNameSet propfindProps;
@@ -166,7 +180,15 @@ public class StandardDavRequest extends WebdavRequestImpl
     private Document getSafeRequestDocument()
         throws DavException {
         try {
+            if (StringUtils.isBlank(getContentType()))
+                throw new UnsupportedMediaTypeException("No Content-Type specified");
+            MimeType mimeType = new MimeType(getContentType());
+            if (! (mimeType.match(APPLICATION_XML) ||
+                   mimeType.match(TEXT_XML)))
+                throw new UnsupportedMediaTypeException("Expected Content-Type " + APPLICATION_XML + " or " + TEXT_XML);
             return getRequestDocument();
+        } catch (MimeTypeParseException e) {
+            throw new UnsupportedMediaTypeException(e.getMessage());
         } catch (IllegalArgumentException e) {
             Throwable cause = e.getCause();
             String msg = e.getCause() != null ?
