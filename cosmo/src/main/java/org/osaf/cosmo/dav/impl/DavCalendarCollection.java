@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Set;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -53,11 +52,11 @@ import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.TimeZoneExtractor;
-import org.osaf.cosmo.dav.caldav.property.CalendarDescription;
 import org.osaf.cosmo.dav.caldav.property.CalendarTimezone;
 import org.osaf.cosmo.dav.caldav.property.MaxResourceSize;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarData;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
@@ -203,7 +202,6 @@ public class DavCalendarCollection extends DavCollectionBase
         try {
             cc.setDescription(getItem().getName());
             // XXX: language should come from the input context
-            cc.setLanguage(Locale.getDefault().toString());
         } catch (DataSizeException e) {
             throw new ForbiddenException(e.getMessage());
         }
@@ -220,7 +218,8 @@ public class DavCalendarCollection extends DavCollectionBase
         DavPropertySet properties = getProperties();
 
         if (cc.getDescription() != null)
-            properties.add(new CalendarDescription(cc.getDescription(),
+            properties.add(new StandardDavProperty(CALENDARDESCRIPTION,
+                                                   cc.getDescription(),
                                                    cc.getLanguage()));
         if (cc.getTimezone() != null)
             properties.add(new CalendarTimezone(cc.getTimezone().toString()));
@@ -251,8 +250,7 @@ public class DavCalendarCollection extends DavCollectionBase
 
         if (name.equals(CALENDARDESCRIPTION)) {
             cc.setDescription(value);
-            if (cc.getLanguage() == null)
-                cc.setLanguage(Locale.getDefault().toString());
+            cc.setLanguage(((StandardDavProperty)property).getLang());
             return;
         }
 

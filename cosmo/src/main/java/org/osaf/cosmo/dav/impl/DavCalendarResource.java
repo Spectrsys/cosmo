@@ -31,7 +31,6 @@ import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 
 import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.dav.DavException;
@@ -41,6 +40,7 @@ import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.io.DavInputContext;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
@@ -159,16 +159,16 @@ public abstract class DavCalendarResource extends DavContentBase
         try {
             byte[] calendarBytes = getCalendar().toString().getBytes("UTF-8");
             String contentLength = new Integer(calendarBytes.length).toString();
-            properties.add(new DefaultDavProperty(DavPropertyName.GETCONTENTLENGTH,
-                                                  contentLength));
+            properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTLENGTH,
+                                                   contentLength));
         } catch (Exception e) {
             throw new RuntimeException("Can't convert calendar", e);
         }
 
         String contentType =
             IOUtil.buildContentType(ICALENDAR_MEDIA_TYPE, "UTF-8");
-        properties.add(new DefaultDavProperty(DavPropertyName.GETCONTENTTYPE,
-                                              contentType));
+        properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTTYPE,
+                                               contentType));
     }
 
     /** */

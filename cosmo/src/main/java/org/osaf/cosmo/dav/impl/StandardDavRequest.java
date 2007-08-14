@@ -33,7 +33,6 @@ import org.apache.jackrabbit.webdav.WebdavRequestImpl;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
@@ -46,6 +45,7 @@ import org.osaf.cosmo.dav.UnsupportedMediaTypeException;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.InvalidCalendarDataException;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.util.BufferedServletInputStream;
@@ -256,7 +256,7 @@ public class StandardDavRequest extends WebdavRequestImpl
                 throw new BadRequestException("Expected " + QN_PROP + " child of " + QN_SET);
             i = DomUtil.getChildren(prop);
             while (i.hasNext())
-                proppatchSet.add(DefaultDavProperty.
+                proppatchSet.add(StandardDavProperty.
                                  createFromXml(i.nextElement()));
         }
 
@@ -292,7 +292,8 @@ public class StandardDavRequest extends WebdavRequestImpl
             throw new BadRequestException("Expected " + QN_PROP + " child of " + QN_SET);
         ElementIterator i = DomUtil.getChildren(prop);
         while (i.hasNext())
-            propertySet.add(DefaultDavProperty.createFromXml(i.nextElement()));
+            propertySet.add(StandardDavProperty.
+                            createFromXml(i.nextElement()));
 
         return propertySet;
     }

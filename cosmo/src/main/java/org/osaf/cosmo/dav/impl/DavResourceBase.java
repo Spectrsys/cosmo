@@ -43,7 +43,6 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
@@ -61,6 +60,7 @@ import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.dav.ticket.property.TicketDiscovery;
 import org.osaf.cosmo.model.Attribute;
@@ -636,21 +636,21 @@ public abstract class DavResourceBase
         long creationTime = item.getCreationDate() != null ?
             item.getCreationDate().getTime() :
             new Date().getTime();
-        properties.add(new DefaultDavProperty(DavPropertyName.CREATIONDATE,
-                                              IOUtil.getCreated(creationTime)));
+        properties.add(new StandardDavProperty(DavPropertyName.CREATIONDATE,
+                                               IOUtil.getCreated(creationTime)));
 
-        properties.add(new DefaultDavProperty(DavPropertyName.DISPLAYNAME,
-                                              item.getDisplayName()));
+        properties.add(new StandardDavProperty(DavPropertyName.DISPLAYNAME,
+                                               item.getDisplayName()));
 
         properties.add(new ResourceType(getResourceTypes()));
 
         // Windows XP support
-        properties.add(new DefaultDavProperty(DavPropertyName.ISCOLLECTION,
-                                              isCollection() ? "1" : "0"));
+        properties.add(new StandardDavProperty(DavPropertyName.ISCOLLECTION,
+                                               isCollection() ? "1" : "0"));
 
         properties.add(new TicketDiscovery(this));
 
-        properties.add(new DefaultDavProperty(UUID, item.getUid()));
+        properties.add(new StandardDavProperty(UUID, item.getUid()));
     }
 
     /**
@@ -742,8 +742,8 @@ public abstract class DavResourceBase
             if (isLiveProperty(propName))
                 continue;
 
-            properties.add(new DefaultDavProperty(propName,
-                                                  entry.getValue().getValue()));
+            properties.add(new StandardDavProperty(propName,
+                                                   entry.getValue().getValue()));
         }
     }
 

@@ -30,7 +30,6 @@ import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
@@ -38,6 +37,7 @@ import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.io.DavInputContext;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.model.DataSizeException;
 import org.osaf.cosmo.model.FileItem;
 import org.osaf.cosmo.model.ModelValidationException;
@@ -156,25 +156,25 @@ public class DavFile extends DavContentBase {
         DavPropertySet properties = getProperties();
 
         if (content.getContentLanguage() != null) {
-            properties.add(new DefaultDavProperty(DavPropertyName.GETCONTENTLANGUAGE,
-                                                  content.getContentLanguage()));
+            properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTLANGUAGE,
+                                                   content.getContentLanguage()));
         }
 
-        properties.add(new DefaultDavProperty(DavPropertyName.GETCONTENTLENGTH,
-                                              content.getContentLength()));
+        properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTLENGTH,
+                                               content.getContentLength()));
 
-        properties.add(new DefaultDavProperty(DavPropertyName.GETETAG,
-                                              getETag()));
+        properties.add(new StandardDavProperty(DavPropertyName.GETETAG,
+                                               getETag()));
 
         String contentType =
             IOUtil.buildContentType(content.getContentType(),
                                     content.getContentEncoding());
-        properties.add(new DefaultDavProperty(DavPropertyName.GETCONTENTTYPE,
-                                              contentType));
+        properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTTYPE,
+                                               contentType));
 
         long modTime = getModificationTime();
-        properties.add(new DefaultDavProperty(DavPropertyName.GETLASTMODIFIED,
-                                              IOUtil.getLastModified(modTime)));
+        properties.add(new StandardDavProperty(DavPropertyName.GETLASTMODIFIED,
+                                               IOUtil.getLastModified(modTime)));
     }
 
     /** */

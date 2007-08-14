@@ -35,7 +35,6 @@ import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
@@ -44,6 +43,7 @@ import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.TriageStatus;
@@ -169,12 +169,12 @@ public abstract class DavContentBase extends DavResourceBase
 
         DavPropertySet properties = getProperties();
 
-        properties.add(new DefaultDavProperty(DavPropertyName.GETETAG,
-                                              getETag()));
+        properties.add(new StandardDavProperty(DavPropertyName.GETETAG,
+                                               getETag()));
 
         long modTime = getModificationTime();
-        properties.add(new DefaultDavProperty(DavPropertyName.GETLASTMODIFIED,
-                                              IOUtil.getLastModified(modTime)));
+        properties.add(new StandardDavProperty(DavPropertyName.GETLASTMODIFIED,
+                                               IOUtil.getLastModified(modTime)));
     }
 
     /** */

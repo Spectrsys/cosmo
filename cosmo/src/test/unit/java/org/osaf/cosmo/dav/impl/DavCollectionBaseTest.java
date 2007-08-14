@@ -19,11 +19,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.webdav.property.DavProperty;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 
 import org.osaf.cosmo.dav.BaseDavTestCase;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.property.ExcludeFreeBusyRollup;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.model.CollectionItem;
 
 /**
@@ -103,7 +103,7 @@ public class DavCollectionBaseTest extends BaseDavTestCase
         DavCollectionBase dc = (DavCollectionBase) testHelper.initializeHomeResource();
 
         // ugh should be interpreted as false
-        DavProperty efbr = new DefaultDavProperty(EXCLUDEFREEBUSYROLLUP, "ugh");
+        DavProperty efbr = new StandardDavProperty(EXCLUDEFREEBUSYROLLUP, "ugh");
         dc.setLiveProperty(efbr);
 
         assertTrue("failed to interpret String exclude-free-busy-rollup property value as false",
