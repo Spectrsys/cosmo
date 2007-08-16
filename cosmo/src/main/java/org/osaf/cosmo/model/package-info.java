@@ -28,6 +28,11 @@
             name="calendar_clob",
             typeClass = org.osaf.cosmo.hibernate.CalendarClobType.class
     ),
+
+    @TypeDef(
+            name="xml_clob",
+            typeClass = org.osaf.cosmo.hibernate.XmlClobType.class
+    ),
     
     @TypeDef(
             name="composite_calendar",
