@@ -45,6 +45,7 @@ import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.model.ContentItem;
+import org.osaf.cosmo.model.MessageStamp;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.User;
@@ -78,6 +79,7 @@ public abstract class DavContentBase extends DavResourceBase
         RESOURCE_TYPES = new int[] { ResourceType.DEFAULT_RESOURCE };
 
         DEAD_PROPERTY_FILTER.add(NoteItem.class.getName());
+        DEAD_PROPERTY_FILTER.add(MessageStamp.class.getName());
     }
 
     /** */
@@ -89,6 +91,11 @@ public abstract class DavContentBase extends DavResourceBase
 
 
     // Jackrabbit DavResource
+
+    /** */
+    public boolean isCollection() {
+        return false;
+    }
 
     /** */
     public String getSupportedMethods() {
