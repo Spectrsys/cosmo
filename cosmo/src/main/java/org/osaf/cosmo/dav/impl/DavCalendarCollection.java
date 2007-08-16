@@ -32,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
-import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
@@ -52,11 +51,12 @@ import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.TimeZoneExtractor;
+import org.osaf.cosmo.dav.caldav.property.CalendarDescription;
 import org.osaf.cosmo.dav.caldav.property.CalendarTimezone;
 import org.osaf.cosmo.dav.caldav.property.MaxResourceSize;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarData;
-import org.osaf.cosmo.dav.property.StandardDavProperty;
+import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
@@ -111,13 +111,15 @@ public class DavCalendarCollection extends DavCollectionBase
     /** */
     public DavCalendarCollection(CollectionItem collection,
                                  DavResourceLocator locator,
-                                 DavResourceFactory factory) {
+                                 DavResourceFactory factory)
+        throws DavException {
         super(collection, locator, factory);
     }
 
     /** */
     public DavCalendarCollection(DavResourceLocator locator,
-                                 DavResourceFactory factory) {
+                                 DavResourceFactory factory)
+        throws DavException {
         this(new CollectionItem(), locator, factory);
         getItem().addStamp(new CalendarCollectionStamp((CollectionItem) getItem()));
     }
@@ -208,7 +210,8 @@ public class DavCalendarCollection extends DavCollectionBase
     }
 
     /** */
-    protected void loadLiveProperties() {
+    protected void loadLiveProperties()
+        throws DavException {
         super.loadLiveProperties();
 
         CalendarCollectionStamp cc = getCalendarCollectionStamp();
@@ -218,9 +221,8 @@ public class DavCalendarCollection extends DavCollectionBase
         DavPropertySet properties = getProperties();
 
         if (cc.getDescription() != null)
-            properties.add(new StandardDavProperty(CALENDARDESCRIPTION,
-                                                   cc.getDescription(),
-                                                   cc.getLanguage(), true));
+            properties.add(new CalendarDescription(cc.getDescription(),
+                                                   cc.getLanguage()));
         if (cc.getTimezone() != null)
             properties.add(new CalendarTimezone(cc.getTimezone().toString()));
 
@@ -241,7 +243,6 @@ public class DavCalendarCollection extends DavCollectionBase
         DavPropertyName name = property.getName();
         if (property.getValue() == null)
             throw new UnprocessableEntityException("Property " + name + " requires a value");
-        String value = property.getValue().toString();
 
         if (name.equals(SUPPORTEDCALENDARCOMPONENTSET) ||
             name.equals(SUPPORTEDCALENDARDATA) ||
@@ -249,8 +250,8 @@ public class DavCalendarCollection extends DavCollectionBase
             throw new ProtectedPropertyModificationException(name);
 
         if (name.equals(CALENDARDESCRIPTION)) {
-            cc.setDescription(value);
-            cc.setLanguage(((StandardDavProperty)property).getLang());
+            cc.setDescription(property.getValueText());
+            cc.setLanguage(property.getLanguage());
             return;
         }
 

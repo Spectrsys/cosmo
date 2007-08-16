@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2007 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,16 @@
  */
 package org.osaf.cosmo.dav.property;
 
-/**
- * Represents the cosmo:exclude-free-busy-rollup property.
- */
-public class ExcludeFreeBusyRollup extends StandardDavProperty {
+import org.osaf.cosmo.dav.ExtendedDavConstants;
 
-    public ExcludeFreeBusyRollup(boolean flag) {
-        super(EXCLUDEFREEBUSYROLLUP, new Boolean(flag), false);
-    }
+/**
+ * Extends the jcr-server DavProperty interface.
+ */
+public interface DavProperty
+    extends org.apache.jackrabbit.webdav.property.DavProperty,
+    ExtendedDavConstants {
+
+    public String getValueText();
+
+    public String getLanguage();
 }

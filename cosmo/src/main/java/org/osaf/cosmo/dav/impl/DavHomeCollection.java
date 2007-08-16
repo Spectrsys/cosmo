@@ -19,7 +19,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
@@ -33,6 +32,7 @@ import org.osaf.cosmo.dav.acl.property.GroupMembership;
 import org.osaf.cosmo.dav.acl.property.PrincipalUrl;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.property.CalendarHomeSet;
+import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.model.HomeCollectionItem;
 
 /**
@@ -71,7 +71,8 @@ public class DavHomeCollection extends DavCollectionBase
     /** */
     public DavHomeCollection(HomeCollectionItem collection,
                              DavResourceLocator locator,
-                             DavResourceFactory factory) {
+                             DavResourceFactory factory)
+        throws DavException {
         super(collection, locator, factory);
     }
 
@@ -96,7 +97,8 @@ public class DavHomeCollection extends DavCollectionBase
     }
 
     /** */
-    protected void loadLiveProperties() {
+    protected void loadLiveProperties()
+        throws DavException {
         super.loadLiveProperties();
 
         HomeCollectionItem hc = (HomeCollectionItem) getItem();

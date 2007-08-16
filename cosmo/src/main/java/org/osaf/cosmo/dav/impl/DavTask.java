@@ -53,7 +53,8 @@ public class DavTask extends DavCalendarResource {
 
     /** */
     public DavTask(DavResourceLocator locator,
-                  DavResourceFactory factory) {
+                  DavResourceFactory factory)
+        throws DavException {
         this(new NoteItem(), locator, factory);
         getItem().addStamp(new TaskStamp());
     }
@@ -61,7 +62,8 @@ public class DavTask extends DavCalendarResource {
     /** */
     public DavTask(NoteItem item,
                    DavResourceLocator locator,
-                   DavResourceFactory factory) {
+                   DavResourceFactory factory)
+        throws DavException {
         super(item, locator, factory);
     }
     

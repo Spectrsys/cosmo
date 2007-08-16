@@ -119,7 +119,8 @@ public class StandardResourceFactory implements DavResourceFactory {
      * If the identified resource does not exists, returns <code>null</code>.
      * </p>
      */
-    public DavResource resolve(DavResourceLocator locator) {
+    public DavResource resolve(DavResourceLocator locator)
+        throws DavException {
         String uri = locator.getResourcePath();
         if (log.isDebugEnabled())
             log.debug("resolving URI " + uri);
@@ -144,7 +145,8 @@ public class StandardResourceFactory implements DavResourceFactory {
      * </p>
      */
     public DavResource createResource(DavResourceLocator locator,
-                                      Item item) {
+                                      Item item)
+        throws DavException {
         if (item == null)
             throw new IllegalArgumentException("item cannot be null");
 
@@ -175,7 +177,8 @@ public class StandardResourceFactory implements DavResourceFactory {
     // our methods
 
     protected DavResource createUidResource(DavResourceLocator locator,
-                                            UriTemplate.Match match) {
+                                            UriTemplate.Match match)
+        throws DavException {
         String uid = match.get("uid");
         String path = match.get("*");
         Item item = path != null ?
@@ -185,7 +188,8 @@ public class StandardResourceFactory implements DavResourceFactory {
     }
 
     protected DavResource createUnknownResource(DavResourceLocator locator,
-                                                String uri) {
+                                                String uri)
+        throws DavException {
         Item item = contentService.findItemByPath(uri);
         return item != null ? createResource(locator, item) : null;
     }

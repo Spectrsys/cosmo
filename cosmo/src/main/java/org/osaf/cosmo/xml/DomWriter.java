@@ -85,8 +85,8 @@ public class DomWriter {
     private static void writeElement(Element e,
                                      XMLStreamWriter writer)
         throws XMLStreamException {
-        if (log.isDebugEnabled())
-            log.debug("Writing element " + e.getNodeName());
+        //if (log.isDebugEnabled())
+            //log.debug("Writing element " + e.getNodeName());
 
         String local = e.getLocalName();
         String ns = e.getNamespaceURI();
@@ -94,10 +94,8 @@ public class DomWriter {
             String prefix = e.getPrefix();
             if (prefix != null)
                 writer.writeStartElement(prefix, local, ns);
-            else {
-                writer.setDefaultNamespace(ns);
+            else
                 writer.writeStartElement(ns, local);
-            }
         } else {
             writer.writeStartElement(local);
         }
@@ -116,16 +114,16 @@ public class DomWriter {
     private static void writeCharacters(CharacterData cd,
                                         XMLStreamWriter writer)
         throws XMLStreamException {
-        if (log.isDebugEnabled())
-            log.debug("Writing characters: '" + cd.getData() + "'");
+        //if (log.isDebugEnabled())
+            //log.debug("Writing characters: '" + cd.getData() + "'");
         writer.writeCharacters(cd.getData());
     }
 
     private static void writeAttribute(Attr a,
                                        XMLStreamWriter writer)
         throws XMLStreamException {
-        if (log.isDebugEnabled())
-            log.debug("Writing attribute " + a.getNodeName());
+        //if (log.isDebugEnabled())
+            //log.debug("Writing attribute " + a.getNodeName());
 
         String local = a.getLocalName();
         String ns = a.getNamespaceURI();
@@ -139,7 +137,5 @@ public class DomWriter {
         } else {
             writer.writeAttribute(local, value);
         }
-        writer.writeAttribute(a.getPrefix(), a.getNamespaceURI(),
-                              a.getLocalName(), a.getValue());
     }
 }

@@ -32,7 +32,6 @@ import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
-import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
@@ -43,7 +42,9 @@ import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
-import org.osaf.cosmo.dav.property.StandardDavProperty;
+import org.osaf.cosmo.dav.property.DavProperty;
+import org.osaf.cosmo.dav.property.Etag;
+import org.osaf.cosmo.dav.property.LastModified;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.MessageStamp;
 import org.osaf.cosmo.model.NoteItem;
@@ -85,7 +86,8 @@ public abstract class DavContentBase extends DavResourceBase
     /** */
     public DavContentBase(ContentItem item,
                           DavResourceLocator locator,
-                          DavResourceFactory factory) {
+                          DavResourceFactory factory)
+        throws DavException {
         super(item, locator, factory);
     }
 
@@ -167,7 +169,8 @@ public abstract class DavContentBase extends DavResourceBase
     
     
     /** */
-    protected void loadLiveProperties() {
+    protected void loadLiveProperties()
+        throws DavException {
         super.loadLiveProperties();
 
         ContentItem content = (ContentItem) getItem();
@@ -176,12 +179,8 @@ public abstract class DavContentBase extends DavResourceBase
 
         DavPropertySet properties = getProperties();
 
-        properties.add(new StandardDavProperty(DavPropertyName.GETETAG,
-                                               getETag()));
-
-        long modTime = getModificationTime();
-        properties.add(new StandardDavProperty(DavPropertyName.GETLASTMODIFIED,
-                                               IOUtil.getLastModified(modTime)));
+        properties.add(new Etag(getETag()));
+        properties.add(new LastModified(content.getModifiedDate()));
     }
 
     /** */
@@ -194,8 +193,6 @@ public abstract class DavContentBase extends DavResourceBase
             return;
 
         DavPropertyName name = property.getName();
-        String value = property.getValue().toString();
-
         if (name.equals(DavPropertyName.GETCONTENTLENGTH) ||
             name.equals(DavPropertyName.GETETAG) ||
             name.equals(DavPropertyName.GETLASTMODIFIED))

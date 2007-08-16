@@ -54,7 +54,8 @@ public interface DavResourceFactory {
      * If the identified resource does not exists, returns <code>null</code>.
      * </p>
      */
-    public DavResource resolve(DavResourceLocator locator);
+    public DavResource resolve(DavResourceLocator locator)
+        throws DavException;
 
     /**
      * <p>
@@ -63,7 +64,8 @@ public interface DavResourceFactory {
      * </p>
      */
     public DavResource createResource(DavResourceLocator locator,
-                                      Item item);
+                                      Item item)
+        throws DavException;
 
     public ContentService getContentService();
 

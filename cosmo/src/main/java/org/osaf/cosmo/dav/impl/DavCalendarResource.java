@@ -28,7 +28,6 @@ import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
-import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
@@ -40,7 +39,9 @@ import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.io.DavInputContext;
-import org.osaf.cosmo.dav.property.StandardDavProperty;
+import org.osaf.cosmo.dav.property.DavProperty;
+import org.osaf.cosmo.dav.property.ContentLength;
+import org.osaf.cosmo.dav.property.ContentType;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
@@ -62,7 +63,8 @@ public abstract class DavCalendarResource extends DavContentBase
 
     public DavCalendarResource(NoteItem item,
                                DavResourceLocator locator,
-                               DavResourceFactory factory) {
+                               DavResourceFactory factory)
+        throws DavException {
         super(item, locator, factory);
     }
        
@@ -151,24 +153,20 @@ public abstract class DavCalendarResource extends DavContentBase
     }
 
     /** */
-    protected void loadLiveProperties() {
+    protected void loadLiveProperties()
+        throws DavException {
         super.loadLiveProperties();
 
         DavPropertySet properties = getProperties();
 
         try {
             byte[] calendarBytes = getCalendar().toString().getBytes("UTF-8");
-            String contentLength = new Integer(calendarBytes.length).toString();
-            properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTLENGTH,
-                                                   contentLength));
+            properties.add(new ContentLength(new Long(calendarBytes.length)));
         } catch (Exception e) {
             throw new RuntimeException("Can't convert calendar", e);
         }
 
-        String contentType =
-            IOUtil.buildContentType(ICALENDAR_MEDIA_TYPE, "UTF-8");
-        properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTTYPE,
-                                               contentType));
+        properties.add(new ContentType(ICALENDAR_MEDIA_TYPE, "UTF-8"));
     }
 
     /** */
@@ -177,8 +175,6 @@ public abstract class DavCalendarResource extends DavContentBase
         super.setLiveProperty(property);
 
         DavPropertyName name = property.getName();
-        String value = property.getValue().toString();
-
         if (name.equals(DavPropertyName.GETCONTENTLENGTH) ||
             name.equals(DavPropertyName.GETCONTENTTYPE))
             throw new ProtectedPropertyModificationException(name);

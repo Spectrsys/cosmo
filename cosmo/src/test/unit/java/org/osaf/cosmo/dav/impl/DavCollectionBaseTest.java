@@ -23,7 +23,6 @@ import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.osaf.cosmo.dav.BaseDavTestCase;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.property.ExcludeFreeBusyRollup;
-import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.model.CollectionItem;
 
 /**
@@ -78,7 +77,7 @@ public class DavCollectionBaseTest extends BaseDavTestCase
         testHelper.getHomeCollection().setExcludeFreeBusyRollup(true);
         DavCollectionBase dc = (DavCollectionBase) testHelper.initializeHomeResource();
 
-        DavProperty efbr = new ExcludeFreeBusyRollup(false);
+        ExcludeFreeBusyRollup efbr = new ExcludeFreeBusyRollup(false);
         dc.setLiveProperty(efbr);
 
         assertTrue("set exclude-free-busy-rollup property is true",
@@ -90,24 +89,11 @@ public class DavCollectionBaseTest extends BaseDavTestCase
         testHelper.getHomeCollection().setExcludeFreeBusyRollup(false);
         DavCollectionBase dc = (DavCollectionBase) testHelper.initializeHomeResource();
 
-        DavProperty efbr = new ExcludeFreeBusyRollup(true);
+        ExcludeFreeBusyRollup efbr = new ExcludeFreeBusyRollup(true);
         dc.setLiveProperty(efbr);
 
         assertTrue("set exclude-free-busy-rollup property is false",
                    testHelper.getHomeCollection().isExcludeFreeBusyRollup());
-    }
-
-    /** */
-    public void testBadSetExcludeFreeBusyRollupProperty() throws Exception {
-        testHelper.getHomeCollection().setExcludeFreeBusyRollup(true);
-        DavCollectionBase dc = (DavCollectionBase) testHelper.initializeHomeResource();
-
-        // ugh should be interpreted as false
-        DavProperty efbr = new StandardDavProperty(EXCLUDEFREEBUSYROLLUP, "ugh");
-        dc.setLiveProperty(efbr);
-
-        assertTrue("failed to interpret String exclude-free-busy-rollup property value as false",
-                   ! testHelper.getHomeCollection().isExcludeFreeBusyRollup());
     }
 
     /** */

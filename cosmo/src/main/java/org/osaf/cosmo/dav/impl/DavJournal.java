@@ -51,14 +51,16 @@ public class DavJournal extends DavCalendarResource {
     
     /** */
     public DavJournal(DavResourceLocator locator,
-                      DavResourceFactory factory) {
+                      DavResourceFactory factory)
+        throws DavException {
         this(new NoteItem(), locator, factory);
     }
 
     /** */
     public DavJournal(NoteItem item,
                       DavResourceLocator locator,
-                      DavResourceFactory factory) {
+                      DavResourceFactory factory)
+        throws DavException {
         super(item, locator, factory);
     }
 

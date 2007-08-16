@@ -67,8 +67,10 @@ public class XmlClobType extends ClobStringType {
         try {
             return DomReader.read(reader);
         } catch (Exception e) {
-            log.error("Error reading XML stream", e);
-            throw new HibernateException("Error reading XML stream: " + e.getMessage());
+            log.error("Error deserializing XML clob", e);
+            // don't throw an exception, because otherwise this item will
+            // be able to be loaded (thus, it won't be able to be deleted)
+            return null;
         } finally {
             if (reader != null)
                 try {reader.close();} catch(Exception e) {}
@@ -85,8 +87,8 @@ public class XmlClobType extends ClobStringType {
             try {
                 xml = DomWriter.write((Element) value);
             } catch (Exception e) {
-                log.error("Error writing XML stream", e);
-                throw new HibernateException("Error writing XML stream: " + e.getMessage());
+                log.error("Error serializing XML clob", e);
+                throw new HibernateException("Error serializing XML clob: " + e.getMessage());
             }
         }
 

@@ -181,7 +181,8 @@ public class DavTestHelper extends TestHelper {
     }
 
     /** */
-    public DavHomeCollection initializeHomeResource() {
+    public DavHomeCollection initializeHomeResource()
+        throws DavException {
         return new DavHomeCollection(homeCollection, homeLocator,
                                      resourceFactory);
     }

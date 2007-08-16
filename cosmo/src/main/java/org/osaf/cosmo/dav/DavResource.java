@@ -52,7 +52,7 @@ public interface DavResource
     /**
      * Returns the parent collection for this resource.
      */
-    public DavCollection getParent();
+    public DavCollection getParent() throws DavException;
 
     public MultiStatusResponse
         updateProperties(DavPropertySet setProperties,

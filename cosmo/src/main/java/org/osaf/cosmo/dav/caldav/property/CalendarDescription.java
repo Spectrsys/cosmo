@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2007 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.dav.property;
+package org.osaf.cosmo.dav.caldav.property;
+
+import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 
 /**
- * Represents the cosmo:exclude-free-busy-rollup property.
+ * Represents the <code>CALDAV:calendar-description</code> property.
  */
-public class ExcludeFreeBusyRollup extends StandardDavProperty {
+public class CalendarDescription extends StandardDavProperty
+    implements CaldavConstants {
 
-    public ExcludeFreeBusyRollup(boolean flag) {
-        super(EXCLUDEFREEBUSYROLLUP, new Boolean(flag), false);
+    public CalendarDescription(String description,
+                               String language) {
+        super(CALENDARDESCRIPTION, description, language, true);
     }
 }

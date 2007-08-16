@@ -35,7 +35,6 @@ import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
-import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
@@ -58,6 +57,7 @@ import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.caldav.report.MultigetReport;
 import org.osaf.cosmo.dav.caldav.report.QueryReport;
+import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.ExcludeFreeBusyRollup;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionLockedException;
@@ -104,14 +104,16 @@ public class DavCollectionBase extends DavResourceBase
     /** */
     public DavCollectionBase(CollectionItem collection,
                              DavResourceLocator locator,
-                             DavResourceFactory factory) {
+                             DavResourceFactory factory)
+        throws DavException {
         super(collection, locator, factory);
         members = new ArrayList();
     }
 
     /** */
     public DavCollectionBase(DavResourceLocator locator,
-                             DavResourceFactory factory) {
+                             DavResourceFactory factory)
+        throws DavException {
         this(new CollectionItem(), locator, factory);
     }
 
@@ -145,9 +147,13 @@ public class DavCollectionBase extends DavResourceBase
     }
 
     public DavResourceIterator getMembers() {
-        for (Item memberItem : ((CollectionItem)getItem()).getChildren())
-            members.add(memberToResource(memberItem));
-        return new DavResourceIteratorImpl(members);
+        try {
+            for (Item memberItem : ((CollectionItem)getItem()).getChildren())
+                members.add(memberToResource(memberItem));
+            return new DavResourceIteratorImpl(members);
+        } catch (DavException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
@@ -230,7 +236,8 @@ public class DavCollectionBase extends DavResourceBase
     }
 
     /** */
-    protected void loadLiveProperties() {
+    protected void loadLiveProperties()
+        throws DavException {
         super.loadLiveProperties();
 
         CollectionItem cc = (CollectionItem) getItem();
@@ -255,13 +262,13 @@ public class DavCollectionBase extends DavResourceBase
         DavPropertyName name = property.getName();
         if (property.getValue() == null)
             throw new UnprocessableEntityException("Property " + name + " requires a value");
-        String value = property.getValue().toString();
 
         if (name.equals(DeltaVConstants.SUPPORTED_REPORT_SET))
             throw new ProtectedPropertyModificationException(name);
 
         if (name.equals(EXCLUDEFREEBUSYROLLUP)) {
-            cc.setExcludeFreeBusyRollup(Boolean.valueOf(value));
+            Boolean flag = Boolean.valueOf(property.getValueText());
+            cc.setExcludeFreeBusyRollup(flag);
         }
     }
 
@@ -388,7 +395,8 @@ public class DavCollectionBase extends DavResourceBase
         return false;
     }
 
-    protected DavResource memberToResource(Item item) {
+    protected DavResource memberToResource(Item item)
+        throws DavException {
         String path = getResourcePath() + "/" + item.getName();
         DavResourceLocator locator = getLocator().getFactory().
             createResourceLocator(getLocator().getPrefix(),
@@ -397,7 +405,8 @@ public class DavCollectionBase extends DavResourceBase
         return getResourceFactory().createResource(locator, item);
     }    
 
-    protected DavResource memberToResource(String path) {
+    protected DavResource memberToResource(String path)
+        throws DavException {
         DavResourceLocator locator = getLocator().getFactory().
             createResourceLocator(getLocator().getPrefix(),
                                   getLocator().getWorkspacePath(), path,

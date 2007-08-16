@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2007 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,23 @@
  */
 package org.osaf.cosmo.dav.property;
 
-/**
- * Represents the cosmo:exclude-free-busy-rollup property.
- */
-public class ExcludeFreeBusyRollup extends StandardDavProperty {
+import java.util.Date;
 
-    public ExcludeFreeBusyRollup(boolean flag) {
-        super(EXCLUDEFREEBUSYROLLUP, new Boolean(flag), false);
+import org.apache.jackrabbit.server.io.IOUtil;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+
+/**
+ * Represents the DAV:getlastmodified property.
+ */
+public class LastModified extends StandardDavProperty {
+
+    public LastModified(Date date) {
+        super(DavPropertyName.GETLASTMODIFIED, lm(date), true);
+    }
+
+    private static String lm(Date date) {
+        if (date == null)
+            date = new Date();
+        return IOUtil.getLastModified(date.getTime());
     }
 }

@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
@@ -35,7 +34,7 @@ import org.w3c.dom.Node;
  * property.
  */
 public class StandardDavProperty
-    implements DavProperty, ExtendedDavConstants, XmlSerializable {
+    implements DavProperty, XmlSerializable {
     private static final Log log =
         LogFactory.getLog(StandardDavProperty.class);
 
@@ -72,7 +71,7 @@ public class StandardDavProperty
             this.lang = lang;
     }
 
-    // DavProperty methods
+    // org.apache.jackrabbit.webdav.property.DavProperty methods
 
     public DavPropertyName getName() {
         return name;
@@ -86,25 +85,48 @@ public class StandardDavProperty
         return isProtected;
     }
 
+    // DavProperty methods
+
+    public String getLanguage() {
+        return lang;
+    }
+
+    public String getValueText() {
+        if (value == null)
+            return null;
+        if (value instanceof Element) {
+            String text = DomUtil.getText((Element) value);
+            if (text != null)
+                return text;
+        }
+        return value.toString();
+    }
+
     // XmlSerializable methods
 
     public Element toXml(Document document) {
-        if (value != null && value instanceof Element)
-            return (Element) document.importNode((Element) value, true);
+        Element e = null;
 
-        Element e = getName().toXml(document);
-        Object v = getValue();
-        if (v != null)
-            DomUtil.setText(e, v.toString());
+        if (value != null && value instanceof Element)
+            e = (Element) document.importNode((Element) value, true);
+        else {
+            e = getName().toXml(document);
+            Object v = getValue();
+            if (v != null) {
+                if (v instanceof XmlSerializable)
+                    e.appendChild(((XmlSerializable)v).toXml(document));
+                else
+                    DomUtil.setText(e, v.toString());
+            }
+        }
+
+        if (lang != null)
+            DomUtil.setAttribute(e, XML_LANG, NAMESPACE_XML, lang);
 
         return e;
     }
 
     // our methods
-
-    public String getLang() {
-        return lang;
-    }
 
     public int hashCode() {
         int hashCode = getName().hashCode();
@@ -125,8 +147,8 @@ public class StandardDavProperty
 
     public static StandardDavProperty createFromXml(Element e) {
         DavPropertyName name = DavPropertyName.createFromXml(e);
-        String lang = null;
-        if (e.getParentNode() != null &&
+        String lang = DomUtil.getAttribute(e, XML_LANG, NAMESPACE_XML);
+        if (lang == null && e.getParentNode() != null &&
             e.getParentNode().getNodeType() == Node.ELEMENT_NODE)
             lang = DomUtil.getAttribute((Element)e.getParentNode(), XML_LANG,
                                         NAMESPACE_XML);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2007 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 package org.osaf.cosmo.dav.property;
 
 /**
- * Represents the cosmo:exclude-free-busy-rollup property.
+ * Represents the cosmo:uuid property.
  */
-public class ExcludeFreeBusyRollup extends StandardDavProperty {
+public class Uuid extends StandardDavProperty {
 
-    public ExcludeFreeBusyRollup(boolean flag) {
-        super(EXCLUDEFREEBUSYROLLUP, new Boolean(flag), false);
+    public Uuid(String uuid) {
+        super(UUID, uuid, false);
     }
 }

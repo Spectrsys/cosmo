@@ -27,7 +27,6 @@ import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
-import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
@@ -37,7 +36,12 @@ import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.io.DavInputContext;
-import org.osaf.cosmo.dav.property.StandardDavProperty;
+import org.osaf.cosmo.dav.property.ContentLanguage;
+import org.osaf.cosmo.dav.property.ContentLength;
+import org.osaf.cosmo.dav.property.ContentType;
+import org.osaf.cosmo.dav.property.DavProperty;
+import org.osaf.cosmo.dav.property.Etag;
+import org.osaf.cosmo.dav.property.LastModified;
 import org.osaf.cosmo.model.DataSizeException;
 import org.osaf.cosmo.model.FileItem;
 import org.osaf.cosmo.model.ModelValidationException;
@@ -69,13 +73,15 @@ public class DavFile extends DavContentBase {
     /** */
     public DavFile(FileItem item,
                    DavResourceLocator locator,
-                   DavResourceFactory factory) {
+                   DavResourceFactory factory)
+        throws DavException {
         super(item, locator, factory);
     }
 
     /** */
     public DavFile(DavResourceLocator locator,
-                   DavResourceFactory factory) {
+                   DavResourceFactory factory)
+        throws DavException {
         this(new FileItem(), locator, factory);
     }
 
@@ -146,7 +152,8 @@ public class DavFile extends DavContentBase {
     }
 
     /** */
-    protected void loadLiveProperties() {
+    protected void loadLiveProperties()
+        throws DavException {
         super.loadLiveProperties();
 
         FileItem content = (FileItem) getItem();
@@ -155,26 +162,13 @@ public class DavFile extends DavContentBase {
 
         DavPropertySet properties = getProperties();
 
-        if (content.getContentLanguage() != null) {
-            properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTLANGUAGE,
-                                                   content.getContentLanguage()));
-        }
-
-        properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTLENGTH,
-                                               content.getContentLength()));
-
-        properties.add(new StandardDavProperty(DavPropertyName.GETETAG,
-                                               getETag()));
-
-        String contentType =
-            IOUtil.buildContentType(content.getContentType(),
-                                    content.getContentEncoding());
-        properties.add(new StandardDavProperty(DavPropertyName.GETCONTENTTYPE,
-                                               contentType));
-
-        long modTime = getModificationTime();
-        properties.add(new StandardDavProperty(DavPropertyName.GETLASTMODIFIED,
-                                               IOUtil.getLastModified(modTime)));
+        if (content.getContentLanguage() != null)
+            properties.add(new ContentLanguage(content.getContentLanguage()));
+        properties.add(new ContentLength(content.getContentLength()));
+        properties.add(new Etag(getETag()));
+        properties.add(new ContentType(content.getContentType(),
+                                       content.getContentEncoding()));
+        properties.add(new LastModified(content.getModifiedDate()));
     }
 
     /** */
@@ -187,19 +181,19 @@ public class DavFile extends DavContentBase {
             return;
 
         DavPropertyName name = property.getName();
-        String value = property.getValue().toString();
+        String text = property.getValueText();
 
         if (name.equals(DavPropertyName.GETCONTENTLANGUAGE)) {
-            content.setContentLanguage(value);
+            content.setContentLanguage(text);
             return;
         }
 
         if (name.equals(DavPropertyName.GETCONTENTTYPE)) {
-            String type = IOUtil.getMimeType(value);
+            String type = IOUtil.getMimeType(text);
             if (StringUtils.isBlank(type))
                 throw new BadRequestException("Property " + name + " requires a valid media type");
             content.setContentType(type);
-            content.setContentEncoding(IOUtil.getEncoding(value));
+            content.setContentEncoding(IOUtil.getEncoding(text));
         }
     }
 
