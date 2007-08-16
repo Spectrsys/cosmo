@@ -42,7 +42,7 @@ public class ExcludeFreeBusyRollup extends AbstractDavProperty
     /**
      */
     public ExcludeFreeBusyRollup(boolean flag) {
-        super(EXCLUDEFREEBUSYROLLUP, false);
+        super(EXCLUDEFREEBUSYROLLUP, true);
         this.flag = flag;
     }
 

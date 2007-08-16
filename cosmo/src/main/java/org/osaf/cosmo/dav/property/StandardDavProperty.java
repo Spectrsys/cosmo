@@ -16,61 +16,120 @@
 package org.osaf.cosmo.dav.property;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  * Represents the Cosmo extended DAV cosmo:exclude-free-busy-rollup
  * property.
  */
-public class StandardDavProperty extends DefaultDavProperty
-    implements ExtendedDavConstants {
+public class StandardDavProperty
+    implements DavProperty, ExtendedDavConstants, XmlSerializable {
+    private static final Log log =
+        LogFactory.getLog(StandardDavProperty.class);
 
+    private DavPropertyName name;
+    private Object value;
     private String lang;
+    private boolean isProtected;
 
     public StandardDavProperty(DavPropertyName name,
                                Object value) {
-        super(name, value);
+        this(name, value, null, false);
     }
 
     public StandardDavProperty(DavPropertyName name,
                                Object value,
                                String lang) {
-        this(name, value);
+        this(name, value, lang, false);
+    }
+
+    public StandardDavProperty(DavPropertyName name,
+                               Object value,
+                               boolean isProtected) {
+        this(name, value, null, isProtected);
+    }
+
+    public StandardDavProperty(DavPropertyName name,
+                               Object value,
+                               String lang,
+                               boolean isProtected) {
+        this.name = name;
+        this.value = value;
+        this.isProtected = isProtected;
         if (! StringUtils.isBlank(lang))
             this.lang = lang;
     }
 
-    public StandardDavProperty(DefaultDavProperty orig,
-                               String lang) {
-        super(orig.getName(), orig.getValue(), orig.isProtected());
-        if (! StringUtils.isBlank(lang))
-            this.lang = lang;
+    // DavProperty methods
+
+    public DavPropertyName getName() {
+        return name;
     }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public boolean isProtected() {
+        return isProtected;
+    }
+
+    // XmlSerializable methods
+
+    public Element toXml(Document document) {
+        if (value != null && value instanceof Element)
+            return (Element) document.importNode((Element) value, true);
+
+        Element e = getName().toXml(document);
+        Object v = getValue();
+        if (v != null)
+            DomUtil.setText(e, v.toString());
+
+        return e;
+    }
+
+    // our methods
 
     public String getLang() {
         return lang;
     }
 
-    public Element toXml(Document document) {
-        Element e = super.toXml(document);
+    public int hashCode() {
+        int hashCode = getName().hashCode();
+        if (getValue() != null)
+            hashCode += getValue().hashCode();
+        return hashCode % Integer.MAX_VALUE;
+    }
 
-        if (lang != null)
-            DomUtil.setAttribute(e, XML_LANG, NAMESPACE_XML, lang);
-
-        return e;
+    public boolean equals(Object obj) {
+        if (! (obj instanceof DavProperty))
+            return false;
+        DavProperty prop = (DavProperty) obj;
+        if (! getName().equals(prop.getName()))
+            return false;
+        return getValue() == null ? prop.getValue() == null :
+            value.equals(prop.getValue());
     }
 
     public static StandardDavProperty createFromXml(Element e) {
-        DefaultDavProperty orig = DefaultDavProperty.createFromXml(e);
-        String lang = DomUtil.getAttribute(e, XML_LANG, NAMESPACE_XML);
-        return new StandardDavProperty(orig, lang);
+        DavPropertyName name = DavPropertyName.createFromXml(e);
+        String lang = null;
+        if (e.getParentNode() != null &&
+            e.getParentNode().getNodeType() == Node.ELEMENT_NODE)
+            lang = DomUtil.getAttribute((Element)e.getParentNode(), XML_LANG,
+                                        NAMESPACE_XML);
+        return new StandardDavProperty(name, e, lang);
     }
 }

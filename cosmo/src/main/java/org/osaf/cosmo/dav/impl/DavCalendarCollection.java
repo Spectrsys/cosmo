@@ -220,7 +220,7 @@ public class DavCalendarCollection extends DavCollectionBase
         if (cc.getDescription() != null)
             properties.add(new StandardDavProperty(CALENDARDESCRIPTION,
                                                    cc.getDescription(),
-                                                   cc.getLanguage()));
+                                                   cc.getLanguage(), true));
         if (cc.getTimezone() != null)
             properties.add(new CalendarTimezone(cc.getTimezone().toString()));
 

@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,6 +79,8 @@ import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.service.ContentService;
 import org.osaf.cosmo.util.PathUtil;
+
+import org.w3c.dom.Node;
 
 /**
  * Base class for implementations of <code>DavResource</code>
@@ -147,11 +150,6 @@ public abstract class DavResourceBase
     /** */
     public boolean exists() {
         return item != null && item.getUid() != null;
-    }
-
-    /** */
-    public boolean isCollection() {
-        throw new UnsupportedOperationException();
     }
 
     /** */
@@ -646,11 +644,12 @@ public abstract class DavResourceBase
 
         // Windows XP support
         properties.add(new StandardDavProperty(DavPropertyName.ISCOLLECTION,
-                                               isCollection() ? "1" : "0"));
+                                               isCollection() ? "1" : "0",
+                                               true));
 
         properties.add(new TicketDiscovery(this));
 
-        properties.add(new StandardDavProperty(UUID, item.getUid()));
+        properties.add(new StandardDavProperty(UUID, item.getUid(), true));
     }
 
     /**
@@ -742,29 +741,25 @@ public abstract class DavResourceBase
             if (isLiveProperty(propName))
                 continue;
 
-            properties.add(new StandardDavProperty(propName,
-                                                   entry.getValue().getValue()));
+            Object propValue = entry.getValue().getValue();
+            properties.add(new StandardDavProperty(propName, propValue));
         }
     }
 
     private void setResourceProperty(DavProperty property)
         throws DavException {
-        String value = property.getValue() != null ?
-            property.getValue().toString() :
-            null;
-
         if (log.isDebugEnabled())
             log.debug("setting property " + property.getName() + " on " +
-                      getResourcePath() + " to " + value);
+                      getResourcePath() + " to " + property.getValue());
 
         if (isLiveProperty(property.getName()))
             setLiveProperty(property);
         else {
-            if (property.getValue() == null ||
-                StringUtils.isBlank(property.getValue().toString()))
+            if (property.getValue() == null)
                 throw new UnprocessableEntityException("Property " + property.getName() + " requires a value");
             try {
-                item.setAttribute(propNameToQName(property.getName()), value);
+                QName qname = propNameToQName(property.getName());
+                item.setAttribute(qname, property.getValue());
             } catch (DataSizeException e) {
                 throw new ForbiddenException(e.getMessage());
             }
@@ -788,7 +783,6 @@ public abstract class DavResourceBase
     }
 
     private QName propNameToQName(DavPropertyName name) {
-       
         String uri = name.getNamespace() != null ?
             name.getNamespace().getURI() : "";
         return new QName(uri, name.getName());
