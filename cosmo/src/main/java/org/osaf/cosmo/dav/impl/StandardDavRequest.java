@@ -179,9 +179,17 @@ public class StandardDavRequest extends WebdavRequestImpl
 
     private Document getSafeRequestDocument()
         throws DavException {
+        return getSafeRequestDocument(true);
+    }
+
+    private Document getSafeRequestDocument(boolean requireDocument)
+        throws DavException {
         try {
-            if (StringUtils.isBlank(getContentType()))
-                throw new UnsupportedMediaTypeException("No Content-Type specified");
+            if (StringUtils.isBlank(getContentType())) {
+                if (requireDocument)
+                    throw new UnsupportedMediaTypeException("No Content-Type specified");
+                return null;
+            }
             MimeType mimeType = new MimeType(getContentType());
             if (! (mimeType.match(APPLICATION_XML) ||
                    mimeType.match(TEXT_XML)))
@@ -276,7 +284,7 @@ public class StandardDavRequest extends WebdavRequestImpl
         throws DavException {
         DavPropertySet propertySet = new DavPropertySet();
 
-        Document requestDocument = getSafeRequestDocument();
+        Document requestDocument = getSafeRequestDocument(false);
         if (requestDocument == null)
             return propertySet;
 
