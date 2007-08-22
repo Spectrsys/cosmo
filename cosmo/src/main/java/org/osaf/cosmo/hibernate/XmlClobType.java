@@ -24,16 +24,12 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.hibernate.HibernateException;
-
 import org.osaf.cosmo.xml.DomReader;
 import org.osaf.cosmo.xml.DomWriter;
-
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.orm.hibernate3.support.ClobStringType;
-
 import org.w3c.dom.Element;
 
 /**
@@ -101,6 +97,14 @@ public class XmlClobType extends ClobStringType {
         if (value == null)
             return null;
         return ((Element)value).cloneNode(true);
+    }
+
+    @Override
+    public boolean equals(Object x, Object y) throws HibernateException {
+        if(x==null || y==null)
+            return false;
+        
+        return ((Element) x).isEqualNode((Element) y);
     }
 
     public Class returnedClass() {

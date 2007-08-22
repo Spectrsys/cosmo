@@ -42,7 +42,7 @@ public class XmlAttribute extends Attribute
         this.value = value;
     }
 
-    @Column(name = "xmlvalue")
+    @Column(name = "textvalue")
     @Type(type="xml_clob")
     public Element getValue() {
         return this.value;

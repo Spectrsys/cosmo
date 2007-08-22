@@ -89,6 +89,9 @@ public class DomWriter {
             //log.debug("Writing element " + e.getNodeName());
 
         String local = e.getLocalName();
+        if(local==null)
+            local = e.getNodeName();
+        
         String ns = e.getNamespaceURI();
         if (ns != null) {
             String prefix = e.getPrefix();
@@ -126,6 +129,8 @@ public class DomWriter {
             //log.debug("Writing attribute " + a.getNodeName());
 
         String local = a.getLocalName();
+        if(local==null)
+            local = a.getNodeName();
         String ns = a.getNamespaceURI();
         String value = a.getValue();
         if (ns != null) {

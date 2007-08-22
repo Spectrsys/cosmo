@@ -97,6 +97,7 @@
             <value>org.osaf.cosmo.model.TimestampAttribute</value>
             <value>org.osaf.cosmo.model.Tombstone</value>
             <value>org.osaf.cosmo.model.User</value>
+            <value>org.osaf.cosmo.model.XmlAttribute</value>
         </list>
     </property>
     <property name="entityInterceptor">

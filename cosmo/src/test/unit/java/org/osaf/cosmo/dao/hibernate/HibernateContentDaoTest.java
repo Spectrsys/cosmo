@@ -28,6 +28,10 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.io.DOMWriter;
 import org.hibernate.validator.InvalidStateException;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.Attribute;
@@ -50,6 +54,8 @@ import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.model.XmlAttribute;
+import org.osaf.cosmo.xml.DomWriter;
 import org.springframework.dao.DataIntegrityViolationException;
 
 public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
@@ -379,6 +385,76 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         
         val = (Date) queryAttr.getValue();
         Assert.assertTrue(dateVal.equals(val));
+    }
+    
+    public void testXmlAttribute() throws Exception {
+        User user = getUser(userDao, "testuser");
+        CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
+
+        ContentItem item = generateTestContent();
+        
+        org.w3c.dom.Element testElement = createTestElement();
+        org.w3c.dom.Element testElement2 = createTestElement();
+        
+        testElement2.setAttribute("foo", "bar");
+        
+        Assert.assertFalse(testElement.isEqualNode(testElement2));
+        
+        XmlAttribute xmlAttr = 
+            new XmlAttribute(new QName("xmlattribute"), testElement ); 
+        item.addAttribute(xmlAttr);
+        
+        ContentItem newItem = contentDao.createContent(root, item);
+
+        clearSession();
+
+        ContentItem queryItem = contentDao.findContentByUid(newItem.getUid());
+
+        Attribute attr = queryItem.getAttribute(new QName("xmlattribute"));
+        Assert.assertNotNull(attr);
+        Assert.assertTrue(attr instanceof XmlAttribute);
+        
+        org.w3c.dom.Element element = (org.w3c.dom.Element) attr.getValue();
+        
+        Assert.assertEquals(DomWriter.write(testElement),DomWriter.write(element));
+
+        Date modifyDate = attr.getModifiedDate();
+        
+        // Sleep a couple millis to make sure modifyDate doesn't change
+        Thread.sleep(2);
+        
+        contentDao.updateContent(queryItem);
+
+        clearSession();
+        
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+
+        attr = queryItem.getAttribute(new QName("xmlattribute"));
+        
+        // Attribute shouldn't have been updated
+        Assert.assertEquals(modifyDate, attr.getModifiedDate());
+        
+        attr.setValue(testElement2);
+
+        // Sleep a couple millis to make sure modifyDate doesn't change
+        Thread.sleep(2);
+        modifyDate = attr.getModifiedDate();
+        
+        contentDao.updateContent(queryItem);
+
+        clearSession();
+        
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+
+        attr = queryItem.getAttribute(new QName("xmlattribute"));
+        Assert.assertNotNull(attr);
+        Assert.assertTrue(attr instanceof XmlAttribute);
+        // Attribute should have been updated
+        Assert.assertTrue(modifyDate.before(attr.getModifiedDate()));
+        
+        element = (org.w3c.dom.Element) attr.getValue();
+        
+        Assert.assertEquals(DomWriter.write(testElement2),DomWriter.write(element));
     }
 
     public void testCreateDuplicateRootItem() throws Exception {
@@ -1266,6 +1342,23 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         content.addAttribute(new StringAttribute(new QName("customattribute"),
                 "customattributevalue"));
         return content;
+    }
+    
+    private org.w3c.dom.Element createTestElement() throws Exception {
+        Document document = DocumentHelper.createDocument();
+        Element root = document.addElement( "root" );
+
+        root.addElement( "author" )
+            .addAttribute( "name", "James" )
+            .addAttribute( "location", "UK" )
+            .addText( "James Strachan" );
+        
+        root.addElement( "author" )
+            .addAttribute( "name", "Bob" )
+            .addAttribute( "location", "US" )
+            .addText( "Bob McWhirter" );
+
+        return new DOMWriter().write(document).getDocumentElement();
     }
 
 }
