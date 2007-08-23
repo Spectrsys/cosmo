@@ -35,7 +35,7 @@ import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResponse;
-import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.impl.DavItemResource;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.dav.ticket.property.TicketDiscovery;
 import org.osaf.cosmo.model.Ticket;
@@ -69,7 +69,7 @@ public class StandardDavResponse extends WebdavResponseImpl
      * @param resource the resource on which the ticket was created
      * @param ticketId the id of the newly created ticket
      */
-    public void sendMkTicketResponse(DavResource resource,
+    public void sendMkTicketResponse(DavItemResource resource,
                                      String ticketId)
         throws DavException, IOException {
         setHeader(HEADER_TICKET, ticketId);

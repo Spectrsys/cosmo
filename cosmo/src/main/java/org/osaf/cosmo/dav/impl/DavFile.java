@@ -152,15 +152,12 @@ public class DavFile extends DavContentBase {
     }
 
     /** */
-    protected void loadLiveProperties()
-        throws DavException {
-        super.loadLiveProperties();
+    protected void loadLiveProperties(DavPropertySet properties) {
+        super.loadLiveProperties(properties);
 
         FileItem content = (FileItem) getItem();
         if (content == null)
             return;
-
-        DavPropertySet properties = getProperties();
 
         if (content.getContentLanguage() != null)
             properties.add(new ContentLanguage(content.getContentLanguage()));

@@ -18,7 +18,7 @@ package org.osaf.cosmo.dav.ticket;
 import java.io.IOException;
 
 import org.osaf.cosmo.dav.DavException;
-import org.osaf.cosmo.dav.DavResource;
+import org.osaf.cosmo.dav.impl.DavItemResource;
 
 /**
  * Provides response functionality required by ticket extensions to WebDAV.
@@ -32,7 +32,7 @@ public interface TicketDavResponse {
      * @param resource the resource on which the ticket was created
      * @param ticketId the id of the newly created ticket
      */
-    public void sendMkTicketResponse(DavResource resource,
+    public void sendMkTicketResponse(DavItemResource resource,
                                      String ticketId)
         throws DavException, IOException;
 }

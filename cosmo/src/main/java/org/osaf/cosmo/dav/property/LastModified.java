@@ -26,7 +26,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 public class LastModified extends StandardDavProperty {
 
     public LastModified(Date date) {
-        super(DavPropertyName.GETLASTMODIFIED, lm(date), true);
+        super(DavPropertyName.GETLASTMODIFIED, lm(date), false);
     }
 
     private static String lm(Date date) {

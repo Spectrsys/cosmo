@@ -26,7 +26,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 public class CreationDate extends StandardDavProperty {
 
     public CreationDate(Date date) {
-        super(DavPropertyName.CREATIONDATE, dateToString(date), true);
+        super(DavPropertyName.CREATIONDATE, dateToString(date), false);
     }
 
     private static String dateToString(Date date) {

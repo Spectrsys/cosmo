@@ -15,25 +15,11 @@
  */
 package org.osaf.cosmo.dav;
 
-import java.io.InputStream;
-import java.util.Set;
-
-import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.apache.jackrabbit.webdav.version.report.ReportType;
-
-import org.osaf.cosmo.dav.DavCollection;
-import org.osaf.cosmo.dav.DavContent;
-import org.osaf.cosmo.dav.DavException;
-import org.osaf.cosmo.dav.DavResourceFactory;
-import org.osaf.cosmo.dav.caldav.report.CaldavReport;
-import org.osaf.cosmo.dav.ticket.TicketDavRequest;
-import org.osaf.cosmo.model.Ticket;
 
 /**
  * An interface providing resource functionality required by WebDAV
@@ -58,30 +44,6 @@ public interface DavResource
         updateProperties(DavPropertySet setProperties,
                          DavPropertyNameSet removePropertyNames)
         throws DavException;
-
-    /**
-     * Associates a ticket with this resource and saves it into
-     * persistent storage.
-     */
-    public void saveTicket(Ticket ticket) throws DavException;
-
-    /**
-     * Removes the association between the ticket and this resource
-     * and deletes the ticket from persistent storage.
-     */
-    public void removeTicket(Ticket ticket) throws DavException;
-
-    /**
-     * Returns the ticket with the given id on this resource.
-     */
-    public Ticket getTicket(String id);
-
-    /**
-     * Returns all visible tickets (those owned by the currently
-     * authenticated user) on this resource, or an empty
-     * <code>Set</code> if there are no visible tickets.
-     */
-    public Set<Ticket> getTickets();
 
     /**
      * Return the report that matches the given report info if it is

@@ -73,7 +73,7 @@ public abstract class DavCalendarResource extends DavContentBase
     /** */
     public void move(DavResource destination)
         throws org.apache.jackrabbit.webdav.DavException {
-        validateDestination(destination);
+        validateDestination((DavItemResource)destination);
         super.move(destination);
     }
 
@@ -81,7 +81,7 @@ public abstract class DavCalendarResource extends DavContentBase
     public void copy(DavResource destination,
                      boolean shallow)
         throws org.apache.jackrabbit.webdav.DavException {
-        validateDestination(destination);
+        validateDestination((DavItemResource)destination);
         super.copy(destination, shallow);
     }
 
@@ -112,7 +112,7 @@ public abstract class DavCalendarResource extends DavContentBase
     protected abstract void setCalendar(Calendar calendar)
         throws DavException;
 
-    private void validateDestination(DavResource destination)
+    private void validateDestination(DavItemResource destination)
         throws DavException {
         if (log.isDebugEnabled())
             log.debug("validating destination " + destination.getResourcePath());
@@ -153,11 +153,8 @@ public abstract class DavCalendarResource extends DavContentBase
     }
 
     /** */
-    protected void loadLiveProperties()
-        throws DavException {
-        super.loadLiveProperties();
-
-        DavPropertySet properties = getProperties();
+    protected void loadLiveProperties(DavPropertySet properties) {
+        super.loadLiveProperties(properties);
 
         try {
             byte[] calendarBytes = getCalendar().toString().getBytes("UTF-8");

@@ -20,26 +20,9 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 
 /**
- * An interface for WebDAV collection resources.
+ * An interface for DAV collection resources.
  */
 public interface DavCollection extends DavResource {
-
-    /**
-     * Returns true if this resource represents a calendar
-     * collection.
-     */
-    public boolean isCalendarCollection();
-
-    /**
-     * Returns true if this resource represents a home collection.
-     */
-    public boolean isHomeCollection();
-
-    /**
-     * Returns true if this collection does not participate in free-busy
-     * query rollups.
-     */
-    public boolean isExcludedFromFreeBusyRollups();
 
     /**
      * Adds a new content item to this resource.

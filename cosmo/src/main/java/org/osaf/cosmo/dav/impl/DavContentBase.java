@@ -38,7 +38,6 @@ import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
-import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
@@ -52,7 +51,7 @@ import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.User;
 
 /**
- * Extends <code>DavResourceBase</code> to adapt the Cosmo
+ * Extends <code>DavItemResourceBase</code> to adapt the Cosmo
  * <code>ContentItem</code> to the DAV resource model.
  *
  * This class defines the following live properties:
@@ -66,9 +65,9 @@ import org.osaf.cosmo.model.User;
  * @see DavResourceBase
  * @see ContentItem
  */
-public abstract class DavContentBase extends DavResourceBase
-    implements DavContent {
-    private static final Log log = LogFactory.getLog(DavContent.class);
+public abstract class DavContentBase extends DavItemResourceBase
+    implements DavItemContent {
+    private static final Log log = LogFactory.getLog(DavContentBase.class);
     private static final int[] RESOURCE_TYPES;
     private static final Set<String> DEAD_PROPERTY_FILTER =
         new HashSet<String>();
@@ -169,15 +168,12 @@ public abstract class DavContentBase extends DavResourceBase
     
     
     /** */
-    protected void loadLiveProperties()
-        throws DavException {
-        super.loadLiveProperties();
+    protected void loadLiveProperties(DavPropertySet properties) {
+        super.loadLiveProperties(properties);
 
         ContentItem content = (ContentItem) getItem();
         if (content == null)
             return;
-
-        DavPropertySet properties = getProperties();
 
         properties.add(new Etag(getETag()));
         properties.add(new LastModified(content.getModifiedDate()));

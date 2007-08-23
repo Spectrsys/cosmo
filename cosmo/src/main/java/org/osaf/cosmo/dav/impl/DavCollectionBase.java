@@ -49,7 +49,6 @@ import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
-import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.LockedException;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
@@ -78,9 +77,9 @@ import org.osaf.cosmo.model.Item;
  * @see DavResourceBase
  * @see CollectionItem
  */
-public class DavCollectionBase extends DavResourceBase
-    implements DavCollection, ExtendedDavConstants {
-    private static final Log log = LogFactory.getLog(DavCollection.class);
+public class DavCollectionBase extends DavItemResourceBase
+    implements DavItemCollection {
+    private static final Log log = LogFactory.getLog(DavCollectionBase.class);
     private static final int[] RESOURCE_TYPES;
     private static final Set<String> DEAD_PROPERTY_FILTER =
         new HashSet<String>();
@@ -158,10 +157,10 @@ public class DavCollectionBase extends DavResourceBase
 
     public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
         throws org.apache.jackrabbit.webdav.DavException {
-        if (member instanceof DavCollection) {
-            removeSubcollection((DavCollection)member);
+        if (member instanceof DavItemCollection) {
+            removeSubcollection((DavItemCollection)member);
         } else {
-            removeContent((DavContent)member);
+            removeContent((DavItemContent)member);
         }
 
         members.remove(member);
@@ -186,35 +185,24 @@ public class DavCollectionBase extends DavResourceBase
 
     // DavCollection
 
-    public boolean isCalendarCollection() {
-        return false;
-    }
-
-    public boolean isHomeCollection() {
-        return false;
-    }
-
-    public boolean isExcludedFromFreeBusyRollups() {
-        return ((CollectionItem) getItem()).isExcludeFreeBusyRollup();
-    }
-
     public void addContent(DavContent content,
                            InputContext context)
         throws DavException {
-        ((DavResourceBase)content).populateItem(context);
-        saveContent(content);
-        members.add(content);
+        DavContentBase base = (DavContentBase) content;
+        base.populateItem(context);
+        saveContent(base);
+        members.add(base);
     }
 
     public MultiStatusResponse addCollection(DavCollection collection,
                                              DavPropertySet properties)
         throws DavException {
-        DavResourceBase base = (DavResourceBase) collection;
+        DavCollectionBase base = (DavCollectionBase) collection;
         base.populateItem(null);
         MultiStatusResponse msr = base.populateAttributes(properties);
         if (! msr.hasNonOk()) {
-            saveSubcollection(collection);
-            members.add(collection);
+            saveSubcollection(base);
+            members.add(base);
         }
         return msr;
     }
@@ -228,6 +216,20 @@ public class DavCollectionBase extends DavResourceBase
         return memberToResource(href);
     }
 
+    // DavItemCollection
+
+    public boolean isCalendarCollection() {
+        return false;
+    }
+
+    public boolean isHomeCollection() {
+        return false;
+    }
+
+    public boolean isExcludedFromFreeBusyRollups() {
+        return ((CollectionItem) getItem()).isExcludeFreeBusyRollup();
+    }
+
     // our methods
 
     /** */
@@ -236,15 +238,14 @@ public class DavCollectionBase extends DavResourceBase
     }
 
     /** */
-    protected void loadLiveProperties()
-        throws DavException {
-        super.loadLiveProperties();
+    protected void loadLiveProperties(DavPropertySet properties) {
+        super.loadLiveProperties(properties);
 
         CollectionItem cc = (CollectionItem) getItem();
         if (cc == null)
             return;
 
-        DavPropertySet properties = getProperties();
+        log.debug("loading collection live properties");
 
         properties.add(new SupportedReportSetProperty((ReportType[])REPORT_TYPES.toArray(new ReportType[0])));
         properties.add(new ExcludeFreeBusyRollup(cc.isExcludeFreeBusyRollup()));
@@ -296,12 +297,10 @@ public class DavCollectionBase extends DavResourceBase
     /**
      * Saves the given collection resource to storage.
      */
-    protected void saveSubcollection(DavCollection member)
+    protected void saveSubcollection(DavItemCollection member)
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
-
-        CollectionItem subcollection = (CollectionItem)
-            ((DavResourceBase)member).getItem();
+        CollectionItem subcollection = (CollectionItem) member.getItem();
 
         if (log.isDebugEnabled())
             log.debug("creating collection " + member.getResourcePath());
@@ -309,7 +308,7 @@ public class DavCollectionBase extends DavResourceBase
         try {
             subcollection = getContentService().
                 createCollection(collection, subcollection);
-            ((DavResourceBase)member).setItem(subcollection);
+            member.setItem(subcollection);
         } catch (CollectionLockedException e) {
             throw new LockedException();
         }
@@ -318,11 +317,10 @@ public class DavCollectionBase extends DavResourceBase
     /**
      * Saves the given content resource to storage.
      */
-    protected void saveContent(DavContent member)
+    protected void saveContent(DavItemContent member)
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
-        ContentItem content = (ContentItem)
-            ((DavResourceBase)member).getItem();
+        ContentItem content = (ContentItem) member.getItem();
 
         try {
             if (content.getId() != -1) {
@@ -341,17 +339,16 @@ public class DavCollectionBase extends DavResourceBase
             throw new LockedException();
         }
 
-        ((DavResourceBase)member).setItem(content);
+        member.setItem(content);
     }
 
     /**
      * Removes the given collection resource from storage.
      */
-    protected void removeSubcollection(DavCollection member)
+    protected void removeSubcollection(DavItemCollection member)
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
-        CollectionItem subcollection = (CollectionItem)
-            ((DavResourceBase)member).getItem();
+        CollectionItem subcollection = (CollectionItem) member.getItem();
 
         if (log.isDebugEnabled())
             log.debug("removing collection " + subcollection.getName() +
@@ -367,10 +364,10 @@ public class DavCollectionBase extends DavResourceBase
     /**
      * Removes the given content resource from storage.
      */
-    protected void removeContent(DavContent member)
+    protected void removeContent(DavItemContent member)
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
-        ContentItem content = (ContentItem) ((DavResourceBase)member).getItem();
+        ContentItem content = (ContentItem) member.getItem();
 
         if (log.isDebugEnabled())
             log.debug("removing content " + content.getName() +
@@ -451,7 +448,7 @@ public class DavCollectionBase extends DavResourceBase
             writer.write("\">..</a></li>");
         }
         for (DavResourceIterator i=getMembers(); i.hasNext();) {
-            DavResourceBase child = (DavResourceBase) i.nextResource();
+            DavItemResourceBase child = (DavItemResourceBase) i.nextResource();
             String displayName = child.getItem().getDisplayName();
             writer.write("<li><a href=\"");
             writer.write(child.getLocator().getHref(child.isCollection()));

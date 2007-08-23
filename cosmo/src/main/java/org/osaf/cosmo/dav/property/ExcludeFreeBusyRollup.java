@@ -21,6 +21,6 @@ package org.osaf.cosmo.dav.property;
 public class ExcludeFreeBusyRollup extends StandardDavProperty {
 
     public ExcludeFreeBusyRollup(boolean flag) {
-        super(EXCLUDEFREEBUSYROLLUP, new Boolean(flag), false);
+        super(EXCLUDEFREEBUSYROLLUP, new Boolean(flag), true);
     }
 }

@@ -21,6 +21,6 @@ package org.osaf.cosmo.dav.property;
 public class Uuid extends StandardDavProperty {
 
     public Uuid(String uuid) {
-        super(UUID, uuid, false);
+        super(UUID, uuid, true);
     }
 }

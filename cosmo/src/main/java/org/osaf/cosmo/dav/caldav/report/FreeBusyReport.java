@@ -63,12 +63,12 @@ import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.query.ComponentFilter;
 import org.osaf.cosmo.calendar.query.TimeRangeFilter;
 import org.osaf.cosmo.dav.BadRequestException;
-import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
+import org.osaf.cosmo.dav.impl.DavItemCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 import org.osaf.cosmo.model.ModelConversionException;
 
@@ -154,16 +154,16 @@ public class FreeBusyReport extends CaldavSingleResourceReport {
      */
     protected void runQuery()
         throws DavException {
-        if (! (getResource() instanceof DavCollection))
-            throw new MethodNotAllowedException(REPORT_TYPE_CALDAV_FREEBUSY.getReportName() + " REPORT can only be run against a collection");
+        if (! (getResource() instanceof DavItemCollection))
+            throw new MethodNotAllowedException(REPORT_TYPE_CALDAV_FREEBUSY.getReportName() + " REPORT can only be run against an item-backed collection");
 
         // if the collection or any of its parent is excluded from
         // free busy rollups, deny the query
-        DavCollection dc = (DavCollection) getResource();
+        DavItemCollection dc = (DavItemCollection) getResource();
         while (dc != null) {
             if (dc.isExcludedFromFreeBusyRollups())
                 throw new ForbiddenException("Targeted collection does not participate in freebusy rollups");
-            dc = (DavCollection) dc.getCollection();
+            dc = (DavItemCollection) dc.getCollection();
         }
 
         super.runQuery();
@@ -246,7 +246,8 @@ public class FreeBusyReport extends CaldavSingleResourceReport {
     protected void doQuery(DavResource resource,
                            boolean recurse)
         throws DavException {
-        if (((DavCollection) resource).isExcludedFromFreeBusyRollups())
+        DavItemCollection dc = (DavItemCollection) resource;
+        if (dc.isExcludedFromFreeBusyRollups())
             return;
 
         super.doQuery(resource, recurse);

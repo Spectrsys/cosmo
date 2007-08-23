@@ -43,9 +43,11 @@ import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.ForbiddenException;
+import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
+import org.osaf.cosmo.dav.impl.DavItemResource;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityContext;
@@ -208,6 +210,9 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         throws DavException, IOException {
         if (! resource.exists())
             throw new NotFoundException();
+        if (! (resource instanceof DavItemResource))
+            throw new MethodNotAllowedException("MKTICKET requires a content collection or content resource");
+        DavItemResource dir = (DavItemResource) resource;
 
         if (log.isDebugEnabled())
             log.debug("MKTICKET for " + resource.getResourcePath());
@@ -218,9 +223,9 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new ForbiddenException("MKTICKET requires an authenticated user");
         ticket.setOwner(user);
 
-        resource.saveTicket(ticket);
+        dir.saveTicket(ticket);
 
-        response.sendMkTicketResponse(resource, ticket.getKey());
+        response.sendMkTicketResponse(dir, ticket.getKey());
     }
 
     public void delticket(DavRequest request,
@@ -229,18 +234,21 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         throws DavException, IOException {
         if (! resource.exists())
             throw new NotFoundException();
+        if (! (resource instanceof DavItemResource))
+            throw new MethodNotAllowedException("DELTICKET requires a content collection or content resource");
+        DavItemResource dir = (DavItemResource) resource;
 
         if (log.isDebugEnabled())
             log.debug("DELTICKET for " + resource.getResourcePath());
 
         String key = request.getTicketKey();
-        Ticket ticket = resource.getTicket(key);
+        Ticket ticket = dir.getTicket(key);
         if (ticket == null)
             throw new PreconditionFailedException("Ticket " + key + " does not exist");
 
         checkDelTicketAccess(ticket);
 
-        resource.removeTicket(ticket);
+        dir.removeTicket(ticket);
 
         response.setStatus(204);
     }

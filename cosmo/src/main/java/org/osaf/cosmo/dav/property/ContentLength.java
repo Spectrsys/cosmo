@@ -23,6 +23,10 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 public class ContentLength extends StandardDavProperty {
 
     public ContentLength(Long length) {
-        super(DavPropertyName.GETCONTENTLENGTH, length.toString(), true);
+        super(DavPropertyName.GETCONTENTLENGTH, len(length), false);
+    }
+
+    public static String len(Long length) {
+        return length != null ? length.toString() : null;
     }
 }

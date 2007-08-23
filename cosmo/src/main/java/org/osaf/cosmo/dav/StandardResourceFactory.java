@@ -25,6 +25,7 @@ import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.NotFoundException;
+import org.osaf.cosmo.dav.acl.resource.DavUserPrincipalCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCollectionBase;
 import org.osaf.cosmo.dav.impl.DavEvent;
@@ -57,6 +58,8 @@ public class StandardResourceFactory implements DavResourceFactory {
         new UriTemplate("/collection/{uid}/*");
     private static final UriTemplate TEMPLATE_ITEM =
         new UriTemplate("/item/{uid}/*");
+    private static final UriTemplate TEMPLATE_USERS =
+        new UriTemplate("/users");
 
     private ContentService contentService;
     private CosmoSecurityManager securityManager;
@@ -134,6 +137,10 @@ public class StandardResourceFactory implements DavResourceFactory {
         match = TEMPLATE_ITEM.match(uri);
         if (match != null)
             return createUidResource(locator, match);
+
+        match = TEMPLATE_USERS.match(uri);
+        if (match != null)
+            return new DavUserPrincipalCollection(locator, this);
 
         return createUnknownResource(locator, uri);
     }

@@ -23,6 +23,6 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 public class Etag extends StandardDavProperty {
 
     public Etag(String etag) {
-        super(DavPropertyName.GETETAG, etag, true);
+        super(DavPropertyName.GETETAG, etag, false);
     }
 }

@@ -97,15 +97,14 @@ public class DavHomeCollection extends DavCollectionBase
     }
 
     /** */
-    protected void loadLiveProperties()
-        throws DavException {
-        super.loadLiveProperties();
+    protected void loadLiveProperties(DavPropertySet properties) {
+        super.loadLiveProperties(properties);
 
         HomeCollectionItem hc = (HomeCollectionItem) getItem();
         if (hc == null)
             return;
 
-        DavPropertySet properties = getProperties();
+        log.debug("loading home collection live properties");
 
         properties.add(new CalendarHomeSet(this));
         properties.add(new AlternateUriSet(this));

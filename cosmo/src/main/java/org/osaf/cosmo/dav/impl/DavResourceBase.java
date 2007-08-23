@@ -16,23 +16,14 @@
 package org.osaf.cosmo.dav.impl;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavSession;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
-import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.lock.ActiveLock;
 import org.apache.jackrabbit.webdav.lock.LockInfo;
 import org.apache.jackrabbit.webdav.lock.LockManager;
@@ -44,125 +35,53 @@ import org.apache.jackrabbit.webdav.property.DavPropertyNameIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
-import org.apache.jackrabbit.webdav.xml.Namespace;
 
-import org.osaf.cosmo.dav.BadRequestException;
-import org.osaf.cosmo.dav.ConflictException;
-import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
-import org.osaf.cosmo.dav.ExistsException;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
-import org.osaf.cosmo.dav.ForbiddenException;
-import org.osaf.cosmo.dav.LockedException;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
-import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
-import org.osaf.cosmo.dav.UnprocessableEntityException;
-import org.osaf.cosmo.dav.property.CreationDate;
 import org.osaf.cosmo.dav.property.DavProperty;
-import org.osaf.cosmo.dav.property.DisplayName;
-import org.osaf.cosmo.dav.property.IsCollection;
-import org.osaf.cosmo.dav.property.StandardDavProperty;
-import org.osaf.cosmo.dav.property.Uuid;
-import org.osaf.cosmo.dav.ticket.TicketConstants;
-import org.osaf.cosmo.dav.ticket.property.TicketDiscovery;
-import org.osaf.cosmo.model.Attribute;
-import org.osaf.cosmo.model.CalendarCollectionStamp;
-import org.osaf.cosmo.model.CollectionItem;
-import org.osaf.cosmo.model.CollectionLockedException;
-import org.osaf.cosmo.model.DataSizeException;
-import org.osaf.cosmo.model.DuplicateItemNameException;
-import org.osaf.cosmo.model.HomeCollectionItem;
-import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.ItemNotFoundException;
-import org.osaf.cosmo.model.QName;
-import org.osaf.cosmo.model.Ticket;
-import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
-import org.osaf.cosmo.service.ContentService;
-import org.osaf.cosmo.util.PathUtil;
-
-import org.w3c.dom.Node;
 
 /**
+ * <p>
  * Base class for implementations of <code>DavResource</code>
  * which provides behavior common to all resources.
- *
- * This class defines the following live properties:
- *
- * <ul>
- * <li><code>DAV:getcreationdate</code> (protected)</li>
- * <li><code>DAV:displayname</code> (protected)</li>
- * <li><code>DAV:iscollection</code> (protected)</li>
- * <li><code>DAV:resourcetype</code> (protected)</li>
- * <li><code>ticket:ticketdiscovery</code> (protected)</li>
- * <li><code>cosmo:uuid</code> (protected)</li>
- * </ul>
- *
- * Note that all of these properties are protected and cannot be
- * modified or removed.
- *
- * This class does not define any resource types.
- *
- * @see org.apache.jackrabbit.webdav.DavResource
+ * </p>
+ * <p>
+ * This class does not define any live properties or resource types.
+ * </p>
+ * 
  * @see DavResource
  */
 public abstract class DavResourceBase
-    implements ExtendedDavConstants, DavResource, TicketConstants {
+    implements ExtendedDavConstants, DavResource {
     private static final Log log =
         LogFactory.getLog(DavResourceBase.class);
 
-    private static final Set<DavPropertyName> LIVE_PROPERTIES =
+    private static final HashSet<DavPropertyName> LIVE_PROPERTIES =
         new HashSet<DavPropertyName>();
 
     private DavResourceLocator locator;
     private DavResourceFactory factory;
-    private Item item;
     private DavPropertySet properties;
-    private DavCollection parent;
+    private boolean initialized;
 
-    static {
-        registerLiveProperty(DavPropertyName.CREATIONDATE);
-        registerLiveProperty(DavPropertyName.DISPLAYNAME);
-        registerLiveProperty(DavPropertyName.ISCOLLECTION);
-        registerLiveProperty(DavPropertyName.RESOURCETYPE);
-        registerLiveProperty(UUID);
-        registerLiveProperty(TICKETDISCOVERY);
-    }
-
-    /** */
-    public DavResourceBase(Item item,
-                           DavResourceLocator locator,
+    public DavResourceBase(DavResourceLocator locator,
                            DavResourceFactory factory)
         throws DavException {
-        this.item = item;
         this.locator = locator;
         this.factory = factory;
         this.properties = new DavPropertySet();
-
-        loadProperties();
+        this.initialized = false;
     }
 
     // DavResource methods
 
     public String getComplianceClass() {
         return DavResource.COMPLIANCE_CLASS;
-    }
-
-    public boolean exists() {
-        return item != null && item.getUid() != null;
-    }
-
-    public String getDisplayName() {
-        return item.getDisplayName();
-    }
-
-    public String getETag() {
-        if (getItem() == null)
-            return null;
-        return "\"" + getItem().getEntityTag() + "\"";
     }
 
     public DavResourceLocator getLocator() {
@@ -178,15 +97,18 @@ public abstract class DavResourceBase
     }
 
     public DavPropertyName[] getPropertyNames() {
+        loadProperties();
         return properties.getPropertyNames();
     }
 
     public org.apache.jackrabbit.webdav.property.DavProperty
         getProperty(DavPropertyName name) {
+        loadProperties();
         return properties.get(name);
     }
 
     public DavPropertySet getProperties() {
+        loadProperties();
         return properties;
     }
 
@@ -194,7 +116,6 @@ public abstract class DavResourceBase
         throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
             throw new NotFoundException();
-
         setResourceProperty((DavProperty)property);
     }
 
@@ -202,14 +123,8 @@ public abstract class DavResourceBase
         throws org.apache.jackrabbit.webdav.DavException {
         if (! exists())
             throw new NotFoundException();
-
         removeResourceProperty(propertyName);
 
-        try {
-            getContentService().updateItem(item);
-        } catch (CollectionLockedException e) {
-            throw new LockedException();
-        }
     }
 
     public MultiStatusResponse
@@ -218,6 +133,63 @@ public abstract class DavResourceBase
         throws org.apache.jackrabbit.webdav.DavException {
         throw new UnsupportedOperationException();
     }
+
+    public boolean isLockable(Type type,
+                              Scope scope) {
+        // nothing is lockable at the moment
+        return false;
+    }
+
+    public boolean hasLock(Type type,
+                           Scope scope) {
+        // nothing is lockable at the moment
+        throw new UnsupportedOperationException();
+    }
+
+    public ActiveLock getLock(Type type,
+                              Scope scope) {
+        // nothing is lockable at the moment
+        throw new UnsupportedOperationException();
+    }
+
+    public ActiveLock[] getLocks() {
+        // nothing is lockable at the moment
+        throw new UnsupportedOperationException();
+    }
+
+    public ActiveLock lock(LockInfo reqLockInfo)
+        throws org.apache.jackrabbit.webdav.DavException {
+        // nothing is lockable at the moment
+        throw new PreconditionFailedException("Resource not lockable");
+    }
+
+    public ActiveLock refreshLock(LockInfo reqLockInfo,
+                                  String lockToken)
+        throws org.apache.jackrabbit.webdav.DavException {
+        // nothing is lockable at the moment
+        throw new PreconditionFailedException("Resource not lockable");
+    }
+
+    public void unlock(String lockToken)
+        throws org.apache.jackrabbit.webdav.DavException {
+        // nothing is lockable at the moment
+        throw new PreconditionFailedException("Resource not lockable");
+    }
+
+    public void addLockManager(LockManager lockmgr) {
+        // nothing is lockable at the moment
+        throw new UnsupportedOperationException();
+    }
+
+    public org.apache.jackrabbit.webdav.DavResourceFactory getFactory() {
+        return null;
+    }
+
+    public DavSession getSession() {
+        return null;
+    }
+
+    // DavResource methods
 
     public MultiStatusResponse
         updateProperties(DavPropertySet setProperties,
@@ -283,182 +255,9 @@ public abstract class DavResourceBase
             for (DavPropertyName n : df)
                 msr.add(n, 424);
             msr.add(failed, error.getErrorCode());
-            return msr;
-        }
-
-        try {
-            getContentService().updateItem(item);
-        } catch (CollectionLockedException e) {
-            throw new LockedException();
         }
 
         return msr;
-    }
-
-    /** */
-    public DavResource getCollection() {
-        try {
-            return getParent();
-        } catch (DavException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /** */
-    public void move(org.apache.jackrabbit.webdav.DavResource destination)
-        throws org.apache.jackrabbit.webdav.DavException {
-        if (! exists())
-            throw new NotFoundException();
-       
-        if (log.isDebugEnabled())
-            log.debug("moving resource " + getResourcePath() + " to " +
-                      destination.getResourcePath());
-
-        try {
-            getContentService().moveItem(getResourcePath(), destination.getResourcePath());
-        } catch (ItemNotFoundException e) {
-            throw new ConflictException("One or more intermediate collections must be created");
-        } catch (DuplicateItemNameException e) {
-            throw new ExistsException();
-        } catch (CollectionLockedException e) {
-            throw new LockedException();
-        }
-    }
-
-    /** */
-    public void copy(org.apache.jackrabbit.webdav.DavResource destination,
-                     boolean shallow)
-        throws org.apache.jackrabbit.webdav.DavException {
-        if (! exists())
-            throw new NotFoundException();
-
-        if (log.isDebugEnabled())
-            log.debug("copying resource " + getResourcePath() + " to " +
-                      destination.getResourcePath());
-
-        try {
-            getContentService().copyItem(item, destination.getResourcePath(),
-                                         ! shallow);
-        } catch (ItemNotFoundException e) {
-            throw new ConflictException("One or more intermediate collections must be created");
-        } catch (DuplicateItemNameException e) {
-            throw new ExistsException();
-        } catch (CollectionLockedException e) {
-            throw new LockedException();
-        }
-    }
-
-    /** */
-    public boolean isLockable(Type type,
-                              Scope scope) {
-        // nothing is lockable at the moment
-        return false;
-    }
-
-    /** */
-    public boolean hasLock(Type type,
-                           Scope scope) {
-        // nothing is lockable at the moment
-        throw new UnsupportedOperationException();
-    }
-
-    /** */
-    public ActiveLock getLock(Type type,
-                              Scope scope) {
-        // nothing is lockable at the moment
-        throw new UnsupportedOperationException();
-    }
-
-    /** */
-    public ActiveLock[] getLocks() {
-        // nothing is lockable at the moment
-        throw new UnsupportedOperationException();
-    }
-
-    /** */
-    public ActiveLock lock(LockInfo reqLockInfo)
-        throws org.apache.jackrabbit.webdav.DavException {
-        // nothing is lockable at the moment
-        throw new PreconditionFailedException("Resource not lockable");
-    }
-
-    /** */
-    public ActiveLock refreshLock(LockInfo reqLockInfo,
-                                  String lockToken)
-        throws org.apache.jackrabbit.webdav.DavException {
-        // nothing is lockable at the moment
-        throw new PreconditionFailedException("Resource not lockable");
-    }
-
-    /** */
-    public void unlock(String lockToken)
-        throws org.apache.jackrabbit.webdav.DavException {
-        // nothing is lockable at the moment
-        throw new PreconditionFailedException("Resource not lockable");
-    }
-
-    /** */
-    public void addLockManager(LockManager lockmgr) {
-        // nothing is lockable at the moment
-        throw new UnsupportedOperationException();
-    }
-
-    /** */
-    public org.apache.jackrabbit.webdav.DavResourceFactory getFactory() {
-        return null;
-    }
-
-    /** */
-    public DavSession getSession() {
-        return null;
-    }
-
-    // DavResource methods
-
-    public DavCollection getParent()
-        throws DavException {
-        if (parent == null) {
-            String parentPath = PathUtil.getParentPath(getResourcePath());
-            DavResourceLocator parentLocator =
-                getLocator().getFactory().
-                    createResourceLocator(getLocator().getPrefix(),
-                                          getLocator().getWorkspacePath(),
-                                          parentPath);
-            parent = (DavCollection) factory.resolve(parentLocator);
-        }
-
-        return parent;
-    }
-
-    public void saveTicket(Ticket ticket)
-        throws DavException {
-        if (log.isDebugEnabled())
-            log.debug("adding ticket for " + item.getName());
-
-        getContentService().createTicket(item, ticket);
-    }
-
-    public void removeTicket(Ticket ticket)
-        throws DavException {
-        if (log.isDebugEnabled())
-            log.debug("removing ticket " + ticket.getKey() + " on " +
-                      item.getName());
-
-        getContentService().removeTicket(item, ticket);
-    }
-
-    public Ticket getTicket(String id) {
-        for (Iterator i=item.getTickets().iterator(); i.hasNext();) {
-            Ticket t = (Ticket) i.next();
-            if (t.getKey().equals(id))
-                return t;
-        }
-        return null;
-    }
-
-    public Set<Ticket> getTickets() {
-        return getSecurityManager().getSecurityContext().
-            findVisibleTickets(item);
     }
 
     public DavResourceFactory getResourceFactory() {
@@ -467,22 +266,8 @@ public abstract class DavResourceBase
 
     // our methods
 
-    protected ContentService getContentService() {
-        return factory.getContentService();
-    }
-
     protected CosmoSecurityManager getSecurityManager() {
         return factory.getSecurityManager();
-    }
-
-    protected Item getItem() {
-        return item;
-    }
-
-    protected void setItem(Item item)
-        throws DavException {
-        this.item = item;
-        loadProperties();
     }
 
     /**
@@ -493,93 +278,10 @@ public abstract class DavResourceBase
     protected abstract int[] getResourceTypes();
 
     /**
-     * Sets the properties of the item backing this resource from the
-     * given input context. 
-     */
-    protected void populateItem(InputContext inputContext)
-        throws DavException {
-        if (log.isDebugEnabled())
-            log.debug("populating item for " + getResourcePath());
-
-        if (item.getUid() == null) {
-            item.setName(PathUtil.getBasename(getResourcePath()));
-            if (item.getDisplayName() == null)
-                item.setDisplayName(item.getName());
-        }
-
-        // if we don't know specifically who the user is, then the
-        // owner of the resource becomes the person who issued the
-        // ticket
-        User owner = getSecurityManager().getSecurityContext().getUser();
-        if (owner == null) {
-            Ticket ticket = getSecurityManager().getSecurityContext().
-                getTicket();
-            owner = ticket.getOwner();
-        }
-        item.setOwner(owner);
-
-        if (item.getUid() == null) {
-            item.setClientCreationDate(Calendar.getInstance().getTime());
-            item.setClientModifiedDate(item.getClientCreationDate());
-        }
-    }
-
-    /**
-     * Sets the attributes the item backing this resource from the
-     * given property set.
-     */
-    protected MultiStatusResponse populateAttributes(DavPropertySet properties) {
-        if (log.isDebugEnabled())
-            log.debug("populating attributes for " + getResourcePath());
-
-        MultiStatusResponse msr = new MultiStatusResponse(getHref(), null);
-        if (properties == null)
-            return msr;
-
-        org.apache.jackrabbit.webdav.property.DavProperty property = null;
-        ArrayList<DavPropertyName> df = new ArrayList<DavPropertyName>();
-        DavException error = null;
-        DavPropertyName failed = null;
-        for (DavPropertyIterator i=properties.iterator(); i.hasNext();) {
-            try {
-                property = i.nextProperty();
-                setResourceProperty((DavProperty) property);
-                df.add(property.getName());
-                msr.add(property.getName(), 200);
-            } catch (DavException e) {
-                // we can only report one error message in the
-                // responsedescription, so even if multiple properties would
-                // fail, we return 424 for the second and subsequent failures
-                // as well
-                if (error == null) {
-                    error = e;
-                    failed = property.getName();
-                } else {
-                    df.add(property.getName());
-                }
-            }
-        }
-
-        if (error == null)
-            return msr;
-
-        // replace the other response with a new one, since we have to
-        // change the response code for each of the properties that would
-        // have been set successfully
-        msr = new MultiStatusResponse(getHref(), error.getMessage());
-        for (DavPropertyName n : df)
-            msr.add(n, 424);
-        msr.add(failed, error.getErrorCode());
-
-        return msr;
-    }
-
-    /**
      * Registers the name of a live property.
      *
      * Typically used in subclass static initializers to add to the
-     * list of live properties which are often exposed differently
-     * in the model than dead properties.
+     * list of live properties for the resource.
      */
     protected static void registerLiveProperty(DavPropertyName name) {
         LIVE_PROPERTIES.add(name);
@@ -592,180 +294,106 @@ public abstract class DavResourceBase
      * If the server understands the semantic meaning of a property
      * (probably because the property is defined in a DAV-related
      * specification somewhere), then the property is defined as
-     * "live". Live properties typically have their own
-     * <code>Item</code> accessor methods with strong typing and often
-     * particular semantics.
+     * "live". Live properties are typically explicitly represented in the
+     * object model.
      *
      * If the server does not know anything specific about the
      * property (usually because it was defined by a particular
-     * client), then it is known as a "dead" property. Dead properties
-     * are stored as <code>Attribute</code>s with names of the form
-     * <code>&lt;namespace prefix&gt;:&lt;namespace URI&gt;&lt;local name&gt;</code>.
+     * client), then it is known as a "dead" property.
      */
     protected boolean isLiveProperty(DavPropertyName name) {
         return LIVE_PROPERTIES.contains(name);
     }
 
     /**
-     * Loads the live DAV properties for the resource.
+     * Calls {@link #loadLiveProperties()} and {@link #loadDeadProperties()}
+     * to load the resource's properties from its backing state.
      */
-    protected void loadLiveProperties()
-        throws DavException {
-        if (item == null)
+    protected void loadProperties() {
+        if (initialized)
             return;
 
-        properties.add(new CreationDate(item.getCreationDate()));
-        properties.add(new DisplayName(item.getDisplayName()));
-        properties.add(new ResourceType(getResourceTypes()));
-        properties.add(new IsCollection(isCollection()));
-        properties.add(new TicketDiscovery(this));
-        properties.add(new Uuid(item.getUid()));
+        loadLiveProperties(properties);
+        loadDeadProperties(properties);
+
+        initialized = true;
+    }    
+
+    /**
+     * Calls {@link #setLiveProperty(DavProperty)} or
+     * {@link setDeadProperty(DavProperty)}.
+     */
+    protected void setResourceProperty(DavProperty property)
+        throws DavException {
+        if (isLiveProperty(property.getName()))
+            setLiveProperty(property);
+        else 
+            setDeadProperty(property);
+        
+        properties.add(property);
     }
 
     /**
+     * Calls {@link #removeLiveProperty(DavPropertyName)} or
+     * {@link removeDeadProperty(DavPropertyName)}.
+     */
+    protected void removeResourceProperty(DavPropertyName name)
+        throws DavException {
+        if (isLiveProperty(name))
+            removeLiveProperty(name);
+        else         
+            removeDeadProperty(name);
+        
+        properties.remove(name);
+    }
+
+    /**
+     * Loads the live DAV properties for the resource.
+     */
+    protected abstract void loadLiveProperties(DavPropertySet properties);
+
+    /**
      * Sets a live DAV property on the resource.
-     *
-     * If the given property is a live property, then the backing
-     * <code>Item</code> is updated. If the property is dead, then the
-     * <code>Item</code> is not updated. This method does not persist
-     * the changes to the <code>Item</code>. That must be done by the
-     * caller.
      *
      * @param property the property to set
      *
      * @throws DavException if the property is protected
      * or if a null value is specified for a property that does not
-     * accept them
+     * accept them or if an invalid value is specified
      */
-    protected void setLiveProperty(DavProperty property)
-        throws DavException {
-        if (item == null)
-            return;
-
-        DavPropertyName name = property.getName();
-        if (property.getValue() == null)
-            throw new UnprocessableEntityException("Property " + name + " requires a value");
-
-        if (name.equals(TICKETDISCOVERY) ||
-            name.equals(UUID))
-            throw new ProtectedPropertyModificationException(name);
-
-        if (name.equals(DavPropertyName.DISPLAYNAME))
-            item.setDisplayName(property.getValueText());
-    }
+    protected abstract void setLiveProperty(DavProperty property)
+        throws DavException;
 
     /**
      * Removes a live DAV property from the resource.
-     *
-     * If the given property is a live property, then the backing
-     * <code>Item</code> is updated. If the property is dead, then the
-     * <code>Item</code> is not updated. This method does not persist
-     * the changes to the <code>Item</code>. That must be done by the
-     * caller.
      *
      * @param name the name of the property to remove
      *
      * @throws DavException if the property is protected
      */
-    protected void removeLiveProperty(DavPropertyName name)
-        throws DavException {
-        if (item == null)
-            return;
-
-        if (name.equals(TICKETDISCOVERY) ||
-            name.equals(UUID) ||
-            name.equals(DavPropertyName.DISPLAYNAME))
-            throw new ProtectedPropertyModificationException(name);
-    }
+    protected abstract void removeLiveProperty(DavPropertyName name)
+        throws DavException;
 
     /**
-     * Returns a list of names of <code>Attribute</code>s that should
-     * not be exposed through DAV as dead properties.
      */
-    protected abstract Set<String> getDeadPropertyFilter();
+    protected abstract void loadDeadProperties(DavPropertySet properties);
 
-    private void loadProperties()
-        throws DavException {
-        if (! exists())
-            return;
+    /**
+     * Sets a dead DAV property on the resource.
+     *
+     * @param property the property to set
+     *
+     * @throws DavException if a null value is specified for a property that
+     * does not accept them or if an invalid value is specified
+     */
+    protected abstract void setDeadProperty(DavProperty property)
+        throws DavException;
 
-        if (log.isDebugEnabled())
-            log.debug("loading properties for " + getResourcePath());
-
-        // load subclass live properties
-        loadLiveProperties();
-        
-        // load dead properties
-        for (Iterator<Map.Entry<QName,Attribute>>
-                 i=item.getAttributes().entrySet().iterator(); i.hasNext();) {
-            Map.Entry<QName,Attribute> entry = i.next();
-
-            // skip attributes that are not meant to be shown as dead
-            // properties
-            if (getDeadPropertyFilter().contains(entry.getKey().getNamespace()))
-                continue;
-
-            DavPropertyName propName = qNameToPropName(entry.getKey());
-
-            // ignore live properties, as they'll be loaded separately
-            if (isLiveProperty(propName))
-                continue;
-
-            // XXX: language
-            Object propValue = entry.getValue().getValue();
-            properties.add(new StandardDavProperty(propName, propValue));
-        }
-    }
-
-    private void setResourceProperty(DavProperty property)
-        throws DavException {
-        if (log.isDebugEnabled())
-            log.debug("setting property " + property.getName() + " on " +
-                      getResourcePath() + " to " + property.getValue());
-
-        if (isLiveProperty(property.getName()))
-            setLiveProperty(property);
-        else {
-            if (property.getValue() == null)
-                throw new UnprocessableEntityException("Property " + property.getName() + " requires a value");
-            try {
-                QName qname = propNameToQName(property.getName());
-                item.setAttribute(qname, property.getValue());
-            } catch (DataSizeException e) {
-                throw new ForbiddenException(e.getMessage());
-            }
-        }
-        
-        properties.add(property);
-    }
-
-    private void removeResourceProperty(DavPropertyName name)
-        throws DavException {
-        if (log.isDebugEnabled())
-            log.debug("removing property " + name + " on " +
-                      getResourcePath());
-
-        if (isLiveProperty(name))
-            removeLiveProperty(name);
-        else         
-            item.removeAttribute(propNameToQName(name));
-        
-        properties.remove(name);
-    }
-
-    private QName propNameToQName(DavPropertyName name) {
-        String uri = name.getNamespace() != null ?
-            name.getNamespace().getURI() : "";
-        return new QName(uri, name.getName());
-    }
-
-    private DavPropertyName qNameToPropName(QName qname) {
-        // no namespace at all
-        if ("".equals(qname.getNamespace()))
-            return DavPropertyName.create(qname.getLocalName());
-
-        Namespace ns =  Namespace.getNamespace(qname.getNamespace());
-        
-        return DavPropertyName.create(qname.getLocalName(), ns);
-    }
+    /**
+     * Removes a dead DAV property from the resource.
+     *
+     * @param name the name of the property to remove
+     */
+    protected abstract void removeDeadProperty(DavPropertyName name)
+        throws DavException;
 }

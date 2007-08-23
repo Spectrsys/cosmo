@@ -210,15 +210,12 @@ public class DavCalendarCollection extends DavCollectionBase
     }
 
     /** */
-    protected void loadLiveProperties()
-        throws DavException {
-        super.loadLiveProperties();
+    protected void loadLiveProperties(DavPropertySet properties) {
+        super.loadLiveProperties(properties);
 
         CalendarCollectionStamp cc = getCalendarCollectionStamp();
         if (cc == null)
             return;
-
-        DavPropertySet properties = getProperties();
 
         if (cc.getDescription() != null)
             properties.add(new CalendarDescription(cc.getDescription(),
@@ -294,7 +291,7 @@ public class DavCalendarCollection extends DavCollectionBase
     }
 
     /** */
-    protected void saveContent(DavContent member)
+    protected void saveContent(DavItemContent member)
         throws DavException {
         if (! (member instanceof DavCalendarResource))
             throw new IllegalArgumentException("member not DavCalendarResource");
@@ -317,12 +314,11 @@ public class DavCalendarCollection extends DavCollectionBase
         }
     }
 
-    private void saveEvent(DavContent member)
+    private void saveEvent(DavItemContent member)
         throws DavException {
         CollectionItem collection = (CollectionItem) getItem();
         CalendarCollectionStamp cc = getCalendarCollectionStamp();
-        ContentItem content = (ContentItem)
-            ((DavResourceBase)member).getItem();
+        ContentItem content = (ContentItem) member.getItem();
         EventStamp event = EventStamp.getStamp(content);
         Calendar calendar = event.getCalendar();
 
@@ -362,17 +358,16 @@ public class DavCalendarCollection extends DavCollectionBase
             }
         }
 
-        ((DavResourceBase)member).setItem(content);
+        member.setItem(content);
     }
 
     /** */
-    protected void removeContent(DavContent member)
+    protected void removeContent(DavItemContent member)
         throws DavException {
         if (! (member instanceof DavCalendarResource))
             throw new IllegalArgumentException("member not DavCalendarResource");
 
-        ContentItem content = (ContentItem)
-            ((DavResourceBase)member).getItem();
+        ContentItem content = (ContentItem) member.getItem();
         CollectionItem parent = (CollectionItem) getItem();
         
         // XXX: what exceptions need to be caught?

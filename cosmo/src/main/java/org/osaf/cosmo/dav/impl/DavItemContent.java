@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.dav;
+package org.osaf.cosmo.dav.impl;
+
+import org.osaf.cosmo.dav.DavContent;
 
 /**
- * An interface for DAV content resources.
+ * An interface for DAV resources that are backed by conten items.
  */
-public interface DavContent extends DavResource {
+public interface DavItemContent extends DavItemResource, DavContent {
 }
