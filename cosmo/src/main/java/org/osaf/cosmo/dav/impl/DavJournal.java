@@ -30,12 +30,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavServletResponse;
-
 import org.osaf.cosmo.CosmoConstants;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.model.NoteItem;
 
 /**
@@ -128,7 +127,7 @@ public class DavJournal extends DavCalendarResource {
 
         ComponentList vjournals = cal.getComponents(Component.VJOURNAL);
         if (vjournals.isEmpty())
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "VCALENDAR does not contain any VJOURNALS");
+            throw new UnprocessableEntityException("VCALENDAR does not contain any VJOURNALS");
 
         VJournal vjournal = (VJournal) vjournals.get(0);
 
@@ -143,7 +142,7 @@ public class DavJournal extends DavCalendarResource {
         if (vjournal.getUid() != null)
             val = vjournal.getUid().getValue();
         if (StringUtils.isBlank(val))
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "VJOURNAL does not contain a UID");
+            throw new UnprocessableEntityException("VJOURNAL does not contain a UID");
         note.setIcalUid(val);
 
         val = null;

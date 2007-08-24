@@ -15,11 +15,10 @@
  */
 package org.osaf.cosmo.dav;
 
-import org.apache.jackrabbit.webdav.DavResourceLocator;
-
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.service.ContentService;
+import org.osaf.cosmo.service.UserService;
 
 /**
  * Interface for components that create dav resources to represent
@@ -68,6 +67,8 @@ public interface DavResourceFactory {
         throws DavException;
 
     public ContentService getContentService();
+
+    public UserService getUserService();
 
     public CosmoSecurityManager getSecurityManager();
 }

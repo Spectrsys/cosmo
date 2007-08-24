@@ -30,12 +30,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavServletResponse;
-
 import org.osaf.cosmo.CosmoConstants;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.DavException;
+import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.model.TaskStamp;
 import org.osaf.cosmo.model.NoteItem;
 
@@ -134,7 +133,7 @@ public class DavTask extends DavCalendarResource {
 
         ComponentList vtodos = cal.getComponents(Component.VTODO);
         if (vtodos.isEmpty())
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "VCALENDAR does not contain any VTODOS");
+            throw new UnprocessableEntityException("VCALENDAR does not contain any VTODOS");
 
         VToDo vtodo = (VToDo) vtodos.get(0);
 
@@ -149,7 +148,7 @@ public class DavTask extends DavCalendarResource {
         if (vtodo.getUid() != null)
             val = vtodo.getUid().getValue();
         if (StringUtils.isBlank(val))
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "VTODO does not contain a UID");
+            throw new UnprocessableEntityException("VTODO does not contain a UID");
         note.setIcalUid(val);
 
         val = null;

@@ -18,14 +18,15 @@ package org.osaf.cosmo.dav;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavResourceLocator;
-
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipalCollection;
+import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCollectionBase;
 import org.osaf.cosmo.dav.impl.DavEvent;
@@ -41,8 +42,10 @@ import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.TaskStamp;
+import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.service.ContentService;
+import org.osaf.cosmo.service.UserService;
 import org.osaf.cosmo.util.UriTemplate;
 
 /**
@@ -51,22 +54,20 @@ import org.osaf.cosmo.util.UriTemplate;
  * @see DavResource
  * @see Item
  */
-public class StandardResourceFactory implements DavResourceFactory {
+public class StandardResourceFactory
+    implements DavResourceFactory, ExtendedDavConstants{
     private static final Log log =
-        LogFactory.getLog(DavResourceFactory.class);
-    private static final UriTemplate TEMPLATE_COLLECTION =
-        new UriTemplate("/collection/{uid}/*");
-    private static final UriTemplate TEMPLATE_ITEM =
-        new UriTemplate("/item/{uid}/*");
-    private static final UriTemplate TEMPLATE_USERS =
-        new UriTemplate("/users");
+        LogFactory.getLog(StandardResourceFactory.class);
 
     private ContentService contentService;
+    private UserService userService;
     private CosmoSecurityManager securityManager;
 
     public StandardResourceFactory(ContentService contentService,
+                                   UserService userService,
                                    CosmoSecurityManager securityManager) {
         this.contentService = contentService;
+        this.userService = userService;
         this.securityManager = securityManager;
     }
 
@@ -124,7 +125,7 @@ public class StandardResourceFactory implements DavResourceFactory {
      */
     public DavResource resolve(DavResourceLocator locator)
         throws DavException {
-        String uri = locator.getResourcePath();
+        String uri = locator.getPath();
         if (log.isDebugEnabled())
             log.debug("resolving URI " + uri);
 
@@ -141,6 +142,10 @@ public class StandardResourceFactory implements DavResourceFactory {
         match = TEMPLATE_USERS.match(uri);
         if (match != null)
             return new DavUserPrincipalCollection(locator, this);
+
+        match = TEMPLATE_USER.match(uri);
+        if (match != null)
+            return createUserPrincipalResource(locator, match);
 
         return createUnknownResource(locator, uri);
     }
@@ -194,6 +199,15 @@ public class StandardResourceFactory implements DavResourceFactory {
         return item != null ? createResource(locator, item) : null;
     }
 
+    protected DavResource
+        createUserPrincipalResource(DavResourceLocator locator,
+                                    UriTemplate.Match match)
+        throws DavException {
+        User user = userService.getUser(match.get("username"));
+        return user != null ? new DavUserPrincipal(user, locator, this) :
+            null;
+    }
+
     protected DavResource createUnknownResource(DavResourceLocator locator,
                                                 String uri)
         throws DavException {
@@ -203,6 +217,10 @@ public class StandardResourceFactory implements DavResourceFactory {
 
     public ContentService getContentService() {
         return contentService;
+    }
+
+    public UserService getUserService() {
+        return userService;
     }
 
     public CosmoSecurityManager getSecurityManager() {

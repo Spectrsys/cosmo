@@ -29,8 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
@@ -44,6 +42,7 @@ import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.LockedException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
@@ -309,7 +308,7 @@ public class DavCalendarCollection extends DavCollectionBase
             try {
                 super.saveContent(member);
             } catch (DuplicateEventUidException e) {
-                throw new DavException(DavServletResponse.SC_CONFLICT, "Uid already in use");
+                throw new ConflictException("Uid already in use");
             }
         }
     }

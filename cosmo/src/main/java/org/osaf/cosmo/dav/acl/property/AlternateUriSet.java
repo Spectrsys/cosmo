@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2006 Open Source Applications Foundation
+ * Copyright 2005-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,15 @@
  */
 package org.osaf.cosmo.dav.acl.property;
 
+import java.util.HashSet;
+
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.acl.AclConstants;
-import org.osaf.cosmo.dav.impl.DavHomeCollection;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
+import org.osaf.cosmo.model.User;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
@@ -29,55 +32,44 @@ import org.w3c.dom.Document;
  * Represents the DAV:alternate-URI-set property.
  *
  * This property is protected. The value contains three DAV:href
- * elements specifying the Atom, CMP and web URLs for the principal.
+ * elements specifying the Atom, CMP, dav and web URLs for the principal.
  */
 public class AlternateUriSet extends StandardDavProperty
     implements AclConstants {
 
-    private DavHomeCollection home;
+    private DavResourceLocator locator;
+    private User user;
 
-    /**
-     */
-    public AlternateUriSet(DavHomeCollection home) {
+    public AlternateUriSet(DavResourceLocator locator,
+                           User user) {
         super(ALTERNATEURISET, null, true);
-        this.home = home;
+        this.locator = locator;
+        this.user = user;
     }
 
-    /**
-     * Returns a
-     * <code>AlternateUriSet.AlternateUriSetInfo</code>
-     * for this property.
-     */
     public Object getValue() {
         return new AlternateUriSetInfo();
     }
 
-    /**
-     */
     public class AlternateUriSetInfo implements XmlSerializable {
   
-        /**
-         */
         public Element toXml(Document document) {
-            Element atom =
-                DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            DomUtil.setText(atom, home.getAtomLocator().getHref(false));
-
-            Element cmp =
-                DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            DomUtil.setText(cmp, home.getCmpLocator().getHref(false));
-
-            Element web =
-                DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            DomUtil.setText(web, home.getWebLocator().getHref(false));
-
+            HashSet<String> uris = new HashSet<String>();
+            for (String uri : locator.getServiceLocator().getUserUrls(user).
+                             values())
+                uris.add(uri);
+    
             Element set =
                 DomUtil.createElement(document,
                                       ELEMENT_ACL_ALTERNATE_URI_SET,
                                       NAMESPACE);
-            set.appendChild(atom);
-            set.appendChild(cmp);
-            set.appendChild(web);
+
+            for (String uri : uris) {
+                Element e =
+                    DomUtil.createElement(document, XML_HREF, NAMESPACE);
+                DomUtil.setText(e, uri);
+                set.appendChild(e);
+            }
 
             return set;
         }

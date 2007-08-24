@@ -81,7 +81,7 @@ public class FreeBusyReportTest extends BaseDavTestCase
 
         try {
             report.runQuery();
-            fail("free-busy report targeted at collection with excluded parent should not hae succeeded but did");
+            fail("free-busy report targeted at collection with excluded parent should not have succeeded but did");
         } catch (DavException e) {
             assertEquals("free-busy report targeted at collection with excluded parent did not return Forbidden", DavServletResponse.SC_FORBIDDEN, e.getErrorCode());
         }

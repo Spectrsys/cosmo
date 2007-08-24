@@ -15,15 +15,15 @@
  */
 package org.osaf.cosmo.dav.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavSession;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
+import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.lock.ActiveLock;
 import org.apache.jackrabbit.webdav.lock.LockInfo;
 import org.apache.jackrabbit.webdav.lock.LockManager;
@@ -39,6 +39,7 @@ import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
@@ -65,7 +66,7 @@ public abstract class DavResourceBase
         new HashSet<DavPropertyName>();
 
     private DavResourceLocator locator;
-    private DavResourceFactory factory;
+    DavResourceFactory factory;
     private DavPropertySet properties;
     private boolean initialized;
 
@@ -84,16 +85,21 @@ public abstract class DavResourceBase
         return DavResource.COMPLIANCE_CLASS;
     }
 
-    public DavResourceLocator getLocator() {
-        return locator;
+    public org.apache.jackrabbit.webdav.DavResourceLocator getLocator() {
+        return null;
     }
 
     public String getResourcePath() {
-        return locator.getResourcePath();
+        return locator.getPath();
     }
 
     public String getHref() {
         return locator.getHref(isCollection());
+    }
+
+    public void spool(OutputContext outputContext)
+        throws IOException {
+        throw new UnsupportedOperationException();
     }
 
     public DavPropertyName[] getPropertyNames() {
@@ -185,7 +191,7 @@ public abstract class DavResourceBase
         return null;
     }
 
-    public DavSession getSession() {
+    public org.apache.jackrabbit.webdav.DavSession getSession() {
         return null;
     }
 
@@ -262,6 +268,10 @@ public abstract class DavResourceBase
 
     public DavResourceFactory getResourceFactory() {
         return factory;
+    }
+
+    public DavResourceLocator getResourceLocator() {
+        return locator;
     }
 
     // our methods

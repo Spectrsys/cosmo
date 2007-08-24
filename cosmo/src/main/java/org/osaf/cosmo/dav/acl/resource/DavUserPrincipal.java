@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
-import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
@@ -39,6 +38,13 @@ import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.acl.AclConstants;
+import org.osaf.cosmo.dav.acl.property.AlternateUriSet;
+import org.osaf.cosmo.dav.acl.property.GroupMembership;
+import org.osaf.cosmo.dav.acl.property.PrincipalUrl;
+import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.dav.caldav.property.CalendarHomeSet;
 import org.osaf.cosmo.dav.impl.DavResourceBase;
 import org.osaf.cosmo.dav.property.CreationDate;
 import org.osaf.cosmo.dav.property.DavProperty;
@@ -59,10 +65,10 @@ import org.osaf.cosmo.util.PathUtil;
  * @see DavResourceBase
  * @see User
  */
-public class DavUserPrincipal extends DavResourceBase  {
+public class DavUserPrincipal extends DavResourceBase
+    implements AclConstants, CaldavConstants {
     private static final Log log = LogFactory.getLog(DavUserPrincipal.class);
-    private static final int[] RESOURCE_TYPES =
-        new int[] { ResourceType.DEFAULT_RESOURCE };
+    private static final int[] RESOURCE_TYPES;
 
     static {
         registerLiveProperty(DavPropertyName.CREATIONDATE);
@@ -71,6 +77,14 @@ public class DavUserPrincipal extends DavResourceBase  {
         registerLiveProperty(DavPropertyName.ISCOLLECTION);
         registerLiveProperty(DavPropertyName.RESOURCETYPE);
         registerLiveProperty(DavPropertyName.GETETAG);
+        registerLiveProperty(CALENDARHOMESET);
+        registerLiveProperty(ALTERNATEURISET);
+        registerLiveProperty(PRINCIPALURL);
+        registerLiveProperty(GROUPMEMBERSHIP);
+
+        int p = ResourceType.registerResourceType(ELEMENT_ACL_PRINCIPAL,
+                                                  NAMESPACE);
+        RESOURCE_TYPES = new int[] { ResourceType.DEFAULT_RESOURCE, p };
     }
 
     private User user;
@@ -111,8 +125,8 @@ public class DavUserPrincipal extends DavResourceBase  {
         return "\"" + user.getEntityTag() + "\"";
     }
 
-    public void spool(OutputContext context)
-        throws IOException {
+    public void writeTo(OutputContext context)
+        throws DavException, IOException {
         context.setContentType(IOUtil.buildContentType("text/plain",
                                                        "UTF-8"));
 
@@ -176,12 +190,8 @@ public class DavUserPrincipal extends DavResourceBase  {
     public DavCollection getParent()
         throws DavException {
         if (parent == null) {
-            String parentPath = PathUtil.getParentPath(getResourcePath());
             DavResourceLocator parentLocator =
-                getLocator().getFactory().
-                    createResourceLocator(getLocator().getPrefix(),
-                                          getLocator().getWorkspacePath(),
-                                          parentPath);
+                getResourceLocator().getParentLocator();
             parent = (DavUserPrincipalCollection)
                 getResourceFactory().resolve(parentLocator);
         }
@@ -208,12 +218,16 @@ public class DavUserPrincipal extends DavResourceBase  {
     }
     
     protected void loadLiveProperties(DavPropertySet properties) {
-        getProperties().add(new CreationDate(user.getCreationDate()));
-        getProperties().add(new DisplayName(user.getUsername()));
-        getProperties().add(new ResourceType(getResourceTypes()));
-        getProperties().add(new IsCollection(isCollection()));
-        getProperties().add(new Etag(user.getEntityTag()));
-        getProperties().add(new LastModified(user.getModifiedDate()));
+        properties.add(new CreationDate(user.getCreationDate()));
+        properties.add(new DisplayName(user.getUsername()));
+        properties.add(new ResourceType(getResourceTypes()));
+        properties.add(new IsCollection(isCollection()));
+        properties.add(new Etag(user.getEntityTag()));
+        properties.add(new LastModified(user.getModifiedDate()));
+        properties.add(new CalendarHomeSet(getResourceLocator(), user));
+        properties.add(new AlternateUriSet(getResourceLocator(), user));
+        properties.add(new PrincipalUrl(getResourceLocator(), user));
+        properties.add(new GroupMembership());
     }
 
     protected void setLiveProperty(DavProperty property)

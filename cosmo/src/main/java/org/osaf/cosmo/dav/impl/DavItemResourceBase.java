@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
@@ -40,6 +39,7 @@ import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.ExistsException;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.LockedException;
@@ -200,12 +200,7 @@ public abstract class DavItemResourceBase extends DavResourceBase
     public DavCollection getParent()
         throws DavException {
         if (parent == null) {
-            String parentPath = PathUtil.getParentPath(getResourcePath());
-            DavResourceLocator parentLocator =
-                getLocator().getFactory().
-                    createResourceLocator(getLocator().getPrefix(),
-                                          getLocator().getWorkspacePath(),
-                                          parentPath);
+            DavResourceLocator parentLocator = getResourceLocator().getParentLocator();
             parent = (DavCollection) getResourceFactory().resolve(parentLocator);
         }
 

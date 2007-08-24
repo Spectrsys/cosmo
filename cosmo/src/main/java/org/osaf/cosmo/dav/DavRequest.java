@@ -42,4 +42,9 @@ public interface DavRequest
 
     public DavPropertyNameSet getProppatchRemoveProperties()
         throws DavException;
+
+    public DavResourceLocator getResourceLocator();
+
+    public DavResourceLocator getDestinationResourceLocator()
+        throws DavException;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2006 Open Source Applications Foundation
+ * Copyright 2005-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
  */
 package org.osaf.cosmo.dav.acl.property;
 
-import org.apache.jackrabbit.webdav.property.AbstractDavProperty;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.Namespace;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
-import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.acl.AclConstants;
-import org.osaf.cosmo.dav.impl.DavHomeCollection;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
+import org.osaf.cosmo.model.User;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
@@ -33,37 +32,31 @@ import org.w3c.dom.Document;
  * The property is protected. The value is a single DAV:href element
  * containing the URL of the home collection.
  */
-public class PrincipalUrl extends AbstractDavProperty
+public class PrincipalUrl extends StandardDavProperty
     implements AclConstants {
 
-    private DavHomeCollection home;
+    private DavResourceLocator locator;
+    private User user;
 
-    /**
-     */
-    public PrincipalUrl(DavHomeCollection home) {
-        super(PRINCIPALURL, true);
-        this.home = home;
+    public PrincipalUrl(DavResourceLocator locator,
+                        User user) {
+        super(PRINCIPALURL, null, true);
+        this.locator = locator;
+        this.user = user;
     }
 
-    /**
-     * Returns a
-     * <code>PrincipalUrl.PrincipalUrlInfo</code>
-     * for this property.
-     */
     public Object getValue() {
         return new PrincipalUrlInfo();
     }
 
-    /**
-     */
     public class PrincipalUrlInfo implements XmlSerializable {
-  
-        /**
-         */
+
         public Element toXml(Document document) {
+            String uri = locator.getServiceLocator().getDavPrincipalUrl(user);
+
             Element href =
                 DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            DomUtil.setText(href, home.getLocator().getHref(true));
+            DomUtil.setText(href, uri);
 
             Element url =
                 DomUtil.createElement(document,

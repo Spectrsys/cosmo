@@ -27,8 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
-import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
@@ -40,6 +38,7 @@ import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.Etag;
@@ -111,10 +110,6 @@ public abstract class DavContentBase extends DavItemResourceBase
             return new Date().getTime();
         return getItem().getModifiedDate().getTime();
     }
-
-    /** */
-    public abstract void spool(OutputContext outputContext)
-        throws IOException;
 
     public void addMember(org.apache.jackrabbit.webdav.DavResource member,
                           InputContext inputContext)

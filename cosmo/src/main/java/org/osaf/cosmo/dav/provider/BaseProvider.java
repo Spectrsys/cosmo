@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
@@ -41,6 +40,7 @@ import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
@@ -149,7 +149,8 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new BadRequestException("Depth for COPY must be 0 or Infinity");
 
         DavResource destination =
-            resourceFactory.resolve(request.getDestinationLocator(), request);
+            resourceFactory.resolve(request.getDestinationResourceLocator(),
+                                    request);
         validateDestination(request, destination);
 
         try {
@@ -170,7 +171,8 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new NotFoundException();
 
         DavResource destination =
-            resourceFactory.resolve(request.getDestinationLocator(), request);
+            resourceFactory.resolve(request.getDestinationResourceLocator(),
+                                    request);
         validateDestination(request, destination);
 
         try {
@@ -266,7 +268,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         if (log.isDebugEnabled())
             log.debug("spooling resource " + resource.getResourcePath());
 
-        resource.spool(createOutputContext(response, withEntity));
+        resource.writeTo(createOutputContext(response, withEntity));
         response.flushBuffer();
     }
 
@@ -297,7 +299,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         String uri = request.getHeader(HEADER_DESTINATION);
         if (StringUtils.isBlank(uri))
             throw new BadRequestException("Destination header not provided");
-        if (destination.getLocator().equals(request.getRequestLocator()))
+        if (destination.getResourceLocator().equals(request.getResourceLocator()))
             throw new ForbiddenException("Destination URI is the same as the original resource URI");
         if (destination.exists() && ! request.isOverwrite())
             throw new PreconditionFailedException("Overwrite header was not specified for existing destination");

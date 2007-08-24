@@ -16,6 +16,8 @@
 package org.osaf.cosmo.dav.impl;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 
 import javax.activation.MimeType;
@@ -27,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavLocatorFactory;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.WebdavRequestImpl;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
@@ -40,6 +41,8 @@ import org.apache.jackrabbit.webdav.xml.ElementIterator;
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
+import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.DavResourceLocatorFactory;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.UnsupportedMediaTypeException;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
@@ -81,16 +84,18 @@ public class StandardDavRequest extends WebdavRequestImpl
     private ReportInfo reportInfo;
     private boolean bufferRequestContent = false;
     private long bufferedContentLength = -1;
+    private DavResourceLocatorFactory locatorFactory;
 
     public StandardDavRequest(HttpServletRequest request,
-                              DavLocatorFactory factory) {
-        super(request, factory);
+                              DavResourceLocatorFactory factory) {
+        this(request, factory, false);
     }
 
     public StandardDavRequest(HttpServletRequest request,
-                              DavLocatorFactory factory,
+                              DavResourceLocatorFactory factory,
                               boolean bufferRequestContent) {
-        super(request, factory);
+        super(request, null);
+        this.locatorFactory = factory;
         this.bufferRequestContent = bufferRequestContent;
     }
 
@@ -138,6 +143,34 @@ public class StandardDavRequest extends WebdavRequestImpl
         if (proppatchRemove == null)
             parsePropPatchRequest();
         return proppatchRemove;
+    }
+
+    public DavResourceLocator getResourceLocator() {
+        String path = getRequestURI();
+        String ctx = getContextPath();
+        if (path.startsWith(ctx))
+            path = path.substring(ctx.length());
+        return locatorFactory.createResourceLocator(getBaseUrl(), path);
+    }
+
+    public DavResourceLocator getDestinationResourceLocator()
+        throws DavException {
+        String destination = getHeader(HEADER_DESTINATION);
+        if (destination != null) {
+            try {
+                URI uri = new URI(destination);
+                if (uri.getAuthority() == null)
+                    throw new URISyntaxException(destination, "URI is not absolute", 0);
+                if (uri.getAuthority().equals(getHeader("Host")))
+                    destination = uri.getRawPath();
+            } catch (URISyntaxException e) {
+                throw new BadRequestException("Destination URI is not valid: " + e.getMessage());
+            }
+            String ctx = getContextPath();
+            if (destination.startsWith(ctx))
+                destination = destination.substring(ctx.length());
+        }
+        return locatorFactory.createResourceLocator(getBaseUrl(), destination);
     }
 
     // CaldavRequest methods

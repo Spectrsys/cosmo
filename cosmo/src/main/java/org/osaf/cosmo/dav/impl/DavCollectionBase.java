@@ -30,7 +30,6 @@ import org.apache.jackrabbit.server.io.IOUtil;
 
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
-import org.apache.jackrabbit.webdav.DavResourceLocator;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
@@ -49,6 +48,7 @@ import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.LockedException;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
@@ -100,7 +100,6 @@ public class DavCollectionBase extends DavItemResourceBase
         DEAD_PROPERTY_FILTER.add(CollectionItem.class.getName());
     }
 
-    /** */
     public DavCollectionBase(CollectionItem collection,
                              DavResourceLocator locator,
                              DavResourceFactory factory)
@@ -109,7 +108,6 @@ public class DavCollectionBase extends DavItemResourceBase
         members = new ArrayList();
     }
 
-    /** */
     public DavCollectionBase(DavResourceLocator locator,
                              DavResourceFactory factory)
         throws DavException {
@@ -118,25 +116,21 @@ public class DavCollectionBase extends DavItemResourceBase
 
     // Jackrabbit DavResource
 
-    /** */
     public String getSupportedMethods() {
         return "OPTIONS, GET, HEAD, TRACE, PROPFIND, PROPPATCH, COPY, DELETE, MOVE, MKTICKET, DELTICKET, MKCOL, MKCALENDAR";
     }
 
-    /** */
     public boolean isCollection() {
         return true;
     }
 
-    /** */
     public long getModificationTime() {
         return -1;
     }
 
-    /** */
     public void spool(OutputContext outputContext)
         throws IOException {
-        writeHtmlDirectoryIndex(outputContext);
+        throw new UnsupportedOperationException();
     }
 
     public void addMember(org.apache.jackrabbit.webdav.DavResource member,
@@ -167,6 +161,11 @@ public class DavCollectionBase extends DavItemResourceBase
     }
 
     // DavResource
+
+    public void writeTo(OutputContext out)
+        throws DavException, IOException {
+        writeHtmlDirectoryIndex(out);
+    }
 
     public Report getReport(ReportInfo reportInfo)
         throws DavException {
@@ -209,10 +208,6 @@ public class DavCollectionBase extends DavItemResourceBase
 
     public DavResource findMember(String href)
         throws DavException {
-        if (href.startsWith(getLocator().getPrefix())) {
-            // convert absolute href to relative
-            href = href.substring(getLocator().getPrefix().length());
-        }
         return memberToResource(href);
     }
 
@@ -394,25 +389,21 @@ public class DavCollectionBase extends DavItemResourceBase
 
     protected DavResource memberToResource(Item item)
         throws DavException {
-        String path = getResourcePath() + "/" + item.getName();
-        DavResourceLocator locator = getLocator().getFactory().
-            createResourceLocator(getLocator().getPrefix(),
-                                  getLocator().getWorkspacePath(), path,
-                                  false);
+        String uri = getResourcePath() + "/" + item.getName();
+        DavResourceLocator locator = getResourceLocator().getFactory().
+            createResourceLocator(getResourceLocator(), uri);
         return getResourceFactory().createResource(locator, item);
     }    
 
-    protected DavResource memberToResource(String path)
+    protected DavResource memberToResource(String uri)
         throws DavException {
-        DavResourceLocator locator = getLocator().getFactory().
-            createResourceLocator(getLocator().getPrefix(),
-                                  getLocator().getWorkspacePath(), path,
-                                  false);
+        DavResourceLocator locator = getResourceLocator().getFactory().
+            createResourceLocator(getResourceLocator(), uri);
         return getResourceFactory().resolve(locator);
     }
 
     private void writeHtmlDirectoryIndex(OutputContext context)
-        throws IOException {
+        throws DavException, IOException {
         if (log.isDebugEnabled())
             log.debug("writing html directory index for  " +
                       getItem().getName());
@@ -441,17 +432,17 @@ public class DavCollectionBase extends DavItemResourceBase
         writer.write(StringEscapeUtils.escapeHtml(title));
         writer.write("</h1>");
         writer.write("<ul>");
-        org.apache.jackrabbit.webdav.DavResource parent = getCollection();
+        DavResource parent = getParent();
         if (parent != null) {
             writer.write("<li><a href=\"");
-            writer.write(parent.getLocator().getHref(true));
+            writer.write(parent.getResourceLocator().getHref(true));
             writer.write("\">..</a></li>");
         }
         for (DavResourceIterator i=getMembers(); i.hasNext();) {
             DavItemResourceBase child = (DavItemResourceBase) i.nextResource();
             String displayName = child.getItem().getDisplayName();
             writer.write("<li><a href=\"");
-            writer.write(child.getLocator().getHref(child.isCollection()));
+            writer.write(child.getResourceLocator().getHref(child.isCollection()));
             writer.write("\">");
             writer.write(StringEscapeUtils.escapeHtml(displayName));
             writer.write("</a></li>");

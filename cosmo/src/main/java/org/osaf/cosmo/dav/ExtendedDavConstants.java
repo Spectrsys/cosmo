@@ -20,6 +20,8 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
+import org.osaf.cosmo.util.UriTemplate;
+
 /**
  * Provides constants defined by Cosmo proprietary *DAV extensions.
  */
@@ -63,4 +65,15 @@ public interface ExtendedDavConstants extends DavConstants {
         DomUtil.getQualifiedName(XML_PRIVILEGE, NAMESPACE);
     public static final String QN_HREF =
         DomUtil.getQualifiedName(XML_HREF, NAMESPACE);
+
+    public static final UriTemplate TEMPLATE_COLLECTION =
+        new UriTemplate("/collection/{uid}/*");
+    public static final UriTemplate TEMPLATE_ITEM =
+        new UriTemplate("/item/{uid}/*");
+    public static final UriTemplate TEMPLATE_USERS =
+        new UriTemplate("/users");
+    public static final UriTemplate TEMPLATE_USER =
+        new UriTemplate("/user/{username}");
+    public static final UriTemplate TEMPLATE_HOME =
+        new UriTemplate("/{username}");
 }

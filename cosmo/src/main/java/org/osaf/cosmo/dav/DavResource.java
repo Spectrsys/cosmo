@@ -15,6 +15,9 @@
  */
 package org.osaf.cosmo.dav;
 
+import java.io.IOException;
+
+import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
@@ -45,6 +48,9 @@ public interface DavResource
                          DavPropertyNameSet removePropertyNames)
         throws DavException;
 
+    public void writeTo(OutputContext out)
+        throws DavException, IOException;
+
     /**
      * Return the report that matches the given report info if it is
      * supported by this resource.
@@ -53,4 +59,6 @@ public interface DavResource
         throws DavException;
 
     public DavResourceFactory getResourceFactory();
+
+    public DavResourceLocator getResourceLocator();
 }

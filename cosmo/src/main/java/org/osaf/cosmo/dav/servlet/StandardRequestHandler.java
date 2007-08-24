@@ -27,12 +27,11 @@ import org.apache.abdera.util.EntityTag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavLocatorFactory;
-
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
+import org.osaf.cosmo.dav.DavResourceLocatorFactory;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
@@ -40,6 +39,8 @@ import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.NotModifiedException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
+import org.osaf.cosmo.dav.acl.resource.DavUserPrincipalCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 import org.osaf.cosmo.dav.impl.DavCollectionBase;
@@ -52,6 +53,8 @@ import org.osaf.cosmo.dav.provider.CollectionProvider;
 import org.osaf.cosmo.dav.provider.DavProvider;
 import org.osaf.cosmo.dav.provider.FileProvider;
 import org.osaf.cosmo.dav.provider.HomeCollectionProvider;
+import org.osaf.cosmo.dav.provider.UserPrincipalCollectionProvider;
+import org.osaf.cosmo.dav.provider.UserPrincipalProvider;
 import org.osaf.cosmo.http.IfMatch;
 import org.osaf.cosmo.http.IfNoneMatch;
 
@@ -70,7 +73,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
     private static final Log log =
         LogFactory.getLog(StandardRequestHandler.class);
 
-    private DavLocatorFactory locatorFactory;
+    private DavResourceLocatorFactory locatorFactory;
     private DavResourceFactory resourceFactory;
 
     // RequestHandler methods
@@ -202,10 +205,14 @@ public class StandardRequestHandler implements HttpRequestHandler {
             return new HomeCollectionProvider(resourceFactory);
         if (resource instanceof DavCalendarCollection)
             return new CalendarCollectionProvider(resourceFactory);
-        if (resource instanceof DavCollection)
+        if (resource instanceof DavCollectionBase)
             return new CollectionProvider(resourceFactory);
         if (resource instanceof DavCalendarResource)
             return new CalendarResourceProvider(resourceFactory);
+        if (resource instanceof DavUserPrincipalCollection)
+            return new UserPrincipalCollectionProvider(resourceFactory);
+        if (resource instanceof DavUserPrincipal)
+            return new UserPrincipalProvider(resourceFactory);
         return new FileProvider(resourceFactory);
     }
 
@@ -242,7 +249,7 @@ public class StandardRequestHandler implements HttpRequestHandler {
      */
     protected DavResource resolveTarget(DavRequest request)
         throws DavException {
-        return resourceFactory.resolve(request.getRequestLocator(), request);
+        return resourceFactory.resolve(request.getResourceLocator(), request);
     }
 
     public void init() {
@@ -252,11 +259,11 @@ public class StandardRequestHandler implements HttpRequestHandler {
             throw new RuntimeException("resourceFactory must not be null");
     }
 
-    public DavLocatorFactory getLocatorFactory() {
+    public DavResourceLocatorFactory getResourceLocatorFactory() {
         return locatorFactory;
     }
 
-    public void setLocatorFactory(DavLocatorFactory factory) {
+    public void setResourceLocatorFactory(DavResourceLocatorFactory factory) {
         locatorFactory = factory;
     }
 

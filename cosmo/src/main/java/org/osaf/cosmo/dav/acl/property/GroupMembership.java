@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2006 Open Source Applications Foundation
+ * Copyright 2005-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,12 @@
  */
 package org.osaf.cosmo.dav.acl.property;
 
-import org.apache.jackrabbit.webdav.property.AbstractDavProperty;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.Namespace;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
 import org.osaf.cosmo.CosmoConstants;
 import org.osaf.cosmo.dav.acl.AclConstants;
-import org.osaf.cosmo.dav.impl.DavHomeCollection;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
@@ -34,30 +32,19 @@ import org.w3c.dom.Document;
  * the groups in which the principal is directly a member. The list
  * will always contain 0 elements since groups are not yet supported.
  */
-public class GroupMembership extends AbstractDavProperty
+public class GroupMembership extends StandardDavProperty
     implements AclConstants {
 
-    /**
-     */
     public GroupMembership() {
-        super(GROUPMEMBERSHIP, true);
+        super(GROUPMEMBERSHIP, null, true);
     }
 
-    /**
-     * Returns a
-     * <code>GroupMembership.GroupMembershipInfo</code>
-     * for this property.
-     */
     public Object getValue() {
         return new GroupMembershipInfo();
     }
 
-    /**
-     */
     public class GroupMembershipInfo implements XmlSerializable {
-  
-        /**
-         */
+
         public Element toXml(Document document) {
             Element groups =
                 DomUtil.createElement(document,

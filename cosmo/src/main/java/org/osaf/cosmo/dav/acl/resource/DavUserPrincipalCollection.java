@@ -30,8 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
 import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
-import org.apache.jackrabbit.webdav.DavResourceLocator;
-import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
@@ -49,9 +47,13 @@ import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.impl.DavResourceBase;
 import org.osaf.cosmo.dav.property.DavProperty;
+import org.osaf.cosmo.dav.property.DisplayName;
+import org.osaf.cosmo.dav.property.IsCollection;
+import org.osaf.cosmo.model.User;
 
 /**
  * <p>
@@ -71,7 +73,7 @@ public class DavUserPrincipalCollection extends DavResourceBase
     private static final HashSet<ReportType> REPORT_TYPES =
         new HashSet<ReportType>();
 
-    private ArrayList<DavUserPrincipal> principals;
+    private ArrayList<DavUserPrincipal> members;
 
     static {
         registerLiveProperty(DeltaVConstants.SUPPORTED_REPORT_SET);
@@ -81,13 +83,13 @@ public class DavUserPrincipalCollection extends DavResourceBase
                                       DavResourceFactory factory)
         throws DavException {
         super(locator, factory);
-        principals = new ArrayList<DavUserPrincipal>();
+        members = new ArrayList<DavUserPrincipal>();
     }
 
     // Jackrabbit DavResource
 
     public String getSupportedMethods() {
-        return "OPTIONS, GET, HEAD, TRACE, REPORT";
+        return "OPTIONS, GET, HEAD, TRACE, PROPFIND, REPORT";
     }
 
     public boolean isCollection() {
@@ -110,8 +112,8 @@ public class DavUserPrincipalCollection extends DavResourceBase
         return null;
     }
 
-    public void spool(OutputContext outputContext)
-        throws IOException {
+    public void writeTo(OutputContext outputContext)
+        throws DavException, IOException {
         writeHtmlDirectoryIndex(outputContext);
     }
 
@@ -122,7 +124,16 @@ public class DavUserPrincipalCollection extends DavResourceBase
     }
 
     public DavResourceIterator getMembers() {
-        throw new UnsupportedOperationException();
+        try {
+            for (User user : getResourceFactory().getUserService().getUsers()) {
+                if (user.isOverlord())
+                    continue;
+                members.add(memberToResource(user));
+            }
+            return new DavResourceIteratorImpl(members);
+        } catch (DavException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
@@ -180,9 +191,9 @@ public class DavUserPrincipalCollection extends DavResourceBase
 
     public DavUserPrincipal findMember(String uri)
         throws DavException {
-        if (uri.startsWith(getLocator().getPrefix()))
-            uri = uri.substring(getLocator().getPrefix().length());
-        return resolveMemberUri(uri);
+        DavResourceLocator locator = getResourceLocator().getFactory().
+            createResourceLocator(getResourceLocator(), uri);
+        return (DavUserPrincipal) getResourceFactory().resolve(locator);
     }
 
     // our methods
@@ -192,7 +203,10 @@ public class DavUserPrincipalCollection extends DavResourceBase
     }
 
     protected void loadLiveProperties(DavPropertySet properties) {
-        throw new UnsupportedOperationException();
+        properties.add(new DisplayName(getDisplayName()));
+        properties.add(new ResourceType(getResourceTypes()));
+        properties.add(new IsCollection(isCollection()));
+        properties.add(new SupportedReportSetProperty((ReportType[])REPORT_TYPES.toArray(new ReportType[0])));
     }
 
     protected void setLiveProperty(DavProperty property)
@@ -206,7 +220,6 @@ public class DavUserPrincipalCollection extends DavResourceBase
     }
 
     protected void loadDeadProperties(DavPropertySet properties) {
-        throw new UnsupportedOperationException();
     }
 
     protected void setDeadProperty(DavProperty property)
@@ -227,17 +240,17 @@ public class DavUserPrincipalCollection extends DavResourceBase
         return false;
     }
 
-    protected DavUserPrincipal resolveMemberUri(String uri)
+    private DavUserPrincipal memberToResource(User user)
         throws DavException {
-        DavResourceLocator locator = getLocator().getFactory().
-            createResourceLocator(getLocator().getPrefix(),
-                                  getLocator().getWorkspacePath(), uri,
-                                  false);
-        return (DavUserPrincipal) getResourceFactory().resolve(locator);
+        String uri = getResourceLocator().getServiceLocator().
+            getDavPrincipalUrl(user);
+        DavResourceLocator locator = getResourceLocator().getFactory().
+            createResourceLocator(getResourceLocator(), uri);
+        return new DavUserPrincipal(user, locator, getResourceFactory());
     }
 
     private void writeHtmlDirectoryIndex(OutputContext context)
-        throws IOException {
+        throws DavException, IOException {
         context.setContentType(IOUtil.buildContentType("text/html", "UTF-8"));
 
         if (! context.hasStream())

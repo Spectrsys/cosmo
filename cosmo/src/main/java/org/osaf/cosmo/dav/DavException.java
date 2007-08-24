@@ -74,7 +74,8 @@ public class DavException extends org.apache.jackrabbit.webdav.DavException
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
         writer.writeStartElement(NS_COSMO, "internal-server-error");
-        writer.writeCharacters(getMessage());
+        if (getMessage() != null)
+            writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }
 

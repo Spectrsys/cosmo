@@ -444,8 +444,6 @@
     <property name="atomPrefix"><value>/atom</value></property>
     <property name="cmpPrefix"><value>/cmp</value></property>
     <property name="davPrefix"><value>/dav</value></property>
-    <property name="davPrincipalPrefix"><value>/dav</value></property>
-    <property name="davCalendarHomePrefix"><value>/dav</value></property>
     <property name="morseCodePrefix"><value>/mc</value></property>
     <property name="pimPrefix"><value>/pim</value></property>
     <property name="webcalPrefix"><value>/webcal</value></property>
@@ -458,30 +456,20 @@
 
   <bean id="davResourceFactory"
         class="org.osaf.cosmo.dav.StandardResourceFactory">
-    <constructor-arg><ref local="contentService"/></constructor-arg>
+    <constructor-arg><ref local="contentService"/></constructor-arg>    
+    <constructor-arg><ref local="userService"/></constructor-arg>
     <constructor-arg><ref local="securityManager"/></constructor-arg>
   </bean>
 
-  <bean id="davLocatorFactory"
-        class="org.osaf.cosmo.dav.impl.StandardLocatorFactory">
-    <constructor-arg>
-      <value>/dav</value>
-    </constructor-arg>
-    <constructor-arg>
-      <value>/atom</value>
-    </constructor-arg>
-    <constructor-arg>
-      <value>/cmp</value>
-    </constructor-arg>
-    <constructor-arg>
-      <value>/browse</value>
-    </constructor-arg>
+  <bean id="davResourceLocatorFactory"
+        class="org.osaf.cosmo.dav.StandardResourceLocatorFactory">
+    <constructor-arg><ref bean="serviceLocatorFactory"/></constructor-arg>
   </bean>
 
   <bean id="dav"
         class="org.osaf.cosmo.dav.servlet.StandardRequestHandler">
-    <property name="locatorFactory">
-      <ref bean="davLocatorFactory"/>
+    <property name="resourceLocatorFactory">
+      <ref bean="davResourceLocatorFactory"/>
     </property>
     <property name="resourceFactory">
       <ref bean="davResourceFactory"/>

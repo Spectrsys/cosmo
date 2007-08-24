@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -165,7 +166,7 @@ public class UriTemplate {
                     break;
                 // if the segment is optional, the candidate doesn't
                 // have to have a matching segment
-                if (segment.isOptional())
+                if (segment.isOptional()) 
                     continue;
                 // mandatory segment - not a match
                 return null;
@@ -184,6 +185,13 @@ public class UriTemplate {
                 return null;
         }
 
+        if (candidate.hasNext() && ! segment.isAll())
+            // candidate has more but our pattern is done
+            return null;
+
+        if (log.isDebugEnabled())
+            log.debug("matched " + pattern);
+
         return match;
     }
 
@@ -195,15 +203,27 @@ public class UriTemplate {
         return base;
     }
 
-    private static final String escape(String raw) {
+    public static final String escape(String raw) {
         try {
+            // XXX: converts space to + not %20
             return URLEncoder.encode(raw, "UTF-8");
         } catch (Exception e) {
             throw new RuntimeException("Could not escape string " + raw, e);
         }
     }
 
-    private static final String unescape(String escaped) {
+    public static final String escapePath(String path) {
+        StringBuffer buf = new StringBuffer();
+        StrTokenizer tokenizer = new StrTokenizer(path, '/');
+        while (tokenizer.hasNext()) {
+            buf.append(escape(tokenizer.nextToken()));
+            if (tokenizer.hasNext())
+                buf.append('/');
+        }
+        return buf.toString();
+    }
+
+    public static final String unescape(String escaped) {
         try {
             return URLDecoder.decode(escaped, "UTF-8");
         } catch (Exception e) {

@@ -23,13 +23,12 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavResourceLocator;
-
 import org.osaf.cosmo.dav.ConflictException;
 import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.caldav.SupportedCalendarComponentException;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
@@ -68,7 +67,7 @@ public class CalendarResourceProvider extends FileProvider {
         DavInputContext ctx = (DavInputContext) createInputContext(request);
         if (! content.exists())
             content = createCalendarResource(request, response,
-                                             content.getLocator(),
+                                             content.getResourceLocator(),
                                              ctx.getCalendar());
         content.getParent().addContent(content, ctx);
         response.setStatus(status);

@@ -232,6 +232,13 @@ public class ServiceLocator implements ServerConstants {
     }
 
     /**
+     * Returns the WebDAV base URL.
+     */
+    public String getDavBase() {
+        return calculateBaseUrl(factory.getDavPrefix());
+    }
+
+    /**
      * Returns the WebDAV URL of the item.
      */
     public String getDavUrl(Item item) {
@@ -242,21 +249,33 @@ public class ServiceLocator implements ServerConstants {
      * Returns the WebDAV URL of the user.
      */
     public String getDavUrl(User user) {
-        return calculateUserUrl(user, factory.getDavPrefix());
+         StringBuffer buf = new StringBuffer();
+         buf.append(appMountUrl).append(factory.getDavPrefix()).append("/");
+         buf.append(org.osaf.cosmo.dav.ExtendedDavConstants.
+                    TEMPLATE_HOME.bind(user.getUsername()));
+         return buf.toString();
     }
 
     /**
      * Returns the WebDAV principal URL of the user.
      */
     public String getDavPrincipalUrl(User user) {
-        return calculateUserUrl(user, factory.getDavPrincipalPrefix());
+         StringBuffer buf = new StringBuffer();
+         buf.append(appMountUrl).append(factory.getDavPrefix()).append("/");
+         buf.append(org.osaf.cosmo.dav.ExtendedDavConstants.
+                    TEMPLATE_USER.bind(user.getUsername()));
+         return buf.toString();
     }
 
     /**
      * Returns the CalDAV calendar home URL of the user.
      */
     public String getDavCalendarHomeUrl(User user) {
-        return calculateUserUrl(user, factory.getDavCalendarHomePrefix());
+        StringBuffer buf = new StringBuffer();
+        buf.append(appMountUrl).append(factory.getDavPrefix()).append("/");
+        buf.append(org.osaf.cosmo.dav.ExtendedDavConstants.
+                   TEMPLATE_HOME.bind(user.getUsername()));
+        return buf.toString();
     }
 
     /**

@@ -80,12 +80,8 @@ public class TicketDiscovery extends AbstractDavProperty
                 DomUtil.createElement(document, XML_OWNER, NAMESPACE);
             Element href =
                 DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            String url =
-                resource.getLocator().getFactory().
-                createResourceLocator(resource.getLocator().getPrefix(),
-                                      resource.getLocator().getWorkspacePath(),
-                                      "/" + ticket.getOwner().getUsername()).
-                getHref(true);
+            String url = resource.getResourceLocator().getServiceLocator().
+                getDavPrincipalUrl(ticket.getOwner());
             DomUtil.setText(href, url);
             owner.appendChild(href);
             ticketInfo.appendChild(owner);
