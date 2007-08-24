@@ -53,6 +53,7 @@ public class DavTestHelper extends MockHelper {
 
         resourceFactory =
             new StandardResourceFactory(getContentService(),
+                                        getUserService(),
                                         getSecurityManager());
         locatorFactory =
             new StandardResourceLocatorFactory(getServiceLocatorFactory());
