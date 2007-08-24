@@ -15,6 +15,8 @@
  */
 package org.osaf.cosmo.dav;
 
+import javax.xml.namespace.QName;
+
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
@@ -48,6 +50,8 @@ public interface ExtendedDavConstants extends DavConstants {
     public static final String PROPERTY_UUID = "uuid";
 
     /** The Cosmo property <code>cosmo:uuid</code> */
+    public static final DavPropertyName OWNER =
+        DavPropertyName.create(XML_OWNER, NAMESPACE);
     public static final DavPropertyName UUID =
         DavPropertyName.create(PROPERTY_UUID, NAMESPACE_COSMO);
 
@@ -65,6 +69,11 @@ public interface ExtendedDavConstants extends DavConstants {
         DomUtil.getQualifiedName(XML_PRIVILEGE, NAMESPACE);
     public static final String QN_HREF =
         DomUtil.getQualifiedName(XML_HREF, NAMESPACE);
+    public static final String QN_OWNER =
+        DomUtil.getQualifiedName(XML_OWNER, NAMESPACE);
+
+    public static final QName RESOURCE_TYPE_COLLECTION =
+        new QName(NAMESPACE.getURI(), XML_COLLECTION, NAMESPACE.getPrefix());
 
     public static final UriTemplate TEMPLATE_COLLECTION =
         new UriTemplate("/collection/{uid}/*");

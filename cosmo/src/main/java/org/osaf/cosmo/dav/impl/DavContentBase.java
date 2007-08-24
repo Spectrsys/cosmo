@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -136,9 +138,8 @@ public abstract class DavContentBase extends DavItemResourceBase
 
     // our methods
 
-    /** */
-    protected int[] getResourceTypes() {
-        return RESOURCE_TYPES;
+    protected Set<QName> getResourceTypes() {
+        return new HashSet<QName>();
     }
 
     /** */

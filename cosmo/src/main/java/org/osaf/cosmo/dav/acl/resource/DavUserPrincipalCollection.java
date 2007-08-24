@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +37,6 @@ import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.version.DeltaVConstants;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
@@ -53,6 +54,7 @@ import org.osaf.cosmo.dav.impl.DavResourceBase;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.DisplayName;
 import org.osaf.cosmo.dav.property.IsCollection;
+import org.osaf.cosmo.dav.property.ResourceType;
 import org.osaf.cosmo.model.User;
 
 /**
@@ -68,8 +70,6 @@ import org.osaf.cosmo.model.User;
 public class DavUserPrincipalCollection extends DavResourceBase
     implements DavCollection {
     private static final Log log = LogFactory.getLog(DavUserPrincipalCollection.class);
-    private static final int[] RESOURCE_TYPES =
-        new int[] { ResourceType.COLLECTION };
     private static final HashSet<ReportType> REPORT_TYPES =
         new HashSet<ReportType>();
 
@@ -198,8 +198,10 @@ public class DavUserPrincipalCollection extends DavResourceBase
 
     // our methods
 
-    protected int[] getResourceTypes() {
-        return RESOURCE_TYPES;
+    protected Set<QName> getResourceTypes() {
+        HashSet<QName> rt = new HashSet<QName>(1);
+        rt.add(RESOURCE_TYPE_COLLECTION);
+        return rt;
     }
 
     protected void loadLiveProperties(DavPropertySet properties) {

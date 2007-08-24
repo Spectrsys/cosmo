@@ -15,6 +15,8 @@
  */
 package org.osaf.cosmo.dav.caldav;
 
+import javax.xml.namespace.QName;
+
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
@@ -165,4 +167,7 @@ public interface CaldavConstants {
     public static final DavPropertyName MAXRESOURCESIZE =
         DavPropertyName.create(PROPERTY_CALDAV_MAX_RESOURCE_SIZE,
                                NAMESPACE_CALDAV);
+
+    public static final QName RESOURCE_TYPE_CALENDAR =
+        new QName(NS_CALDAV, ELEMENT_CALDAV_CALENDAR, PRE_CALDAV);
 }

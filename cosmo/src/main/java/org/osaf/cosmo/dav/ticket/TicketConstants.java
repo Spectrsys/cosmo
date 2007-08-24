@@ -55,9 +55,6 @@ public interface TicketConstants extends DavConstants {
     /** The ticket XML element name <ticket:freebusy  */
     public static final String ELEMENT_TICKET_FREEBUSY = "freebusy";
 
-    public static final String QN_TICKET_OWNER =
-        DomUtil.getQualifiedName(XML_OWNER, NAMESPACE_TICKET);
-
     /** The XML value <code>infinity</code> */
     public static final String VALUE_INFINITY = "infinity";
 

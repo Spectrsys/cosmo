@@ -31,7 +31,6 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 import org.osaf.cosmo.dav.ConflictException;
@@ -46,10 +45,14 @@ import org.osaf.cosmo.dav.LockedException;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
+import org.osaf.cosmo.dav.acl.AclConstants;
+import org.osaf.cosmo.dav.acl.property.Owner;
+import org.osaf.cosmo.dav.acl.property.PrincipalCollectionSet;
 import org.osaf.cosmo.dav.property.CreationDate;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.DisplayName;
 import org.osaf.cosmo.dav.property.IsCollection;
+import org.osaf.cosmo.dav.property.ResourceType;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.dav.property.Uuid;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
@@ -71,8 +74,7 @@ import org.osaf.cosmo.util.PathUtil;
 
 /**
  * <p>
- * Base class for dav resources that are backed by content (e.g. items or
- * collections).
+ * Base class for dav resources that are backed by collections or items.
  * </p>
  * <p>
  * This class defines the following live properties:
@@ -82,6 +84,8 @@ import org.osaf.cosmo.util.PathUtil;
  * <li><code>DAV:displayname</code> (protected)</li>
  * <li><code>DAV:iscollection</code> (protected)</li>
  * <li><code>DAV:resourcetype</code> (protected)</li>
+ * <li><code>DAV:owner</code> (protected)</li>
+ * <li><code>DAV:principal-collection-set</code> (protected)</li>
  * <li><code>ticket:ticketdiscovery</code> (protected)</li>
  * <li><code>cosmo:uuid</code> (protected)</li>
  * </ul>
@@ -92,7 +96,7 @@ import org.osaf.cosmo.util.PathUtil;
  * @see Item
  */
 public abstract class DavItemResourceBase extends DavResourceBase
-    implements DavItemResource, TicketConstants {
+    implements DavItemResource, AclConstants, TicketConstants {
     private static final Log log =
         LogFactory.getLog(DavItemResourceBase.class);
 
@@ -104,6 +108,8 @@ public abstract class DavItemResourceBase extends DavResourceBase
         registerLiveProperty(DavPropertyName.DISPLAYNAME);
         registerLiveProperty(DavPropertyName.ISCOLLECTION);
         registerLiveProperty(DavPropertyName.RESOURCETYPE);
+        registerLiveProperty(OWNER);
+        registerLiveProperty(PRINCIPALCOLLECTIONSET);
         registerLiveProperty(UUID);
         registerLiveProperty(TICKETDISCOVERY);
     }
@@ -362,6 +368,8 @@ public abstract class DavItemResourceBase extends DavResourceBase
         properties.add(new DisplayName(item.getDisplayName()));
         properties.add(new ResourceType(getResourceTypes()));
         properties.add(new IsCollection(isCollection()));
+        properties.add(new Owner(getResourceLocator(), item.getOwner()));
+        properties.add(new PrincipalCollectionSet(getResourceLocator()));
         properties.add(new TicketDiscovery(this));
         properties.add(new Uuid(item.getUid()));
     }
@@ -375,7 +383,12 @@ public abstract class DavItemResourceBase extends DavResourceBase
         if (property.getValue() == null)
             throw new UnprocessableEntityException("Property " + name + " requires a value");
 
-        if (name.equals(TICKETDISCOVERY) ||
+        if (name.equals(DavPropertyName.CREATIONDATE) ||
+            name.equals(DavPropertyName.RESOURCETYPE) ||
+            name.equals(DavPropertyName.ISCOLLECTION) ||
+            name.equals(OWNER) ||
+            name.equals(PRINCIPALCOLLECTIONSET) ||
+            name.equals(TICKETDISCOVERY) ||
             name.equals(UUID))
             throw new ProtectedPropertyModificationException(name);
 
@@ -388,9 +401,14 @@ public abstract class DavItemResourceBase extends DavResourceBase
         if (item == null)
             return;
 
-        if (name.equals(TICKETDISCOVERY) ||
-            name.equals(UUID) ||
-            name.equals(DavPropertyName.DISPLAYNAME))
+        if (name.equals(DavPropertyName.CREATIONDATE) ||
+            name.equals(DavPropertyName.DISPLAYNAME) ||
+            name.equals(DavPropertyName.RESOURCETYPE) ||
+            name.equals(DavPropertyName.ISCOLLECTION) ||
+            name.equals(OWNER) ||
+            name.equals(PRINCIPALCOLLECTIONSET) ||
+            name.equals(TICKETDISCOVERY) ||
+            name.equals(UUID))
             throw new ProtectedPropertyModificationException(name);
 
         getProperties().remove(name);

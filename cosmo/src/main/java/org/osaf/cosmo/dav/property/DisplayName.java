@@ -25,4 +25,8 @@ public class DisplayName extends StandardDavProperty {
     public DisplayName(String name) {
         super(DavPropertyName.DISPLAYNAME, name, false);
     }
+
+    public String getDisplayName() {
+        return (String) getValue();
+    }
 }

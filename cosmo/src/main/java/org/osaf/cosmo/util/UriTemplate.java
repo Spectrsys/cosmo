@@ -86,6 +86,7 @@ public class UriTemplate {
         StringBuffer buf = new StringBuffer();
         if (base != null)
             buf.append(base);
+        buf.append("/");
 
         List<String> variables = Arrays.asList(values);
         Iterator<String> vi = variables.iterator();

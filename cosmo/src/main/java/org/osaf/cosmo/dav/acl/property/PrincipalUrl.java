@@ -16,7 +16,6 @@
 package org.osaf.cosmo.dav.acl.property;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.acl.AclConstants;
@@ -35,36 +34,27 @@ import org.w3c.dom.Document;
 public class PrincipalUrl extends StandardDavProperty
     implements AclConstants {
 
-    private DavResourceLocator locator;
-    private User user;
-
     public PrincipalUrl(DavResourceLocator locator,
                         User user) {
-        super(PRINCIPALURL, null, true);
-        this.locator = locator;
-        this.user = user;
+        super(PRINCIPALURL, href(locator, user), true);
     }
 
-    public Object getValue() {
-        return new PrincipalUrlInfo();
+    public String getHref() {
+        return (String) getValue();
     }
 
-    public class PrincipalUrlInfo implements XmlSerializable {
+    private static String href(DavResourceLocator locator,
+                               User user) {
+        return locator.getServiceLocator().getDavPrincipalUrl(user);
+    }
 
-        public Element toXml(Document document) {
-            String uri = locator.getServiceLocator().getDavPrincipalUrl(user);
+    public Element toXml(Document document) {
+        Element name = getName().toXml(document);
 
-            Element href =
-                DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            DomUtil.setText(href, uri);
+        Element href = DomUtil.createElement(document, XML_HREF, NAMESPACE);
+        DomUtil.setText(href, getHref());
+        name.appendChild(href);
 
-            Element url =
-                DomUtil.createElement(document,
-                                      ELEMENT_ACL_PRINCIPAL_URL,
-                                      NAMESPACE);
-            url.appendChild(href);
-
-            return url;
-        }
+        return name;
     }
 }

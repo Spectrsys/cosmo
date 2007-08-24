@@ -18,6 +18,9 @@ package org.osaf.cosmo.dav.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
+
+import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +37,6 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.ResourceType;
 
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
@@ -281,21 +283,22 @@ public abstract class DavResourceBase
     }
 
     /**
-     * Returns the DAV resource type codes for this resource.
-     *
-     * @see ResourceType
-     */
-    protected abstract int[] getResourceTypes();
-
-    /**
+     * <p>
      * Registers the name of a live property.
-     *
-     * Typically used in subclass static initializers to add to the
-     * list of live properties for the resource.
+     * </p>
+     * <p>
+     * Typically used in subclass static initializers to add to the set
+     * of live properties for the resource.
+     * </p>
      */
     protected static void registerLiveProperty(DavPropertyName name) {
         LIVE_PROPERTIES.add(name);
     }
+
+    /**
+     * Returns the set of resource types for this resource.
+     */
+    protected abstract Set<QName> getResourceTypes();
 
     /**
      * Determines whether or not the given property name identifies a

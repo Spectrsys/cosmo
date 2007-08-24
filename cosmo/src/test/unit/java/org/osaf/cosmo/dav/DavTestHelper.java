@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,20 +26,18 @@ import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
 import org.osaf.cosmo.dao.mock.MockUserDao;
+import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.StandardResourceFactory;
 import org.osaf.cosmo.dav.impl.DavHomeCollection;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.util.PathUtil;
 
-/**
- */
 public class DavTestHelper extends MockHelper {
     private static final Log log = LogFactory.getLog(DavTestHelper.class);
-
-    // XXX: refactor to use MockHelper
 
     private StandardResourceFactory resourceFactory;
     private StandardResourceLocatorFactory locatorFactory;
@@ -47,7 +45,6 @@ public class DavTestHelper extends MockHelper {
     private DavResourceLocator homeLocator;
     private DavHomeCollection homeResource;
 
-    /** */
     public DavTestHelper() {
         super();
 
@@ -59,36 +56,30 @@ public class DavTestHelper extends MockHelper {
             new StandardResourceLocatorFactory(getServiceLocatorFactory());
     }
 
-    /** */
     public void setUp() throws Exception {
         super.setUp();
         homeLocator =
             locatorFactory.createResourceLocator("", "/" + getUser().getUsername());
     }
 
-    /** */
     public DavResourceFactory getResourceFactory() {
         return resourceFactory;
     }
 
-    /** */
     public DavResourceLocatorFactory getResourceLocatorFactory() {
         return locatorFactory;
     }
 
-    /** */
     public DavResourceLocator getHomeLocator() {
         return homeLocator;
     }
 
-    /** */
     public DavHomeCollection initializeHomeResource()
         throws DavException {
         return new DavHomeCollection(getHomeCollection(), homeLocator,
                                      resourceFactory);
     }
 
-    /** */
     public DavResource getMember(DavCollection parent,
                                  String name)
         throws Exception {
@@ -99,5 +90,12 @@ public class DavTestHelper extends MockHelper {
                 return (DavResource) m;
         }
         return null;
+    }
+
+    public DavUserPrincipal getPrincipal(User user)
+        throws Exception {
+        DavResourceLocator locator = locatorFactory.
+            createResourceLocator("", "/user/" + user.getUsername());
+        return new DavUserPrincipal(user, locator, resourceFactory);
     }
 }

@@ -110,6 +110,8 @@ public class ServiceLocator implements ServerConstants {
         urls.put(SVC_MORSE_CODE, getMorseCodeBase());
         urls.put(SVC_PIM, getPimBase());
         urls.put(SVC_WEBCAL, getWebcalBase());
+        urls.put(SVC_DAV, getDavBase());
+        urls.put(SVC_DAV_PRINCIPAL, getDavUserPrincipalUrl());
         return urls;
     }
 
@@ -239,6 +241,17 @@ public class ServiceLocator implements ServerConstants {
     }
 
     /**
+     * Returns the WebDAV user principal collection URL.
+     */
+    public String getDavUserPrincipalUrl() {
+        StringBuffer buf = new StringBuffer();
+        buf.append(appMountUrl).append(factory.getDavPrefix()).
+            append(org.osaf.cosmo.dav.ExtendedDavConstants.
+                   TEMPLATE_USERS.bind());
+        return buf.toString();
+    }
+
+    /**
      * Returns the WebDAV URL of the item.
      */
     public String getDavUrl(Item item) {
@@ -250,8 +263,8 @@ public class ServiceLocator implements ServerConstants {
      */
     public String getDavUrl(User user) {
          StringBuffer buf = new StringBuffer();
-         buf.append(appMountUrl).append(factory.getDavPrefix()).append("/");
-         buf.append(org.osaf.cosmo.dav.ExtendedDavConstants.
+         buf.append(appMountUrl).append(factory.getDavPrefix()).
+             append(org.osaf.cosmo.dav.ExtendedDavConstants.
                     TEMPLATE_HOME.bind(user.getUsername()));
          return buf.toString();
     }
@@ -261,8 +274,8 @@ public class ServiceLocator implements ServerConstants {
      */
     public String getDavPrincipalUrl(User user) {
          StringBuffer buf = new StringBuffer();
-         buf.append(appMountUrl).append(factory.getDavPrefix()).append("/");
-         buf.append(org.osaf.cosmo.dav.ExtendedDavConstants.
+         buf.append(appMountUrl).append(factory.getDavPrefix()).
+            append(org.osaf.cosmo.dav.ExtendedDavConstants.
                     TEMPLATE_USER.bind(user.getUsername()));
          return buf.toString();
     }
@@ -272,8 +285,8 @@ public class ServiceLocator implements ServerConstants {
      */
     public String getDavCalendarHomeUrl(User user) {
         StringBuffer buf = new StringBuffer();
-        buf.append(appMountUrl).append(factory.getDavPrefix()).append("/");
-        buf.append(org.osaf.cosmo.dav.ExtendedDavConstants.
+        buf.append(appMountUrl).append(factory.getDavPrefix()).
+            append(org.osaf.cosmo.dav.ExtendedDavConstants.
                    TEMPLATE_HOME.bind(user.getUsername()));
         return buf.toString();
     }

@@ -36,7 +36,8 @@ public interface DavResource
      * class as well as the Cosmo extended classes.
      */
     // see bug 5137 for why we don't include class 2
-    public String COMPLIANCE_CLASS = "1, calendar-access, ticket";
+    public String COMPLIANCE_CLASS =
+        "1, access-control, calendar-access, ticket";
 
     /**
      * Returns the parent collection for this resource.

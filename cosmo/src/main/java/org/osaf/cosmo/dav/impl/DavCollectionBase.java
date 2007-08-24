@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,7 +82,6 @@ import org.osaf.cosmo.model.Item;
 public class DavCollectionBase extends DavItemResourceBase
     implements DavItemCollection {
     private static final Log log = LogFactory.getLog(DavCollectionBase.class);
-    private static final int[] RESOURCE_TYPES;
     private static final Set<String> DEAD_PROPERTY_FILTER =
         new HashSet<String>();
     private static final Set REPORT_TYPES = new HashSet();
@@ -90,8 +91,6 @@ public class DavCollectionBase extends DavItemResourceBase
     static {
         registerLiveProperty(DeltaVConstants.SUPPORTED_REPORT_SET);
         registerLiveProperty(EXCLUDEFREEBUSYROLLUP);
-
-        RESOURCE_TYPES = new int[] { ResourceType.COLLECTION };
 
         REPORT_TYPES.add(QueryReport.REPORT_TYPE_CALDAV_QUERY);
         REPORT_TYPES.add(MultigetReport.REPORT_TYPE_CALDAV_MULTIGET);
@@ -227,9 +226,10 @@ public class DavCollectionBase extends DavItemResourceBase
 
     // our methods
 
-    /** */
-    protected int[] getResourceTypes() {
-        return RESOURCE_TYPES;
+    protected Set<QName> getResourceTypes() {
+        HashSet<QName> rt = new HashSet<QName>(1);
+        rt.add(RESOURCE_TYPE_COLLECTION);
+        return rt;
     }
 
     /** */

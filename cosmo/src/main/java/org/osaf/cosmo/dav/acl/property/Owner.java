@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2007 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 package org.osaf.cosmo.dav.acl.property;
 
 import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 
-import org.osaf.cosmo.dav.acl.AclConstants;
 import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.acl.AclConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.model.User;
 
@@ -29,41 +28,38 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 
 /**
- * Represents the DAV:group-membership property.
+ * Represents the DAV:owner property.
  *
- * The property is protected. The value is a list of hrefs indicating
- * the groups in which the principal is directly a member. The list
- * will always contain 0 elements since groups are not yet supported.
+ * This property is protected. The value contains a DAV:href
+ * elements specifying the principal URL for the owner of a resource.
  */
-public class GroupMembership extends StandardDavProperty
-    implements AclConstants {
+public class Owner extends StandardDavProperty {
 
-    public GroupMembership(DavResourceLocator locator,
-                           User user) {
-        super(GROUPMEMBERSHIP, hrefs(locator, user), true);
+    public Owner(DavResourceLocator locator,
+                 User user) {
+        super(OWNER, href(locator, user), true);
     }
 
-    public Set<String> getHrefs() {
-        return (Set<String>) getValue();
+    public String getHref() {
+        return (String) getValue();
     }
 
     public Element toXml(Document document) {
         Element name = getName().toXml(document);
 
-        for (String href : getHrefs()) {
+        if (getHref() != null) {
             Element e = DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            DomUtil.setText(e, href);
+            DomUtil.setText(e, getHref());
             name.appendChild(e);
         }
 
         return name;
     }
 
-    private static HashSet<String> hrefs(DavResourceLocator locator,
-                                         User user) {
-        HashSet<String> hrefs = new HashSet<String>();
-        // XXX: when we add groups, use the service locator to find the
-        // principal url for each of the user's groups
-        return hrefs;
+    private static String href(DavResourceLocator locator,
+                               User user) {
+        if (user == null)
+            return null;
+        return locator.getServiceLocator().getDavPrincipalUrl(user);
     }
 }

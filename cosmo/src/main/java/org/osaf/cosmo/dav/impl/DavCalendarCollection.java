@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.component.VTimeZone;
@@ -89,7 +91,6 @@ public class DavCalendarCollection extends DavCollectionBase
     implements CaldavConstants, ICalendarConstants {
     private static final Log log =
         LogFactory.getLog(DavCalendarCollection.class);
-    private static final int[] RESOURCE_TYPES;
     private static final Set<String> DEAD_PROPERTY_FILTER =
         new HashSet<String>();
 
@@ -99,10 +100,6 @@ public class DavCalendarCollection extends DavCollectionBase
         registerLiveProperty(SUPPORTEDCALENDARCOMPONENTSET);
         registerLiveProperty(SUPPORTEDCALENDARDATA);
         registerLiveProperty(MAXRESOURCESIZE);
-
-        int cc = ResourceType.registerResourceType(ELEMENT_CALDAV_CALENDAR,
-                                                   NAMESPACE_CALDAV);
-        RESOURCE_TYPES = new int[] { ResourceType.COLLECTION, cc };
         
         DEAD_PROPERTY_FILTER.add(CalendarCollectionStamp.class.getName());
     }
@@ -183,9 +180,10 @@ public class DavCalendarCollection extends DavCollectionBase
             obj.getComponents().getComponent(Component.VTIMEZONE);
     }
 
-    /** */
-    protected int[] getResourceTypes() {
-        return RESOURCE_TYPES;
+    protected Set<QName> getResourceTypes() {
+        Set<QName> rt = super.getResourceTypes();
+        rt.add(RESOURCE_TYPE_CALENDAR);
+        return rt;
     }
     
     public CalendarCollectionStamp getCalendarCollectionStamp() {

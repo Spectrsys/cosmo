@@ -18,6 +18,10 @@ package org.osaf.cosmo.dav.acl.resource;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +34,6 @@ import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
@@ -52,6 +55,7 @@ import org.osaf.cosmo.dav.property.DisplayName;
 import org.osaf.cosmo.dav.property.Etag;
 import org.osaf.cosmo.dav.property.IsCollection;
 import org.osaf.cosmo.dav.property.LastModified;
+import org.osaf.cosmo.dav.property.ResourceType;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.util.PathUtil;
 
@@ -68,7 +72,6 @@ import org.osaf.cosmo.util.PathUtil;
 public class DavUserPrincipal extends DavResourceBase
     implements AclConstants, CaldavConstants {
     private static final Log log = LogFactory.getLog(DavUserPrincipal.class);
-    private static final int[] RESOURCE_TYPES;
 
     static {
         registerLiveProperty(DavPropertyName.CREATIONDATE);
@@ -81,10 +84,6 @@ public class DavUserPrincipal extends DavResourceBase
         registerLiveProperty(ALTERNATEURISET);
         registerLiveProperty(PRINCIPALURL);
         registerLiveProperty(GROUPMEMBERSHIP);
-
-        int p = ResourceType.registerResourceType(ELEMENT_ACL_PRINCIPAL,
-                                                  NAMESPACE);
-        RESOURCE_TYPES = new int[] { ResourceType.DEFAULT_RESOURCE, p };
     }
 
     private User user;
@@ -213,8 +212,10 @@ public class DavUserPrincipal extends DavResourceBase
 
     // our methods
 
-    protected int[] getResourceTypes() {
-        return RESOURCE_TYPES;
+    protected Set<QName> getResourceTypes() {
+        HashSet<QName> rt = new HashSet<QName>(1);
+        rt.add(RESOURCE_TYPE_PRINCIPAL);
+        return rt;
     }
     
     protected void loadLiveProperties(DavPropertySet properties) {
@@ -227,7 +228,7 @@ public class DavUserPrincipal extends DavResourceBase
         properties.add(new CalendarHomeSet(getResourceLocator(), user));
         properties.add(new AlternateUriSet(getResourceLocator(), user));
         properties.add(new PrincipalUrl(getResourceLocator(), user));
-        properties.add(new GroupMembership());
+        properties.add(new GroupMembership(getResourceLocator(), user));
     }
 
     protected void setLiveProperty(DavProperty property)

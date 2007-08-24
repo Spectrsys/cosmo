@@ -45,6 +45,7 @@ import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.DavResourceLocatorFactory;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.UnsupportedMediaTypeException;
+import org.osaf.cosmo.dav.acl.AclConstants;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.InvalidCalendarDataException;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
@@ -59,8 +60,8 @@ import org.w3c.dom.Element;
 /**
  */
 public class StandardDavRequest extends WebdavRequestImpl
-    implements DavRequest, ExtendedDavConstants, CaldavConstants,
-    TicketConstants {
+    implements DavRequest, ExtendedDavConstants, AclConstants,
+    CaldavConstants, TicketConstants {
     private static final Log log =
         LogFactory.getLog(StandardDavRequest.class);
     private static final MimeType APPLICATION_XML =
@@ -353,7 +354,7 @@ public class StandardDavRequest extends WebdavRequestImpl
                                     NAMESPACE_TICKET))
             throw new BadRequestException(QN_TICKET_TICKETINFO + " may not contain child " + QN_TICKET_ID);
         if (DomUtil.hasChildElement(root, XML_OWNER, NAMESPACE))
-            throw new BadRequestException(QN_TICKET_TICKETINFO + " may not contain child " + QN_TICKET_OWNER);
+            throw new BadRequestException(QN_TICKET_TICKETINFO + " may not contain child " + QN_OWNER);
 
         String timeout =
             DomUtil.getChildTextTrim(root, ELEMENT_TICKET_TIMEOUT,

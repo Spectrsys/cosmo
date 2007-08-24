@@ -16,11 +16,10 @@
 package org.osaf.cosmo.dav.caldav.property;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
 import org.osaf.cosmo.dav.DavResourceLocator;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
+import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.model.User;
 
 import org.w3c.dom.Element;
@@ -35,37 +34,27 @@ import org.w3c.dom.Document;
 public class CalendarHomeSet extends StandardDavProperty
     implements CaldavConstants {
 
-    private DavResourceLocator locator;
-    private User user;
-
     public CalendarHomeSet(DavResourceLocator locator,
                            User user) {
-        super(CALENDARHOMESET, null, true);
-        this.locator = locator;
-        this.user = user;
+        super(CALENDARHOMESET, href(locator, user), true);
     }
 
-    public Object getValue() {
-        return new CalendarHomeSetInfo();
+    public String getHref() {
+        return (String) getValue();
     }
 
-    public class CalendarHomeSetInfo implements XmlSerializable {
+    public Element toXml(Document document) {
+        Element name = getName().toXml(document);
 
-        public Element toXml(Document document) {
-            String uri =
-                locator.getServiceLocator().getDavCalendarHomeUrl(user);
+        Element e = DomUtil.createElement(document, XML_HREF, NAMESPACE);
+        DomUtil.setText(e, getHref());
+        name.appendChild(e);
 
-            Element href =
-                DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            DomUtil.setText(href, uri);
+        return name;
+    }
 
-            Element homeset =
-                DomUtil.createElement(document,
-                                      ELEMENT_CALDAV_CALENDAR_HOME_SET,
-                                      NAMESPACE_CALDAV);
-            homeset.appendChild(href);
-
-            return homeset;
-        }
+    private static String href(DavResourceLocator locator,
+                               User user) {
+        return locator.getServiceLocator().getDavCalendarHomeUrl(user);
     }
 }
