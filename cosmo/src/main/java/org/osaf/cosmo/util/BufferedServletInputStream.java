@@ -15,19 +15,12 @@
  */
 package org.osaf.cosmo.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.ServletInputStream;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.io.BufferedContent;
 
 /**
  * ServletInputStream implementation that relies on an
@@ -38,14 +31,7 @@ import org.apache.commons.logging.LogFactory;
 public class BufferedServletInputStream extends ServletInputStream {
 
     private InputStream is = null;
-    private File file = null;
-    private byte[] buffer = null;
-    
-    // default to 256K memory buffer
-    private int maxMemoryBuffer = 1024*256;
-    private static final int BUFFER_SIZE = 4096;
-    
-    private static final Log log = LogFactory.getLog(BufferedServletInputStream.class);
+    private BufferedContent content = null;
     
     public BufferedServletInputStream(InputStream is) throws IOException {
        createBuffer(is);
@@ -59,8 +45,7 @@ public class BufferedServletInputStream extends ServletInputStream {
      * @throws IOException
      */
     public BufferedServletInputStream(InputStream is, int maxMemoryBuffer) throws IOException {
-        this.maxMemoryBuffer = maxMemoryBuffer;
-        createBuffer(is);
+        createBuffer(is, maxMemoryBuffer);
      }
 
     @Override
@@ -114,60 +99,24 @@ public class BufferedServletInputStream extends ServletInputStream {
      */
     public synchronized void resetToBeginning() throws IOException {
         is.close();
-        if(file != null)
-            is = new FileInputStream(file);
-        else
-            is = new ByteArrayInputStream(buffer);
+        is = content.getInputStream();
     }
     
     /**
      * @return length of buffered content
      */
     public long getLength() {
-        if(file != null)
-            return file.length();
-        else
-            return buffer.length;
+        return content.getLength();
     }
     
     private void createBuffer(InputStream is) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        byte[] buf = new byte[BUFFER_SIZE];
-        int read = is.read(buf);
-        while(read > 0) {
-            bos.write(buf, 0, read);
-            // If the request size is bigger than maxMemoryBuffer, then
-            // buffer to file instead so we don't run out of memory
-            if(bos.size()>maxMemoryBuffer) {
-                createFileBuffer(bos.toByteArray(), buf, is);
-                return;
-            }
-            read = is.read(buf);
-        }
-        buffer = bos.toByteArray();
-        this.is = new ByteArrayInputStream(buffer);
+        content = new BufferedContent(is);
+        this.is = content.getInputStream();
     }
     
-    private void createFileBuffer(byte[] start, byte[] buf, InputStream is) throws IOException{
-        file = File.createTempFile("cosmo", "tmp");
-        FileOutputStream fos = new FileOutputStream(file);
-        ByteArrayInputStream bis = new ByteArrayInputStream(start);
-        IOUtils.copy(bis, fos);
-        IOUtils.copy(is, fos);
-        fos.close();
-        this.is = new FileInputStream(file);
-    }
-    
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        try {
-            if(file!=null)
-                file.delete();
-        } catch(Exception e) {
-            log.error("error deleting temp file: "
-                    + file.getAbsolutePath(), e);
-        }
+    private void createBuffer(InputStream is, int maxMemoryBuffer) throws IOException {
+        content = new BufferedContent(is, maxMemoryBuffer);
+        this.is = content.getInputStream();
     }
     
 }

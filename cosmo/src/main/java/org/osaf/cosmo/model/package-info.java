@@ -23,6 +23,11 @@
         name="bytearray_blob",
         typeClass = org.springframework.orm.hibernate3.support.BlobByteArrayType.class
     ),
+    
+    @TypeDef(
+            name="bufferedcontent_blob",
+            typeClass = org.osaf.cosmo.hibernate.BufferedContentBlob.class
+        ),
 
     @TypeDef(
             name="calendar_clob",
