@@ -16,6 +16,7 @@ import davclient
 import copy
 import xmlobjects
 import pdb
+import urllib
 
 from xml.etree import ElementTree
 
@@ -77,40 +78,46 @@ class CosmoClient(davclient.DAVClient):
             self._users.append(element.text)
         return self._users
     
-    def get_all_events(self, user, collection='/'):
-        """Get all the events for a given user. Returns list of dict objects with 'href' and 'body'"""
-        self.propfind(self._cosmo_path+'dav/'+user+collection)
-        hrefs = self.response.tree.findall('//{DAV:}href')
-        events = []
-        for ref in hrefs:
-            if ref.text.endswith('.ics'):
-                event = {'href':ref.text}
-                print ref.text.replace(self._url.geturl(), '')
-                self.get(ref.text.replace(self._url.geturl(), ''))
-                event['body'] = copy.copy(self.response.body)
-                events.append(event)
-        return events
+    # def get_all_events(self, user, collection='/'):
+    #     """Get all the events for a given user. Returns list of dict objects with 'href' and 'body'"""
+    #     self.propfind(self._cosmo_path+'dav/'+urllib.quote(user)+collection)
+    #     hrefs = [ response.find('{DAV:}href').text for response in self.response.tree.getchildren() if (
+    #                   response.find('{DAV:}href').text.find('http') is not -1) and (
+    #                   response.find('{DAV:}href').text.endswith('.ics') )]
+    #     events = []
+    #     for ref in hrefs:
+    #         event = {'href':ref}
+    #         print ref.replace(self._url.geturl(), '')
+    #         self.get(ref.replace(self._url.geturl(), ''))
+    #         event['body'] = copy.copy(self.response.body)
+    #         events.append(event)
+    #     return events
         
-    def get_all_users_events(self):
+    def get_all_users_items(self):
         """Get all the events for all users on the server. Returns dict object where key is username and value is list of event dict object from CosmoClient.get_all_events"""
         if not hasattr(self, '_users'):
             self.get_users()
         
         all_events = {}
         for user in self._users:
-            print 'Getting all events for user "%s"' % user
-            events = self.get_all_events(user)
-            all_events[user] = events
+            try:
+                user.encode('ascii')
+            except UnicodeEncodeError:
+                print "username can't be coerced easily to ascii, skipping"
+            else:
+                print 'Getting all events for user '+user.encode('ascii', 'ignore')
+                items = self.get_all_dav_resources_for_user(user)
+                all_events[user] = items
             
         return all_events
         
     def get_all_dav_resources_for_user(self, user, collection='/'):
         all_items = []
-        self.propfind(self._cosmo_path+'dav/'+user+collection)
+        self.propfind(self._cosmo_path+'dav/'+urllib.quote(user)+collection)
         hrefs = [ response.find('{DAV:}href').text for response in self.response.tree.getchildren() if (
                       response.find('{DAV:}href').text.find('http') is not -1) and ( not
                       response.find('{DAV:}href').text.endswith('/') )]
-        print hrefs
+
         for ref in hrefs:
             item = {'href':ref}
             print ref.replace(self._url.geturl(), '')

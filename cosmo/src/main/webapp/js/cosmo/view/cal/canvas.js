@@ -691,7 +691,6 @@ cosmo.view.cal.canvas = new function () {
                 break;
             case 'save':
                 setLozengeProcessing(cmd);
-                // Do nothing
                 break;
             case 'saveFailed':
                 var ev = cmd.data;
@@ -725,7 +724,12 @@ cosmo.view.cal.canvas = new function () {
                 }
                 break;
             case 'saveSuccess':
-                saveSuccess(cmd);
+                if (cmd.data.data.getEventStamp()){
+                    saveSuccess(cmd);
+                }
+                else {
+                    removeEvent(cmd.data);
+                }
                 break;
             case 'remove':
                 // Show 'processing' state here
@@ -1230,11 +1234,6 @@ cosmo.view.cal.canvas = new function () {
         var ev = cmd.data;
         var qual = cmd.qualifier;
         var eventStamp = ev.data.getEventStamp();
-        var startDate = eventStamp.getStartDate();
-        var endDate = eventStamp.getEndDate();
-        var allDay = eventStamp.getAllDay();
-        var anyTime = eventStamp.getAnyTime();
-        var rrule = eventStamp.getRrule();
 
         // If the user has navigated off the week displaying the
         // current selected item, it's not in the itemRegistry,
@@ -1242,6 +1241,21 @@ cosmo.view.cal.canvas = new function () {
         // object has been 'orphaned' -- the DOM node is not on
         // the currently displayed canvas
         if (ev.lozenge.isOrphaned()) { return false; }
+
+        // If the edit removed the event stamp, just set the
+        // lozenge to a processing state and wait for edit
+        // to return to remove the lozenge from the canvas
+        if (!eventStamp) {
+            ev.lozenge.setInputDisabled(true);
+            ev.lozenge.showProcessing();
+            return true;
+        }
+
+        var startDate = eventStamp.getStartDate();
+        var endDate = eventStamp.getEndDate();
+        var allDay = eventStamp.getAllDay();
+        var anyTime = eventStamp.getAnyTime();
+        var rrule = eventStamp.getRrule();
 
         if (ev.dataOrig){
             var origEventStamp = ev.dataOrig.getEventStamp();
@@ -1286,6 +1300,7 @@ cosmo.view.cal.canvas = new function () {
             var evReg = cosmo.view.cal.itemRegistry;
             evReg.each(f);
         }
+        return true;
     }
 
     /**

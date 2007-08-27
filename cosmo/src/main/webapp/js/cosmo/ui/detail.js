@@ -1117,11 +1117,13 @@ cosmo.ui.detail.EventFormElements= function () {
                     tzId.indexOf("/") + 1).replace(/_/g," "), value:tzId});
             });
         }
+        
         return options;
     }
     function clearTimezone() {
         f.tzRegion.selectedIndex = 0;
-        getTimezoneIdOptions();
+        f.tzId.selectedIndex = 0;
+        cosmo.util.html.setSelectOptions(f.tzId, getTimezoneIdOptions());
     }
     function getStatusOpt() {
         var statusOpt = [];
@@ -1375,6 +1377,9 @@ cosmo.ui.detail.EventFormElements= function () {
             var tz = cosmo.datetime.timezone.getTimezone(start.tzId);
             if (!tz){
                 clearTimezone();
+                var options = {text:start.tzId, value:start.tzId};
+                _html.setSelectOptions(f.tzId, [options]);
+                f.tzId.selectedIndex = 0;
             }
             else {
                 //we use this tzid in case the event has a "legacy" tzId,
@@ -1399,7 +1404,7 @@ cosmo.ui.detail.EventFormElements= function () {
         }
         var recur = stamp.getRrule();
         var recurEnd = f.recurrenceEnd;
-        if (recur) {
+        if (recur && recur.isSupported()) {
             _html.setSelect(f.recurrenceInterval, recur.getFrequency());
             _html.enableFormElem(recurEnd, 'text');
             if (recur.getEndDate()) {

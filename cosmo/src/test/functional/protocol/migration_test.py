@@ -16,16 +16,17 @@ import cosmoclient
 import cPickle as pickle
 import sys, os
 import inspect
-
+import difflib
 
 class MigrationTest(object):
     def __init__(self, connection_info, store):
         self.connection_info = connection_info
         self.store = store
+        self.end_strings = []
 
 class AllUserEvents(MigrationTest):
     """Verify that all events for all users match"""
-    name = 'all_events'
+    name = 'all_items'
     switch = 'e'
     def setup(self):
         self.client = cosmoclient.CosmoClient(self.connection_info['server_url'])
@@ -34,30 +35,37 @@ class AllUserEvents(MigrationTest):
     
     def collect(self):
         print 'Collecting All User events'
-        store['all_events'] = self.client.get_all_users_events()
+        self.store['all_items'] = self.client.get_all_users_items()
     
     def validate(self):
         total = passed = failed = 0
+        failures = {}
         failed_urls = []
         
         print 'Starting validation for All User Events'
-        for user, events in self.store['all_events'].items():
-            for event in events:
-                print 'Verifying %s' % event['href']
-                body = self.client.get(event['href'].replace(self.client._url.geturl(), ''))
+        for user, items in self.store['all_items'].items():
+            for item in items:
+                print 'Verifying %s' % item['href']
+                body = self.client.get(item['href'].replace(self.client._url.geturl(), ''))
                 try:
                     total = total + 1
-                    assert event['body'] == body
+                    assert item['body'] == body
                     passed = passed + 1
                 except AssertionError:
                     failed = failed + 1
-                    failed_urls.append(event['href'])
-                    print "failure in %s" % event['href']
-                    print "Pre::%s" % event['body']
-                    print "Post::%s"% body
-        print "Total resources = %s, Passed = %s, Failed = %s" % (total, passed, failed)
+                    failed_urls.append(item['href'])
+                    diff = '\n'.join([line for line in difflib.unified_diff(item['body'].split('\n'), body.split('\n'))])
+                    failure = {'item':item, 'body':body, 'diff':diff}
+                    failures[item['href'].replace(self.client._url.geturl(), '')] = failure
+                    print 'Failure in '+item['href']
+                    print diff
+        self.store['all_item_failures'] = failures
+        for key, value in failures.items():
+            self.end_strings.append(key+' Failed')
+            self.end_strings.append(value['diff'])
+        self.end_strings.append("Total resources = %s, Passed = %s, Failed = %s" % (total, passed, failed))
         if failed is not 0:
-            print 'Failed urls :: %s' % '\n'.join(failed_urls)
+            self.end_strings.append('Failed urls :: \n%s' % '\n'.join(failed_urls))
         
         
 class NumberOfUsers(MigrationTest):
@@ -75,10 +83,10 @@ class NumberOfUsers(MigrationTest):
     def validate(self):
         current_count = self.client.get_user_count()
         if self.store['number_of_users'] == current_count:
-            print 'Number of users match on both instances'
+            self.end_strings.append('Number of users match on both instances')
         else:
-            print "Number of users don't match. %s is the previous number. %s is the new one" % (
-                  self.store['number_of_users'], current_count ) 
+            self.end_strings.append("Number of users don't match. %s is the previous number. %s is the new one" % (
+                  self.store['number_of_users'], current_count )) 
 
 class TestAccountResouces(MigrationTest):
     name = 'test_account_resources'
@@ -92,7 +100,7 @@ class TestAccountResouces(MigrationTest):
         self.store['hub_test_resources'] = self.client.get_all_dav_resources_for_user('hub-test')
     def validate(self):
         total = passed = failed = 0
-        failed_urls = []
+        failures = {}
         
         print 'Starting validation for all resources for hub-test user'
         for item in self.store['hub_test_resources']:
@@ -104,13 +112,18 @@ class TestAccountResouces(MigrationTest):
                 passed = passed + 1
             except AssertionError:
                 failed = failed + 1
-                failed_urls.append(item['href'])
-                print "failure in %s" % item['href']
-                print "Pre::%s"       % item['body']
-                print "Post::%s"      % body
-        print "Total resources = %s, Passed = %s, Failed = %s" % (total, passed, failed)
+                diff = '\n'.join([line for line in difflib.unified_diff(item['body'].split('\n'), body.split('\n'))])
+                failure = {'item':item, 'body':body, 'diff':diff}
+                failures[item['href'].replace(self.client._url.geturl(), '')] = failure
+                print 'Failure in '+item['href']
+                print diff
+        self.store['test_account_failures'] = failures
+        for key, value in failures.items():
+            self.end_strings.append(key+' Failed')
+            self.end_strings.append(value['diff'])
+        self.end_strings.append("Total resources = %s, Passed = %s, Failed = %s" % (total, passed, failed))
         if failed is not 0:
-            print 'Failed urls :: %s' % '\n'.join(failed_urls)
+            self.end_strings.append('Failed urls :: \n%s' % '\n'.join([fail['href'] for fail in failed.keys()]))
             
 def main():
     from optparse import OptionParser
@@ -157,11 +170,12 @@ def main():
     if options.collect and not options.filename and not options.validate:
         print 'You cannot specify collect and not validate without the filename option'
         sys.exit()
-     
+    
     connection_info = {'admin_username' : options.admin_username,
                        'admin_password' : options.admin_password,
                        'server_url'     : options.server_url,
-                       'hub_pass'  : options.hub_pass}
+                       'hub_pass'       : options.hub_pass,
+                       'pdb'            : options.pdb}
     
     if options.collect:
         store = {}
@@ -170,23 +184,39 @@ def main():
         print 'Loading pickle'
         store = pickle.load(f)
     
+    tests = []
     for name, cls in test_classes.items():
         if getattr(options, name):
             test = cls(connection_info, store)
             test.setup()
             if getattr(options, name) is True:
                 if options.collect and hasattr(test, 'collect'):
-                    test.collect()
+                    if not getattr(options, 'pdb', None):
+                        test.collect()
+                    else:
+                        import pdb
+                        try:
+                            test.collect()
+                        except:
+                            pdb.post_mortem(sys.exc_info()[2])
                 if options.validate and hasattr(test, 'validate'):
-                    test.validate()
+                    if not getattr(options, 'pdb', None):
+                        test.validate()
+                    else:
+                        import pdb
+                        try:
+                            test.validate()
+                        except:
+                            pdb.post_mortem(sys.exc_info()[2])
+            tests.append(test)
+    print '+++++++++++++++++++++++++++++++++\n'.join( ['\n'.join(test.end_strings) for test in tests] )
     
-    if not options.validate and options.collect:
-        if os.path.isfile(options.filename):
-            print 'pickle store filename exists, overwritting'
-        f = open(options.filename, 'w')
-        pickle.dump(store, f, pickle.HIGHEST_PROTOCOL)
-        f.flush()
-        f.close()
+    if os.path.isfile(options.filename):
+        print 'pickle store filename exists, overwritting'
+    f = open(options.filename, 'w')
+    pickle.dump(store, f, pickle.HIGHEST_PROTOCOL)
+    f.flush()
+    f.close()
             
 if __name__ == "__main__":
     
