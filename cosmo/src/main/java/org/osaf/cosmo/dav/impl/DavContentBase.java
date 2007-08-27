@@ -128,14 +128,6 @@ public abstract class DavContentBase extends DavItemResourceBase
         throw new UnsupportedOperationException();
     }
 
-    // DavResource methods
-
-    /** */
-    public Report getReport(ReportInfo reportInfo)
-        throws DavException {
-        throw new UnsupportedOperationException();
-    }
-
     // our methods
 
     protected Set<QName> getResourceTypes() {

@@ -20,7 +20,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -39,11 +38,6 @@ import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
-import org.apache.jackrabbit.webdav.version.DeltaVConstants;
-import org.apache.jackrabbit.webdav.version.report.Report;
-import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.apache.jackrabbit.webdav.version.report.ReportType;
-import org.apache.jackrabbit.webdav.version.report.SupportedReportSetProperty;
 
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;
@@ -53,11 +47,7 @@ import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.LockedException;
 import org.osaf.cosmo.dav.NotFoundException;
-import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
-import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
-import org.osaf.cosmo.dav.caldav.report.MultigetReport;
-import org.osaf.cosmo.dav.caldav.report.QueryReport;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.ExcludeFreeBusyRollup;
 import org.osaf.cosmo.model.CollectionItem;
@@ -84,17 +74,11 @@ public class DavCollectionBase extends DavItemResourceBase
     private static final Log log = LogFactory.getLog(DavCollectionBase.class);
     private static final Set<String> DEAD_PROPERTY_FILTER =
         new HashSet<String>();
-    private static final Set REPORT_TYPES = new HashSet();
 
     private ArrayList members;
 
     static {
-        registerLiveProperty(DeltaVConstants.SUPPORTED_REPORT_SET);
         registerLiveProperty(EXCLUDEFREEBUSYROLLUP);
-
-        REPORT_TYPES.add(QueryReport.REPORT_TYPE_CALDAV_QUERY);
-        REPORT_TYPES.add(MultigetReport.REPORT_TYPE_CALDAV_MULTIGET);
-        REPORT_TYPES.add(FreeBusyReport.REPORT_TYPE_CALDAV_FREEBUSY);
 
         DEAD_PROPERTY_FILTER.add(CollectionItem.class.getName());
     }
@@ -166,21 +150,6 @@ public class DavCollectionBase extends DavItemResourceBase
         writeHtmlDirectoryIndex(out);
     }
 
-    public Report getReport(ReportInfo reportInfo)
-        throws DavException {
-        if (! exists())
-            throw new NotFoundException();
-
-        if (! isSupportedReport(reportInfo))
-            throw new UnprocessableEntityException("Unknown report " + reportInfo.getReportName());
-
-        try {
-            return ReportType.getType(reportInfo).createReport(this, reportInfo);
-        } catch (org.apache.jackrabbit.webdav.DavException e){
-            throw new DavException(e);
-        }
-    }
-
     // DavCollection
 
     public void addContent(DavContent content,
@@ -240,9 +209,6 @@ public class DavCollectionBase extends DavItemResourceBase
         if (cc == null)
             return;
 
-        log.debug("loading collection live properties");
-
-        properties.add(new SupportedReportSetProperty((ReportType[])REPORT_TYPES.toArray(new ReportType[0])));
         properties.add(new ExcludeFreeBusyRollup(cc.isExcludeFreeBusyRollup()));
     }
 
@@ -259,9 +225,6 @@ public class DavCollectionBase extends DavItemResourceBase
         if (property.getValue() == null)
             throw new UnprocessableEntityException("Property " + name + " requires a value");
 
-        if (name.equals(DeltaVConstants.SUPPORTED_REPORT_SET))
-            throw new ProtectedPropertyModificationException(name);
-
         if (name.equals(EXCLUDEFREEBUSYROLLUP)) {
             Boolean flag = Boolean.valueOf(property.getValueText());
             cc.setExcludeFreeBusyRollup(flag);
@@ -276,9 +239,6 @@ public class DavCollectionBase extends DavItemResourceBase
         CollectionItem cc = (CollectionItem) getItem();
         if (cc == null)
             return;
-
-        if (name.equals(DeltaVConstants.SUPPORTED_REPORT_SET))
-            throw new ProtectedPropertyModificationException(name);
 
         if (name.equals(EXCLUDEFREEBUSYROLLUP))
             cc.setExcludeFreeBusyRollup(false);
@@ -373,18 +333,6 @@ public class DavCollectionBase extends DavItemResourceBase
         } catch (CollectionLockedException e) {
             throw new LockedException();
         }
-    }
-
-    /**
-     * Determines whether or not the report indicated by the given
-     * report info is supported by this collection.
-     */
-    protected boolean isSupportedReport(ReportInfo info) {
-        for (Iterator<ReportType> i=REPORT_TYPES.iterator(); i.hasNext();) {
-            if (i.next().isRequestedReportType(info))
-                return true;
-        }
-        return false;
     }
 
     protected DavResource memberToResource(Item item)

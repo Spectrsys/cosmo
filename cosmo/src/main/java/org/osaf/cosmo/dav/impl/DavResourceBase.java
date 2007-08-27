@@ -18,6 +18,7 @@ package org.osaf.cosmo.dav.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -37,6 +38,11 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.version.DeltaVConstants;
+import org.apache.jackrabbit.webdav.version.report.Report;
+import org.apache.jackrabbit.webdav.version.report.ReportInfo;
+import org.apache.jackrabbit.webdav.version.report.ReportType;
+import org.apache.jackrabbit.webdav.version.report.SupportedReportSetProperty;
 
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
@@ -45,6 +51,11 @@ import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
+import org.osaf.cosmo.dav.UnprocessableEntityException;
+import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
+import org.osaf.cosmo.dav.caldav.report.MultigetReport;
+import org.osaf.cosmo.dav.caldav.report.QueryReport;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 
@@ -63,9 +74,18 @@ public abstract class DavResourceBase
     implements ExtendedDavConstants, DavResource {
     private static final Log log =
         LogFactory.getLog(DavResourceBase.class);
-
     private static final HashSet<DavPropertyName> LIVE_PROPERTIES =
         new HashSet<DavPropertyName>();
+    private static final HashSet<ReportType> REPORT_TYPES =
+        new HashSet<ReportType>();
+
+    static {
+        registerLiveProperty(DeltaVConstants.SUPPORTED_REPORT_SET);
+        
+        registerReportType(QueryReport.REPORT_TYPE_CALDAV_QUERY);
+        registerReportType(MultigetReport.REPORT_TYPE_CALDAV_MULTIGET);
+        registerReportType(FreeBusyReport.REPORT_TYPE_CALDAV_FREEBUSY);
+    }
 
     private DavResourceLocator locator;
     DavResourceFactory factory;
@@ -268,6 +288,21 @@ public abstract class DavResourceBase
         return msr;
     }
 
+    public Report getReport(ReportInfo reportInfo)
+        throws DavException {
+        if (! exists())
+            throw new NotFoundException();
+
+        if (! isSupportedReport(reportInfo))
+            throw new UnprocessableEntityException("Unknown report " + reportInfo.getReportName());
+
+        try {
+            return ReportType.getType(reportInfo).createReport(this, reportInfo);
+        } catch (org.apache.jackrabbit.webdav.DavException e){
+            throw new DavException(e);
+        }
+    }
+
     public DavResourceFactory getResourceFactory() {
         return factory;
     }
@@ -281,6 +316,31 @@ public abstract class DavResourceBase
     protected CosmoSecurityManager getSecurityManager() {
         return factory.getSecurityManager();
     }
+
+    /**
+     * Determines whether or not the report indicated by the given
+     * report info is supported by this collection.
+     */
+    protected boolean isSupportedReport(ReportInfo info) {
+        for (Iterator<ReportType> i=REPORT_TYPES.iterator(); i.hasNext();) {
+            if (i.next().isRequestedReportType(info))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * <p>
+     * Registers a <code>ReportType</code> supported by this resource.
+     * </p>
+      * <p>
+      * Typically used in subclass static initializers to add to the set
+      * of supported reports for the resource.
+      * </p>
+     */
+     protected static void registerReportType(ReportType reportType) {
+         REPORT_TYPES.add(reportType);
+     }
 
     /**
      * <p>
@@ -326,6 +386,10 @@ public abstract class DavResourceBase
         if (initialized)
             return;
 
+        ReportType[] reportTypes = (ReportType[])
+            REPORT_TYPES.toArray(new ReportType[0]);
+        properties.add(new SupportedReportSetProperty(reportTypes));
+
         loadLiveProperties(properties);
         loadDeadProperties(properties);
 
@@ -338,6 +402,10 @@ public abstract class DavResourceBase
      */
     protected void setResourceProperty(DavProperty property)
         throws DavException {
+        DavPropertyName name = property.getName();
+        if (name.equals(DeltaVConstants.SUPPORTED_REPORT_SET))
+            throw new ProtectedPropertyModificationException(name);
+
         if (isLiveProperty(property.getName()))
             setLiveProperty(property);
         else 
@@ -352,6 +420,9 @@ public abstract class DavResourceBase
      */
     protected void removeResourceProperty(DavPropertyName name)
         throws DavException {
+        if (name.equals(DeltaVConstants.SUPPORTED_REPORT_SET))
+            throw new ProtectedPropertyModificationException(name);
+
         if (isLiveProperty(name))
             removeLiveProperty(name);
         else         
