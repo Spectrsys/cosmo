@@ -80,34 +80,7 @@ public class DavTask extends DavCalendarResource {
      * </ul>
      */
     public Calendar getCalendar() {
-        NoteItem note = (NoteItem) getItem();
-
-        Calendar cal = new Calendar();
-        cal.getProperties().add(new ProdId(CosmoConstants.PRODUCT_ID));
-        cal.getProperties().add(Version.VERSION_2_0);
-        cal.getProperties().add(CalScale.GREGORIAN);
-
-        VToDo vtodo = new VToDo();
-
-        Uid uid = new Uid();
-        if (note.getIcalUid() != null ) {
-            uid.setValue(note.getIcalUid());
-        } else if (note.getModifies() != null) {
-            if (note.getModifies().getIcalUid() != null)
-                uid.setValue(note.getModifies().getIcalUid());
-            else
-                uid.setValue(note.getModifies().getUid());
-        }
-        if (uid.getValue() == null)
-            uid.setValue(note.getUid());
-        vtodo.getProperties().add(uid);
-
-        vtodo.getProperties().add(new Summary(note.getDisplayName()));
-        vtodo.getProperties().add(new Description(note.getBody()));
-
-        cal.getComponents().add(vtodo);
-
-        return cal;
+        return getTaskStamp().getCalendar();
     }
     
     public TaskStamp getTaskStamp() {
@@ -131,10 +104,14 @@ public class DavTask extends DavCalendarResource {
         NoteItem note = (NoteItem) getItem();
         String val = null;
 
+        // Store calendar in task stamp
+        getTaskStamp().setTaskCalendar(cal);
+        
         ComponentList vtodos = cal.getComponents(Component.VTODO);
         if (vtodos.isEmpty())
             throw new UnprocessableEntityException("VCALENDAR does not contain any VTODOS");
 
+        // Pull out relevent data (displayName, body, etc) from icalendar data
         VToDo vtodo = (VToDo) vtodos.get(0);
 
         val = null;

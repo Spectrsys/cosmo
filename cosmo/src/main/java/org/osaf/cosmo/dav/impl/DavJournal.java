@@ -79,33 +79,7 @@ public class DavJournal extends DavCalendarResource {
      */
     public Calendar getCalendar() {
         NoteItem note = (NoteItem) getItem();
-
-        Calendar cal = new Calendar();
-        cal.getProperties().add(new ProdId(CosmoConstants.PRODUCT_ID));
-        cal.getProperties().add(Version.VERSION_2_0);
-        cal.getProperties().add(CalScale.GREGORIAN);
-
-        VJournal vjournal = new VJournal();
-
-        Uid uid = new Uid();
-        if (note.getIcalUid() != null ) {
-            uid.setValue(note.getIcalUid());
-        } else if (note.getModifies() != null) {
-            if (note.getModifies().getIcalUid() != null)
-                uid.setValue(note.getModifies().getIcalUid());
-            else
-                uid.setValue(note.getModifies().getUid());
-        }
-        if (uid.getValue() == null)
-            uid.setValue(note.getUid());
-        vjournal.getProperties().add(uid);
-
-        vjournal.getProperties().add(new Summary(note.getDisplayName()));
-        vjournal.getProperties().add(new Description(note.getBody()));
-
-        cal.getComponents().add(vjournal);
-
-        return cal;
+        return note.getCalendar();
     }
 
     /**
@@ -125,6 +99,8 @@ public class DavJournal extends DavCalendarResource {
         NoteItem note = (NoteItem) getItem();
         String val = null;
 
+        note.setJournalCalendar(cal);
+        
         ComponentList vjournals = cal.getComponents(Component.VJOURNAL);
         if (vjournals.isEmpty())
             throw new UnprocessableEntityException("VCALENDAR does not contain any VJOURNALS");

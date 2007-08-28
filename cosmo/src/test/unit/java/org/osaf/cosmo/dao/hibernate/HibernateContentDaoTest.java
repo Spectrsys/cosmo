@@ -28,11 +28,14 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import net.fortuna.ical4j.model.property.ProdId;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.DOMWriter;
 import org.hibernate.validator.InvalidStateException;
+import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.AttributeTombstone;
@@ -42,6 +45,7 @@ import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.DecimalAttribute;
 import org.osaf.cosmo.model.FileItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
+import org.osaf.cosmo.model.ICalendarAttribute;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
 import org.osaf.cosmo.model.ItemTombstone;
@@ -455,6 +459,46 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         element = (org.w3c.dom.Element) attr.getValue();
         
         Assert.assertEquals(DomWriter.write(testElement2),DomWriter.write(element));
+    }
+    
+    public void testICalendarAttribute() throws Exception {
+        User user = getUser(userDao, "testuser");
+        CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
+
+        ContentItem item = generateTestContent();
+       
+        ICalendarAttribute icalAttr = new ICalendarAttribute(); 
+        icalAttr.setQName(new QName("icalattribute"));
+        icalAttr.setValue(new FileInputStream(baseDir + "/vjournal.ics"));
+        item.addAttribute(icalAttr);
+        
+        ContentItem newItem = contentDao.createContent(root, item);
+
+        clearSession();
+
+        ContentItem queryItem = contentDao.findContentByUid(newItem.getUid());
+
+        Attribute attr = queryItem.getAttribute(new QName("icalattribute"));
+        Assert.assertNotNull(attr);
+        Assert.assertTrue(attr instanceof ICalendarAttribute);
+        
+        net.fortuna.ical4j.model.Calendar calendar = (net.fortuna.ical4j.model.Calendar) attr.getValue();
+        Assert.assertNotNull(calendar);
+        
+        net.fortuna.ical4j.model.Calendar expected = CalendarUtils.parseCalendar(new FileInputStream(baseDir + "/vjournal.ics"));
+        
+        Assert.assertEquals(expected.toString(),calendar.toString());
+        
+        calendar.getProperties().add(new ProdId("blah"));
+        
+        contentDao.updateContent(queryItem);
+        
+        clearSession();
+        
+        queryItem = contentDao.findContentByUid(newItem.getUid());
+        
+        ICalendarAttribute ica = (ICalendarAttribute) queryItem.getAttribute(new QName("icalattribute"));
+        Assert.assertFalse(expected.toString().equals(ica.getValue().toString()));
     }
 
     public void testCreateDuplicateRootItem() throws Exception {
