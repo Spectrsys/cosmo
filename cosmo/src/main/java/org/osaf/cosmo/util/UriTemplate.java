@@ -158,7 +158,8 @@ public class UriTemplate {
 
         Segment segment = null;
         while (si.hasNext() || segment.isAll()) {
-            segment = si.next();
+            if (si.hasNext())
+                segment = si.next();
 
             if (! candidate.hasNext()) {
                 // if the segment is consuming all remaining data, then we're
@@ -177,6 +178,8 @@ public class UriTemplate {
 
             if (segment.isAll()) {
                 String saved = match.get("*");
+                if (saved == null)
+                    saved = "";
                 saved += "/" + unescape(token);
                 match.put("*", saved);
             } else if (segment.isVariable())
