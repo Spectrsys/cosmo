@@ -17,7 +17,6 @@ package org.osaf.cosmo.dao.hibernate;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -235,7 +234,7 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         calendar = contentDao.findCollectionByUid(calendar.getUid());
 
         // Should match ics.1
-        Set<ContentItem> queryEvents = calendarDao.findEvents(calendar,
+        Set<ContentItem> queryEvents = calendarDao.findCalendarItems(calendar,
                 filter);
         Assert.assertEquals(1, queryEvents.size());
         ContentItem nextItem = queryEvents.iterator().next();
@@ -243,7 +242,7 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
 
         // Should match all
         eventFilter.setPropFilters(new ArrayList());
-        queryEvents = calendarDao.findEvents(calendar, filter);
+        queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(5, queryEvents.size());
 
         // should match three
@@ -251,20 +250,20 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         PropertyFilter propFilter2 = new PropertyFilter("SUMMARY");
         propFilter2.setTextMatchFilter(new TextMatchFilter("Physical"));
         eventFilter.getPropFilters().add(propFilter2);
-        queryEvents = calendarDao.findEvents(calendar, filter);
+        queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(3, queryEvents.size());
 
         // should match everything except #1...so that means 4
         eventFilter.getPropFilters().remove(propFilter2);
         propFilter.getTextMatchFilter().setNegateCondition(true);
-        queryEvents = calendarDao.findEvents(calendar, filter);
+        queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(4, queryEvents.size());
 
         // should match ics.1 again
         propFilter.getTextMatchFilter().setNegateCondition(false);
         propFilter.getTextMatchFilter().setCaseless(true);
         propFilter.getTextMatchFilter().setValue("vISiBlE");
-        queryEvents = calendarDao.findEvents(calendar, filter);
+        queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(1, queryEvents.size());
         nextItem = (ContentItem) queryEvents.iterator().next();
         Assert.assertEquals("test1.ics", nextItem.getName());
@@ -273,7 +272,7 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         propFilter.setTextMatchFilter(null);
         propFilter.setName("RRULE");
         propFilter.setIsNotDefinedFilter(new IsNotDefinedFilter());
-        queryEvents = calendarDao.findEvents(calendar, filter);
+        queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(5, queryEvents.size());
 
         // time range test
@@ -288,7 +287,7 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         eventFilter.setTimeRangeFilter(timeRange);
 
         // should match ics.1
-        queryEvents = calendarDao.findEvents(calendar, filter);
+        queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(1, queryEvents.size());
         nextItem = (ContentItem) queryEvents.iterator().next();
         Assert.assertEquals("test1.ics", nextItem.getName());
@@ -300,7 +299,7 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         timeRange.setPeriod(period);
 
         // should match all now
-        queryEvents = calendarDao.findEvents(calendar, filter);
+        queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(5, queryEvents.size());
 
         propFilter = new PropertyFilter("SUMMARY");
@@ -308,7 +307,7 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         eventFilter.getPropFilters().add(propFilter);
 
         // should match ics.1
-        queryEvents = calendarDao.findEvents(calendar, filter);
+        queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(1, queryEvents.size());
         nextItem = (ContentItem) queryEvents.iterator().next();
         Assert.assertEquals("test1.ics", nextItem.getName());
@@ -320,7 +319,7 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         timeRange.setPeriod(period);
 
         // should match none
-        queryEvents = calendarDao.findEvents(calendar, filter);
+        queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(0, queryEvents.size());
     }
     

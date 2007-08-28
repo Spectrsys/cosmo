@@ -15,10 +15,7 @@
  */
 package org.osaf.cosmo.dav.impl;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -27,20 +24,14 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.ResourceType;
-
 import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.ConflictException;
 import org.osaf.cosmo.dav.DavCollection;
-import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
@@ -162,7 +153,7 @@ public class DavCalendarCollection extends DavCollectionBase
 
         CollectionItem collection = (CollectionItem) getItem();
         for (ContentItem memberItem :
-             getContentService().findEvents(collection, filter))
+             getContentService().findCalendarItems(collection, filter))
             members.add((DavCalendarResource)memberToResource(memberItem));
 
         return members;

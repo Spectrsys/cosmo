@@ -285,4 +285,54 @@ public class CalendarFilterEvaluaterTest extends TestCase {
         
         Assert.assertTrue(evaluater.evaluate(calendar, filter));
     }
+    
+    public void testEvaluateVJournalFilterPropFilter() throws Exception {
+        CalendarBuilder cb = new CalendarBuilder();
+        FileInputStream fis = new FileInputStream(baseDir + "vjournal.ics");
+        CalendarFilterEvaluater evaluater = new CalendarFilterEvaluater();
+        Calendar calendar = cb.build(fis);
+        
+        CalendarFilter filter = new CalendarFilter();
+        ComponentFilter compFilter = new ComponentFilter("VCALENDAR");
+        ComponentFilter eventFilter = new ComponentFilter("VJOURNAL");
+        filter.setFilter(compFilter);
+        compFilter.getComponentFilters().add(eventFilter);
+        
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
+        
+        PropertyFilter propFilter = new PropertyFilter("SUMMARY");
+        TextMatchFilter textFilter = new TextMatchFilter("Staff");
+        propFilter.setTextMatchFilter(textFilter);
+        eventFilter.getPropFilters().add(propFilter);
+        
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
+        
+        textFilter.setValue("bogus");
+        Assert.assertFalse(evaluater.evaluate(calendar, filter));
+    }
+    
+    public void testEvaluateVToDoFilterPropFilter() throws Exception {
+        CalendarBuilder cb = new CalendarBuilder();
+        FileInputStream fis = new FileInputStream(baseDir + "vtodo.ics");
+        CalendarFilterEvaluater evaluater = new CalendarFilterEvaluater();
+        Calendar calendar = cb.build(fis);
+        
+        CalendarFilter filter = new CalendarFilter();
+        ComponentFilter compFilter = new ComponentFilter("VCALENDAR");
+        ComponentFilter eventFilter = new ComponentFilter("VTODO");
+        filter.setFilter(compFilter);
+        compFilter.getComponentFilters().add(eventFilter);
+        
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
+        
+        PropertyFilter propFilter = new PropertyFilter("SUMMARY");
+        TextMatchFilter textFilter = new TextMatchFilter("Income");
+        propFilter.setTextMatchFilter(textFilter);
+        eventFilter.getPropFilters().add(propFilter);
+        
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
+        
+        textFilter.setValue("bogus");
+        Assert.assertFalse(evaluater.evaluate(calendar, filter));
+    }
 }
