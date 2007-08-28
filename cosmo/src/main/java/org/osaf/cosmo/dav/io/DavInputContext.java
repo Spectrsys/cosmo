@@ -28,13 +28,15 @@ import net.fortuna.ical4j.model.ValidationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.io.InputContextImpl;
 import org.apache.jackrabbit.server.io.IOUtil;
 
 import org.osaf.cosmo.calendar.util.CalendarUtils;
-import org.osaf.cosmo.dav.CosmoDavMethods;
+import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
+import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.dav.UnprocessableEntityException;
+import org.osaf.cosmo.dav.UnsupportedMediaTypeException;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 
 /**
@@ -57,9 +59,8 @@ public class DavInputContext extends InputContextImpl
     public DavInputContext(HttpServletRequest request,
                            InputStream in) {
         super(request, in);
-        if (request.getMethod().equals(CosmoDavMethods.METHOD_MKCALENDAR)) {
+        if (request.getMethod().equals("MKCALENDAR"))
             contentType = CONTENT_TYPE_CALENDAR_COLLECTION;
-        }
     }
     
     // InputContext methods
@@ -89,10 +90,9 @@ public class DavInputContext extends InputContextImpl
             return null;
 
         if (getContentType() == null)
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "No media type specified");
-        if (! IOUtil.getMimeType(getContentType()).equals(CT_ICALENDAR)) {
-            throw new DavException(DavServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Content-type for calendar data must be " + CT_ICALENDAR);
-        }
+            throw new BadRequestException("No media type specified");
+        if (! IOUtil.getMimeType(getContentType()).equals(CT_ICALENDAR))
+            throw new UnsupportedMediaTypeException("Content-type for calendar data must be " + CT_ICALENDAR);
 
         try {
             Calendar c = CalendarUtils.parseCalendar(getInputStream());
@@ -100,18 +100,18 @@ public class DavInputContext extends InputContextImpl
 
             // CALDAV:valid-calendar-object-resource
             if (CalendarUtils.hasMultipleComponentTypes(c))
-                throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Calendar object contains more than one type of component");
+                throw new PreconditionFailedException("Calendar object contains more than one type of component");
             if (c.getProperties().getProperty(Property.METHOD) != null)
-                throw new DavException(DavServletResponse.SC_PRECONDITION_FAILED, "Calendar object contains METHOD property");
+                throw new PreconditionFailedException("Calendar object contains METHOD property");
 
             calendar = c;
         } catch (IOException e) {
-            throw new DavException(DavServletResponse.SC_INTERNAL_SERVER_ERROR, "Cannot read resource content: " + e.getMessage());
+            throw new DavException(e);
         // CALDAV:valid-calendar-data
         } catch (ParserException e) {
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "Failed to parse calendar object: " + e.getMessage());
+            throw new BadRequestException("Failed to parse calendar object: " + e.getMessage());
         } catch (ValidationException e) {
-            throw new DavException(DavServletResponse.SC_BAD_REQUEST, "Invalid calendar object: " + e.getMessage());
+            throw new UnprocessableEntityException("Invalid calendar object: " + e.getMessage());
         }
 
         return calendar;

@@ -23,7 +23,6 @@ import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
-import org.apache.jackrabbit.webdav.io.InputContextImpl;
 import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.io.OutputContextImpl;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
@@ -48,6 +47,7 @@ import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.impl.DavItemResource;
+import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityContext;
@@ -283,7 +283,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
 
         InputStream in = (request.getContentLength() > 0 || chunked) ?
             request.getInputStream() : null;
-        return new InputContextImpl(request, in);
+        return new DavInputContext(request, in);
     }
 
     protected OutputContext createOutputContext(DavResponse response,
