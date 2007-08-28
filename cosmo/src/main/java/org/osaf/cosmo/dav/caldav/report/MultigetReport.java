@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2006-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
@@ -32,28 +33,21 @@ import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavResource;
-import org.osaf.cosmo.dav.MethodNotAllowedException;
+import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 
 import org.w3c.dom.Element;
 
 /**
+ * <p>
  * Represents the <code>CALDAV:calendar-multiget</code> report that
  * provides a mechanism for retrieving in one request the properties
  * and filtered calendar data from the resources identifed by the
- * supplied <code>DAV:href</code> elements. It should
- * be supported by all CalDAV resources. <p/> CalDAV specifies the
- * following required format for the request body:
- *
- * <pre>
- *                       &lt;!ELEMENT calendar-multiget (DAV:allprop | DAV:propname | DAV:prop)?
- *                                      DAV:href+&gt;
- * </pre>
+ * supplied <code>DAV:href</code> elements.
+ * </p>
  */
 public class MultigetReport extends CaldavMultiStatusReport {
     private static final Log log = LogFactory.getLog(MultigetReport.class);
-
-    /** */
     public static final ReportType REPORT_TYPE_CALDAV_MULTIGET =
         ReportType.register(ELEMENT_CALDAV_CALENDAR_MULTIGET,
                             NAMESPACE_CALDAV, MultigetReport.class);
@@ -62,22 +56,19 @@ public class MultigetReport extends CaldavMultiStatusReport {
 
     // Report methods
 
-    /** */
     public ReportType getType() {
         return REPORT_TYPE_CALDAV_MULTIGET;
     }
 
-    // CaldavReport methods
+    // ReportBase methods
 
     /**
-     * Parse property and href information from the given report
-     * info. Set output filter if the
-     * <code>CALDAV:calendar-data</code> property is included.
+     * Parses the report info, extracting the properties and output filter.
      */
     protected void parseReport(ReportInfo info)
         throws DavException {
         if (! getType().isRequestedReportType(info))
-            throw new BadRequestException("Report not of type " + getType());
+            throw new DavException("Report not of type " + getType());
 
         setPropFindProps(info.getPropertyNameSet());
         if (info.containsContentElement(XML_ALLPROP, NAMESPACE)) {
@@ -123,33 +114,45 @@ public class MultigetReport extends CaldavMultiStatusReport {
         }
     }
 
+    protected void doQuerySelf(DavResource resource)
+        throws DavException {}
+
+    protected void doQueryChildren(DavCollection collection)
+        throws DavException {}
+
     /**
      * Resolves the hrefs provided in the report info to resources.
      */
     protected void runQuery()
         throws DavException {
+        DavPropertyNameSet propspec = createResultPropSpec();
+
         if (getResource() instanceof DavCollection) {
             DavCollection collection = (DavCollection) getResource();
             for (String href : hrefs) {
-                DavCalendarResource target = (DavCalendarResource)
-                    collection.findMember(href);
+                DavResource target = collection.findMember(href);
                 if (target != null)
                     getMultiStatus().
-                        addResponse(buildMultiStatusResponse(target));
+                        addResponse(buildMultiStatusResponse(target, propspec));
                 else
                     getMultiStatus().
                         addResponse(new MultiStatusResponse(href,404));
             }
-        } else if (getResource() instanceof DavCalendarResource) {
-            DavCalendarResource target = (DavCalendarResource) getResource();
-            getMultiStatus().addResponse(buildMultiStatusResponse(target));
-        } else {
-            throw new MethodNotAllowedException("REPORT not allowed for content resource");
+            return;
         }
+
+        if (getResource() instanceof DavCalendarResource) {
+            getMultiStatus().
+                addResponse(buildMultiStatusResponse(getResource(), propspec));
+            return;
+        }
+
+        throw new UnprocessableEntityException(getType() + " report not supported for non-calendar resources");
     }
 
 
-    private boolean isDescendentOrEqual(String path, String descendant) {
+    private static boolean isDescendentOrEqual(String path,
+                                               String descendant) {
         if (path.equals(descendant)) {
             return true;
         } else {

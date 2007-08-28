@@ -56,6 +56,8 @@ public interface CaldavConstants {
         DomUtil.getQualifiedName(ELEMENT_CALDAV_CALENDAR_DATA, NAMESPACE_CALDAV);
     /** The CalDAV XML element name <CALDAV:timezone> */
     public static final String ELEMENT_CALDAV_TIMEZONE = "timezone";
+    public static final String QN_CALDAV_TIMEZONE = 
+        DomUtil.getQualifiedName(ELEMENT_CALDAV_TIMEZONE, NAMESPACE_CALDAV);
     /** The CalDAV XML element name <CALDAV:allcomp> */
     public static final String ELEMENT_CALDAV_ALLCOMP = "allcomp";
     /** The CalDAV XML element name <CALDAV:allprop> */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.dav.caldav.report;
+package org.osaf.cosmo.dav.report;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,12 +25,10 @@ import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 
 /**
- * Base class for CalDAV reports that return single (200 OK)
- * responses.
+ * Base class for reports that return simple single-entity responses.
  */
-public abstract class CaldavSingleResourceReport extends CaldavReport {
-    private static final Log log =
-        LogFactory.getLog(CaldavSingleResourceReport.class);
+public abstract class SimpleReport extends ReportBase {
+    private static final Log log = LogFactory.getLog(SimpleReport.class);
 
     private String contentType;
     private String encoding;
@@ -38,16 +36,10 @@ public abstract class CaldavSingleResourceReport extends CaldavReport {
 
     // Report methods
 
-    /**
-     * Returns false.
-     */
     public boolean isMultiStatusReport() {
         return false;
     }
 
-    /**
-     * Write output to the response.
-     */
     protected void output(DavServletResponse response)
         throws IOException {
         response.setStatus(DavServletResponse.SC_OK);
@@ -59,33 +51,26 @@ public abstract class CaldavSingleResourceReport extends CaldavReport {
 
     // our methods
 
-    /** */
     public String getContentType() {
         return contentType;
     }
 
-    /** */
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }
 
-    /** */
     public String getEncoding() {
         return encoding;
     }
 
-    /** */
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
 
-    /** */
     public InputStream getStream() {
         return stream;
     }
 
-    /**
-     */
     public void setStream(InputStream stream) {
         this.stream = stream;
     }

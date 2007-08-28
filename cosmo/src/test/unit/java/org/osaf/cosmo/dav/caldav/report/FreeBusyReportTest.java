@@ -59,7 +59,7 @@ public class FreeBusyReportTest extends BaseDavTestCase
 
         try {
             report.runQuery();
-            fail("free-busy report targeted at excluded collection should not hae succeeded but did");
+            fail("free-busy report targeted at excluded collection should not have succeeded but did");
         } catch (DavException e) {
             assertEquals("free-busy report targeted at excluded collection did not return Forbidden", DavServletResponse.SC_FORBIDDEN, e.getErrorCode());
         }

@@ -33,23 +33,30 @@ public class DavException extends org.apache.jackrabbit.webdav.DavException
     private DavNamespaceContext nsc;
 
     public DavException(int code) {
-        super(code, null, null, null);
-        nsc = new DavNamespaceContext();
+        this(code, null, null);
+    }
+
+    public DavException(String message) {
+        this(500, message, null);
     }
 
     public DavException(int code,
                         String message) {
-        super(code, message, null, null);
-        nsc = new DavNamespaceContext();
+        this(code, message, null);
     }
 
     public DavException(org.apache.jackrabbit.webdav.DavException e) {
-        super(e.getErrorCode(), e.getMessage(), e, null);
-        nsc = new DavNamespaceContext();
+        this(e.getErrorCode(), e.getMessage(), e);
     }
 
     public DavException(Throwable t) {
-        super(500, t.getMessage(), t, null);
+        this(500, t.getMessage(), t);
+    }
+
+    public DavException(int code,
+                        String message,
+                        Throwable t) {
+        super(code, message, t, null);
         nsc = new DavNamespaceContext();
     }
 
