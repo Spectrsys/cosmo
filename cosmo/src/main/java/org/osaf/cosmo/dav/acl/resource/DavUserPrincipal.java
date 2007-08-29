@@ -38,6 +38,7 @@ import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
 import org.osaf.cosmo.dav.DavCollection;
+import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
@@ -70,7 +71,7 @@ import org.osaf.cosmo.util.PathUtil;
  * @see User
  */
 public class DavUserPrincipal extends DavResourceBase
-    implements AclConstants, CaldavConstants {
+    implements AclConstants, CaldavConstants, DavContent {
     private static final Log log = LogFactory.getLog(DavUserPrincipal.class);
 
     static {
