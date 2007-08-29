@@ -46,13 +46,8 @@ public class Owner extends StandardDavProperty {
 
     public Element toXml(Document document) {
         Element name = getName().toXml(document);
-
-        if (getHref() != null) {
-            Element e = DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            DomUtil.setText(e, getHref());
-            name.appendChild(e);
-        }
-
+        if (getHref() != null)
+            name.appendChild(DomUtil.hrefToXml(getHref(), document));
         return name;
     }
 
