@@ -27,6 +27,7 @@ import org.osaf.cosmo.dav.ConflictException;
 import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
+import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.DavResponse;
@@ -72,6 +73,16 @@ public class CalendarResourceProvider extends FileProvider {
         content.getParent().addContent(content, ctx);
         response.setStatus(status);
         response.setHeader("ETag", content.getETag());
+    }
+
+    protected DavResource resolveDestination(DavResourceLocator locator,
+                                             DavResource original)
+        throws DavException {
+        if (original instanceof DavTask)
+            return new DavTask(locator, getResourceFactory());
+        if (original instanceof DavJournal)
+            return new DavJournal(locator, getResourceFactory());
+        return new DavEvent(locator, getResourceFactory());
     }
 
     protected DavContent createCalendarResource(DavRequest request,
