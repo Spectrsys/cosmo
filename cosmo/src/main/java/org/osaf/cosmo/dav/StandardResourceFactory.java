@@ -105,12 +105,14 @@ public class StandardResourceFactory
             return new DavCalendarCollection(locator, this);
         if (request.getMethod().equals("MKCOL"))
             return new DavCollectionBase(locator, this);
-        if (request.getMethod().equals("PUT") ||
-            request.getMethod().equals("COPY") ||
-            request.getMethod().equals("MOVE"))
+        if (request.getMethod().equals("PUT")) {
             // will be replaced by the provider if a different resource
             // type is required
+            DavResource parent = resolve(locator.getParentLocator());
+            if (parent instanceof DavCalendarCollection)
+                return new DavEvent(locator, this);
             return new DavFile(locator, this);
+        }
 
         throw new NotFoundException();
     }
