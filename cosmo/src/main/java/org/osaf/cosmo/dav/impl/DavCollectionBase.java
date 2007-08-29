@@ -48,6 +48,9 @@ import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.LockedException;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
+import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
+import org.osaf.cosmo.dav.caldav.report.MultigetReport;
+import org.osaf.cosmo.dav.caldav.report.QueryReport;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.ExcludeFreeBusyRollup;
 import org.osaf.cosmo.model.CollectionItem;
@@ -79,6 +82,10 @@ public class DavCollectionBase extends DavItemResourceBase
 
     static {
         registerLiveProperty(EXCLUDEFREEBUSYROLLUP);
+
+        registerReportType(FreeBusyReport.REPORT_TYPE_CALDAV_FREEBUSY);
+        registerReportType(MultigetReport.REPORT_TYPE_CALDAV_MULTIGET);
+        registerReportType(QueryReport.REPORT_TYPE_CALDAV_QUERY);
 
         DEAD_PROPERTY_FILTER.add(CollectionItem.class.getName());
     }
