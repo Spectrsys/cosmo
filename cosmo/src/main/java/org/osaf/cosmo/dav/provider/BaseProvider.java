@@ -47,6 +47,7 @@ import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.impl.DavItemResource;
+import org.osaf.cosmo.dav.impl.DavFile;
 import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
@@ -92,6 +93,9 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new NotFoundException();
 
         int depth = request.getDepth(DEPTH_INFINITY);
+        if (depth != DEPTH_0 && ! resource.isCollection())
+            throw new BadRequestException("Depth must be 0 for non-collection resources");
+
         DavPropertyNameSet props = request.getPropFindProperties();
         int type = request.getPropFindType();
 
@@ -149,8 +153,8 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new BadRequestException("Depth for COPY must be 0 or Infinity");
 
         DavResource destination =
-            resourceFactory.resolve(request.getDestinationResourceLocator(),
-                                    request);
+            resolveDestination(request.getDestinationResourceLocator(),
+                               resource);
         validateDestination(request, destination);
 
         try {
@@ -171,8 +175,8 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new NotFoundException();
 
         DavResource destination =
-            resourceFactory.resolve(request.getDestinationResourceLocator(),
-                                    request);
+            resolveDestination(request.getDestinationResourceLocator(),
+                               resource);
         validateDestination(request, destination);
 
         try {
@@ -291,6 +295,14 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         throws IOException {
         OutputStream out = withEntity ? response.getOutputStream() : null;
         return new OutputContextImpl(response, out);
+    }
+
+    protected DavResource resolveDestination(DavResourceLocator locator,
+                                             DavResource original)
+        throws DavException {
+        DavResource destination = resourceFactory.resolve(locator);
+        return destination != null ? destination :
+            new DavFile(locator, resourceFactory);
     }
 
     protected void validateDestination(DavRequest request,
