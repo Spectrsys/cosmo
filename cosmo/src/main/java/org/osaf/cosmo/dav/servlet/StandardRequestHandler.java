@@ -165,26 +165,35 @@ public class StandardRequestHandler implements HttpRequestHandler {
             provider.propfind(request, response, resource);
         else if (request.getMethod().equals("PROPPATCH"))
             provider.proppatch(request, response, resource);
-        else if (request.getMethod().equals("PUT"))
-            provider.put(request, response, (DavContent)resource);
         else if (request.getMethod().equals("DELETE"))
             provider.delete(request, response, resource);
         else if (request.getMethod().equals("COPY"))
             provider.copy(request, response, resource);
         else if (request.getMethod().equals("MOVE"))
             provider.move(request, response, resource);
-        else if (request.getMethod().equals("MKCOL"))
-            provider.mkcol(request, response, (DavCollection)resource);
         else if (request.getMethod().equals("REPORT"))
             provider.report(request, response, resource);
-        else if (request.getMethod().equals("MKCALENDAR"))
-            provider.mkcalendar(request, response, (DavCollection)resource);
         else if (request.getMethod().equals("MKTICKET"))
             provider.mkticket(request, response, resource);
         else if (request.getMethod().equals("DELTICKET"))
             provider.delticket(request, response, resource);
-        else
-            throw new MethodNotAllowedException(request.getMethod() + " not allowed");
+        else {
+            if (resource.isCollection()) {
+                if (request.getMethod().equals("MKCOL"))
+                    provider.mkcol(request, response,
+                                   (DavCollection)resource);
+                else if (request.getMethod().equals("MKCALENDAR"))
+                    provider.mkcalendar(request, response,
+                                        (DavCollection)resource);
+                else
+                    throw new MethodNotAllowedException(request.getMethod() + " not allowed for a collection");
+            } else {
+                if (request.getMethod().equals("PUT"))
+                    provider.put(request, response, (DavContent)resource);
+                else
+                    throw new MethodNotAllowedException(request.getMethod() + " not allowed for a non-collection resource");
+            }
+        }
     }
 
     /**
