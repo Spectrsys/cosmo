@@ -15,8 +15,6 @@
  */
 package org.osaf.cosmo.dav.report;
 
-import java.io.IOException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -47,13 +45,10 @@ public abstract class MultiStatusReport extends ReportBase {
     // our methods
 
     /**
-     * Runs the query and generates a <code>MultiStatus</code> out of the
-     * query results.
+     * Generates and writes the multistatus response.
      */
-    protected void runQuery()
+    protected void output(DavServletResponse response)
         throws DavException {
-        super.runQuery();
-
         DavPropertyNameSet resultProps = createResultPropSpec();
 
         for (DavResource result : getResults()) {
@@ -61,14 +56,12 @@ public abstract class MultiStatusReport extends ReportBase {
                 buildMultiStatusResponse(result, resultProps);
             multistatus.addResponse(msr);
         }
-    }
 
-    /**
-     * Writes the multistatus response.
-     */
-    protected void output(DavServletResponse response)
-        throws IOException {
-        response.sendXmlResponse(multistatus, 207);
+        try {
+            response.sendXmlResponse(multistatus, 207);
+        } catch (Exception e) {
+            throw new DavException(e);
+        }
     }
 
     protected DavPropertyNameSet createResultPropSpec() {
@@ -83,6 +76,11 @@ public abstract class MultiStatusReport extends ReportBase {
         buildMultiStatusResponse(DavResource resource,
                                  DavPropertyNameSet props)
         throws DavException {
+        if (props.isEmpty()) {
+            String href = resource.getResourceLocator().
+                getHref(resource.isCollection());
+            return new MultiStatusResponse(href, 200);
+        }
         return new MultiStatusResponse(resource, props, propfindType);
     }
 

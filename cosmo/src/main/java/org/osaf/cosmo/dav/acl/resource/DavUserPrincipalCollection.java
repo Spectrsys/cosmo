@@ -50,6 +50,7 @@ import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
+import org.osaf.cosmo.dav.acl.report.PrincipalMatchReport;
 import org.osaf.cosmo.dav.impl.DavResourceBase;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.DisplayName;
@@ -69,14 +70,13 @@ import org.osaf.cosmo.model.User;
  */
 public class DavUserPrincipalCollection extends DavResourceBase
     implements DavCollection {
-    private static final Log log = LogFactory.getLog(DavUserPrincipalCollection.class);
-    private static final HashSet<ReportType> REPORT_TYPES =
-        new HashSet<ReportType>();
+    private static final Log log =
+        LogFactory.getLog(DavUserPrincipalCollection.class);
 
     private ArrayList<DavUserPrincipal> members;
 
     static {
-        registerLiveProperty(DeltaVConstants.SUPPORTED_REPORT_SET);
+        registerReportType(PrincipalMatchReport.REPORT_TYPE_PRINCIPAL_MATCH);
     }
 
     public DavUserPrincipalCollection(DavResourceLocator locator,
@@ -163,18 +163,6 @@ public class DavUserPrincipalCollection extends DavResourceBase
         return null;
     }
 
-    public Report getReport(ReportInfo reportInfo)
-        throws DavException {
-        if (! isSupportedReport(reportInfo))
-            throw new UnprocessableEntityException("Unknown report " + reportInfo.getReportName());
-
-        try {
-            return ReportType.getType(reportInfo).createReport(this, reportInfo);
-        } catch (org.apache.jackrabbit.webdav.DavException e){
-            throw new DavException(e);
-        }
-    }
-
     // DavCollection
 
     public void addContent(DavContent content,
@@ -208,7 +196,6 @@ public class DavUserPrincipalCollection extends DavResourceBase
         properties.add(new DisplayName(getDisplayName()));
         properties.add(new ResourceType(getResourceTypes()));
         properties.add(new IsCollection(isCollection()));
-        properties.add(new SupportedReportSetProperty((ReportType[])REPORT_TYPES.toArray(new ReportType[0])));
     }
 
     protected void setLiveProperty(DavProperty property)
@@ -232,14 +219,6 @@ public class DavUserPrincipalCollection extends DavResourceBase
     protected void removeDeadProperty(DavPropertyName name)
         throws DavException {
         throw new UnsupportedOperationException();
-    }
-
-    protected boolean isSupportedReport(ReportInfo info) {
-        for (Iterator<ReportType> i=REPORT_TYPES.iterator(); i.hasNext();) {
-            if (i.next().isRequestedReportType(info))
-                return true;
-        }
-        return false;
     }
 
     private DavUserPrincipal memberToResource(User user)
@@ -272,7 +251,7 @@ public class DavUserPrincipalCollection extends DavResourceBase
         writer.write("<p>");
         writer.write("The following reports are supported on this collection:");
         writer.write("<ul>");
-        for (ReportType rt : REPORT_TYPES)
+        for (ReportType rt : getReportTypes())
             writer.write(StringEscapeUtils.escapeHtml(rt.getReportName()));
         writer.write("</ul>");
         writer.write("</body>");

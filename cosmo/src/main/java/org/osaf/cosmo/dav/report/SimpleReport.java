@@ -15,7 +15,6 @@
  */
 package org.osaf.cosmo.dav.report;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
@@ -23,6 +22,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavServletResponse;
+
+import org.osaf.cosmo.dav.DavException;
 
 /**
  * Base class for reports that return simple single-entity responses.
@@ -41,12 +42,16 @@ public abstract class SimpleReport extends ReportBase {
     }
 
     protected void output(DavServletResponse response)
-        throws IOException {
-        response.setStatus(DavServletResponse.SC_OK);
-        response.setContentType(contentType);
-        response.setCharacterEncoding(encoding);
-        IOUtil.spool(stream, response.getOutputStream());
-        response.flushBuffer();
+        throws DavException {
+        try {
+            response.setStatus(DavServletResponse.SC_OK);
+            response.setContentType(contentType);
+            response.setCharacterEncoding(encoding);
+            IOUtil.spool(stream, response.getOutputStream());
+            response.flushBuffer();
+        } catch (Exception e) {
+            throw new DavException(e);
+        }
     }
 
     // our methods

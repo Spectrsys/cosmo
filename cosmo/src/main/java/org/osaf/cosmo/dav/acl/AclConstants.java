@@ -20,6 +20,7 @@ import javax.xml.namespace.QName;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.ResourceType;
+import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**
@@ -42,6 +43,15 @@ public interface AclConstants extends DavConstants {
         "group-membership";
     public static final String ELEMENT_ACL_PRINCIPAL_COLLECTION_SET =
         "principal-collection-set";
+    public static final String ELEMENT_ACL_PRINCIPAL_MATCH =
+        "principal-match";
+    public static final String ELEMENT_ACL_SELF = "self";
+    public static final String QN_ACL_SELF =
+        DomUtil.getQualifiedName(ELEMENT_ACL_SELF, NAMESPACE);
+    public static final String ELEMENT_ACL_PRINCIPAL_PROPERTY =
+        "principal-property";
+    public static final String QN_ACL_PRINCIPAL_PROPERTY =
+        DomUtil.getQualifiedName(ELEMENT_ACL_PRINCIPAL_PROPERTY, NAMESPACE);
 
     /** The ACL property name DAV:alternate-URI-set */
     public static final String PROPERTY_ACL_ALTERNATE_URI_SET =

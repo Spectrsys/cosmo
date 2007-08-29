@@ -212,6 +212,10 @@ public class DavUserPrincipal extends DavResourceBase
 
     // our methods
 
+    public User getUser() {
+        return user;
+    }
+
     protected Set<QName> getResourceTypes() {
         HashSet<QName> rt = new HashSet<QName>(1);
         rt.add(RESOURCE_TYPE_PRINCIPAL);

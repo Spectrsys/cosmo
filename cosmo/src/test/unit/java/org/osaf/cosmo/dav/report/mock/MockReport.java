@@ -15,7 +15,6 @@
  */
 package org.osaf.cosmo.dav.report.mock;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +47,7 @@ public class MockReport extends ReportBase {
     public List<String> calls = new ArrayList<String>();
 
     protected void output(DavServletResponse response)
-        throws IOException {
+        throws DavException {
         // XXX
     }
 

@@ -53,9 +53,6 @@ import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
-import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
-import org.osaf.cosmo.dav.caldav.report.MultigetReport;
-import org.osaf.cosmo.dav.caldav.report.QueryReport;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 
@@ -81,10 +78,6 @@ public abstract class DavResourceBase
 
     static {
         registerLiveProperty(DeltaVConstants.SUPPORTED_REPORT_SET);
-        
-        registerReportType(QueryReport.REPORT_TYPE_CALDAV_QUERY);
-        registerReportType(MultigetReport.REPORT_TYPE_CALDAV_MULTIGET);
-        registerReportType(FreeBusyReport.REPORT_TYPE_CALDAV_FREEBUSY);
     }
 
     private DavResourceLocator locator;
@@ -340,6 +333,10 @@ public abstract class DavResourceBase
      */
      protected static void registerReportType(ReportType reportType) {
          REPORT_TYPES.add(reportType);
+     }
+
+     protected Set<ReportType> getReportTypes() {
+         return REPORT_TYPES;
      }
 
     /**

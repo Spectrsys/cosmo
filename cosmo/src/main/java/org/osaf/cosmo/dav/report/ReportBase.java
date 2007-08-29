@@ -15,7 +15,6 @@
  */
 package org.osaf.cosmo.dav.report;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,7 +44,7 @@ public abstract class ReportBase implements Report, ExtendedDavConstants {
 
     private DavResource resource;
     private ReportInfo info;
-    private HashSet<DavResource> results = new HashSet<DavResource>();
+    private HashSet<DavResource> results;
 
     // Report methods
 
@@ -58,6 +57,7 @@ public abstract class ReportBase implements Report, ExtendedDavConstants {
         throws DavException {
         this.resource = (DavResource) resource;
         this.info = info;
+        this.results = new HashSet<DavResource>();
         parseReport(info);
     }
 
@@ -67,7 +67,7 @@ public abstract class ReportBase implements Report, ExtendedDavConstants {
      * {@link #output(DavServletResponse)} to write the result.
      */
     public void run(DavServletResponse response)
-        throws IOException, DavException {
+        throws DavException {
         if (log.isDebugEnabled())
             log.debug("running report " + getType().getReportName() +
                       " against " + resource.getResourcePath());
@@ -121,7 +121,7 @@ public abstract class ReportBase implements Report, ExtendedDavConstants {
      * Writes the report result to the response.
      */
     protected abstract void output(DavServletResponse response)
-        throws IOException;
+        throws DavException;
 
     /**
      * Performs the report query on the specified resource.

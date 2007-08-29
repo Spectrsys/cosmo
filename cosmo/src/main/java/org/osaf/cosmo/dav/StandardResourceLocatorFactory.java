@@ -51,10 +51,14 @@ public class StandardResourceLocatorFactory
                                                     String uri) {
         String path = uri;
         if (path != null) {
-            if (path.startsWith(sl.getDavBase()))
-                path = UriTemplate.unescape(path.substring(path.length()));
-            else if (path.startsWith(sl.getFactory().getDavPrefix()))
+            if (path.startsWith(sl.getDavBase())) {
+                path = UriTemplate.
+                    unescape(path.substring(sl.getDavBase().length()));
+                if (! path.startsWith("/"))
+                    path = "/" + path;
+            } else if (path.startsWith(sl.getFactory().getDavPrefix())) {
                 path = UriTemplate.unescape(path.substring(4));
+            }
         } else if (path == null || path.equals(""))
             path = "/";
         return new StandardResourceLocator(sl, path, this);
