@@ -73,6 +73,8 @@ public abstract class DavResourceBase
         LogFactory.getLog(DavResourceBase.class);
     private static final HashSet<DavPropertyName> LIVE_PROPERTIES =
         new HashSet<DavPropertyName>();
+    private static final Set<ReportType> REPORT_TYPES =
+        new HashSet<ReportType>(0);
 
     static {
         registerLiveProperty(DeltaVConstants.SUPPORTED_REPORT_SET);
@@ -320,7 +322,9 @@ public abstract class DavResourceBase
         return false;
     }
 
-     protected abstract Set<ReportType> getReportTypes();
+     protected Set<ReportType> getReportTypes() {
+         return REPORT_TYPES;
+     }
 
     /**
      * <p>
