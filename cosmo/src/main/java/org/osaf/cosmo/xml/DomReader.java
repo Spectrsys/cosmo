@@ -17,6 +17,7 @@ package org.osaf.cosmo.xml;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,6 +53,11 @@ public class DomReader {
         XMLInputFactory.newInstance();
     private static final DocumentBuilderFactory BUILDER_FACTORY =
         DocumentBuilderFactory.newInstance();
+
+    public static Node read (String in)
+        throws ParserConfigurationException, XMLStreamException, IOException {
+        return read(new StringReader(in));
+    }
 
     public static Node read (Reader in)
         throws ParserConfigurationException, XMLStreamException, IOException {
