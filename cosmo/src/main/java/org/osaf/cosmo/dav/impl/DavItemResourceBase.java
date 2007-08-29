@@ -362,8 +362,6 @@ public abstract class DavItemResourceBase extends DavResourceBase
         if (item == null)
             return;
 
-        log.debug("loading item live properties");
-
         properties.add(new CreationDate(item.getCreationDate()));
         properties.add(new DisplayName(item.getDisplayName()));
         properties.add(new ResourceType(getResourceTypes()));
