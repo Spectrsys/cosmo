@@ -52,6 +52,11 @@ public interface AclConstants extends DavConstants {
         "principal-property";
     public static final String QN_ACL_PRINCIPAL_PROPERTY =
         DomUtil.getQualifiedName(ELEMENT_ACL_PRINCIPAL_PROPERTY, NAMESPACE);
+    public static final String ELEMENT_ACL_PRINCIPAL_PROPERTY_SEARCH =
+        "principal-property-search";
+    public static final String QN_ACL_PRINCIPAL_PROPERTY_SEARCH =
+        DomUtil.getQualifiedName(ELEMENT_ACL_PRINCIPAL_PROPERTY_SEARCH,
+                                 NAMESPACE);
 
     /** The ACL property name DAV:alternate-URI-set */
     public static final String PROPERTY_ACL_ALTERNATE_URI_SET =

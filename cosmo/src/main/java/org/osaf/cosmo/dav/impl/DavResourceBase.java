@@ -73,8 +73,6 @@ public abstract class DavResourceBase
         LogFactory.getLog(DavResourceBase.class);
     private static final HashSet<DavPropertyName> LIVE_PROPERTIES =
         new HashSet<DavPropertyName>();
-    private static final HashSet<ReportType> REPORT_TYPES =
-        new HashSet<ReportType>();
 
     static {
         registerLiveProperty(DeltaVConstants.SUPPORTED_REPORT_SET);
@@ -315,29 +313,14 @@ public abstract class DavResourceBase
      * report info is supported by this collection.
      */
     protected boolean isSupportedReport(ReportInfo info) {
-        for (Iterator<ReportType> i=REPORT_TYPES.iterator(); i.hasNext();) {
+        for (Iterator<ReportType> i=getReportTypes().iterator(); i.hasNext();) {
             if (i.next().isRequestedReportType(info))
                 return true;
         }
         return false;
     }
 
-    /**
-     * <p>
-     * Registers a <code>ReportType</code> supported by this resource.
-     * </p>
-      * <p>
-      * Typically used in subclass static initializers to add to the set
-      * of supported reports for the resource.
-      * </p>
-     */
-     protected static void registerReportType(ReportType reportType) {
-         REPORT_TYPES.add(reportType);
-     }
-
-     protected Set<ReportType> getReportTypes() {
-         return REPORT_TYPES;
-     }
+     protected abstract Set<ReportType> getReportTypes();
 
     /**
      * <p>
@@ -384,7 +367,7 @@ public abstract class DavResourceBase
             return;
 
         ReportType[] reportTypes = (ReportType[])
-            REPORT_TYPES.toArray(new ReportType[0]);
+            getReportTypes().toArray(new ReportType[0]);
         properties.add(new SupportedReportSetProperty(reportTypes));
 
         loadLiveProperties(properties);

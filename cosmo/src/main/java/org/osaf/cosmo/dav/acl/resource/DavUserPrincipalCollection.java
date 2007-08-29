@@ -51,6 +51,7 @@ import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.acl.report.PrincipalMatchReport;
+import org.osaf.cosmo.dav.acl.report.PrincipalPropertySearchReport;
 import org.osaf.cosmo.dav.impl.DavResourceBase;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.DisplayName;
@@ -72,11 +73,15 @@ public class DavUserPrincipalCollection extends DavResourceBase
     implements DavCollection {
     private static final Log log =
         LogFactory.getLog(DavUserPrincipalCollection.class);
+    private static final Set<ReportType> REPORT_TYPES =
+        new HashSet<ReportType>();
 
     private ArrayList<DavUserPrincipal> members;
 
     static {
-        registerReportType(PrincipalMatchReport.REPORT_TYPE_PRINCIPAL_MATCH);
+        REPORT_TYPES.add(PrincipalMatchReport.REPORT_TYPE_PRINCIPAL_MATCH);
+        REPORT_TYPES.add(PrincipalPropertySearchReport.
+                         REPORT_TYPE_PRINCIPAL_PROPERTY_SEARCH);
     }
 
     public DavUserPrincipalCollection(DavResourceLocator locator,
@@ -190,6 +195,10 @@ public class DavUserPrincipalCollection extends DavResourceBase
         HashSet<QName> rt = new HashSet<QName>(1);
         rt.add(RESOURCE_TYPE_COLLECTION);
         return rt;
+    }
+
+    public Set<ReportType> getReportTypes() {
+        return REPORT_TYPES;
     }
 
     protected void loadLiveProperties(DavPropertySet properties) {

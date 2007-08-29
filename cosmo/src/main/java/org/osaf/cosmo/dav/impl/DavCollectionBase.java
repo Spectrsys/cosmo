@@ -38,6 +38,7 @@ import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
+import org.apache.jackrabbit.webdav.version.report.ReportType;
 
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;
@@ -77,15 +78,17 @@ public class DavCollectionBase extends DavItemResourceBase
     private static final Log log = LogFactory.getLog(DavCollectionBase.class);
     private static final Set<String> DEAD_PROPERTY_FILTER =
         new HashSet<String>();
+    private static final Set<ReportType> REPORT_TYPES =
+        new HashSet<ReportType>();
 
     private ArrayList members;
 
     static {
         registerLiveProperty(EXCLUDEFREEBUSYROLLUP);
 
-        registerReportType(FreeBusyReport.REPORT_TYPE_CALDAV_FREEBUSY);
-        registerReportType(MultigetReport.REPORT_TYPE_CALDAV_MULTIGET);
-        registerReportType(QueryReport.REPORT_TYPE_CALDAV_QUERY);
+        REPORT_TYPES.add(FreeBusyReport.REPORT_TYPE_CALDAV_FREEBUSY);
+        REPORT_TYPES.add(MultigetReport.REPORT_TYPE_CALDAV_MULTIGET);
+        REPORT_TYPES.add(QueryReport.REPORT_TYPE_CALDAV_QUERY);
 
         DEAD_PROPERTY_FILTER.add(CollectionItem.class.getName());
     }
@@ -206,6 +209,10 @@ public class DavCollectionBase extends DavItemResourceBase
         HashSet<QName> rt = new HashSet<QName>(1);
         rt.add(RESOURCE_TYPE_COLLECTION);
         return rt;
+    }
+
+    public Set<ReportType> getReportTypes() {
+        return REPORT_TYPES;
     }
 
     /** */
