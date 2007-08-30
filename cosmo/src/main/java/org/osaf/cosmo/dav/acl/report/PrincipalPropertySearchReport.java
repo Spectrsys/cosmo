@@ -15,6 +15,10 @@
  */
 package org.osaf.cosmo.dav.acl.report;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,41 +33,30 @@ import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
-import org.osaf.cosmo.dav.ForbiddenException;
-import org.osaf.cosmo.dav.UnprocessableEntityException;
+import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.acl.AclConstants;
+import org.osaf.cosmo.dav.acl.property.PrincipalCollectionSet;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
-import org.osaf.cosmo.dav.impl.DavCalendarCollection;
+import org.osaf.cosmo.dav.acl.resource.DavUserPrincipalCollection;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.report.MultiStatusReport;
-import org.osaf.cosmo.model.User;
 
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * <p>
  * Represents the <code>DAV:principal-property-search</code> report that
- * provides a mechanism for finding resources whose property values match
- * given input strings.
+ * provides a mechanism for finding principal resources whose property values
+ * match given input strings.
  * </p>
  * <p>
- * If the report includes the <code>DAV:self</code> element, it matches
- * any principal resource in the target collection that represents the
- * currently authenticated user. This form of the report is used to search
- * through a principal collection for any principal resources that match
- * the current user.
- * </p>
- * <p>
- * If the report includes the <code>DAV:principal-property</code> element,
- * that element's first child element is taken to be the name of a
- * property that identifies the principal associated with a resource. The
- * report matches any resource in the target collection that 1) has
- * the specified principal property, 2) the principal property contains at
- * least one child <code>DAV:href</code> element, and 3) at least one of the
- * hrefs matches the principal URL of the currently authenticated user. This 
- * form of the report is used to search through an item collection for any
- * resources that are associated with the current user via the specified
- * principal property (usually <code>DAV:owner</code>).
+ * For a given search spec, the resource must have every listed property
+ * and the value of each property must match the search spec's match
+ * string with a case-insensitive substring search. Every search spec must
+ * match in order for the resource to be  added as a query result.
  * </p>
  * <p>
  * Both forms of the report may optionally include a <code>DAV:prop</code>
@@ -86,7 +79,8 @@ public class PrincipalPropertySearchReport extends MultiStatusReport
         ReportType.register(ELEMENT_ACL_PRINCIPAL_PROPERTY_SEARCH, NAMESPACE,
                             PrincipalPropertySearchReport.class);
 
-    private boolean self;
+    private Set<SearchSpec> searchSpecs;
+    private boolean searchPrincipalCollections;
 
     // Report methods
 
@@ -97,8 +91,8 @@ public class PrincipalPropertySearchReport extends MultiStatusReport
     // ReportBase methods
 
     /**
-     * Parses the report info, extracting self, principal property and
-     * return properties.
+     * Parses the report info, extracting search specifications, response
+     * properties and "search principal collections" flag.
      */
     protected void parseReport(ReportInfo info)
         throws DavException {
@@ -112,6 +106,9 @@ public class PrincipalPropertySearchReport extends MultiStatusReport
 
         setPropFindProps(info.getPropertyNameSet());
         setPropFindType(PROPFIND_BY_PROPERTY);
+
+        searchSpecs = findSearchSpecs(info);
+        searchPrincipalCollections = findSearchPrincipalCollections(info);
     }
 
     /**
@@ -124,34 +121,191 @@ public class PrincipalPropertySearchReport extends MultiStatusReport
     protected void runQuery()
         throws DavException {
         DavCollection collection = (DavCollection) getResource();
-        doQuerySelf(collection);
-        doQueryChildren(collection);
-        // don't use doQueryDescendents, because that would cause us to have to
-        // iterate through the members twice. instead, we implement
-        // doQueryChildren to call itself recursively.
-        // XXX: refactor ReportBase.runQuery() to use a helper object rather
-        // than specifying doQuerySelf etc interface methods.
-    }
 
-    protected void doQuerySelf(DavResource resource)
-        throws DavException {
+        if (! searchPrincipalCollections) {
+            doQueryChildren(collection);
+            return;
+        }
+
         if (log.isDebugEnabled())
-            log.debug("Querying " + resource.getResourcePath());
-        // XXX
+            log.debug("Searching DAV:principal-collection-set URLs");
+
+        PrincipalCollectionSet pcs = (PrincipalCollectionSet)
+            collection.getProperty(PRINCIPALCOLLECTIONSET);
+        if (pcs == null)
+            return;
+        for (String href : pcs.getHrefs()) {
+            DavResourceLocator locator =
+                collection.getResourceLocator().getFactory().
+                    createResourceLocator(collection.getResourceLocator(),
+                                          href);
+            DavUserPrincipalCollection pc = (DavUserPrincipalCollection)
+                collection.getResourceFactory().resolve(locator);
+            if (pc == null)
+                throw new DavException("Principal collection " + href + " not resolved");
+            doQueryChildren(pc);
+        }
     }
 
+    /**
+     * Does nothing.
+     */
+    protected void doQuerySelf(DavResource resource) {}
+
+    /**
+     * Tests every principal member of the collection to see if it matches
+     * the report's search specs.
+     */
     protected void doQueryChildren(DavCollection collection)
         throws DavException {
         for (DavResourceIterator i = collection.getMembers(); i.hasNext();) {
             DavResource member = (DavResource) i.nextResource();
-            if (member.isCollection()) {
-                DavCollection dc = (DavCollection) member;
-                doQuerySelf(dc);
-                doQueryChildren(dc);
-            } else
-                doQuerySelf(member);
+            if (member instanceof DavUserPrincipal) {
+                if (log.isDebugEnabled())
+                    log.debug("Testing " + member.getResourcePath());
+                if (matchPrincipal((DavUserPrincipal)member)) {
+                    if (log.isDebugEnabled())
+                        log.debug("Matched " + member.getResourcePath());
+                    getResults().add(member);
+                }
+            }
         }
     }
 
     // our methods
+
+    public Set<SearchSpec> getSearchSpecs() {
+        return searchSpecs;
+    }
+
+    public boolean isSearchPrincipalCollections() {
+        return searchPrincipalCollections;
+    }
+
+    private static Set<SearchSpec> findSearchSpecs(ReportInfo info)
+        throws DavException {
+        HashSet<SearchSpec> specs = new HashSet<SearchSpec>();
+
+        ElementIterator psi =
+              DomUtil.getChildren(info.getReportElement(),
+                                  "property-search", NAMESPACE);
+          if (! psi.hasNext())
+              throw new BadRequestException("Expected at least one DAV:property-search child of DAV:principal-property-search");
+          while (psi.hasNext())
+              specs.add(SearchSpec.createFromXml(psi.nextElement()));
+
+        return specs;
+    }
+
+    private static boolean findSearchPrincipalCollections(ReportInfo info)
+        throws DavException {
+        return DomUtil.hasChildElement(info.getReportElement(),
+                                       "apply-to-principal-collection-set",
+                                       NAMESPACE);
+    }
+
+    private boolean matchPrincipal(DavUserPrincipal principal)
+        throws DavException {
+        for (SearchSpec spec : searchSpecs) {
+            if (! matchSpec(spec, principal))
+                return false;
+        }
+        return true;
+    }
+
+    private boolean matchSpec(SearchSpec spec,
+                              DavUserPrincipal principal)
+        throws DavException {
+        for (DavPropertyName name : spec.getProperties()) {
+            if (! matchProperty((DavProperty)principal.getProperty(name),
+                                spec.getMatch()))
+                return false;
+        }
+        return true;
+    }
+
+    private boolean matchProperty(DavProperty prop,
+                                  String match) {
+        if (prop == null)
+            return false;
+        if (log.isDebugEnabled())
+            log.debug("Matching " + prop.getName().toString() + " against " + match);
+        Object value = prop.getValue();
+        if (value instanceof Element)
+            return matchText((Element) value, match);
+        return matchText(value.toString(), match);
+    }
+
+    private boolean matchText(Element parent,
+                              String match) {
+        NodeList children = parent.getChildNodes();
+        for (int i=0; i<children.getLength(); i++) {
+            Node child = children.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                Element e = (Element) child;
+                if (! matchText(e, match))
+                    return false;
+            } else if (child.getNodeType() == Node.TEXT_NODE ||
+                       child.getNodeType() == Node.CDATA_SECTION_NODE) {
+                String data = ((CharacterData) child).getData();
+                if (! matchText(data, match))
+                    return false;
+            } // else we skip the node
+        }
+        return true;
+    }
+
+    private boolean matchText(String test,
+                              String match) {
+        if (log.isDebugEnabled())
+            log.debug("Matching " + test + " against " + match);
+        return StringUtils.containsIgnoreCase(test, match);
+    }
+
+    public static class SearchSpec {
+        private Set<DavPropertyName> properties;
+        private String match;
+
+        public SearchSpec(Set<DavPropertyName> properties,
+                          String match) {
+            this.properties = properties;
+            this.match = match;
+        }
+
+        public Set<DavPropertyName> getProperties() {
+            return properties;
+        }
+
+        public String getMatch() {
+            return match;
+        }
+
+        public static SearchSpec createFromXml(Element root)
+            throws DavException {
+            if (! DomUtil.matches(root, "property-search", NAMESPACE))
+                throw new IllegalArgumentException("Expected root element DAV:property-search");
+
+            Element p = DomUtil.getChildElement(root, "prop", NAMESPACE);
+            if (p == null)
+                throw new BadRequestException("Expected DAV:prop child of DAV:property-search");
+            ElementIterator pi = DomUtil.getChildren(p);
+            if (! pi.hasNext())
+                throw new BadRequestException("Expected at least one child of DAV:prop");
+
+            HashSet<DavPropertyName> properties =
+                new HashSet<DavPropertyName>();
+            while (pi.hasNext()) {
+                DavPropertyName name =
+                    DavPropertyName.createFromXml(pi.nextElement());
+                properties.add(name);
+            }
+
+            Element m = DomUtil.getChildElement(root, "match", NAMESPACE);
+            if (m == null)
+                throw new BadRequestException("Expected DAV:match child of DAV:property-search");
+            String match = DomUtil.getText(m);
+            
+            return new SearchSpec(properties, match);
+        }
+    }
 }
