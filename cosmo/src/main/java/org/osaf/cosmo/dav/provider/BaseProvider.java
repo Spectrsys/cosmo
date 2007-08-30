@@ -206,6 +206,8 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
 
             resource.getReport(info).run(response);
         } catch (org.apache.jackrabbit.webdav.DavException e) {
+            if (e instanceof DavException)
+                throw (DavException) e;
             throw new DavException(e);
         }
     }

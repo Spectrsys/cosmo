@@ -75,6 +75,7 @@ public class DavException extends org.apache.jackrabbit.webdav.DavException
         for (String uri : nsc.getNamespaceURIs())
             writer.writeNamespace(nsc.getPrefix(uri), uri);
         writeContent(writer);
+        writeContent(writer);
         writer.writeEndElement();
     }
 
