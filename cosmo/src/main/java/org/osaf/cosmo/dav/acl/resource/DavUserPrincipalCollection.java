@@ -52,6 +52,7 @@ import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.acl.report.PrincipalMatchReport;
 import org.osaf.cosmo.dav.acl.report.PrincipalPropertySearchReport;
+import org.osaf.cosmo.dav.acl.report.PrincipalSearchPropertySetReport;
 import org.osaf.cosmo.dav.impl.DavResourceBase;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.DisplayName;
@@ -82,6 +83,8 @@ public class DavUserPrincipalCollection extends DavResourceBase
         REPORT_TYPES.add(PrincipalMatchReport.REPORT_TYPE_PRINCIPAL_MATCH);
         REPORT_TYPES.add(PrincipalPropertySearchReport.
                          REPORT_TYPE_PRINCIPAL_PROPERTY_SEARCH);
+        REPORT_TYPES.add(PrincipalSearchPropertySetReport.
+                         REPORT_TYPE_PRINCIPAL_SEARCH_PROPERTY_SET);
     }
 
     public DavUserPrincipalCollection(DavResourceLocator locator,
