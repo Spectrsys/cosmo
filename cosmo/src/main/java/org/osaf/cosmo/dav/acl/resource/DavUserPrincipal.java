@@ -118,7 +118,7 @@ public class DavUserPrincipal extends DavResourceBase
     }
 
     public String getDisplayName() {
-        return user.getUsername();
+        return user.getFirstName() + " " + user.getLastName();
     }
 
     public String getETag() {
@@ -225,7 +225,7 @@ public class DavUserPrincipal extends DavResourceBase
     
     protected void loadLiveProperties(DavPropertySet properties) {
         properties.add(new CreationDate(user.getCreationDate()));
-        properties.add(new DisplayName(user.getUsername()));
+        properties.add(new DisplayName(getDisplayName()));
         properties.add(new ResourceType(getResourceTypes()));
         properties.add(new IsCollection(isCollection()));
         properties.add(new Etag(user.getEntityTag()));
