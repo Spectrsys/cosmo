@@ -18,13 +18,28 @@ package org.osaf.cosmo.dav.property;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 
 /**
+ * <p>
  * Extends the jcr-server DavProperty interface.
+ * </p>
  */
 public interface DavProperty
     extends org.apache.jackrabbit.webdav.property.DavProperty,
     ExtendedDavConstants {
 
+    /**
+     * <p>
+     * Returns the text content of the property value as a string. The string
+     * is calculated by concatening the text and character data content of
+     * every element in the value.
+     * </p>
+     */
     public String getValueText();
 
+    /**
+     * <p>
+     * Returns the language of the property value's text content as specified
+     * by the <code>xml:lang</code> attribute. Example: <code>en_US</code>.
+     * </p>
+     */
     public String getLanguage();
 }

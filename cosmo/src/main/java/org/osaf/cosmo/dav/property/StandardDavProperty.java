@@ -30,8 +30,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
- * Represents the Cosmo extended DAV cosmo:exclude-free-busy-rollup
- * property.
+ * <p>
+ * The standard implementation of {@link} DavProperty.
+ * </p>
+ * <p>
+ * Note that the attribute <code>isProtected</code> does not actually refer
+ * to whether or not the property's value is protected from modification or
+ * deletion from the server. Rather, it denotes whether or not the property
+ * is included in "allprop" <code>PROFIND</code> responses.
+ * </p>
  */
 public class StandardDavProperty
     implements DavProperty, XmlSerializable {
@@ -91,6 +98,17 @@ public class StandardDavProperty
         return lang;
     }
 
+    /**
+     * <p>
+     * If the property value is an <code>Element</code>, the text and character
+     * data content of the element and every child element are concatenated
+     * and returned.
+     * </p>
+     * <p>
+     * If the property value is otherwise not null, {@link Object.toString()} is
+     * called upon it, and the result is returned.
+     * </p>
+     */
     public String getValueText() {
         if (value == null)
             return null;
@@ -104,6 +122,26 @@ public class StandardDavProperty
 
     // XmlSerializable methods
 
+    /**
+     * <p>
+     * If the property value is an <code>Element</code>, it is imported into
+     * the provided <code>Document</code> and returned.
+     * </p>
+     * <p>
+     * If the property value is an <code>XmlSerializable</code>, the element
+     * returned by calling {@link XmlSerializable.toXml(Document)} on the
+     * value is appended as a child of an element representing the property.
+     * </p>
+     * <p>
+     * If the property value is otherwise not null, {@link Object.toString()} is
+     * called upon it, and the result is set as text content of an element
+     * representing the property.
+     * </p>
+     * <p>
+     * In all cases, if the property has a language, it is used to set the
+     * <code>xml:lang</code> attribute on the property element.
+     * </p>
+     */
     public Element toXml(Document document) {
         Element e = null;
 
@@ -145,6 +183,16 @@ public class StandardDavProperty
             value.equals(prop.getValue());
     }
 
+    /**
+     * <p>
+     * Returns an instance of <code>StandardDavProperty</code> representing
+     * the given element. The element itself is provided as the property value.
+     * If either the element or its parent element has the attribute
+     * <code>xml:lang</code>, that attribute's value is provided as the
+     * property's language. The resulting property is not "protected" (i.e.
+     * it will not appear in "allprop" <code>PROPFIND</code> responses).
+     * </p>
+     */
     public static StandardDavProperty createFromXml(Element e) {
         DavPropertyName name = DavPropertyName.createFromXml(e);
         String lang = DomUtil.getAttribute(e, XML_LANG, NAMESPACE_XML);
