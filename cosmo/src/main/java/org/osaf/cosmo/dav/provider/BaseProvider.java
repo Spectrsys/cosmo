@@ -45,6 +45,7 @@ import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.dav.UnsupportedMediaTypeException;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.impl.DavItemResource;
 import org.osaf.cosmo.dav.impl.DavFile;
@@ -128,6 +129,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         throws DavException, IOException {
         if (! resource.exists())
             throw new NotFoundException();
+        checkNoRequestBody(request);
 
         int depth = request.getDepth(DEPTH_INFINITY);
         if (depth != DEPTH_INFINITY)
@@ -147,6 +149,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         throws DavException, IOException {
         if (! resource.exists())
             throw new NotFoundException();
+        checkNoRequestBody(request);
 
         int depth = request.getDepth(DEPTH_INFINITY);
         if (! (depth == DEPTH_0 || depth == DEPTH_INFINITY))
@@ -173,6 +176,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         throws DavException, IOException {
         if (! resource.exists())
             throw new NotFoundException();
+        checkNoRequestBody(request);
 
         DavResource destination =
             resolveDestination(request.getDestinationResourceLocator(),
@@ -242,6 +246,8 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         throws DavException, IOException {
         if (! resource.exists())
             throw new NotFoundException();
+        checkNoRequestBody(request);
+
         if (! (resource instanceof DavItemResource))
             throw new MethodNotAllowedException("DELTICKET requires a content collection or content resource");
         DavItemResource dir = (DavItemResource) resource;
@@ -270,6 +276,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         throws DavException, IOException {
         if (! resource.exists())
             throw new NotFoundException();
+        checkNoRequestBody(request);
 
         if (log.isDebugEnabled())
             log.debug("spooling resource " + resource.getResourcePath());
@@ -356,6 +363,19 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             return;
 
         throw new ForbiddenException("Anonymous user not ticket owner");
+    }
+
+    protected void checkNoRequestBody(DavRequest request)
+        throws DavException {
+        boolean hasBody = false;
+        try {
+            hasBody = request.getRequestDocument() != null;
+        } catch (IllegalArgumentException e) {
+            // parse error indicates that there was a body to parse
+            hasBody = true;
+        }
+        if (hasBody)
+            throw new UnsupportedMediaTypeException("Body not expected for method " + request.getMethod());
     }
 
     protected CosmoSecurityContext getSecurityContext() {
