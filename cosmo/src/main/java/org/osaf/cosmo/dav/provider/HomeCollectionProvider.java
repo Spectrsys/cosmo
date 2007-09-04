@@ -62,7 +62,7 @@ public class HomeCollectionProvider extends CollectionProvider {
         throws DavException, IOException {
         if (resource instanceof DavHomeCollection)
             throw new MethodNotAllowedException("COPY not allowed for home collection");
-        super.delete(request, response, resource);
+        super.copy(request, response, resource);
     }
 
     public void move(DavRequest request,
@@ -71,6 +71,6 @@ public class HomeCollectionProvider extends CollectionProvider {
         throws DavException, IOException {
         if (resource instanceof DavHomeCollection)
             throw new MethodNotAllowedException("MOVE not allowed for home collection");
-        super.delete(request, response, resource);
+        super.move(request, response, resource);
     }
 }
