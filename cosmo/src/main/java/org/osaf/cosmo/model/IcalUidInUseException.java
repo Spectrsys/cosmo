@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Open Source Applications Foundation
+ * Copyright 2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,19 @@
 package org.osaf.cosmo.model;
 
 /**
- * An exception indicating that an item with the same parent item
- * exists with the same name.
+ * An exception that indicates that the icalendar uid chosen for an NoteItem
+ * already in use by another item.
  */
-public class DuplicateEventUidException extends ModelValidationException {
+public class IcalUidInUseException extends RuntimeException {
 
-    /**
-     */
-    public DuplicateEventUidException() {
-        super("duplicate event uid");
-    }
-
-    /**
-     */
-    public DuplicateEventUidException(String message) {
+    /** */
+    public IcalUidInUseException(String message) {
         super(message);
     }
 
-    /**
-     */
-    public DuplicateEventUidException(String message, Throwable cause) {
+    /** */
+    public IcalUidInUseException(String message,
+                             Throwable cause) {
         super(message, cause);
     }
 }

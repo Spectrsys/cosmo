@@ -46,10 +46,12 @@ import org.osaf.cosmo.model.DecimalAttribute;
 import org.osaf.cosmo.model.FileItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.ICalendarAttribute;
+import org.osaf.cosmo.model.IcalUidInUseException;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
 import org.osaf.cosmo.model.ItemTombstone;
 import org.osaf.cosmo.model.ModelValidationException;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.StringAttribute;
 import org.osaf.cosmo.model.Ticket;
@@ -137,70 +139,25 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         }
     }
 
-   /* public void testContentDaoInvalidContentNullLength() throws Exception {
+    public void testContentDaoCreateNoteDuplicateIcalUid() throws Exception {
         User user = getUser(userDao, "testuser");
         CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
 
-        ContentItem item = new ContentItem();
-        item.setName("test");
-        item.setOwner(user);
-        item.setContent(helper.getBytes(baseDir + "/testdata1.txt"));
-        item.setContentLanguage("en");
-        item.setContentEncoding("UTF8");
-        item.setContentType("text/text");
-        item.setContentLength(null);
+        NoteItem note1 = generateTestNote("note1", "testuser");
+        note1.setIcalUid("icaluid");
+
+        contentDao.createContent(root, note1);
+        
+        NoteItem note2 = generateTestNote("note2", "testuser");
+        note2.setIcalUid("icaluid");
+         
 
         try {
-            contentDao.createContent(root, item);
-            clearSession();
-            Assert.fail("able to create invalid content.");
-        } catch (InvalidStateException e) {
-        }
-    }*/
-
-   /* public void testContentDaoInvalidContentNegativeLength() throws Exception {
-        
-        User user = getUser(userDao, "testuser");
-        CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
-
-        ContentItem item = new ContentItem();
-        item.setName("test");
-        item.setOwner(user);
-        item.setContent(helper.getBytes(baseDir + "/testdata1.txt"));
-        item.setContentLanguage("en");
-        item.setContentEncoding("UTF8");
-        item.setContentType("text/text");
-        item.setContentLength(new Long(-1));
-        
-        try {
-            contentDao.createContent(root, item);
-            clearSession();
-            Assert.fail("able to create invalid content.");
-        } catch (InvalidStateException e) {
-        }
-    }*/
+            contentDao.createContent(root, note2);
+            Assert.fail("able to create duplicate icaluid");
+        } catch (IcalUidInUseException e) {}
     
-   /* public void testContentDaoInvalidContentMismatchLength() throws Exception {
-        
-        User user = getUser(userDao, "testuser");
-        CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
-
-        ContentItem item = new ContentItem();
-        item.setName("test");
-        item.setOwner(user);
-        item.setContent(helper.getBytes(baseDir + "/testdata1.txt"));
-        item.setContentLanguage("en");
-        item.setContentEncoding("UTF8");
-        item.setContentType("text/text");
-        item.setContentLength(new Long(1));
-
-        try {
-            contentDao.createContent(root, item);
-            Assert.fail("able to create invalid content.");
-        } catch (ModelValidationException e) {
-        }
-
-    }*/
+    }
   
     public void testContentDaoInvalidContentNullName() throws Exception {
       
@@ -1385,6 +1342,15 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         content.setOwner(getUser(userDao, owner));
         content.addAttribute(new StringAttribute(new QName("customattribute"),
                 "customattributevalue"));
+        return content;
+    }
+    
+    private NoteItem generateTestNote(String name, String owner)
+            throws Exception {
+        NoteItem content = new NoteItem();
+        content.setName(name);
+        content.setDisplayName(name);
+        content.setOwner(getUser(userDao, owner));
         return content;
     }
     

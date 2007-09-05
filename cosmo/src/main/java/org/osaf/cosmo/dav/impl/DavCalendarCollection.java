@@ -55,8 +55,8 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.DataSizeException;
-import org.osaf.cosmo.model.DuplicateEventUidException;
 import org.osaf.cosmo.model.EventStamp;
+import org.osaf.cosmo.model.IcalUidInUseException;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.service.util.EventUtils;
 
@@ -296,7 +296,7 @@ public class DavCalendarCollection extends DavCollectionBase
         } else {
             try {
                 super.saveContent(member);
-            } catch (DuplicateEventUidException e) {
+            } catch (IcalUidInUseException e) {
                 throw new ConflictException("Uid already in use");
             }
         }
@@ -326,7 +326,7 @@ public class DavCalendarCollection extends DavCollectionBase
                 EventUtils.updateEvent(getContentService(),
                                        (NoteItem) content,
                                        event.getEventCalendar());
-            } catch (DuplicateEventUidException e) {
+            } catch (IcalUidInUseException e) {
                 throw new ConflictException("Uid already in use");
             } catch (CollectionLockedException e) {
                 throw new LockedException();
@@ -339,7 +339,7 @@ public class DavCalendarCollection extends DavCollectionBase
                 content = EventUtils.createEvent(getContentService(), collection,
                                                  (NoteItem) content,
                                                  event.getEventCalendar());
-            } catch (DuplicateEventUidException e) {
+            } catch (IcalUidInUseException e) {
                 throw new ConflictException("Uid already in use");
             } catch (CollectionLockedException e) {
                 throw new LockedException();

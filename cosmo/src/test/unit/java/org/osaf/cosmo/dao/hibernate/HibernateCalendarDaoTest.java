@@ -158,32 +158,7 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         Assert.assertEquals(getCalendar(event).toString(), getCalendar(queryEvent).toString());
     }
 
-    /*public void testDuplicateEventUid() throws Exception {
-        CollectionItem calendar = generateCalendar("test", "testuser");
-        CollectionItem root = (CollectionItem) contentDao.getRootItem(getUser(userDao, "testuser"));
-        
-        CollectionItem newItem = contentDao.createCollection(root, calendar);
-
-        ContentItem event = generateEvent("test.ics", "cal1.ics",
-                "testuser");
-
-        event = contentDao.createContent(calendar, event);
-        calendarDao.indexEvent(EventStamp.getStamp(event));
-
-        ContentItem event2 = generateEvent("testduplicate.ics",
-                "cal1.ics", "testuser");
-        calendarDao.indexEvent(EventStamp.getStamp(event));
-
-        clearSession();
-
-        calendar = (CollectionItem) contentDao.findItemByUid(calendar.getUid());
-
-        try {
-            event2 = contentDao.createContent(calendar, event2);
-            Assert.fail("able to create event with duplicate uid");
-        } catch (DuplicateEventUidException e) {
-        }
-    }*/
+    
 
     public void testFindByEventIcalUid() throws Exception {
         CollectionItem calendar = generateCalendar("test", "testuser");
@@ -448,7 +423,6 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         EventExceptionStamp evs = new EventExceptionStamp();
         event.addStamp(evs);
         evs.setCalendar(CalendarUtils.parseCalendar(helper.getBytes(baseDir + "/" + file)));
-        event.setIcalUid(evs.getIcalUid());
         
         return event;
     }
