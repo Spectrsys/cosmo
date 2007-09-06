@@ -36,8 +36,7 @@ public class ICalendarUtils {
     /**
      * Create a base Calendar containing a single component.
      * @param comp Component to add to the base Calendar
-     * @param icalUid if present, a new Uid property will be added to
-     *        the component
+     * @param icalUid uid of component
      * @return base Calendar
      */
     public static Calendar createBaseCalendar(Component comp, String icalUid) {
@@ -46,10 +45,8 @@ public class ICalendarUtils {
         cal.getProperties().add(Version.VERSION_2_0);
         cal.getProperties().add(CalScale.GREGORIAN);
         
-        if(icalUid!=null) {
-            Uid uid = new Uid(icalUid);
-            comp.getProperties().add(uid);
-        }
+        Uid uid = new Uid(icalUid);
+        comp.getProperties().add(uid);
         
         cal.getComponents().add(comp);
         return cal;
