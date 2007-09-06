@@ -45,7 +45,7 @@ public class StandardRequestHandlerTest extends TestCase {
     private AtomHelper helper;
     private StandardRequestHandler handler;
 
-    public void SKIPtestIfMatchAll() throws Exception {
+    public void testIfMatchAll() throws Exception {
         CollectionItem collection = helper.makeAndStoreDummyCollection();
         RequestContext req = createRequestContext(collection);
         helper.setIfMatch(req, "*");
@@ -79,7 +79,7 @@ public class StandardRequestHandlerTest extends TestCase {
         assertNotNull("Null ETag header", res.getEtag());
     }
 
-    public void SKIPtestIfNoneMatchAll() throws Exception {
+    public void testIfNoneMatchAll() throws Exception {
         CollectionItem collection = helper.makeAndStoreDummyCollection();
         RequestContext req = createRequestContext(collection);
         helper.setIfNoneMatch(req, "*");
