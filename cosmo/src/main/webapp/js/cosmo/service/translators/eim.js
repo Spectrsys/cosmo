@@ -33,6 +33,7 @@ dojo.require("cosmo.datetime.serialize");
 dojo.require("cosmo.util.html");
 
 dojo.declare("cosmo.service.translators.Eim", null, {
+    COSMO_NS: "http://osafoundation.org/cosmo/Atom",
     
     initializer: function (urlCache){
         this.urlCache = urlCache;
@@ -151,12 +152,20 @@ dojo.declare("cosmo.service.translators.Eim", null, {
         else {
             var ticketElements = cosmo.util.html.getElementsByTagName(atomXml, "cosmo", "ticket");
             for (var i = 0; i < ticketElements.length; i++){
-                var permission = ticketElements[i].getAttribute("cosmo:type");
+                var permission = this.getTicketType(ticketElements[i]);
                 if (permission == "read-write") collection.setWriteable(true);
             }
         }
         
         return collection;
+    },
+
+    getTicketType: function (ticketEl){
+        if (!(dojo.render.html.ie  && dojo.render.ver < 7)){
+            return ticketEl.getAttributeNS(this.COSMO_NS, "type");
+        } else {
+            return ticketEl.getAttribute("cosmo:type");
+        }
     },
           
     translateGetCollections: function (atomXml, kwArgs){
@@ -547,12 +556,12 @@ dojo.declare("cosmo.service.translators.Eim", null, {
          '<content type="xhtml">',
           '<div xmlns="http://www.w3.org/1999/xhtml">',
             '<div class="local-subscription">',
-              '<span class="name">', subscription.getDisplayName(), '</span>', 
+                 '<span class="name">', dojo.string.escapeXml(subscription.getDisplayName()), '</span>', 
               '<div class="collection">',
-                '<span class="uuid">', subscription.getUid(), '</span>',
+                 '<span class="uuid">', dojo.string.escapeXml(subscription.getUid()), '</span>',
               '</div>',
               '<div class="ticket">',
-                '<span class="key">', subscription.getTicketKey(), '</span>',
+                 '<span class="key">', dojo.string.escapeXml(subscription.getTicketKey()), '</span>',
               '</div>',
             '</div>',
           '</div>',
@@ -565,7 +574,7 @@ dojo.declare("cosmo.service.translators.Eim", null, {
          '<content type="xhtml">',
           '<div xmlns="http://www.w3.org/1999/xhtml">',
             '<div class="collection">',
-              '<span class="name">', collection.getDisplayName(), '</span>', 
+                 '<span class="name">', dojo.string.escapeXml(collection.getDisplayName()), '</span>', 
             '</div>',
           '</div>',
          '</content>',
@@ -603,12 +612,12 @@ dojo.declare("cosmo.service.translators.Eim", null, {
 
     itemToAtomEntry: function (object){
          return ['<entry xmlns="http://www.w3.org/2005/Atom">',
-         '<title>', object.getDisplayName(), '</title>',
-         '<id>urn:uuid:', this.getUid(object), '</id>',
-         '<updated>', dojo.date.toRfc3339(new Date()), '</updated>',
-         '<author><name>', cosmo.util.auth.getUsername(), '</name></author>',
-         '<content type="application/eim+json"><![CDATA[', dojo.json.serialize(this.objectToRecordSet(object)), ']]></content>',
-         '</entry>'].join("");
+                 '<title>', dojo.string.escapeXml(object.getDisplayName()), '</title>',
+                 '<id>urn:uuid:', dojo.string.escapeXml(this.getUid(object)), '</id>',
+                 '<updated>', dojo.string.escapeXml(dojo.date.toRfc3339(new Date())), '</updated>',
+                 '<author><name>', dojo.string.escapeXml(cosmo.util.auth.getUsername()), '</name></author>',
+                 '<content type="application/eim+json"><![CDATA[', dojo.json.serialize(this.objectToRecordSet(object)), ']]></content>',
+                 '</entry>'].join("");
     },
     
     getUid: dojo.lang.hitch(cosmo.service, cosmo.service.getUid),
