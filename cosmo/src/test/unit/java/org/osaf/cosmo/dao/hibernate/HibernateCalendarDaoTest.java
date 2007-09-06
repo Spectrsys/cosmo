@@ -221,7 +221,6 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
         Assert.assertEquals(5, queryEvents.size());
 
         // should match three
-        eventFilter.getPropFilters().add(propFilter);
         PropertyFilter propFilter2 = new PropertyFilter("SUMMARY");
         propFilter2.setTextMatchFilter(new TextMatchFilter("Physical"));
         eventFilter.getPropFilters().add(propFilter2);
@@ -230,13 +229,13 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
 
         // should match everything except #1...so that means 4
         eventFilter.getPropFilters().remove(propFilter2);
+        eventFilter.getPropFilters().add(propFilter);
         propFilter.getTextMatchFilter().setNegateCondition(true);
         queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(4, queryEvents.size());
 
         // should match ics.1 again
         propFilter.getTextMatchFilter().setNegateCondition(false);
-        propFilter.getTextMatchFilter().setCaseless(true);
         propFilter.getTextMatchFilter().setValue("vISiBlE");
         queryEvents = calendarDao.findCalendarItems(calendar, filter);
         Assert.assertEquals(1, queryEvents.size());

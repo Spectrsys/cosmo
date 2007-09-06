@@ -49,9 +49,10 @@ public class CalendarFilterEvaluaterTest extends TestCase {
         Assert.assertTrue(evaluater.evaluate(calendar, filter));
         
         textFilter.setValue("ViSiBle");
+        textFilter.setCollation(textFilter.COLLATION_OCTET);
         Assert.assertFalse(evaluater.evaluate(calendar, filter));
         
-        textFilter.setCaseless(true);
+        textFilter.setCollation(null);
         Assert.assertTrue(evaluater.evaluate(calendar, filter));
         
         textFilter.setValue("XXX");
