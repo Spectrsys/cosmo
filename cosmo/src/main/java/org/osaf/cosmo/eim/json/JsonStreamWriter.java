@@ -16,8 +16,7 @@
 package org.osaf.cosmo.eim.json;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,13 +51,11 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
 
     private boolean writeMultiple = false;
     private JSONWriter jsonWriter;
-    private OutputStreamWriter writer;
 
 
-    public JsonStreamWriter(OutputStream out)
+    public JsonStreamWriter(Writer out)
         throws IOException, JsonStreamException {
-        writer = new OutputStreamWriter(out);
-        jsonWriter = new JSONWriter(writer);
+        jsonWriter = new JSONWriter(out);
     }
 
     public void writeContainer()
@@ -121,11 +118,8 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
         try {
             if (writeMultiple)
                 jsonWriter.endArray();
-            writer.close();
         } catch (JSONException e) {
             throw new JsonStreamException("Error ending array", e);
-        } catch (IOException ioe) {
-            throw new JsonStreamException("Problem closing writer", ioe);
         }
     }
 

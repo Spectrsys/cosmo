@@ -15,7 +15,7 @@
  */
 package org.osaf.cosmo.atom.generator;
 
-import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
@@ -89,13 +89,13 @@ public class ContentFactory
 
     private ContentBean createEimJsonContent(NoteItem item) {
         try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            StringWriter out = new StringWriter();
             JsonStreamWriter writer = new JsonStreamWriter(out);
             writeJson(writer, item);
             writer.close();
 
             ContentBean content = new ContentBean();
-            content.setValue(new String(out.toByteArray()));
+            content.setValue(out.toString());
             content.setMediaType(MEDIA_TYPE_EIM_JSON);
 
             return content;
@@ -114,14 +114,14 @@ public class ContentFactory
 
     private ContentBean createEimmlContent(NoteItem item) {
         try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            StringWriter out = new StringWriter();
             EimmlStreamWriter writer = new EimmlStreamWriter(out);
             writer.writeCollection(item.getUid(), null);
             writeEimml(writer, item);
             writer.close();
 
             ContentBean content = new ContentBean();
-            content.setValue(new String(out.toByteArray()));
+            content.setValue(out.toString());
             content.setMediaType(MEDIA_TYPE_EIMML);
 
             return content;
