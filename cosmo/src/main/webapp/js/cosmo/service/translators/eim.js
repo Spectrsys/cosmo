@@ -616,7 +616,7 @@ dojo.declare("cosmo.service.translators.Eim", null, {
                  '<id>urn:uuid:', dojo.string.escapeXml(this.getUid(object)), '</id>',
                  '<updated>', dojo.string.escapeXml(dojo.date.toRfc3339(new Date())), '</updated>',
                  '<author><name>', dojo.string.escapeXml(cosmo.util.auth.getUsername()), '</name></author>',
-                 '<content type="application/eim+json"><![CDATA[', dojo.json.serialize(this.objectToRecordSet(object)), ']]></content>',
+                 '<content type="application/eim+json">', cosmo.util.encoding.toBase64(dojo.json.serialize(this.objectToRecordSet(object))), '</content>',
                  '</entry>'].join("");
     },
     
