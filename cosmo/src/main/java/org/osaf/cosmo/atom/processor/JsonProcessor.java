@@ -65,7 +65,8 @@ public class JsonProcessor extends BaseEimProcessor {
             throw new ProcessorException("Unable to parse recordset", e);
         } finally {
             try {
-                reader.close();
+                if (reader != null)
+                    reader.close();
             } catch (Exception e) {
                 log.warn("Unable to close json reader", e);
             }
