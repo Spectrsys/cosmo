@@ -104,7 +104,6 @@ cosmo.view.cal.CalItem.prototype.isOutOfViewRange = function () {
     var ret = ((this.startsBeforeViewRange() && 
         this.endsBeforeViewRange(true)) ||
         this.startsAfterViewRange(true));
-    console.log(ret);
     return ret;
 
 };
