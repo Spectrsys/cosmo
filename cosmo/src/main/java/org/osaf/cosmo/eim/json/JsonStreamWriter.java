@@ -20,13 +20,12 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
+
+import net.sf.json.util.JSONBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONException;
-import org.json.JSONWriter;
 import org.osaf.cosmo.eim.BlobField;
 import org.osaf.cosmo.eim.BytesField;
 import org.osaf.cosmo.eim.ClobField;
@@ -46,16 +45,15 @@ import org.osaf.cosmo.eim.eimml.EimmlTypeConverter;
  */
 public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, EimmlConstants {
     private static final Log log = LogFactory.getLog(JsonStreamWriter.class);
-    private static final XMLOutputFactory XML_OUTPUT_FACTORY =
-        XMLOutputFactory.newInstance();
 
     private boolean writeMultiple = false;
-    private JSONWriter jsonWriter;
+    private JSONBuilder jsonWriter;
+    private Writer writer;
 
-
-    public JsonStreamWriter(Writer out)
-        throws IOException, JsonStreamException {
-        jsonWriter = new JSONWriter(out);
+    public JsonStreamWriter(Writer out) throws IOException,
+            JsonStreamException {
+        this.writer = out;
+        jsonWriter = new JSONBuilder(writer);
     }
 
     public void writeContainer()
@@ -63,7 +61,7 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
         try {
             jsonWriter.array();
             writeMultiple = true;
-        } catch (JSONException e) {
+        } catch (Exception e) {
             close();
             throw new JsonStreamException("Error writing container", e);
         }
@@ -74,7 +72,7 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
         throws JsonStreamException {
         try {
             doWriteRecordSet(recordset);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             close();
             throw new JsonStreamException("Error writing recordset", e);
         }
@@ -85,7 +83,7 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
         throws JsonStreamException {
         try {
             doWriteRecord(record);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             close();
             throw new JsonStreamException("Error writing record", e);
         }
@@ -94,9 +92,9 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
     /** */
     public void writeKey(EimRecordKey key)
         throws JsonStreamException {
-        try {
+        try{
             doWriteKey(key);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             close();
             throw new JsonStreamException("Error writing key", e);
         }
@@ -107,7 +105,7 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
         throws JsonStreamException {
         try {
             doWriteField(field);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             close();
             throw new JsonStreamException("Error writing field", e);
         }
@@ -118,17 +116,17 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
         try {
             if (writeMultiple)
                 jsonWriter.endArray();
-        } catch (JSONException e) {
+        } catch (Exception e) {
             throw new JsonStreamException("Error ending array", e);
         }
     }
 
-    public JSONWriter getActual() {
+    public JSONBuilder getActual() {
         return jsonWriter;
     }
 
     private void doWriteRecordSet(EimRecordSet recordset)
-        throws JsonStreamException, JSONException {
+        throws JsonStreamException {
         
         jsonWriter.object().key(KEY_UUID).value(recordset.getUuid());
 
@@ -166,7 +164,7 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
     }
 
     private void doWriteRecord(EimRecord record)
-        throws JsonStreamException, JSONException {
+        throws JsonStreamException {
         List<EimRecordField> missingFields = new ArrayList<EimRecordField>();
         List<EimRecordField> notMissingFields = new ArrayList<EimRecordField>();
         
@@ -214,7 +212,7 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
     }
 
     private void doWriteKey(EimRecordKey key)
-        throws JsonStreamException, JSONException {
+        throws JsonStreamException {
         if (key == null){
             jsonWriter.value(null);
             return;
@@ -228,13 +226,13 @@ public class JsonStreamWriter implements JsonConstants, XMLStreamConstants, Eimm
     }
 
     private void doWriteField(EimRecordField field)
-        throws JsonStreamException, JSONException {
+        throws JsonStreamException {
         doWriteField(field, false);
     }
 
     private void doWriteField(EimRecordField field,
                               boolean isKey)
-        throws JsonStreamException, JSONException {
+        throws JsonStreamException {
         String value = null;
         String type = null;
         

@@ -122,6 +122,21 @@ public class JsonStreamWriterTest extends TestCase
         writer.getActual().endObject();
         writer.close();
 
-        log.error("UTF-8 JSON: " + out.toString());
+        log.error("UTF-8 JSON: " + out);
+        
+        String jsonString =  out.toString();
+        String preamble = "{\"unicode\":[\"clob\",\"";
+        //get rid of the json stuff, just want the clob
+        jsonString = jsonString.substring(preamble.length());
+        jsonString = jsonString.substring(0, jsonString.length() - 3);
+        
+        log.error("jsonString: " + jsonString);
+        log.error("Json String Length:" +jsonString.length());
+        log.error("Source String Length: " + unicode.length());
+        for (int x = 0; x < jsonString.length(); x++){
+            Character j = new Character(jsonString.charAt(x));   
+            Character s = new Character(unicode.charAt(x));
+            log.error("comparing char at '"+x+"' result: " +j.compareTo(s));
+        }
     }
 }
