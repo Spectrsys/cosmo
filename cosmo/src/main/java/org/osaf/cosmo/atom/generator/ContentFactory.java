@@ -18,6 +18,7 @@ package org.osaf.cosmo.atom.generator;
 import java.io.StringWriter;
 import java.util.HashSet;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -144,9 +145,9 @@ public class ContentFactory
 
         String value = new EventEntryFormatter(item).formatHtmlContent();
         if (value == null)
-            value = item.getBody();
+            value = StringEscapeUtils.escapeHtml(item.getBody());
         if (value == null)
-            value = item.getDisplayName();
+            value = StringEscapeUtils.escapeHtml(item.getDisplayName());
         if (value == null)
             value = "";
 
