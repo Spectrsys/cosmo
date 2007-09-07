@@ -310,7 +310,7 @@ dojo.declare("cosmo.service.translators.Eim", null, {
             throw new cosmo.service.translators.
                ParseError("Could not find content element for entry " + (i+1));
         }
-        var content = cosmo.util.html.getElementTextContent(contentEl);
+        var content = cosmo.util.encoding.fromBase64(cosmo.util.html.getElementTextContent(contentEl));
         
         var recordSets = dojo.json.evalJson(content);
 
@@ -420,7 +420,7 @@ dojo.declare("cosmo.service.translators.Eim", null, {
                    ParseError("Could not find content element for entry " + (i+1));
             }
 
-            var content = cosmo.util.html.getElementTextContent(contentElement);
+            var content = cosmo.util.encoding.fromBase64(cosmo.util.html.getElementTextContent(contentElement));
 
             var item;
             // If we have a second part to the uid, this entry is a
