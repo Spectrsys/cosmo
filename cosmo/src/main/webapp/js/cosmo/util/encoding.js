@@ -92,7 +92,7 @@ cosmo.util.encoding.fromBase64 = function(string){
 
     return cosmo.util.encoding._utf8_decode(out);
 }
-
+/* UTF-8 functions grabbed from http://www.webtoolkit.info/javascript-base64.html */
 cosmo.util.encoding._utf8_decode = function (utftext) {  
     var string = "";  
     var i = 0;  
