@@ -17,7 +17,6 @@ package org.osaf.cosmo.eim.eimml;
 
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.Date;
