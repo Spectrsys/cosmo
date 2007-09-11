@@ -104,7 +104,7 @@ cosmo.model.declare("cosmo.model.Duration", null,
             
             if (this.getYear() == 0 && this.getMonth() == 0 
              && this.getWeek() == 0 && this.getDay() == 0
-             && this.getHour() == 0 && this.getMinute() ==0
+             && this.getHour() == 0 && this.getMinute() == 0
              && this.getSecond() == 0 ){
                 return true;
             }
