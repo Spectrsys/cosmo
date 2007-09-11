@@ -156,6 +156,7 @@ cosmo.view.list.canvas.Canvas = function (p) {
         }
     };
     this.handleSelectionChange = function (p, discardUnsavedChanges) {
+        var args = Array.prototype.slice.call(arguments);
         var writeable = cosmo.app.pim.currentCollection.isWriteable();
         // Original selection
         var origSelection = self.getSelectedItem();
@@ -170,7 +171,13 @@ cosmo.view.list.canvas.Canvas = function (p) {
             // callback methods for the buttons in the dialog, hence
             // passing the 'self' param below
             if (!discardUnsavedChanges && origSelection && writeable) {
-                if (!self.handleUnsavedChanges(origSelection, p, self)) {
+                // Add the explicit ignore flag to the args
+                args.push(true);
+                // Discarding just re-invokes this call with the ignore flag
+                var discardFunc = function () {
+                    self.handleSelectionChange.apply(self, args);
+                };
+                if (!cosmo.view.handleUnsavedChanges(origSelection, discardFunc)) {
                     return false;
                 }
             }
