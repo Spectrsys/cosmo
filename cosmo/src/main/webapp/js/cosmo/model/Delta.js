@@ -155,6 +155,9 @@ dojo.declare("cosmo.model.Delta", null, {
                 } else {
                     duration = new cosmo.model.Duration(eventStamp["startDate"], eventStamp["endDate"] );
                 }
+                if (duration.isZero()){
+                    duration = null;
+                }
                 eventStamp["duration"] = duration;
                 delete eventStamp["endDate"];
             }    
