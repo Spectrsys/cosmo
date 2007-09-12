@@ -276,11 +276,17 @@ cosmo.view.list.canvas.Canvas = function (p) {
             r += '<tr id="listView_item' + display.uid + '">';
             r += '<td class="listViewDataCell' + selCss + '">';
             if (display.task) {
-                r += '<div style="margin: 0px 2px; width: ' + taskIconStyle.width +
+                var backgroundStyle = (dojo.render.html.safari? 
+                                       ('background-position-x: ' + taskIconStyle.backgroundPositionX + '; background-position-y: ' +
+                                        taskIconStyle.backgroundPositionY) :
+                                       ('background-position: ' + taskIconStyle.backgroundPosition))  + ";";
+                    
+                r += '<div id="foo" style="margin: 0px 2px; width: ' + taskIconStyle.width +
                     '; height: ' + taskIconStyle.height +
                     '; font-size: 1px; background-image: ' +
-                    taskIconStyle.backgroundImage + '; background-position: ' +
-                    taskIconStyle.backgroundPosition + '">&nbsp;</div>';
+                    taskIconStyle.backgroundImage + ';' + 
+                    backgroundStyle + 
+                    '">&nbsp;</div>';
             }
             r += '</td>';
             r += '<td class="listViewDataCell' + selCss + '">' + fillCell(display.title) + '</td>';
