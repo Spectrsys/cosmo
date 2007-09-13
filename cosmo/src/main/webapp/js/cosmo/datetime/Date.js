@@ -339,7 +339,7 @@ cosmo.datetime.Date.prototype.getUserPrefTimezoneOffsetForGivenDate = function(d
     var offsetMin = 0;
     // For now, punt and go with the browser's offset for that date
         offsetMin = cosmo.datetime.Date.getBrowserTimezoneOffset(
-            date.getYear(), date.getMonth(), date.getDate(),
+            date.getFullYear(), date.getMonth(), date.getDate(),
             date.getHours(), date.getMinutes(), date.getSeconds());
     return offsetMin;
     
