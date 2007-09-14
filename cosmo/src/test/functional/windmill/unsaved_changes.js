@@ -16,7 +16,7 @@ var test_unsavedClickLozengeDiscard = [
     jum.assertEquals(dialogText, "You have unsaved changes in the item-detail form. What do you want to do?");
   },
   { method: "click", params: { jsid: "cosmo.app.modalDialog.btnsRight[0].domNode.id" } },
-  { method: "waits.sleep", params: { milliseconds: 3000 } },
+  { method: "waits.sleep", params: { milliseconds: 4000 } },
   function () {
     var summaryText = app.$('noteTitle').value;
     jum.assertEquals(summaryText, 'New Event');
@@ -34,7 +34,7 @@ var test_unsavedClickLozengeSave = [
     jum.assertEquals(dialogText, "You have unsaved changes in the item-detail form. What do you want to do?");
   },
   { method: "click", params: { jsid: "cosmo.app.modalDialog.btnsRight[1].domNode.id" } },
-  { method: "waits.sleep", params: { milliseconds: 4000 } },
+  { method: "waits.sleep", params: { milliseconds: 8000 } },
   function () {
     var summaryText = app.$('noteTitle').value;
     jum.assertEquals(summaryText, 'Unsaved Lozenge');
@@ -52,7 +52,7 @@ var test_unsavedViewChangeDiscard = [
     jum.assertEquals(dialogText, "You have unsaved changes in the item-detail form. What do you want to do?");
   },
   { method: "click", params: { jsid: "cosmo.app.modalDialog.btnsRight[0].domNode.id" } },
-  { method: "waits.sleep", params: { milliseconds: 3000 } },
+  { method: "waits.sleep", params: { milliseconds: 8000 } },
   function () {
     var titleCol = app.$('listViewTitleHeader');
     jum.assertEquals(titleCol.innerHTML, 'Title');
@@ -71,13 +71,13 @@ var test_unsavedViewChangeSave = [
     jum.assertEquals(dialogText, "You have unsaved changes in the item-detail form. What do you want to do?");
   },
   { method: "click", params: { jsid: "cosmo.app.modalDialog.btnsRight[1].domNode.id" } },
-  { method: "waits.sleep", params: { milliseconds: 4000 } },
+  { method: "waits.sleep", params: { milliseconds: 8000 } },
   function () {
     var titleCol = app.$('listViewTitleHeader');
     jum.assertEquals(titleCol.innerHTML, 'Title');
   },
   { method: "click", params: { jsid: "cosmo.app.pim.layout.baseLayout.mainApp.centerColumn.navBar.viewToggle.buttonNodes[1].id" } },
-  { method: "waits.sleep", params: { milliseconds: 4000 } },
+  { method: "waits.sleep", params: { milliseconds: 8000 } },
   function () {
     var summaryText = app.$('noteTitle').value;
     jum.assertEquals(summaryText, 'Unsaved View Change');
