@@ -116,6 +116,7 @@ cosmo.view.list.canvas.Canvas = function (p) {
         }
         if (e && e.target) {
             var targ = e.target;
+            targ = targ.id ? targ : targ.parentNode;
             if (targ.id && targ.id.indexOf('Header') > -1) {
                 if (targ.className.indexOf('Sel') > -1) {
                     dojo.html.replaceClass(targ, 'listViewHeaderCellSelLit',
@@ -140,6 +141,7 @@ cosmo.view.list.canvas.Canvas = function (p) {
     this.handleMouseOut = function (e) {
         if (e && e.target) {
             var targ = e.target;
+            targ = targ.id ? targ : targ.parentNode;
             if (targ.id && targ.id.indexOf('Header') > -1) {
                 if (targ.className.indexOf('Sel') > -1) {
                     dojo.html.replaceClass(targ, 'listViewHeaderCellSel',
@@ -165,6 +167,7 @@ cosmo.view.list.canvas.Canvas = function (p) {
         if (e && e.target) {
             var targ = e.target;
             // Header cell clicked
+            targ = targ.id ? targ : targ.parentNode;
             if (targ.id && targ.id.indexOf('Header') > -1) {
                 this._doSortAndDisplay(targ.id);
             }
@@ -263,44 +266,18 @@ cosmo.view.list.canvas.Canvas = function (p) {
             taskStyle.backgroundPositionX + ' ' + taskStyle.backgroundPositionY :
             taskStyle.backgroundPosition;
         var taskBgPos = taskStyle.backgroundPosition;
+        // Icon/buttons living in the col headers (task, triage)
+        var colHeaderIcons = {};
         var t = '';
         var r = '';
         var cols = [
-            { name: 'Task', width: 16, display: '' },
-            { name: 'Title', width: null, display: 'Title' },
-            { name: 'Who', width: null, display: 'UpdatedBy' },
-            { name: 'Start', width: null, display: 'StartsOn' },
-            { name: 'Triage', width: null, display: 'Triage' }
+            { name: 'Task', width: 16, display: 'taskColumn', isIcon: true },
+            { name: 'Title', width: null, display: 'Title', isIcon: false },
+            { name: 'Who', width: null, display: 'UpdatedBy', isIcon: false },
+            { name: 'Start', width: null, display: 'StartsOn', isIcon: false },
+            { name: 'Triage', width: 32, display: 'triageStatusColumn', isIcon: true }
         ];
         var colCount = 0; // Used to generated the 'processing' row
-
-        t = '<table id="listViewTable" cellpadding="0" cellspacing="0" style="width: 100%;">\n';
-        // Header row
-        r += '<tr>';
-        for (var i = 0; i < cols.length; i++) {
-            var col = cols[i];
-            r += '<td id="listView' + col.name +
-                'Header" class="listViewHeaderCell';
-            if (col.name == this.currSortCol) {
-              r += ' listViewHeaderCellSel'
-            }
-            r += '"';
-            if (col.width) {
-                r += ' style="width: 16px;"';
-            }
-            r += '>';
-            if (col.display) {
-                r += _('Dashboard.ColHeaders.' + col.display);
-            }
-            else {
-                r += '&nbsp;';
-            }
-            r += '</td>';
-            colCount++;
-        }
-        r += '</tr>\n';
-        t += r;
-
         var fillCell = function (s) {
             var cell = s;
             if (s) s = dojo.string.escapeXml(s);
@@ -316,7 +293,7 @@ cosmo.view.list.canvas.Canvas = function (p) {
             r += '<tr id="listView_item' + display.uid + '">';
             r += '<td class="listViewDataCell' + selCss + '">';
             if (display.task) {
-                r += '<div id="foo" style="margin: 0px 2px; width: ' + taskStyle.width +
+                r += '<div style="margin: 0px 2px; width: ' + taskStyle.width +
                     '; height: ' + taskStyle.height +
                     '; font-size: 1px; background-image: ' + taskBgImg +
                     '; background-position: ' + taskBgPos + ';">&nbsp;</div>';
@@ -337,6 +314,53 @@ cosmo.view.list.canvas.Canvas = function (p) {
         }
         var size = this.itemsPerPage;
         var st = (this.currPageNum * size) - size;
+
+        t = '<table id="listViewTable" cellpadding="0" cellspacing="0" style="width: 100%;">\n';
+        // Header row
+        r += '<tr>';
+        for (var i = 0; i < cols.length; i++) {
+            var col = cols[i];
+            var colStyle = '';
+            var isSelected = (col.name == this.currSortCol);
+            if (col.isIcon) {
+                var iconPrefix = isSelected ? 'Selected' : 'Default';
+                var iconDiv = _createElem('div');
+                var mouseOver = function (e) { self.handleMouseOver(e); }
+                var mouseOut = function (e) { self.handleMouseOut(e); }
+                var click = function (e) { self.handleClick(e); }
+                var colIcon = cosmo.ui.imagegrid.createImageButton({ domNode: iconDiv,
+                    defaultState: col.display + iconPrefix,
+                    rolloverState: col.display + iconPrefix + 'Rollover',
+                    handleMouseOver: mouseOver,
+                    handleMouseOut: mouseOut,
+                    handleClick: click });
+                iconDiv.style.margin = 'auto';
+                colHeaderIcons[col.name] = iconDiv;
+                colStyle += ' text-align: center;';
+            }
+            if (col.width) {
+                colStyle += ' width: ' + col.width + 'px;';
+            }
+
+            r += '<td id="listView' + col.name +
+                'Header" class="listViewHeaderCell';
+            if (isSelected) {
+              r += ' listViewHeaderCellSel'
+            }
+            r += '"';
+            if (colStyle) {
+              r += ' style="' + colStyle + '"';
+            }
+            r += '>';
+            if (!col.isIcon) {
+                r += _('Dashboard.ColHeaders.' + col.display);
+            }
+            r += '</td>';
+            colCount++;
+        }
+        r += '</tr>\n';
+        t += r;
+
         hash.each(createContentRow, { start: st, items: size });
 
         t += '</table>';
@@ -344,6 +368,12 @@ cosmo.view.list.canvas.Canvas = function (p) {
         // Create the table
         // ============
         this.domNode.innerHTML = t;
+
+        // Add column header icons
+        for (var i in colHeaderIcons) {
+          var icon = colHeaderIcons[i];
+          $('listView' + i + 'Header').appendChild(icon);
+        }
 
         // Create the 'processing' row
         var row = _createElem('tr');
