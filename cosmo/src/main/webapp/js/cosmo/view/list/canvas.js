@@ -116,8 +116,11 @@ cosmo.view.list.canvas.Canvas = function (p) {
         }
         if (e && e.target) {
             var targ = e.target;
+            // In some cases we want the parent node's id -- in all
+            // those cases, the event source has no id of its own
             targ = targ.id ? targ : targ.parentNode;
-            if (targ.id && targ.id.indexOf('Header') > -1) {
+            if (!targ.id) { return false; }
+            if (targ.id.indexOf('Header') > -1) {
                 if (targ.className.indexOf('Sel') > -1) {
                     dojo.html.replaceClass(targ, 'listViewHeaderCellSelLit',
                       'listViewHeaderCellSel');
@@ -127,11 +130,7 @@ cosmo.view.list.canvas.Canvas = function (p) {
                 }
             }
             else {
-                // get the UID from the row's DOM node id
-                // Header cell clicked
-                var p = targ.parentNode;
-                if (!p.id) { return false; }
-                var ch = p.childNodes;
+                var ch = targ.childNodes;
                 for (var i = 0; i < ch.length; i++) {
                     dojo.html.addClass(ch[i], 'listViewSelectedCell');
                 }
@@ -141,8 +140,11 @@ cosmo.view.list.canvas.Canvas = function (p) {
     this.handleMouseOut = function (e) {
         if (e && e.target) {
             var targ = e.target;
+            // In some cases we want the parent node's id -- in all
+            // those cases, the event source has no id of its own
             targ = targ.id ? targ : targ.parentNode;
-            if (targ.id && targ.id.indexOf('Header') > -1) {
+            if (!targ.id) { return false; }
+            if (targ.id.indexOf('Header') > -1) {
                 if (targ.className.indexOf('Sel') > -1) {
                     dojo.html.replaceClass(targ, 'listViewHeaderCellSel',
                       'listViewHeaderCellSelLit');
@@ -152,11 +154,9 @@ cosmo.view.list.canvas.Canvas = function (p) {
                 }
             }
             else {
-                // get the UID from the row's DOM node id
-                var p = e.target.parentNode;
-                if (!p.id || (p.id ==  'listView_item' +
-                    self.getSelectedItemId())) { return false; }
-                var ch = p.childNodes;
+                if (p.id ==  'listView_item' +
+                    self.getSelectedItemId()) { return false; }
+                var ch = targ.childNodes;
                 for (var i = 0; i < ch.length; i++) {
                     dojo.html.removeClass(ch[i], 'listViewSelectedCell');
                 }
@@ -166,19 +166,17 @@ cosmo.view.list.canvas.Canvas = function (p) {
     this.handleClick = function (e) {
         if (e && e.target) {
             var targ = e.target;
-            // Header cell clicked
+            // In some cases we want the parent node's id -- in all
+            // those cases, the event source has no id of its own
             targ = targ.id ? targ : targ.parentNode;
-            if (targ.id && targ.id.indexOf('Header') > -1) {
+            if (!targ.id) { return false; }
+            // Header cell clicked
+            if (targ.id.indexOf('Header') > -1) {
                 this._doSortAndDisplay(targ.id);
             }
             // Normal row cell clicked
             else {
-                var p = targ.parentNode;
-                // Paranoia check -- bail out if somehow the node
-                // has no id
-                if (p.id) {
-                    self.handleSelectionChange(p);
-                }
+                self.handleSelectionChange(targ);
 
             }
         }
