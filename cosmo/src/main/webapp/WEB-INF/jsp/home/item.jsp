@@ -155,6 +155,7 @@
         <fmt:formatDate value="${Item.modifiedDate}" type="both"/>
       </td>
     </tr>
+    <c:if test="${Item.class.name == 'org.osaf.cosmo.model.NoteItem'}">
     <tr>
       <td class="mdLabel" style="text-align:right;">
         iCalendar UID:
@@ -171,6 +172,7 @@
         <cosmo:property value="${Item.body}"/>
       </td>
     </tr>
+    </c:if>
   </table>
 </div>
 
@@ -377,6 +379,7 @@
 </div>
 </c:if>
 
+<c:if test="${Item.class.name == 'org.osaf.cosmo.model.NoteItem'}">
 <c:if test="${fn:length(Item.modifications) > 0}">
 <div class="hd" style="margin-top: 12px;">
   Modifications
@@ -419,6 +422,7 @@
     </c:forEach>
   </table>
 </div>
+</c:if>
 </c:if>
 
 <c:set var="item" value="${Collection}" scope="request"/>
