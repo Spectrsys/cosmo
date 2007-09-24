@@ -467,7 +467,7 @@ public class MorseCodeServlet extends HttpServlet implements EimmlConstants {
                 return;
             } catch (IllegalArgumentException e) {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                               "Parent uid must be specified when authenticated principal is not a user");
+                               e.getMessage());
                 return;
             } catch (EimmlStreamException e) {
                 log.warn("Unable to read EIM stream", e);

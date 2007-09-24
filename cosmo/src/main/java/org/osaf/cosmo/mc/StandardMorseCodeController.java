@@ -18,6 +18,7 @@ package org.osaf.cosmo.mc;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -423,7 +424,7 @@ public class StandardMorseCodeController implements MorseCodeController {
                                      CollectionItem collection) {
         
         // The set of items that need to be updated/created/deleted
-        HashSet<Item> children = new HashSet<Item>();
+        LinkedHashSet<Item> children = new LinkedHashSet<Item>();
         
         try {
             while (i.hasNext()) {
