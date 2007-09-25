@@ -120,8 +120,8 @@ cosmo.view.list.canvas.Canvas = function (p) {
             var targ = e.target;
             // In some cases we want the parent node's id -- in all
             // those cases, the event source has no id of its own
-            targ = targ.id ? targ : targ.parentNode;
-            if (!targ.id) { return false; }
+            while (!targ.id) { targ = targ.parentNode; }
+            if (targ.id == 'body') { return false; }
             if (targ.id.indexOf('Header') > -1) {
                 if (targ.className.indexOf('Sel') > -1) {
                     dojo.html.replaceClass(targ, 'listViewHeaderCellSelLit',
@@ -144,8 +144,8 @@ cosmo.view.list.canvas.Canvas = function (p) {
             var targ = e.target;
             // In some cases we want the parent node's id -- in all
             // those cases, the event source has no id of its own
-            targ = targ.id ? targ : targ.parentNode;
-            if (!targ.id) { return false; }
+            while (!targ.id) { targ = targ.parentNode; }
+            if (targ.id == 'body') { return false; }
             if (targ.id.indexOf('Header') > -1) {
                 if (targ.className.indexOf('Sel') > -1) {
                     dojo.html.replaceClass(targ, 'listViewHeaderCellSel',
@@ -170,8 +170,8 @@ cosmo.view.list.canvas.Canvas = function (p) {
             var targ = e.target;
             // In some cases we want the parent node's id -- in all
             // those cases, the event source has no id of its own
-            targ = targ.id ? targ : targ.parentNode;
-            if (!targ.id) { return false; }
+            while (!targ.id) { targ = targ.parentNode; }
+            if (targ.id == 'body') { return false; }
             // Header cell clicked
             if (targ.id.indexOf('Header') > -1) {
                 this._doSortAndDisplay(targ.id);
@@ -272,7 +272,7 @@ cosmo.view.list.canvas.Canvas = function (p) {
         var t = '';
         var r = '';
         var cols = [
-            { name: 'Task', width: '22px', display: 'taskColumn', isIcon: true },
+            { name: 'Task', width: '20px', display: 'taskColumn', isIcon: true },
             { name: 'Title', width: '50%', display: 'Title', isIcon: false },
             { name: 'Who', width: '20%', display: 'UpdatedBy', isIcon: false },
             { name: 'Start', width: '30%', display: 'StartsOn', isIcon: false },
