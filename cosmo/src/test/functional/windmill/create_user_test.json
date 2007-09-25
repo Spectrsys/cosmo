@@ -1,5 +1,6 @@
 {"method": "open", "params": {"url" : "/"}}
 {"method": "click", "params": {"link" : "Create a new account"}}
+{"params": {"id": "modalDialogTitle"}, "version": "0.1", "method": "waits.forElement"}
 {"params": {"id": "modalDialogTitle"}, "version": "0.1", "method": "asserts.assertNode"}
 {"params": {"jsid": "{$btnsRight0}"}, "version": "0.1", "method": "click"}
 {"params": {"text": "{$random}", "id": "username"}, "version": "0.1", "method": "type"}
