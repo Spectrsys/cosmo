@@ -10,11 +10,11 @@ var fixture_unsavedSetUpLozenges = [
 
 var test_unsavedClickLozengeDiscard = [
   // Select the second event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
   // Change the title
   { method: "type", params: { id: "noteTitle", text: "Unsaved: Click Lozenge" } },
   // Click back to the first event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(0).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(0).id" } },
   { method: "waits.sleep", params: { milliseconds: 4000 } },
   // Verify that the Unsaved Changes dialog appears
   function () {
@@ -34,11 +34,11 @@ var test_unsavedClickLozengeDiscard = [
 var test_unsavedClickLozengeSave = [
   { method: "waits.sleep", params: { milliseconds: 4000 } },
   // Select the second event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
   // Change the title
   { method: "type", params: { id: "noteTitle", text: "Unsaved: Click Lozenge" } },
   // Click back to the first event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(0).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(0).id" } },
   { method: "waits.sleep", params: { milliseconds: 4000 } },
   // Verify that the Unsaved Changes dialog appears
   function () {
@@ -58,7 +58,7 @@ var test_unsavedClickLozengeSave = [
 var test_unsavedViewChangeDiscard = [
   { method: "waits.sleep", params: { milliseconds: 4000 } },
   // Select the second event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
   // Change the title
   { method: "type", params: { id: "noteTitle", text: "Unsaved: Change View" } },
   // Change to list view
@@ -81,7 +81,7 @@ var test_unsavedViewChangeDiscard = [
   { method: "click", params: { jsid: "cosmo.app.pim.layout.baseLayout.mainApp.centerColumn.navBar.viewToggle.buttonNodes[1].id" } },
   { method: "waits.sleep", params: { milliseconds: 8000 } },
   // Select the second event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
   // Verify the event title didn't change
   function () {
     var summaryText = app.$('noteTitle').value;
@@ -92,7 +92,7 @@ var test_unsavedViewChangeDiscard = [
 var test_unsavedViewChangeSave = [
   { method: "waits.sleep", params: { milliseconds: 4000 } },
   // Select the second event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
   // Change the title
   { method: "type", params: { id: "noteTitle", text: "Unsaved: Change View" } },
   // Change to list view
@@ -117,7 +117,7 @@ var test_unsavedViewChangeSave = [
 var test_unsavedCollectionChangeDiscard = [
   { method: "waits.sleep", params: { milliseconds: 4000 } },
   // Select the event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
   // Change the Title
   { method: "type", params: { id: "noteTitle", text: "Unsaved: Change Collection" } },
   // Change to the second collection
@@ -140,7 +140,7 @@ var test_unsavedCollectionChangeDiscard = [
   { method: "select", params: { id: 'calSelectElem', locatorType: 'VALUE', option: "0" } },
   { method: "waits.sleep", params: { milliseconds: 8000 } },
   // Select the event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
   // Verify the title of the event didn't change
   function () {
     var summaryText = app.$('noteTitle').value;
@@ -152,7 +152,7 @@ var test_unsavedCollectionChangeDiscard = [
 var test_unsavedCollectionChangeSave = [
   { method: "waits.sleep", params: { milliseconds: 4000 } },
   // Select the event
-  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testingApp.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
+  { method: 'extensions.clickLozenge', params: { jsid: "windmill.testWindow.cosmo.view.cal.itemRegistry.getAtPos(1).id" } },
   // Change the title
   { method: "type", params: { id: "noteTitle", text: "Unsaved: Change Collection" } },
   // Change to the second collection
