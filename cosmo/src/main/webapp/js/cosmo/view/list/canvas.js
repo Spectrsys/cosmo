@@ -453,7 +453,7 @@ cosmo.view.list.canvas.Canvas = function (p) {
         }
     };
     /**
-     * Handles a successful update of a CalEvent item
+     * Handles a successful update of a ListItem
      * @param cmd JS Object, the command object passed in the
      * published 'success' message
      */
