@@ -13,6 +13,7 @@
 {"params": {"validator": "Passwords do not match.", "id": "modalDialogContent"}, "version": "0.1", "method": "asserts.assertText"}
 {"params": {"text": "tester", "id": "password"}, "version": "0.1", "method": "type"}
 {"params": {"jsid": "{$btnsRight0}"}, "version": "0.1", "method": "click"}
+{"method": "waits.forElement", "params": {"id" : "modalDialogPrompt"}}
 {"params": {"validator": "You have successfully created your Chandler Server account.", "id": "modalDialogPrompt"}, "version": "0.1", "method": "asserts.assertText"}
 {"params": {"jsid": "{$btnsCenter0}"}, "version": "0.1", "method": "click"}
 
