@@ -18,11 +18,11 @@
     <parent>
         <groupId>org.osaf.cosmo</groupId>
         <artifactId>osaf-server</artifactId>
-        <version>0.8-SNAPSHOT</version>
+        <version>0.8-CP-r5823-20071001</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dojo</artifactId>
-    <version>0.4.3-080-SNAPSHOT</version>
+    <version>0.4.3-080-CP-r5823-20071001</version>
     <packaging>jar</packaging>
     <name>Dojo Build</name>
     <dependencies>
