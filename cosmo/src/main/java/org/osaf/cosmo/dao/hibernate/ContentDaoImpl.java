@@ -619,9 +619,9 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         if (isNoteModification(content)) {
             NoteItem note = (NoteItem) content;
             
-            if (!note.getParents().equals(parents))
+            if (!note.getModifies().getParents().equals(parents))
                 throw new IllegalArgumentException(
-                        "Note modification parents must equal to the parents of master note");
+                        "Note modification parents must equal the parents of master note");
         }
         
         for(CollectionItem parent: parents) {
