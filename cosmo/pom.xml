@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.osaf.cosmo</groupId>
         <artifactId>osaf-server</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
+        <version>0.8-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cosmo</artifactId>
@@ -26,9 +26,10 @@
     <name>Cosmo</name>
     <dependencies>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json-java</artifactId>
-            <version>1.0</version>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <version>2.0 </version>
+            <classifier>jdk15</classifier>
         </dependency>
         <dependency>
             <groupId>com.sdicons.jsontools</groupId>
@@ -113,7 +114,7 @@
         <dependency>
             <groupId>net.fortuna</groupId>
             <artifactId>ical4j</artifactId>
-            <version>1.0-beta4-SNAPSHOT</version>
+            <version>1.0-beta5-osaf-20070927</version>
         </dependency>
         <!-- required by jcr-server -->
         <!-- XXX: should be 1.0 release version -->
@@ -172,7 +173,6 @@
             <artifactId>jackrabbit-jcr-webdav</artifactId>
             <version>1.0-osaf-20061023</version>
         </dependency>
-        <!-- dependency of acegi security -->
         <dependency>
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
@@ -215,12 +215,12 @@
             <version>2.0.5</version>
             <exclusions>
                 <exclusion>
-                    <groupId>javax.resource</groupId>
                     <artifactId>connector</artifactId>
+                    <groupId>javax.resource</groupId>
                 </exclusion>
                 <exclusion>
-                    <groupId>javax.mail</groupId>
                     <artifactId>mail</artifactId>
+                    <groupId>javax.mail</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -267,15 +267,14 @@
             <version>2.0.2</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Hibernate dependencies -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate</artifactId>
             <version>3.2.5.ga</version>
             <exclusions>
                 <exclusion>
-                    <groupId>ehcache</groupId>
                     <artifactId>ehcache</artifactId>
+                    <groupId>ehcache</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -350,8 +349,8 @@
             <version>1.6.1</version>
             <exclusions>
                 <exclusion>
-                    <groupId>xml-apis</groupId>
                     <artifactId>xml-apis</artifactId>
+                    <groupId>xml-apis</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -365,7 +364,6 @@
             <artifactId>wstx-asl</artifactId>
             <version>3.2.1</version>
         </dependency>
-        <!-- Integration testing dependencies -->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -585,7 +583,7 @@
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.1-080-SNAPSHOT</version>
+                                    <version>0.4.3-080-SNAPSHOT</version>
                                     <type>jar</type>
                                   </artifactItem>
                                   <artifactItem>
@@ -625,7 +623,7 @@
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.1-080-SNAPSHOT</version>
+                                    <version>0.4.3-080-SNAPSHOT</version>
                                     <type>jar</type>
                                   </artifactItem>
                                   <artifactItem>

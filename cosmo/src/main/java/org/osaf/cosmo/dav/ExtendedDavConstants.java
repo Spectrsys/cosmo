@@ -15,14 +15,13 @@
  */
 package org.osaf.cosmo.dav;
 
-import javax.xml.namespace.QName;
-
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 import org.osaf.cosmo.util.UriTemplate;
+import org.osaf.cosmo.xml.QName;
 
 /**
  * Provides constants defined by Cosmo proprietary *DAV extensions.
@@ -50,10 +49,13 @@ public interface ExtendedDavConstants extends DavConstants {
     public static final String PROPERTY_UUID = "uuid";
 
     /** The Cosmo property <code>cosmo:uuid</code> */
-    public static final DavPropertyName OWNER =
-        DavPropertyName.create(XML_OWNER, NAMESPACE);
     public static final DavPropertyName UUID =
         DavPropertyName.create(PROPERTY_UUID, NAMESPACE_COSMO);
+
+    public static final DavPropertyName OWNER =
+        DavPropertyName.create(XML_OWNER, NAMESPACE);
+    public static final DavPropertyName SUPPORTEDREPORTSET =
+        DavPropertyName.create("supported-report-set", NAMESPACE);
 
     public static final String QN_PROPFIND =
         DomUtil.getQualifiedName(XML_PROPFIND, NAMESPACE);
@@ -82,7 +84,7 @@ public interface ExtendedDavConstants extends DavConstants {
     public static final UriTemplate TEMPLATE_USERS =
         new UriTemplate("/users");
     public static final UriTemplate TEMPLATE_USER =
-        new UriTemplate("/user/{username}");
+        new UriTemplate("/users/{username}");
     public static final UriTemplate TEMPLATE_HOME =
-        new UriTemplate("/{username}");
+        new UriTemplate("/{username}/*");
 }

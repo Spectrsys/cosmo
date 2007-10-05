@@ -15,6 +15,8 @@
  */
 package org.osaf.cosmo.dav;
 
+import java.net.URL;
+
 import org.apache.commons.id.random.SessionIdGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,19 +33,26 @@ import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.StandardResourceFactory;
+import org.osaf.cosmo.dav.impl.DavCalendarCollection;
+import org.osaf.cosmo.dav.impl.DavEvent;
 import org.osaf.cosmo.dav.impl.DavHomeCollection;
+import org.osaf.cosmo.model.CollectionItem;
+import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.util.PathUtil;
+import org.osaf.cosmo.util.UriTemplate;
 
-public class DavTestHelper extends MockHelper {
+public class DavTestHelper extends MockHelper
+    implements ExtendedDavConstants {
     private static final Log log = LogFactory.getLog(DavTestHelper.class);
 
     private StandardResourceFactory resourceFactory;
     private StandardResourceLocatorFactory locatorFactory;
-    private User user;
     private DavResourceLocator homeLocator;
     private DavHomeCollection homeResource;
+    private URL baseUrl;
 
     public DavTestHelper() {
         super();
@@ -52,14 +61,20 @@ public class DavTestHelper extends MockHelper {
             new StandardResourceFactory(getContentService(),
                                         getUserService(),
                                         getSecurityManager());
-        locatorFactory =
-            new StandardResourceLocatorFactory(getServiceLocatorFactory());
+        locatorFactory = new StandardResourceLocatorFactory();
+        try {
+            baseUrl = new URL("http", "localhost", -1, "/dav");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setUp() throws Exception {
         super.setUp();
+
+        String path = TEMPLATE_HOME.bind(false, getUser().getUsername());
         homeLocator =
-            locatorFactory.createResourceLocator("", "/" + getUser().getUsername());
+            locatorFactory.createResourceLocatorByPath(baseUrl, path);
     }
 
     public DavResourceFactory getResourceFactory() {
@@ -80,22 +95,59 @@ public class DavTestHelper extends MockHelper {
                                      resourceFactory);
     }
 
-    public DavResource getMember(DavCollection parent,
-                                 String name)
-        throws Exception {
-        for (DavResourceIterator i = parent.getMembers(); i.hasNext();) {
-            org.apache.jackrabbit.webdav.DavResource m = i.nextResource();
-            log.debug("member path: " + m.getResourcePath());
-            if (PathUtil.getBasename(m.getResourcePath()).equals(name))
-                return (DavResource) m;
-        }
-        return null;
-    }
-
     public DavUserPrincipal getPrincipal(User user)
         throws Exception {
-        DavResourceLocator locator = locatorFactory.
-            createResourceLocator("", "/user/" + user.getUsername());
+        String path = TEMPLATE_USER.bind(false, user.getUsername());
+        DavResourceLocator locator =
+            locatorFactory.createResourceLocatorByPath(baseUrl, path);
         return new DavUserPrincipal(user, locator, resourceFactory);
+    }
+
+    public DavTestContext createTestContext() {
+        return new DavTestContext(locatorFactory);
+    }
+
+    public DavResourceLocator createLocator(String path) {
+        return locatorFactory.
+            createResourceLocatorByPath(homeLocator.getContext(), path);
+    }
+
+    public DavResourceLocator createMemberLocator(DavResourceLocator locator,
+                                                  String segment) {
+        String path = locator.getPath() + "/" + segment;
+        return locatorFactory.
+            createResourceLocatorByPath(locator.getContext(), path);
+    }
+
+    public DavResource findMember(DavCollection collection,
+                                  String segment)
+        throws DavException {
+        String href = collection.getResourceLocator().getHref(false) + "/" +
+            UriTemplate.escapeSegment(segment);
+        return collection.findMember(href);
+    }
+
+    public DavCalendarCollection initializeDavCalendarCollection(String name)
+        throws Exception {
+        CollectionItem collection = (CollectionItem)
+            getHomeCollection().getChildByName(name);
+        if (collection == null)
+            collection = makeAndStoreDummyCalendarCollection(name);
+        DavResourceLocator locator =
+            createMemberLocator(homeLocator, collection.getName());
+        return new DavCalendarCollection(collection, locator,
+                                         resourceFactory);
+    }
+
+    public DavEvent initializeDavEvent(DavCalendarCollection parent,
+                                       String name)
+        throws Exception {
+        CollectionItem collection = (CollectionItem) parent.getItem();
+        NoteItem item = (NoteItem) collection.getChildByName(name);
+        if (item == null)
+            item = makeAndStoreDummyItem(collection, name);
+        DavResourceLocator locator =
+            createMemberLocator(parent.getResourceLocator(), item.getName());
+        return new DavEvent(item, locator, resourceFactory);
     }
 }

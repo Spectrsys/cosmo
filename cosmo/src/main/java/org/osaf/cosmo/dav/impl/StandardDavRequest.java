@@ -17,7 +17,7 @@ package org.osaf.cosmo.dav.impl;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashSet;
 
 import javax.activation.MimeType;
@@ -38,6 +38,7 @@ import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
 
+import org.osaf.cosmo.dav.BadGatewayException;
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
@@ -46,6 +47,8 @@ import org.osaf.cosmo.dav.DavResourceLocatorFactory;
 import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.UnsupportedMediaTypeException;
 import org.osaf.cosmo.dav.acl.AclConstants;
+import org.osaf.cosmo.dav.acl.DavPrivilege;
+import org.osaf.cosmo.dav.acl.DavPrivilegeSet;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.InvalidCalendarDataException;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
@@ -86,6 +89,8 @@ public class StandardDavRequest extends WebdavRequestImpl
     private boolean bufferRequestContent = false;
     private long bufferedContentLength = -1;
     private DavResourceLocatorFactory locatorFactory;
+    private DavResourceLocator locator;
+    private DavResourceLocator destinationLocator;
 
     public StandardDavRequest(HttpServletRequest request,
                               DavResourceLocatorFactory factory) {
@@ -98,22 +103,6 @@ public class StandardDavRequest extends WebdavRequestImpl
         super(request, null);
         this.locatorFactory = factory;
         this.bufferRequestContent = bufferRequestContent;
-    }
-
-    public String getBaseUrl() {
-        StringBuffer buf = new StringBuffer();
-        buf.append(getScheme());
-        buf.append("://");
-        buf.append(getServerName());
-        if ((isSecure() && getServerPort() != 443) ||
-            getServerPort() != 80) {
-            buf.append(":");
-            buf.append(getServerPort());
-        }
-        if (! getContextPath().equals("/")) {
-            buf.append(getContextPath());
-        }
-        return buf.toString();
     }
 
     // DavRequest methods
@@ -147,31 +136,38 @@ public class StandardDavRequest extends WebdavRequestImpl
     }
 
     public DavResourceLocator getResourceLocator() {
-        String path = getRequestURI();
-        String ctx = getContextPath();
-        if (path.startsWith(ctx))
-            path = path.substring(ctx.length());
-        return locatorFactory.createResourceLocator(getBaseUrl(), path);
+        if (locator == null) {
+            URL context = null;
+            try {
+                String basePath = getContextPath() + getServletPath();
+                context = new URL(getScheme(), getServerName(),
+                                  getServerPort(), basePath);
+
+                locator = locatorFactory.
+                    createResourceLocatorByUri(context, getRequestURI());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return locator;
     }
 
     public DavResourceLocator getDestinationResourceLocator()
         throws DavException {
+        if (destinationLocator != null)
+            return destinationLocator;
+
         String destination = getHeader(HEADER_DESTINATION);
-        if (destination != null) {
-            try {
-                URI uri = new URI(destination);
-                if (uri.getAuthority() == null)
-                    throw new URISyntaxException(destination, "URI is not absolute", 0);
-                if (uri.getAuthority().equals(getHeader("Host")))
-                    destination = uri.getRawPath();
-            } catch (URISyntaxException e) {
-                throw new BadRequestException("Destination URI is not valid: " + e.getMessage());
-            }
-            String ctx = getContextPath();
-            if (destination.startsWith(ctx))
-                destination = destination.substring(ctx.length());
-        }
-        return locatorFactory.createResourceLocator(getBaseUrl(), destination);
+        if (destination == null)
+            return null;
+
+        URL context = ((DavResourceLocator)getResourceLocator()).getContext();
+
+        destinationLocator =
+            locatorFactory.createResourceLocatorByUri(context, destination);
+
+        return destinationLocator;
     }
 
     // CaldavRequest methods
@@ -221,7 +217,7 @@ public class StandardDavRequest extends WebdavRequestImpl
         try {
             if (StringUtils.isBlank(getContentType())) {
                 if (requireDocument)
-                    throw new UnsupportedMediaTypeException("No Content-Type specified");
+                    throw new BadRequestException("No Content-Type specified");
                 return null;
             }
             MimeType mimeType = new MimeType(getContentType());
@@ -244,8 +240,12 @@ public class StandardDavRequest extends WebdavRequestImpl
     private void parsePropFindRequest()
         throws DavException {
         Document requestDocument = getSafeRequestDocument();
-        if (requestDocument == null)
-            throw new BadRequestException("PROPFIND requires entity body");
+        if (requestDocument == null) {
+            // treat as allprop
+            propfindType = PROPFIND_ALL_PROP;
+            propfindProps = new DavPropertyNameSet();
+            return;
+        }
 
         Element root = requestDocument.getDocumentElement();
         if (! DomUtil.matches(root, XML_PROPFIND, NAMESPACE))
@@ -267,6 +267,18 @@ public class StandardDavRequest extends WebdavRequestImpl
         if (DomUtil.getChildElement(root, XML_ALLPROP, NAMESPACE) != null) {
             propfindType = PROPFIND_ALL_PROP;
             propfindProps = new DavPropertyNameSet();
+
+            Element include =
+                DomUtil.getChildElement(root, "include", NAMESPACE);
+            if (include != null) {
+                ElementIterator included = DomUtil.getChildren(include);
+                while (included.hasNext()) {
+                    DavPropertyName name = 
+                        DavPropertyName.createFromXml(included.nextElement());
+                    propfindProps.add(name);
+                }
+            }
+
             return;
         }
 
@@ -283,27 +295,31 @@ public class StandardDavRequest extends WebdavRequestImpl
         if (! DomUtil.matches(root, XML_PROPERTYUPDATE,NAMESPACE))
             throw new BadRequestException("Expected " + QN_PROPERTYUPDATE + " root element");
 
-        Element set = DomUtil.getChildElement(root, XML_SET, NAMESPACE);
-        Element remove = DomUtil.getChildElement(root, XML_REMOVE, NAMESPACE);
-        if (set == null && remove == null)
+        ElementIterator sets = DomUtil.getChildren(root, XML_SET, NAMESPACE);
+        ElementIterator removes = DomUtil.getChildren(root, XML_REMOVE, NAMESPACE);
+        if (! (sets.hasNext() || removes.hasNext()))
             throw new BadRequestException("Expected at least one of " + QN_REMOVE + " and " + QN_SET + " as a child of " + QN_PROPERTYUPDATE);
 
         Element prop = null;
         ElementIterator i = null;
 
         proppatchSet = new DavPropertySet();
-        if (set != null) {
+        while (sets.hasNext()) {
+            Element set = sets.nextElement();
             prop = DomUtil.getChildElement(set, XML_PROP, NAMESPACE);
             if (prop == null)
                 throw new BadRequestException("Expected " + QN_PROP + " child of " + QN_SET);
             i = DomUtil.getChildren(prop);
-            while (i.hasNext())
-                proppatchSet.add(StandardDavProperty.
-                                 createFromXml(i.nextElement()));
+            while (i.hasNext()) {
+                StandardDavProperty p =
+                    StandardDavProperty.createFromXml(i.nextElement());
+                proppatchSet.add(p);
+            }
         }
 
         proppatchRemove = new DavPropertyNameSet();
-        if (remove != null) {
+        while (removes.hasNext()) {
+            Element remove = removes.nextElement();
             prop = DomUtil.getChildElement(remove, XML_PROP, NAMESPACE);
             if (prop == null)
                 throw new BadRequestException("Expected " + QN_PROP + " child of " + QN_REMOVE);
@@ -370,28 +386,18 @@ public class StandardDavRequest extends WebdavRequestImpl
 
         // visit limits are not supported
 
-        Element privilege =
-            DomUtil.getChildElement(root, XML_PRIVILEGE, NAMESPACE);
-        if (privilege == null)
+        Element pe = DomUtil.getChildElement(root, XML_PRIVILEGE, NAMESPACE);
+        if (pe == null)
             throw new BadRequestException("Expected " + QN_PRIVILEGE + " child of " + QN_TICKET_TICKETINFO);
-        Element read =
-            DomUtil.getChildElement(privilege, XML_READ, NAMESPACE);
-        Element write =
-            DomUtil.getChildElement(privilege, XML_WRITE, NAMESPACE);
-        Element freebusy =
-            DomUtil.getChildElement(privilege, ELEMENT_TICKET_FREEBUSY,
-                                    NAMESPACE);
-        if (read == null && write == null && freebusy == null)
+
+        DavPrivilegeSet privileges = DavPrivilegeSet.createFromXml(pe);
+        if (! privileges.containsAny(DavPrivilege.READ, DavPrivilege.WRITE,
+                                     DavPrivilege.READ_FREE_BUSY))
             throw new BadRequestException("Empty or invalid " + QN_PRIVILEGE);
 
         Ticket ticket = new Ticket();
         ticket.setTimeout(timeout);
-        if (read != null)
-            ticket.getPrivileges().add(Ticket.PRIVILEGE_READ);
-        if (write != null)
-            ticket.getPrivileges().add(Ticket.PRIVILEGE_WRITE);
-        if (freebusy != null)
-            ticket.getPrivileges().add(Ticket.PRIVILEGE_FREEBUSY);
+        privileges.setTicketPrivileges(ticket);
 
         return ticket;
     }
@@ -407,6 +413,8 @@ public class StandardDavRequest extends WebdavRequestImpl
                                   getDepth(DEPTH_0));
         } catch (org.apache.jackrabbit.webdav.DavException e) {
             throw new DavException(e);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException(e.getMessage());
         }
     }
 

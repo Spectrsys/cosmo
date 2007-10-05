@@ -32,6 +32,7 @@ dojo.require("cosmo.ui.widget.Button");
 dojo.require("cosmo.ui.imagegrid");
 dojo.require("cosmo.view.cal.common");
 dojo.require("cosmo.view.list.common");
+dojo.require("cosmo.account.preferences");
 
 cosmo.ui.navbar.Bar = function (p) {
     var self = this;
@@ -98,25 +99,61 @@ cosmo.ui.navbar.Bar = function (p) {
         self.setPosition(0, 0);
     };
 
-    /*
-     * Switch to viewName. If noLoad is true, do not refresh
-	 * data before doing so.
-     */
-    this.displayView = function (viewName, /*boolean*/noLoad) {
+    this.displayView = function (params) {
+        // Do params with keywords, because there are
+        // two optional params that are both Bools
+        var viewName = params.viewName;
+        // Optional, Bool -- don't refresh data before toggling view
+        var noLoad = typeof params.noLoad == 'undefined' ? false : params.noLoad;
+        // Optional, Bool -- don't check for unsaved data in
+        // detail form -- this means user has explicitly chosen
+        // Discard Changes in the dialog box
+        var discardUnsavedChanges =
+          typeof params.discardUnsavedChanges == 'undefined' ? false : params.discardUnsavedChanges;
         var _pim = cosmo.app.pim;
         var _view = cosmo.view[viewName];
         var _loading = cosmo.app.pim.layout.baseLayout.mainApp.centerColumn.loading;
+
+        // Check for unsaved changes in the selected item
+        // before toggling view
+        var previousView = cosmo.view[_pim.currentView];
+        if (!discardUnsavedChanges &&
+            (previousView.canvasInstance && previousView.itemRegistry)) {
+            var sel = previousView.canvasInstance.getSelectedItem();
+            if (sel) {
+                var discardFunc = function () {
+                    params.discardUnsavedChanges = true;
+                    self.displayView.apply(self, [params]);
+                }
+                var resetFunc = function () {
+                    self.renderSelf();
+                };
+                if (!cosmo.view.handleUnsavedChanges(sel,
+                    discardFunc, resetFunc, resetFunc)) {
+                    return false;
+                }
+            }
+        }
+
+        // Set currentView to the new selected view
         _pim.currentView = viewName;
+
+        // Save new selected view name for reloading
+        cosmo.account.preferences.setCookiePreference(
+            cosmo.account.preferences.DEFAULT_VIEW, viewName)
+
+        // Set up the view on initial display
         if (!_view.hasBeenInitialized) {
             _view.init();
         }
+        // Don't show the canvas-level 'loading' message
+        // on initial load -- we have the app-level one
+        // still showing
         if (this.defaultViewHasBeenInitialized) {
             _loading.show();
         }
-        // This has been called now as part of the app init
-        // process -- now we need to show the 'loading'
-        // status message on subsequent calls
         this.defaultViewHasBeenInitialized = true;
+
         var doDisplay = function () {
             if (viewName == _pim.views.LIST) {
                 // Only switch views if the data for the view loads successfully
@@ -168,14 +205,14 @@ cosmo.ui.navbar.Bar = function (p) {
                 mouseoverImgPos: [listSel.left, listSel.top],
                 downStateImgPos: [listSel.left, listSel.top],
                 handleClick: function () {
-                    self.displayView(cosmo.app.pim.views.LIST); }
+                    self.displayView({ viewName: cosmo.app.pim.views.LIST }); }
                 }),
             new _radio({ width: w,
                 defaultImgPos: [calBase.left, calBase.top],
                 mouseoverImgPos: [calSel.left, calSel.top],
                 downStateImgPos: [calSel.left, calSel.top],
                 handleClick: function () {
-                    self.displayView(cosmo.app.pim.views.CAL); }
+                    self.displayView({ viewName:cosmo.app.pim.views.CAL }); }
                 })
         ];
 
@@ -374,7 +411,11 @@ cosmo.ui.navbar.QuickItemEntry = function (p) {
             disabled: writeable ? false : true
         };
         var text = cosmo.util.html.createInput(o);
-        text.style.width = '220px';
+        // Dynamically size the quick-entry text so the 
+        // page nav can fit -- max it out at 220px wide
+        var w = this.parent.width - 300;
+        w = w > 220 ? 220 : w;
+        text.style.width = w + 'px';
         this.createTextBox = text;
         if (writeable) {
             var func = cosmo.util.html.handleTextInputFocus;

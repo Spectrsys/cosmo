@@ -30,6 +30,14 @@ import net.fortuna.ical4j.model.Period;
 public class CalendarFilterEvaluaterTest extends TestCase {
     protected String baseDir = "src/test/unit/resources/testdata/";
     
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        System.setProperty("ical4j.unfolding.relaxed", "true");
+        System.setProperty("ical4j.parsing.relaxed", "true");
+        System.setProperty("ical4j.validation.relaxed", "true");
+    }
+
     public void testEvaluateFilterPropFilter() throws Exception {
         CalendarBuilder cb = new CalendarBuilder();
         FileInputStream fis = new FileInputStream(baseDir + "cal1.ics");
@@ -260,12 +268,45 @@ public class CalendarFilterEvaluaterTest extends TestCase {
        
         Assert.assertTrue(evaluater.evaluate(calendar, filter));
         
-        textMatch.setValue("DISPLAY");
+        textMatch.setValue("EMAIL");
         Assert.assertFalse(evaluater.evaluate(calendar, filter));
         
         alarmFilter.getPropFilters().clear();
         Assert.assertTrue(evaluater.evaluate(calendar, filter));
         
+        // time-range filter on VALARM
+        
+        // find alarm relative to start
+        DateTime start = new DateTime("20060101T220000Z");
+        DateTime end = new DateTime("20060101T230000Z");
+    
+        Period period = new Period(start, end);
+        TimeRangeFilter timeRangeFilter = new TimeRangeFilter(period);
+        alarmFilter.setTimeRangeFilter(timeRangeFilter);
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
+        
+        // find alarm relative to end
+        start = new DateTime("20060101T050000Z");
+        end = new DateTime("20060101T190000Z");
+        period = new Period(start, end);
+        timeRangeFilter.setPeriod(period);
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
+        
+        // find absolute repeating alarm
+        start = new DateTime("20051230T050000Z");
+        end = new DateTime("20051230T080000Z");
+        period = new Period(start, end);
+        timeRangeFilter.setPeriod(period);
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
+        
+        // find no alarms
+        start = new DateTime("20060101T020000Z");
+        end = new DateTime("20060101T030000Z");
+        period = new Period(start, end);
+        timeRangeFilter.setPeriod(period);
+        Assert.assertFalse(evaluater.evaluate(calendar, filter));
+        
+        alarmFilter.setTimeRangeFilter(null);
         alarmFilter.setIsNotDefinedFilter(new IsNotDefinedFilter());
         Assert.assertFalse(evaluater.evaluate(calendar, filter));
     }
@@ -335,5 +376,118 @@ public class CalendarFilterEvaluaterTest extends TestCase {
         
         textFilter.setValue("bogus");
         Assert.assertFalse(evaluater.evaluate(calendar, filter));
+    }
+    
+    public void testEvaluateVToDoTimeRangeFilter() throws Exception {
+        CalendarBuilder cb = new CalendarBuilder();
+        Calendar calendar1 = cb.build(new FileInputStream(baseDir + "/vtodo/vtodo.ics"));
+        Calendar calendar2 = cb.build(new FileInputStream(baseDir + "/vtodo/vtodo_due_only.ics"));
+        
+        CalendarFilterEvaluater evaluater = new CalendarFilterEvaluater();
+       
+        CalendarFilter filter = new CalendarFilter();
+        ComponentFilter compFilter = new ComponentFilter("VCALENDAR");
+        ComponentFilter vtodoFilter = new ComponentFilter("VTODO");
+        filter.setFilter(compFilter);
+        compFilter.getComponentFilters().add(vtodoFilter);
+        
+        // Verify VTODO that has DTSTART matches
+        DateTime start = new DateTime("19970414T133000Z");
+        DateTime end = new DateTime("19970416T133000Z");
+        Period period = new Period(start, end);
+        TimeRangeFilter timeRangeFilter = new TimeRangeFilter(period);
+        vtodoFilter.setTimeRangeFilter(timeRangeFilter);
+        
+        Assert.assertTrue(evaluater.evaluate(calendar1, filter));
+        
+        // Verify VTODO that has DTSTART doesn't match
+        start = new DateTime("19970420T133000Z");
+        end = new DateTime("19970421T133000Z");
+        period = new Period(start, end);
+        timeRangeFilter.setPeriod(period);
+        Assert.assertFalse(evaluater.evaluate(calendar1, filter));
+        
+        // Verify VTODO that has DUE doesn't match
+        Assert.assertFalse(evaluater.evaluate(calendar2, filter));
+        
+        // Verify VTODO that has DUE matches
+        start = new DateTime("20080401T133000Z");
+        end = new DateTime("20080421T133000Z");
+        period = new Period(start, end);
+        timeRangeFilter.setPeriod(period);
+        Assert.assertTrue(evaluater.evaluate(calendar2, filter));
+    }
+    
+    public void testEvaluateVFreeBusyFilterFilter() throws Exception {
+        CalendarBuilder cb = new CalendarBuilder();
+        FileInputStream fis = new FileInputStream(baseDir + "vfreebusy.ics");
+        CalendarFilterEvaluater evaluater = new CalendarFilterEvaluater();
+        Calendar calendar = cb.build(fis);
+        
+        CalendarFilter filter = new CalendarFilter();
+        ComponentFilter compFilter = new ComponentFilter("VCALENDAR");
+        ComponentFilter vfbFilter = new ComponentFilter("VFREEBUSY");
+        filter.setFilter(compFilter);
+        compFilter.getComponentFilters().add(vfbFilter);
+        
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
+        
+        PropertyFilter propFilter = new PropertyFilter("ORGANIZER");
+        TextMatchFilter textFilter = new TextMatchFilter("Joe");
+        propFilter.setTextMatchFilter(textFilter);
+        vfbFilter.getPropFilters().add(propFilter);
+        
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
+        
+        textFilter.setValue("bogus");
+        Assert.assertFalse(evaluater.evaluate(calendar, filter));
+    }
+    
+    public void testEvaluateVFreeBusyFilterFilterTimeRange() throws Exception {
+        CalendarBuilder cb = new CalendarBuilder();
+        CalendarFilterEvaluater evaluater = new CalendarFilterEvaluater();
+        Calendar calendar1 = cb.build(new FileInputStream(baseDir + "vfreebusy.ics"));
+        Calendar calendar2 = cb.build(new FileInputStream(baseDir + "vfreebusy_no_dtstart.ics"));
+        
+        CalendarFilter filter = new CalendarFilter();
+        ComponentFilter compFilter = new ComponentFilter("VCALENDAR");
+        ComponentFilter vfbFilter = new ComponentFilter("VFREEBUSY");
+        filter.setFilter(compFilter);
+        compFilter.getComponentFilters().add(vfbFilter);
+        
+        DateTime start = new DateTime("20060102T115000Z");
+        DateTime end = new DateTime("20060109T115000Z");
+    
+        Period period = new Period(start, end);
+        TimeRangeFilter timeRangeFilter = new TimeRangeFilter(period);
+        vfbFilter.setTimeRangeFilter(timeRangeFilter);
+        
+        Assert.assertTrue(evaluater.evaluate(calendar1, filter));
+        Assert.assertTrue(evaluater.evaluate(calendar2, filter));
+        
+        start = new DateTime("20070102T115000Z");
+        end = new DateTime("20070109T115000Z");
+    
+        period = new Period(start, end);
+        timeRangeFilter.setPeriod(period);
+        
+        Assert.assertFalse(evaluater.evaluate(calendar1, filter));
+        Assert.assertFalse(evaluater.evaluate(calendar2, filter));
+        
+    }
+    
+    public void testEvaluateVAvailabilityFilter() throws Exception {
+        CalendarBuilder cb = new CalendarBuilder();
+        FileInputStream fis = new FileInputStream(baseDir + "vavailability.ics");
+        CalendarFilterEvaluater evaluater = new CalendarFilterEvaluater();
+        Calendar calendar = cb.build(fis);
+        
+        CalendarFilter filter = new CalendarFilter();
+        ComponentFilter compFilter = new ComponentFilter("VCALENDAR");
+        ComponentFilter vfbFilter = new ComponentFilter("VAVAILABILITY");
+        filter.setFilter(compFilter);
+        compFilter.getComponentFilters().add(vfbFilter);
+        
+        Assert.assertTrue(evaluater.evaluate(calendar, filter));
     }
 }

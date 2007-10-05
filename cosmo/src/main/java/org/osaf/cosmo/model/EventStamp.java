@@ -30,16 +30,22 @@ import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
+import net.fortuna.ical4j.model.parameter.Value;
+import net.fortuna.ical4j.model.property.DateListProperty;
+import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.DtStart;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.osaf.cosmo.calendar.ICalendarUtils;
+import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.hibernate.validator.Event;
 
 
@@ -85,14 +91,10 @@ public class EventStamp extends BaseEventStamp implements
     
     @Transient
     public Calendar getCalendar() {
-        Calendar masterCal = null;
-        
-        try {
-            masterCal = new Calendar(getEventCalendar());
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot copy calendar", e);
-        }
-
+        Calendar masterCal = CalendarUtils.copyCalendar(getEventCalendar());
+        if (masterCal == null)
+            return null;
+       
         // the master calendar might not have any events; for
         // instance, a client might be trying to save a VTODO
         if (masterCal.getComponents(Component.VEVENT).isEmpty())
@@ -127,6 +129,10 @@ public class EventStamp extends BaseEventStamp implements
         // merge item properties to icalendar props
         mergeCalendarProperties(masterEvent, (NoteItem) getItem());
         
+        // bug 10558: remove redundant VALUE=DATE-TIME params because
+        // some clients don't like them
+        fixDateTimeProperties(masterEvent);
+        
         // bug 9606: handle displayAlarm with no trigger by not including
         // in exported icalendar
         if(masterAlarm!=null) {
@@ -150,15 +156,21 @@ public class EventStamp extends BaseEventStamp implements
                 continue;
             
             // Get exception event copy
-            VEvent exceptionEvent = null;
-            try {
-                exceptionEvent = (VEvent) exceptionStamp.getExceptionEvent().copy();
-            } catch (Exception e) {
-                throw new RuntimeException("Cannot copy calendar", e);
+            VEvent exceptionEvent = (VEvent) CalendarUtils
+                    .copyComponent(exceptionStamp.getExceptionEvent());
+
+            // ensure DURATION or DTEND exists on modfication
+            if (ICalendarUtils.getDuration(exceptionEvent) == null) {
+                ICalendarUtils.setDuration(exceptionEvent, ICalendarUtils
+                        .getDuration(masterEvent));
             }
             
             // merge item properties to icalendar props
             mergeCalendarProperties(exceptionEvent, exception);
+            
+            // bug 10558: remove redundant VALUE=DATE-TIME params because
+            // some clients don't like them
+            fixDateTimeProperties(masterEvent);
             
             // check for inherited anyTime
             if(exceptionStamp.isAnyTime()==null) {
@@ -258,8 +270,8 @@ public class EventStamp extends BaseEventStamp implements
     /* (non-Javadoc)
      * @see org.osaf.cosmo.model.Stamp#copy()
      */
-    public Stamp copy(Item item) {
-        EventStamp stamp = new EventStamp(item);
+    public Stamp copy() {
+        EventStamp stamp = new EventStamp();
         
         // Need to copy Calendar, and indexes
         try {
@@ -315,7 +327,27 @@ public class EventStamp extends BaseEventStamp implements
     private void mergeCalendarProperties(VEvent event, NoteItem note) {
         //summary = displayName
         //description = body
+        //uid = icalUid
+        if(note.getModifies()!=null)
+            ICalendarUtils.setUid(note.getModifies().getIcalUid(), event);
+        else
+            ICalendarUtils.setUid(note.getIcalUid(), event);
+        
         ICalendarUtils.setSummary(note.getDisplayName(), event);
         ICalendarUtils.setDescription(note.getBody(), event);
+    }
+    
+    // Remove VALUE=DATE-TIME because it is redundant and some clients
+    // don't like when its present.
+    private void fixDateTimeProperties(VEvent event) {
+        PropertyList props = event.getProperties();
+        for(Iterator<Property> it = props.iterator(); it.hasNext();) {
+            Property prop = it.next();
+            if(prop instanceof DateProperty || prop instanceof DateListProperty) {
+                Value v = (Value) prop.getParameter(Parameter.VALUE);
+                if(v!=null && Value.DATE_TIME.equals(v))
+                    prop.getParameters().remove(v);
+            }
+        }
     }
 }

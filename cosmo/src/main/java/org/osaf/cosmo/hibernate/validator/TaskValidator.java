@@ -79,7 +79,7 @@ public class TaskValidator implements Validator<Task>, Serializable {
         } catch(ParserException e) {
             log.warn("parse error", e);
             if(calendar!=null) {
-                log.warn("error parsing journal: " + calendar.toString() );
+                log.warn("error parsing task: " + calendar.toString() );
             }
             return false;
         }

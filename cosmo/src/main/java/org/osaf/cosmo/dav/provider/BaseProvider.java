@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.dav.BadRequestException;
+import org.osaf.cosmo.dav.ConflictException;
 import org.osaf.cosmo.dav.ContentLengthRequiredException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
@@ -46,10 +47,20 @@ import org.osaf.cosmo.dav.MethodNotAllowedException;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.UnsupportedMediaTypeException;
+import org.osaf.cosmo.dav.acl.AclConstants;
+import org.osaf.cosmo.dav.acl.AclEvaluator;
+import org.osaf.cosmo.dav.acl.DavPrivilege;
+import org.osaf.cosmo.dav.acl.NeedsPrivilegesException;
+import org.osaf.cosmo.dav.acl.TicketAclEvaluator;
+import org.osaf.cosmo.dav.acl.UserAclEvaluator;
+import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
+import org.osaf.cosmo.dav.acl.resource.DavUserPrincipalCollection;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.impl.DavItemResource;
 import org.osaf.cosmo.dav.impl.DavFile;
 import org.osaf.cosmo.dav.io.DavInputContext;
+import org.osaf.cosmo.dav.ticket.TicketConstants;
+import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityContext;
@@ -61,7 +72,8 @@ import org.osaf.cosmo.security.CosmoSecurityContext;
  *
  * @see DavProvider
  */
-public abstract class BaseProvider implements DavProvider, DavConstants {
+public abstract class BaseProvider
+    implements DavProvider, DavConstants, AclConstants, TicketConstants {
     private static final Log log = LogFactory.getLog(BaseProvider.class);
 
     private DavResourceFactory resourceFactory;
@@ -93,12 +105,17 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         if (! resource.exists())
             throw new NotFoundException();
 
-        int depth = request.getDepth(DEPTH_INFINITY);
+        int depth = getDepth(request);
         if (depth != DEPTH_0 && ! resource.isCollection())
             throw new BadRequestException("Depth must be 0 for non-collection resources");
 
         DavPropertyNameSet props = request.getPropFindProperties();
         int type = request.getPropFindType();
+
+        // Since the propfind properties could not be determined in the
+        // security filter in order to check specific property privileges, the
+        // check must be done manually here.
+        checkPropFindAccess(resource, props, type);
 
         MultiStatus ms = new MultiStatus();
         ms.addResourceProperties(resource, props, type, depth);
@@ -131,9 +148,9 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new NotFoundException();
         checkNoRequestBody(request);
 
-        int depth = request.getDepth(DEPTH_INFINITY);
+        int depth = getDepth(request);
         if (depth != DEPTH_INFINITY)
-            throw new BadRequestException("Depth for DELETE must be Infinity");
+            throw new BadRequestException("Depth for DELETE must be infinity");
 
         try {
             resource.getParent().removeMember(resource);
@@ -151,14 +168,16 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             throw new NotFoundException();
         checkNoRequestBody(request);
 
-        int depth = request.getDepth(DEPTH_INFINITY);
+        int depth = getDepth(request);
         if (! (depth == DEPTH_0 || depth == DEPTH_INFINITY))
-            throw new BadRequestException("Depth for COPY must be 0 or Infinity");
+            throw new BadRequestException("Depth for COPY must be 0 or infinity");
 
         DavResource destination =
             resolveDestination(request.getDestinationResourceLocator(),
                                resource);
         validateDestination(request, destination);
+
+        checkCopyMoveAccess(resource, destination);
 
         try {
             if (destination.exists() && request.isOverwrite())
@@ -166,6 +185,8 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             resource.copy(destination, depth == DEPTH_0);
             response.setStatus(destination.exists() ? 204 : 201);
         } catch (org.apache.jackrabbit.webdav.DavException e) {
+            if (e instanceof DavException)
+                throw (DavException)e;
             throw new DavException(e);
         }
     }
@@ -183,12 +204,16 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
                                resource);
         validateDestination(request, destination);
 
+        checkCopyMoveAccess(resource, destination);
+
         try {
             if (destination.exists() && request.isOverwrite())
                 destination.getCollection().removeMember(destination);
             resource.move(destination);
             response.setStatus(destination.exists() ? 204 : 201);
         } catch (org.apache.jackrabbit.webdav.DavException e) {
+            if (e instanceof DavException)
+                throw (DavException)e;
             throw new DavException(e);
         }
     }
@@ -206,7 +231,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             // Since the report type could not be determined in the security
             // filter in order to check ticket permissions on REPORT, the
             // check must be done manually here.
-            checkReportAccess(info);
+            checkReportAccess(resource, info);
 
             resource.getReport(info).run(response);
         } catch (org.apache.jackrabbit.webdav.DavException e) {
@@ -230,10 +255,7 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
             log.debug("MKTICKET for " + resource.getResourcePath());
 
         Ticket ticket = request.getTicketInfo();
-        User user = getSecurityContext().getUser();
-        if (user == null)
-            throw new ForbiddenException("MKTICKET requires an authenticated user");
-        ticket.setOwner(user);
+        ticket.setOwner(getSecurityContext().getUser());
 
         dir.saveTicket(ticket);
 
@@ -259,8 +281,6 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         Ticket ticket = dir.getTicket(key);
         if (ticket == null)
             throw new PreconditionFailedException("Ticket " + key + " does not exist");
-
-        checkDelTicketAccess(ticket);
 
         dir.removeTicket(ticket);
 
@@ -309,6 +329,8 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
     protected DavResource resolveDestination(DavResourceLocator locator,
                                              DavResource original)
         throws DavException {
+        if (locator == null)
+            return null;
         DavResource destination = resourceFactory.resolve(locator);
         return destination != null ? destination :
             new DavFile(locator, resourceFactory);
@@ -317,52 +339,178 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
     protected void validateDestination(DavRequest request,
                                        DavResource destination)
         throws DavException {
-        String uri = request.getHeader(HEADER_DESTINATION);
-        if (StringUtils.isBlank(uri))
-            throw new BadRequestException("Destination header not provided");
+        if (destination == null)
+            throw new BadRequestException("Destination required");
         if (destination.getResourceLocator().equals(request.getResourceLocator()))
             throw new ForbiddenException("Destination URI is the same as the original resource URI");
         if (destination.exists() && ! request.isOverwrite())
-            throw new PreconditionFailedException("Overwrite header was not specified for existing destination");
+            throw new PreconditionFailedException("Overwrite header false was not specified for existing destination");
+        if (! destination.getParent().exists())
+            throw new ConflictException("One or more intermediate collections must be created");
     }
 
-    protected void checkReportAccess(ReportInfo info)
+    protected void checkCopyMoveAccess(DavResource source,
+                                       DavResource destination)
         throws DavException {
-        Ticket ticket = getSecurityContext().getTicket();
-        if (ticket == null)
+        // XXX refactor a BaseItemProvider so we don't have to do this check
+        if (! (source instanceof DavItemResource))
+            // we're operating on a principal resource which can't be moved
+            // anyway
             return;
 
-        if (isFreeBusyReport(info)) {
-            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_FREEBUSY))
-                return;
-            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_READ))
-                return;
-            // Do not allow the client to know that this resource actually
-            // exists, as per CalDAV report definition
-            throw new NotFoundException();
-        }
-
-        if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_READ))
+        // because the security filter let us get this far, we know the
+        // security context has access to the source resource. we have to
+        // check that it also has access to the destination resource.
+        
+        if (getSecurityContext().isAdmin())
             return;
 
-       throw new ForbiddenException("Ticket privileges deny access");
-    }
+        DavResource toCheck = destination.exists() ?
+            destination : destination.getParent();
+        Item item = ((DavItemResource)toCheck).getItem();
+        DavResourceLocator locator = toCheck.getResourceLocator();
+        String href = locator.getHref(toCheck.isCollection());
+        DavPrivilege privilege = destination.exists() ?
+            DavPrivilege.WRITE : DavPrivilege.BIND;
 
-    private void checkDelTicketAccess(Ticket ticket)
-        throws DavException {
         User user = getSecurityContext().getUser();
         if (user != null) {
-            // user must either own the ticket or be an administrator
-            if (! (ticket.getOwner().equals(user) || getSecurityContext().isAdmin()))
-                throw new ForbiddenException("Authenticated user not ticket owner");
+            UserAclEvaluator evaluator = new UserAclEvaluator(user);
+            if (evaluator.evaluate(item, privilege))
+                return;
+            throw new NeedsPrivilegesException(href, privilege);
+        }
+
+        Ticket ticket = getSecurityContext().getTicket();
+        if (ticket != null) {
+            TicketAclEvaluator evaluator = new TicketAclEvaluator(ticket);
+            if (evaluator.evaluate(item, privilege))
+                return;
+            throw new NeedsPrivilegesException(href, privilege);
+        }
+        
+        throw new NeedsPrivilegesException(href, privilege);
+    }
+
+    protected AclEvaluator createAclEvaluator() {
+        User user = getSecurityContext().getUser();
+        if (user != null)
+            return new UserAclEvaluator(user);
+        Ticket ticket = getSecurityContext().getTicket();
+        if (ticket != null)
+            return new TicketAclEvaluator(ticket);
+        throw new IllegalStateException("Anonymous principal not supported for ACL evaluation");
+    }
+
+    protected boolean hasPrivilege(DavResource resource,
+                                   AclEvaluator evaluator,
+                                   DavPrivilege privilege) {
+        boolean hasPrivilege = false;
+        if (resource instanceof DavUserPrincipalCollection ||
+            resource instanceof DavUserPrincipal) {
+            if (evaluator instanceof TicketAclEvaluator)
+                throw new IllegalStateException("A ticket may not be used to access a user principal collection or resource");
+            UserAclEvaluator uae = (UserAclEvaluator) evaluator;
+
+            if (resource instanceof DavUserPrincipalCollection) {
+                hasPrivilege = uae.evaluateUserPrincipalCollection(privilege);
+            } else {
+                User user = ((DavUserPrincipal)resource).getUser();
+                hasPrivilege = uae.evaluateUserPrincipal(user, privilege);
+            }
+        } else {
+            Item item = ((DavItemResource)resource).getItem();
+            hasPrivilege = evaluator.evaluate(item, privilege);
+        }        
+
+        if (hasPrivilege) {
+            if (log.isDebugEnabled())
+                log.debug("Principal has privilege " + privilege);
+            return true;
+        }
+
+        
+        if (log.isDebugEnabled())
+            log.debug("Principal does not have privilege " + privilege);
+        return false;
+    }
+
+    protected void checkPropFindAccess(DavResource resource,
+                                       DavPropertyNameSet props,
+                                       int type)
+        throws DavException {
+        AclEvaluator evaluator = createAclEvaluator();
+
+        // if the principal has DAV:read, then the propfind can continue
+        if (hasPrivilege(resource, evaluator, DavPrivilege.READ)) {
+            if (log.isDebugEnabled())
+                log.debug("Allowing PROPFIND");
             return;
         }
-        Ticket authTicket = getSecurityContext().getTicket();
-        if (authTicket != null)
-            // security layer has already validated this ticket
-            return;
 
-        throw new ForbiddenException("Anonymous user not ticket owner");
+        // if there is at least one property that can be viewed with
+        // DAV:read-current-user-privilege-set, then check for that
+        // privilege as well.
+        int unprotected = 0;
+        if (props.contains(CURRENTUSERPRIVILEGESET))
+            unprotected++;
+        // ticketdiscovery is only unprotected when the principal is a
+        // ticket
+        if (props.contains(TICKETDISCOVERY) &&
+            evaluator instanceof TicketAclEvaluator)
+            unprotected++;
+
+        if (unprotected > 0) {
+            if (hasPrivilege(resource, evaluator,
+                             DavPrivilege.READ_CURRENT_USER_PRIVILEGE_SET)) {
+
+                if (props.getContentSize() > unprotected)
+                    // XXX: if they don't have DAV:read, they shouldn't be
+                    // able to access any other properties
+                    log.warn("Exposing secured properties to ticket without DAV:read");
+                             
+                if (log.isDebugEnabled())
+                    log.debug("Allowing PROPFIND");
+                return;
+             }
+        }
+
+        // don't allow the client to know that this resource actually
+        // exists
+        if (log.isDebugEnabled())
+            log.debug("Denying PROPFIND");
+        throw new NotFoundException();
+    }
+
+    protected void checkReportAccess(DavResource resource,
+                                     ReportInfo info)
+        throws DavException {
+        AclEvaluator evaluator = createAclEvaluator();
+
+        // if the principal has DAV:read, then the propfind can continue
+        if (hasPrivilege(resource, evaluator, DavPrivilege.READ)) {
+            if (log.isDebugEnabled())
+                log.debug("Allowing REPORT");
+            return;
+        }
+
+        // if this is a free-busy report, then check CALDAV:read-free-busy
+        // also
+        if (isFreeBusyReport(info)) {
+            Item item = ((DavItemResource)resource).getItem();
+            if (hasPrivilege(resource, evaluator,
+                             DavPrivilege.READ_FREE_BUSY)) {
+                if (log.isDebugEnabled())
+                    log.debug("Allowing REPORT");
+                return;
+            }
+        }
+
+        // don't allow the client to know that this resource actually
+        // exists
+        if (log.isDebugEnabled())
+            log.debug("Denying PROPFIND");
+        throw new NotFoundException();
     }
 
     protected void checkNoRequestBody(DavRequest request)
@@ -376,6 +524,15 @@ public abstract class BaseProvider implements DavProvider, DavConstants {
         }
         if (hasBody)
             throw new UnsupportedMediaTypeException("Body not expected for method " + request.getMethod());
+    }
+
+    protected int getDepth(DavRequest request)
+        throws DavException {
+        try {
+            return request.getDepth();
+        } catch (IllegalArgumentException e) {    
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     protected CosmoSecurityContext getSecurityContext() {

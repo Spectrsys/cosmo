@@ -141,6 +141,10 @@ public abstract class BaseEventStamp extends Stamp
         ICalendarUtils.setUid(uid, getEvent());
     }
 
+    protected void setIcalUid(String text, VEvent event) {
+        event.getUid().setValue(text);
+    }
+    
     /** 
      * Sets the iCalendar SUMMARY property of the event.
      *
@@ -295,17 +299,7 @@ public abstract class BaseEventStamp extends Stamp
      */
     @Transient
     public Dur getDuration() {
-        Duration duration = (Duration)
-            getEvent().getProperties().getProperty(Property.DURATION);
-        if (duration != null)
-            return duration.getDuration();
-        DtStart dtstart = getEvent().getStartDate();
-        if (dtstart == null)
-            return null;
-        DtEnd dtend = getEvent().getEndDate();
-        if (dtend == null)
-            return null;
-        return new Duration(dtstart.getDate(), dtend.getDate()).getDuration();
+        return ICalendarUtils.getDuration(getEvent());
     }
 
     /** 
@@ -315,28 +309,7 @@ public abstract class BaseEventStamp extends Stamp
      */
     @Transient
     public void setDuration(Dur dur) {
-        Duration duration = (Duration)
-            getEvent().getProperties().getProperty(Property.DURATION);
-        
-       
-        // remove DURATION if dur is null
-        if(dur==null) {
-            if(duration != null) 
-                getEvent().getProperties().remove(duration);
-            return;
-        }
-        
-        // update dur on existing DURATION
-        if (duration != null)
-            duration.setDuration(dur);
-        else {
-            // remove the dtend if there was one
-            DtEnd dtend = getEvent().getEndDate();
-            if (dtend != null)
-                getEvent().getProperties().remove(dtend);
-            duration = new Duration(dur);
-            getEvent().getProperties().add(duration);
-        }
+        ICalendarUtils.setDuration(getEvent(), dur);
     }
 
     /**
@@ -596,10 +569,6 @@ public abstract class BaseEventStamp extends Stamp
         Description description = (Description) alarm.getProperties()
                 .getProperty(Property.DESCRIPTION);
         
-        if (newDescription == null) {
-            if (description != null)
-                alarm.getProperties().remove(description);
-        }
         if (description == null) {
             description = new Description();
             alarm.getProperties().add(description);
@@ -939,5 +908,6 @@ public abstract class BaseEventStamp extends Stamp
         VAlarm alarm = new VAlarm();
         alarm.getProperties().add(Action.DISPLAY);
         getEvent().getAlarms().add(alarm);
+        setDisplayAlarmDescription("Event Reminder");
     }
 }

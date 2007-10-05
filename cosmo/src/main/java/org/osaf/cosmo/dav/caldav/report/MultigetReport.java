@@ -15,6 +15,10 @@
  */
 package org.osaf.cosmo.dav.caldav.report;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,12 +67,22 @@ public class MultigetReport extends CaldavMultiStatusReport {
     // ReportBase methods
 
     /**
+     * <p>
      * Parses the report info, extracting the properties and output filter.
+     * </p>
+     * <pre>
+     * <!ELEMENT calendar-multiget ((DAV:allprop |
+     *                              DAV:propname |
+     *                              DAV:prop)?, DAV:href+)>
+     * </pre>
+     *
+     * @throws DavException if the report info is not of the correct type
+     * @throws BadRequestException if the report info is invalid
      */
     protected void parseReport(ReportInfo info)
         throws DavException {
         if (! getType().isRequestedReportType(info))
-            throw new DavException("Report not of type " + getType());
+            throw new DavException("Report not of type " + getType().getReportName());
 
         setPropFindProps(info.getPropertyNameSet());
         if (info.containsContentElement(XML_ALLPROP, NAMESPACE)) {
@@ -87,30 +101,27 @@ public class MultigetReport extends CaldavMultiStatusReport {
         if (getResource() instanceof DavContent && hrefElements.size() > 1)
             throw new BadRequestException("Expected at most one " + QN_HREF);
 
-        String parentHref = getResource().getHref();
-        String host = parentHref.substring(0, parentHref.indexOf("/", 8));
+        URL resourceUrl = ((DavResource)getResource()). getResourceLocator().
+            getUrl(true, getResource().isCollection());
 
-        // validate submitted hrefs
         hrefs = new HashSet<String>();
         for (Element element : hrefElements) {
             String href = DomUtil.getTextTrim(element);
-            // Note that the href sent by the client may be relative,
-            // so we need to convert to absolute for subsequent
-            // comparisons
-            if (! href.startsWith("http"))
-                href = host + href;
+            // validate and absolutize submitted href
+            URL memberUrl = normalizeHref(resourceUrl, href);
 
-            // Check if the href represents the requested resource or
-            // a child of it
+            // check if the href refers to the targeted resource (or to a
+            // descendent if the target is a collection)
             if (getResource() instanceof DavCollection) {
-                if (! isDescendentOrEqual(parentHref, href))
-                    throw new BadRequestException("Href " + href + " does not refer to a descendent of the requested collection or the collection itself");
+                if (! isDescendentOrEqual(resourceUrl, memberUrl))
+                    throw new BadRequestException("Href " + href + " does not refer to the requested collection " + resourceUrl + " or a descendent");
             } else {
-                if (! href.equals(parentHref))
-                    throw new BadRequestException("Href " + href + " does not refer to the requested resource ");
+                if (! memberUrl.equals(resourceUrl))
+                    throw new BadRequestException("Href " + href + " does not refer to the requested resource " + resourceUrl);
             }
 
-            hrefs.add(href);
+            // use the absolute path of our normalized URL as the href
+            hrefs.add(memberUrl.getPath());
         }
     }
 
@@ -132,32 +143,50 @@ public class MultigetReport extends CaldavMultiStatusReport {
             for (String href : hrefs) {
                 DavResource target = collection.findMember(href);
                 if (target != null)
-                    getMultiStatus().
-                        addResponse(buildMultiStatusResponse(target, propspec));
+                    getMultiStatus().addResponse(buildMultiStatusResponse(target, propspec));
                 else
-                    getMultiStatus().
-                        addResponse(new MultiStatusResponse(href,404));
+                    getMultiStatus().addResponse(new MultiStatusResponse(href,404));
             }
             return;
         }
 
         if (getResource() instanceof DavCalendarResource) {
-            getMultiStatus().
-                addResponse(buildMultiStatusResponse(getResource(), propspec));
+            getMultiStatus().addResponse(buildMultiStatusResponse(getResource(), propspec));
             return;
         }
 
         throw new UnprocessableEntityException(getType() + " report not supported for non-calendar resources");
     }
 
-
-    private static boolean isDescendentOrEqual(String path,
-                                               String descendant) {
-        if (path.equals(descendant)) {
-            return true;
-        } else {
-            String pattern = path.endsWith("/") ? path : path + "/";
-            return descendant.startsWith(pattern);
+    private static URL normalizeHref(URL context,
+                                     String href)
+        throws DavException {
+        URL url = null;
+        try {
+            url = new URL(context, href);
+            // check that the URL is escaped. it's questionable whether or
+            // not we should all unescaped URLs, but at least as of
+            // 10/02/2007, iCal 3.0 generates them
+            url.toURI();
+            return url;
+        } catch (URISyntaxException e) {
+            try {
+                URI escaped =
+                    new URI(url.getProtocol(), url.getAuthority(), url.getPath(),
+                            url.getQuery(), url.getRef());
+                return new URL(escaped.toASCIIString());
+            } catch (Exception e2) {
+                throw new BadRequestException("Malformed unescaped href " + href + ": " + e.getMessage());
+            }
+        } catch (MalformedURLException e) {
+            throw new BadRequestException("Malformed href " + href + ": " + e.getMessage());
         }
+    }
+
+    private static boolean isDescendentOrEqual(URL collection,
+                                               URL test) {
+        if (collection.equals(test))
+            return true;
+        return test.getPath().startsWith(collection.getPath());
     }
 }

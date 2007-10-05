@@ -28,7 +28,9 @@ import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
+import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EventStamp;
+import org.osaf.cosmo.model.ICalendarItem;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.TaskStamp;
 
@@ -78,14 +80,39 @@ public class ICalendarOutputter {
     }
     
     /**
-     * Returns an icalendar representation of a NoteItem. If a NoteItem is
+     * Returns an icalendar representation of a ContentItem.  If the content
+     * is an instance of ICalendarItem, then return the calendar associated
+     * with it.  If the content is a NoteItem and the note is
+     * stamped as an event, a VEVENT will be returned.  If a non-event is
+     * stamped as a task, then a VTODO will be returned.  Otherwise a 
+     * VJOURNAL will be returned.
+     * @param item 
+     * @return icalendar representation of item
+     */
+    public static Calendar getCalendar(ContentItem item) {
+        
+        if(item instanceof NoteItem)
+            return getCalendarFromNote( (NoteItem) item);
+        else if(item instanceof ICalendarItem)
+            return ((ICalendarItem) item).getFullCalendar();
+        
+        return null;
+    }
+    
+    /**
+     * Returns an icalendar representation of a NoteItem. note is
      * stamped as an event, a VEVENT will be returned.  If a non-event is
      * stamped as a task, then a VTODO will be returned.  Otherwise a 
      * VJOURNAL will be returned.
      * @param note 
      * @return icalendar representation of item
      */
-    public static Calendar getCalendar(NoteItem note) {
+    public static Calendar getCalendarFromNote(NoteItem note) {
+        
+        // must be a master note
+        if(note.getModifies()!=null)
+            return null;
+        
         EventStamp event = EventStamp.getStamp(note);
         if(event!=null)
             return event.getCalendar();
@@ -94,6 +121,6 @@ public class ICalendarOutputter {
         if(task!=null)
             return task.getCalendar();
         
-        return note.getCalendar();
+        return note.getFullCalendar();
     }
 }

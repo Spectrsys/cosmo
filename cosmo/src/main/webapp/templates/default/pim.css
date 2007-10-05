@@ -207,12 +207,13 @@
 }
 /* Small box that contains 'Processing ...' message inside mask */
 #appLoadingMessage {
-    position: relative;
-    width: 120px;
-    height: 40px;
-    margin: auto;
+    position: absolute;
     top: 50%;
+    left: 50%;
+    height:40px;
+    width:120px;
     margin-top: -20px;
+    margin-left: -60px;
     color: #339;
     border: 1px solid #339;
     line-height: 38px;
@@ -245,20 +246,40 @@
     display: none;
     border-left: 1px solid #999;
     border-right: 1px solid #999;
+    overflow: hidden;
+}
+#listViewTable {
+  table-layout: fixed;
+  width: 100%;
 }
 .listViewHeaderCell {
-    color: #666;
+    color: #000;
     font-weight: bold;
-    padding: 3px;
-    border-bottom: 1px solid #ddd;
+    height: 15px;
+    line-height: 15px;
     border-right: 1px solid #ddd;
-    background-image: url(images/day_col_header_background.gif);
+    background-image: url(images/tiling_horizontal.png);
+    background-position: 0px 0px;
     cursor: pointer;
     white-space: nowrap;
+    overflow: hidden;
+}
+.listViewHeaderCellLit {
+    background-position: 0px -20px;
+}
+.listViewHeaderCellSel {
+    background-position: 0px -40px;
+}
+.listViewHeaderCellSelLit {
+    background-position: 0px -60px;
 }
 .listViewDataCell {
+    height: 20px;
+    line-height: 20px;
+    overflow: hidden;
+    white-space: nowrap;
     cursor: pointer;
-    padding: 3px;
+    vertical-align: top;
     border-bottom: 1px solid #ddd;
 }
 .listViewSelectedCell {

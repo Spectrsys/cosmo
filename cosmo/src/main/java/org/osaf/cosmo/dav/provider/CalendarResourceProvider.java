@@ -32,11 +32,14 @@ import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.DavResponse;
 import org.osaf.cosmo.dav.caldav.SupportedCalendarComponentException;
+import org.osaf.cosmo.dav.impl.DavAvailability;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 import org.osaf.cosmo.dav.impl.DavEvent;
+import org.osaf.cosmo.dav.impl.DavFreeBusy;
 import org.osaf.cosmo.dav.impl.DavJournal;
 import org.osaf.cosmo.dav.impl.DavTask;
 import org.osaf.cosmo.dav.io.DavInputContext;
+import org.osaf.cosmo.icalendar.ICalendarConstants;
 
 /**
  * <p>
@@ -72,16 +75,26 @@ public class CalendarResourceProvider extends FileProvider {
                                              ctx.getCalendar());
         content.getParent().addContent(content, ctx);
         response.setStatus(status);
-        response.setHeader("ETag", content.getETag());
+        // since the iCalendar body is parsed and re-serialized for storage,
+        // it's possible that what will be served for subsequent GETs is
+        // slightly different than what was provided in the PUT, so send a
+        // weak etag
+        response.setHeader("ETag", "W/" + content.getETag());
     }
 
     protected DavResource resolveDestination(DavResourceLocator locator,
                                              DavResource original)
         throws DavException {
+        if (locator == null)
+            return null;
         if (original instanceof DavTask)
             return new DavTask(locator, getResourceFactory());
         if (original instanceof DavJournal)
             return new DavJournal(locator, getResourceFactory());
+        if (original instanceof DavFreeBusy)
+            return new DavFreeBusy(locator, getResourceFactory());
+        if (original instanceof DavAvailability)
+            return new DavAvailability(locator, getResourceFactory());
         return new DavEvent(locator, getResourceFactory());
     }
 
@@ -90,12 +103,17 @@ public class CalendarResourceProvider extends FileProvider {
                                                 DavResourceLocator locator,
                                                 Calendar calendar)
         throws DavException {
-        if (! calendar.getComponents(Component.VEVENT).isEmpty())
+        if (!calendar.getComponents(Component.VEVENT).isEmpty())
             return new DavEvent(locator, getResourceFactory());
-        if (! calendar.getComponents(Component.VTODO).isEmpty())
+        if (!calendar.getComponents(Component.VTODO).isEmpty())
             return new DavTask(locator, getResourceFactory());
-        if (! calendar.getComponents(Component.VJOURNAL).isEmpty())
+        if (!calendar.getComponents(Component.VJOURNAL).isEmpty())
             return new DavJournal(locator, getResourceFactory());
+        if (!calendar.getComponents(Component.VFREEBUSY).isEmpty())
+            return new DavFreeBusy(locator, getResourceFactory());
+        if (!calendar.getComponents(ICalendarConstants.COMPONENT_VAVAILABLITY)
+                .isEmpty())
+            return new DavAvailability(locator, getResourceFactory());
         throw new SupportedCalendarComponentException();
   }
 }

@@ -27,17 +27,21 @@ import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipalCollection;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
+import org.osaf.cosmo.dav.impl.DavAvailability;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCollectionBase;
 import org.osaf.cosmo.dav.impl.DavEvent;
 import org.osaf.cosmo.dav.impl.DavFile;
+import org.osaf.cosmo.dav.impl.DavFreeBusy;
 import org.osaf.cosmo.dav.impl.DavHomeCollection;
 import org.osaf.cosmo.dav.impl.DavJournal;
 import org.osaf.cosmo.dav.impl.DavTask;
+import org.osaf.cosmo.model.AvailabilityItem;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.FileItem;
+import org.osaf.cosmo.model.FreeBusyItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
@@ -177,13 +181,22 @@ public class StandardResourceFactory
         }
 
         if (item instanceof NoteItem) {
-            if (item.getStamp(EventStamp.class) != null)
-                return new DavEvent((NoteItem) item, locator, this);
+            NoteItem note = (NoteItem) item;
+            // don't expose modifications
+            if(note.getModifies()!=null)
+                return null;
+            else if (item.getStamp(EventStamp.class) != null)
+                return new DavEvent(note, locator, this);
             else if (item.getStamp(TaskStamp.class) != null)
-                return new DavTask((NoteItem) item, locator, this);
+                return new DavTask(note, locator, this);
             else 
-                return new DavJournal((NoteItem) item, locator, this);
-        } 
+                return new DavJournal(note, locator, this);
+        }
+        
+        if(item instanceof FreeBusyItem)
+            return new DavFreeBusy((FreeBusyItem) item, locator, this);
+        if(item instanceof AvailabilityItem)
+            return new DavAvailability((AvailabilityItem) item, locator, this);
 
         return new DavFile((FileItem) item, locator, this);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2006 Open Source Applications Foundation
+ * Copyright 2005-2007 Open Source Applications Foundation
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +15,48 @@
  */
 package org.osaf.cosmo.dav.ticket.property;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.property.AbstractDavProperty;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
-import org.osaf.cosmo.dav.impl.DavItemResource;
+import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.acl.DavPrivilege;
+import org.osaf.cosmo.dav.acl.DavPrivilegeSet;
+import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.model.Ticket;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.Document;
 
 /**
  * Represents the WebDAV Tickets ticketdiscovery property.
  */
-public class TicketDiscovery extends AbstractDavProperty
+public class TicketDiscovery extends StandardDavProperty
     implements TicketConstants {
 
-    private DavItemResource resource;
+    private DavResourceLocator locator;
 
-    /**
-     */
-    public TicketDiscovery(DavItemResource resource) {
-        super(TICKETDISCOVERY, true);
-        this.resource = resource;
+    public TicketDiscovery(DavResourceLocator locator,
+                           Set<Ticket> tickets) {
+        super(TICKETDISCOVERY, tickets, true);
+        this.locator = locator;
     }
 
-    /**
-     * Returns a <code>Set</code> of
-     * <code>TicketDiscovery.TicketInfo</code>s for this property.
-     */
-    public Object getValue() {
-        Set elements = new HashSet();
-        for (Ticket t : resource.getTickets())
-            elements.add(new TicketInfo(t));
-        return elements;
+    public Set<Ticket> getTickets() {
+        return (Set<Ticket>) getValue();
     }
+    
+    public Element toXml(Document document) {
+        Element name = getName().toXml(document);
 
-    public class TicketInfo implements XmlSerializable {
-        private Ticket ticket;
-  
-        public TicketInfo(Ticket ticket) {
-            this.ticket = ticket;
-        }
+        String ownerBase = locator.getBaseHref(false);
 
-        public Element toXml(Document document) {
+        for (Ticket ticket : getTickets()) {
             Element ticketInfo =
                 DomUtil.createElement(document, ELEMENT_TICKET_TICKETINFO,
                                       NAMESPACE_TICKET);
+            name.appendChild(ticketInfo);
 
             Element id =
                 DomUtil.createElement(document, ELEMENT_TICKET_ID,
@@ -80,8 +68,9 @@ public class TicketDiscovery extends AbstractDavProperty
                 DomUtil.createElement(document, XML_OWNER, NAMESPACE);
             Element href =
                 DomUtil.createElement(document, XML_HREF, NAMESPACE);
-            String url = resource.getResourceLocator().getServiceLocator().
-                getDavPrincipalUrl(ticket.getOwner());
+            String url =
+                TEMPLATE_USER.bindAbsolute(ownerBase,
+                                           ticket.getOwner().getUsername());
             DomUtil.setText(href, url);
             owner.appendChild(href);
             ticketInfo.appendChild(owner);
@@ -99,28 +88,11 @@ public class TicketDiscovery extends AbstractDavProperty
                                       NAMESPACE_TICKET);
             DomUtil.setText(visits, VALUE_INFINITY);
             ticketInfo.appendChild(visits);
- 
-            Element privilege =
-                DomUtil.createElement(document, XML_PRIVILEGE, NAMESPACE);
-            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_READ)) {
-                Element read =
-                    DomUtil.createElement(document, XML_READ, NAMESPACE);
-                privilege.appendChild(read);
-            }
-            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_WRITE)) {
-                Element write =
-                    DomUtil.createElement(document, XML_WRITE, NAMESPACE);
-                privilege.appendChild(write);
-            }
-            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_FREEBUSY)) {
-                Element freebusy =
-                    DomUtil.createElement(document, ELEMENT_TICKET_FREEBUSY,
-                                          NAMESPACE);
-                privilege.appendChild(freebusy);
-            }
-            ticketInfo.appendChild(privilege);
- 
-            return ticketInfo;
+
+            DavPrivilegeSet privileges = new DavPrivilegeSet(ticket);
+            ticketInfo.appendChild(privileges.toXml(document));
         }
+
+        return name;
     }
 }

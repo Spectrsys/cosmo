@@ -21,6 +21,16 @@ dojo.require("cosmo.app.pim");
 cosmo.account.preferences = new function () {
 	this.SHOW_ACCOUNT_BROWSER_LINK = 'UI.Show.AccountBrowserLink';
 	this.LOGIN_URL = 'Login.Url';
+	this.DEFAULT_VIEW = 'Pim.Default.View';
+	this.DEFAULT_COLLECTION = 'Pim.Default.Collection';
+
+    this.getCookiePreference = function(key){
+        return cosmo.util.cookie.get(key);
+    };
+
+    this.setCookiePreference = function(key, val){
+        return cosmo.util.cookie.set(key, val);
+    };
 	
     this.getPreference = function(key, kwArgs){
 		return cosmo.app.pim.serv.getPreference(key, kwArgs);

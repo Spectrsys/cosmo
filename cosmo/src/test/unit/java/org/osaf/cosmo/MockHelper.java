@@ -41,6 +41,7 @@ import org.osaf.cosmo.server.ServiceLocatorFactory;
 import org.osaf.cosmo.service.ContentService;
 import org.osaf.cosmo.service.UserService;
 import org.osaf.cosmo.service.impl.StandardContentService;
+import org.osaf.cosmo.service.impl.StandardFreeBusyQueryProcessor;
 import org.osaf.cosmo.service.impl.StandardTriageStatusQueryProcessor;
 import org.osaf.cosmo.service.impl.StandardUserService;
 import org.osaf.cosmo.service.lock.SingleVMLockManager;
@@ -83,7 +84,8 @@ public class MockHelper extends TestHelper {
         contentService.setContentDao(contentDao);
         contentService.setLockManager(lockManager);
         contentService.setTriageStatusQueryProcessor(new StandardTriageStatusQueryProcessor());
-       
+        contentService.setFreeBusyQueryProcessor(new StandardFreeBusyQueryProcessor());
+        
         contentService.init();
 
         userService = new StandardUserService();
@@ -91,19 +93,18 @@ public class MockHelper extends TestHelper {
         userService.setUserDao(userDao);
         userService.setPasswordGenerator(new SessionIdGenerator());
         userService.init();
-    }
 
-    public void setUp() throws Exception {
-        user = makeDummyUser();
-        userService.createUser(user);
+        user = userService.getUser("test");
+        if (user == null) {
+            user = makeDummyUser("test", "password");
+            userService.createUser(user);
+        }
         homeCollection = contentService.getRootItem(user);
     }
 
-    public void tearDown() throws Exception {
-        userService.removeUser(user);
-        userService.destroy();
-        contentService.destroy();
-    }
+    public void setUp() throws Exception {}
+
+    public void tearDown() throws Exception {}
 
     public void logIn() {
         logInUser(user);
@@ -151,6 +152,17 @@ public class MockHelper extends TestHelper {
         CollectionItem c = makeDummyCollection(user);
         return contentService.createCollection(parent, c);
     }
+    
+    public CollectionItem makeAndStoreDummyCalendarCollection()
+        throws Exception {
+        return makeAndStoreDummyCalendarCollection(null);
+    }
+
+    public CollectionItem makeAndStoreDummyCalendarCollection(String name)
+            throws Exception {
+        CollectionItem c = makeDummyCalendarCollection(user, name);
+        return contentService.createCollection(homeCollection, c);
+    }
 
     public void lockCollection(CollectionItem collection) {
         contentService.getLockManager().lockCollection(collection);
@@ -174,7 +186,13 @@ public class MockHelper extends TestHelper {
 
     public NoteItem makeAndStoreDummyItem(CollectionItem parent)
         throws Exception {
-        NoteItem i = makeDummyItem(user);
+        return makeAndStoreDummyItem(parent, null);
+    }
+
+    public NoteItem makeAndStoreDummyItem(CollectionItem parent,
+                                          String name)
+        throws Exception {
+        NoteItem i = makeDummyItem(user, name);
         return (NoteItem) contentService.createContent(parent, i);
     }
 

@@ -27,6 +27,7 @@ import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 
 import org.osaf.cosmo.calendar.query.CalendarFilter;
+import org.osaf.cosmo.calendar.query.UnsupportedCollationException;
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;
@@ -34,8 +35,10 @@ import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.dav.caldav.SupportedCollationException;
 import org.osaf.cosmo.dav.caldav.TimeZoneExtractor;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
+import org.osaf.cosmo.dav.impl.DavCalendarResource;
 
 import org.w3c.dom.Element;
 
@@ -94,20 +97,45 @@ public class QueryReport extends CaldavMultiStatusReport
     }
 
     /**
-     * Does nothing, if the targeted resource is a collection. Throws an
-     * exception if the targeted resource is not a collection, since
-     * this report is only supported for collections.
+     * <p>
+     * Runs the report query against the given resource. If the query
+     * succeeds, the resource is added to the results list.
+     * </p>
+     * <p>
+     * If the resource is a calendar resource, attempts to match the query
+     * filter using {@link DavCalendarResource#matches(CalendarFilter)}.
+     * If a non-calendar resource, throws an exception. If a collection,
+     * does nothing, as query reports only match non-collection resources.
+     * </p>
+     *
+     * @throws UnprocessableEntityException if the resource is not a
+     * collection and is not a calendar resource.
      */
     protected void doQuerySelf(DavResource resource)
         throws DavException {
+        if (resource instanceof DavCalendarResource) {
+            DavCalendarResource dcr = (DavCalendarResource) resource;
+            if (dcr.matches(queryFilter))
+                getResults().add(dcr);
+            return;
+        }
         if (resource instanceof DavContent)
-            throw new UnprocessableEntityException(getType() + " report not supported for non-collection resources");
-        // collection never matches a calendar query
+            throw new UnprocessableEntityException(getType() + " report not supported for non-calendar resources");
+        // if the resource is a collection, it will not match a calendar
+        // query, which only matches calendar resource, so we can ignore it
     }
 
     /**
-     * Saves a result for each member that matches the query filter, if the
-     * given collection is a calendar collection. Otherwise, does nothing.
+    * <p>
+    * Runs the report query against the members of the collection. All
+    * resulting members are added to the results list.
+    * </p>
+    * <p>
+    * If the collection is a calendar collection, attempts to match the query
+    * filter using {@link DavCalendarCollection#findMembers(CalendarFilter)}.
+    * Otherwise does nothing, as only calendar resources can match the query,
+    * and regular collections cannot contain calendar resources.
+    * </p>
      */
     protected void doQueryChildren(DavCollection collection)
         throws DavException {
@@ -157,9 +185,13 @@ public class QueryReport extends CaldavMultiStatusReport
             return null;
 
         try {
-            return new CalendarFilter(filterdata, tz);
+            CalendarFilter filter = new CalendarFilter(filterdata, tz);
+            filter.validate();
+            return filter;
         } catch (ParseException e) {
-            throw new BadRequestException("Calendar filter not parseable: " + e.getMessage());
+            throw new InvalidFilterException(e);
+        } catch (UnsupportedCollationException e) {
+            throw new SupportedCollationException();
         }
     }
 }

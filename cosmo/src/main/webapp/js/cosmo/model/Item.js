@@ -150,6 +150,7 @@ cosmo.model.Item.triageStatusCodeNumbers = {
 
 cosmo.model.declare("cosmo.model.Note", cosmo.model.Item, 
     [ ["body", {"default": null}],
+      ["icalUid", {"default": null}],
       ["modifiedBy", {"default": function(){return new cosmo.model.ModifiedBy()}}]],
     {
         //TODO could be useful to use the same format as is in the UUID in EIM
@@ -265,7 +266,17 @@ cosmo.model.declare("cosmo.model.Note", cosmo.model.Item,
            
             if (now <= endTime){
                 if (now >= startTime){
-                    return cosmo.model.TRIAGE_NOW;
+                    // This is a little bit of a hack for bug 10520:
+                    // If the event is happening now and getLastPastOccurrence has been set, follow the
+                    // semantics of getLastPastOccurrence.
+                    // Once we implement the getLastPastOccurence sematics for the general case, 
+                    // we can simplify this.
+                    if (startDate.equals(eventStamp.getLastPastOccurrence())) {
+                        return cosmo.model.TRIAGE_DONE;
+                    }
+                    else {
+                        return cosmo.model.TRIAGE_NOW;
+                    }
                 } else {
                     return cosmo.model.TRIAGE_LATER;
                 }

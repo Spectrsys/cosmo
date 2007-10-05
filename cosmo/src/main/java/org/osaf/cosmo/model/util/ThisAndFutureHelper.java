@@ -20,12 +20,14 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Recur;
 
+import org.osaf.cosmo.calendar.ICalendarUtils;
 import org.osaf.cosmo.calendar.RecurrenceExpander;
 import org.osaf.cosmo.calendar.util.Dates;
 import org.osaf.cosmo.model.EventExceptionStamp;
@@ -33,6 +35,7 @@ import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.ModificationUid;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.NoteOccurrence;
+import org.osaf.cosmo.util.DateUtil;
 
 /**
  * Helper class to handle breaking a recurring series to
@@ -135,10 +138,16 @@ public class ThisAndFutureHelper {
     
     private void modifyOldSeries(NoteItem oldSeries, Date lastRecurrenceId) {
         EventStamp event = EventStamp.getStamp(oldSeries);
-        // UNTIL should be just before lastRecurrence (don't include lastRecurrence)
-        Date untilDate = Dates.getInstance(new java.util.Date(lastRecurrenceId.getTime()
-                - TIME_OFFSET), lastRecurrenceId);
-        
+      
+        // We set the end date to 1 second before the begining of the next day
+        java.util.Calendar untilDateCalendar = java.util.Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        untilDateCalendar.setTime(lastRecurrenceId);
+        untilDateCalendar.add(java.util.Calendar.DAY_OF_MONTH, -1);
+        untilDateCalendar.set(java.util.Calendar.HOUR_OF_DAY, 23);
+        untilDateCalendar.set(java.util.Calendar.MINUTE, 59);
+        untilDateCalendar.set(java.util.Calendar.SECOND, 59);
+        Date untilDate = Dates.getInstance(untilDateCalendar.getTime(), lastRecurrenceId);
+
         List<Recur> recurs = event.getRecurrenceRules();
         for (Recur recur : recurs)
             recur.setUntil(untilDate);
@@ -163,20 +172,38 @@ public class ThisAndFutureHelper {
         for(NoteItem mod: oldSeries.getModifications()) {
             EventExceptionStamp event = EventExceptionStamp.getStamp(mod);
             Date recurrenceId = event.getRecurrenceId();
+            Date dtStart = event.getStartDate();
+            
+            // determine if modification start date is "missing", which
+            // translates to the recurrenceId being the same as the dtstart
+            boolean isDtStartMissing = event.getStartDate()
+                    .equals(recurrenceId)
+                    && event.isAnyTime() == null;
             
             // Account for shift in startDate by calculating a new
-            // recurrenceId based on the shift.
+            // recurrenceId, dtStart based on the shift.
             if(delta!=0) {
                 java.util.Date newRidTime =
                     new java.util.Date(recurrenceId.getTime() + delta);
                 recurrenceId = (DateTime)
                     Dates.getInstance(newRidTime, recurrenceId);
+                
+                // If dtStart is missing and there is a shift, we need
+                // to shift dtstart also so that dtStart will be "missing"
+                // for the new series
+                if(isDtStartMissing) {
+                    java.util.Date newDtStart =
+                        new java.util.Date(event.getStartDate().getTime() + delta);
+                    dtStart = 
+                        Dates.getInstance(newDtStart, dtStart);
+                }
             }
             
             // If modification matches an occurrence in the new series
             // then add it to the list
             if(expander.isOccurrence(newEventCal, recurrenceId)) {
                 event.setRecurrenceId(recurrenceId);
+                event.setStartDate(dtStart);
                 
                 // If modification is the start of the series and there 
                 // was a time change, then match up the startDate

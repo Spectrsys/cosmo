@@ -17,9 +17,11 @@ package org.osaf.cosmo.calendar.query;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
 import org.apache.commons.logging.Log;
@@ -90,7 +92,9 @@ public class ComponentFilter implements CaldavConstants, ICalendarConstants {
         }
 
         if (! (name.equals(Calendar.VCALENDAR) ||
-            CalendarUtils.isSupportedComponent(name)))
+            CalendarUtils.isSupportedComponent(name) ||
+            name.equals(Component.VALARM) ||
+            name.equals(Component.VTIMEZONE)))
             throw new ParseException(name + " is not a supported iCalendar component", -1);
 
         ElementIterator i = DomUtil.getChildren(element);
@@ -209,5 +213,12 @@ public class ComponentFilter implements CaldavConstants, ICalendarConstants {
             append("componentFilters", componentFilters).
             append("propFilters", propFilters).
             toString();
+    }
+    
+    public void validate() {
+        for(Iterator<ComponentFilter> it= componentFilters.iterator(); it.hasNext();)
+            it.next().validate();
+        for(Iterator<PropertyFilter> it= propFilters.iterator(); it.hasNext();)
+            it.next().validate();
     }
 }

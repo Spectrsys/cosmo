@@ -99,6 +99,7 @@
         <list>
             <value>org.osaf.cosmo.model.Attribute</value>
             <value>org.osaf.cosmo.model.AttributeTombstone</value>
+            <value>org.osaf.cosmo.model.AvailabilityItem</value>
             <value>org.osaf.cosmo.model.BaseEventStamp</value>
             <value>org.osaf.cosmo.model.BinaryAttribute</value>
             <value>org.osaf.cosmo.model.BooleanAttribute</value>
@@ -114,8 +115,10 @@
             <value>org.osaf.cosmo.model.EventExceptionStamp</value>
             <value>org.osaf.cosmo.model.EventStamp</value>
             <value>org.osaf.cosmo.model.FileItem</value>
+            <value>org.osaf.cosmo.model.FreeBusyItem</value>
             <value>org.osaf.cosmo.model.HomeCollectionItem</value>
             <value>org.osaf.cosmo.model.ICalendarAttribute</value>
+            <value>org.osaf.cosmo.model.ICalendarItem</value>
             <value>org.osaf.cosmo.model.IntegerAttribute</value>
             <value>org.osaf.cosmo.model.Item</value>
             <value>org.osaf.cosmo.model.ItemTombstone</value>
@@ -253,8 +256,8 @@
     </property>
   </bean>
 
-  <bean id="eventStampHandler"
-        class="org.osaf.cosmo.model.EventStampHandler" />
+  <bean id="eventStampIndexListener"
+        class="org.osaf.cosmo.model.EventStampIndexItemListener" />
 
   <bean id="standardItemFilterProcessor"
         class="org.osaf.cosmo.dao.hibernate.query.StandardItemFilterProcessor" />
@@ -278,15 +281,10 @@
     <property name="itemFilterProcessor">
       <ref local="standardItemFilterProcessor" />
     </property>
-    <property name="stampHandlers">
-      <map>
-        <entry key="org.osaf.cosmo.model.EventStamp">
-          <ref local="eventStampHandler"/>
-        </entry>
-        <entry key="org.osaf.cosmo.model.EventExceptionStamp">
-          <ref local="eventStampHandler"/>
-        </entry>
-      </map>
+    <property name="itemListeners">
+      <list>
+          <ref local="eventStampIndexListener"/>
+      </list>
     </property>
   </bean>
 
@@ -364,6 +362,13 @@
       <ref local="contentDao" />
     </property>
   </bean>
+  
+  <bean id="freeBusyQueryProcessor"
+      class="org.osaf.cosmo.service.impl.StandardFreeBusyQueryProcessor">
+    <property name="calendarDao">
+      <ref local="calendarDao" />
+    </property>
+  </bean>
 
   <bean id="userService" parent="txProxyTemplate">
     <property name="proxyInterfaces">
@@ -417,6 +422,9 @@
     <property name="triageStatusQueryProcessor">
       <ref bean="triageStatusQueryProcessor"/>
     </property>
+    <property name="freeBusyQueryProcessor">
+      <ref bean="freeBusyQueryProcessor"/>
+    </property>
   </bean>
 
   <bean id="serverPropertyService" parent="txProxyTemplate">
@@ -463,9 +471,7 @@
   </bean>
 
   <bean id="davResourceLocatorFactory"
-        class="org.osaf.cosmo.dav.StandardResourceLocatorFactory">
-    <constructor-arg><ref bean="serviceLocatorFactory"/></constructor-arg>
-  </bean>
+        class="org.osaf.cosmo.dav.StandardResourceLocatorFactory"/>
 
   <bean id="dav"
         class="org.osaf.cosmo.dav.servlet.StandardRequestHandler">

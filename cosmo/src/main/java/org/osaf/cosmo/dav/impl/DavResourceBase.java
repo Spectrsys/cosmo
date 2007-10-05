@@ -38,11 +38,9 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.version.DeltaVConstants;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
-import org.apache.jackrabbit.webdav.version.report.SupportedReportSetProperty;
 
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
@@ -53,7 +51,11 @@ import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
+import org.osaf.cosmo.dav.acl.AclConstants;
+import org.osaf.cosmo.dav.acl.DavPrivilege;
+import org.osaf.cosmo.dav.acl.property.CurrentUserPrivilegeSet;
 import org.osaf.cosmo.dav.property.DavProperty;
+import org.osaf.cosmo.dav.property.SupportedReportSet;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 
 /**
@@ -62,13 +64,20 @@ import org.osaf.cosmo.security.CosmoSecurityManager;
  * which provides behavior common to all resources.
  * </p>
  * <p>
- * This class does not define any live properties or resource types.
+ * This class declares the following live properties:
+ * </p>
+ * <ul>
+ * <li> DAV:supported-report-set </li>
+ * <li> DAV:current-user-privilege-set </li>
+ * </ul>
+ * <p>
+ * This class does not declare any reports.
  * </p>
  * 
  * @see DavResource
  */
 public abstract class DavResourceBase
-    implements ExtendedDavConstants, DavResource {
+    implements ExtendedDavConstants, AclConstants, DavResource {
     private static final Log log =
         LogFactory.getLog(DavResourceBase.class);
     private static final HashSet<DavPropertyName> LIVE_PROPERTIES =
@@ -77,7 +86,8 @@ public abstract class DavResourceBase
         new HashSet<ReportType>(0);
 
     static {
-        registerLiveProperty(DeltaVConstants.SUPPORTED_REPORT_SET);
+        registerLiveProperty(SUPPORTEDREPORTSET);
+        registerLiveProperty(CURRENTUSERPRIVILEGESET);
     }
 
     private DavResourceLocator locator;
@@ -292,6 +302,8 @@ public abstract class DavResourceBase
         try {
             return ReportType.getType(reportInfo).createReport(this, reportInfo);
         } catch (org.apache.jackrabbit.webdav.DavException e){
+            if (e instanceof DavException)
+                throw (DavException) e;
             throw new DavException(e);
         }
     }
@@ -322,9 +334,35 @@ public abstract class DavResourceBase
         return false;
     }
 
-     protected Set<ReportType> getReportTypes() {
-         return REPORT_TYPES;
-     }
+    protected Set<ReportType> getReportTypes() {
+     return REPORT_TYPES;
+    }
+
+    /**
+     * <p>
+     * Returns the set of privileges granted on the resource to the current
+     * principal.
+     * </p>
+     * <p>
+     * If the request is unauthenticated, returns an empty set. If the
+     * current principal is an admin user, returns {@link DavPrivilege#ALL}.
+     * </p>
+     */
+    protected Set<DavPrivilege> getCurrentPrincipalPrivileges() {
+        HashSet<DavPrivilege> privileges = new HashSet<DavPrivilege>();
+
+        // anonymous access has no privileges
+        if (getSecurityManager().getSecurityContext().isAnonymous())
+            return privileges;
+
+        // all privileges are implied for admin users
+        if (getSecurityManager().getSecurityContext().isAdmin()) {
+            privileges.add(DavPrivilege.ALL);
+            return privileges;
+        }
+
+        return privileges;
+    }
 
     /**
      * <p>
@@ -370,9 +408,8 @@ public abstract class DavResourceBase
         if (initialized)
             return;
 
-        ReportType[] reportTypes = (ReportType[])
-            getReportTypes().toArray(new ReportType[0]);
-        properties.add(new SupportedReportSetProperty(reportTypes));
+        properties.add(new SupportedReportSet(getReportTypes()));
+        properties.add(new CurrentUserPrivilegeSet(getCurrentPrincipalPrivileges()));
 
         loadLiveProperties(properties);
         loadDeadProperties(properties);
@@ -387,7 +424,7 @@ public abstract class DavResourceBase
     protected void setResourceProperty(DavProperty property)
         throws DavException {
         DavPropertyName name = property.getName();
-        if (name.equals(DeltaVConstants.SUPPORTED_REPORT_SET))
+        if (name.equals(SUPPORTEDREPORTSET))
             throw new ProtectedPropertyModificationException(name);
 
         if (isLiveProperty(property.getName()))
@@ -404,7 +441,7 @@ public abstract class DavResourceBase
      */
     protected void removeResourceProperty(DavPropertyName name)
         throws DavException {
-        if (name.equals(DeltaVConstants.SUPPORTED_REPORT_SET))
+        if (name.equals(SUPPORTEDREPORTSET))
             throw new ProtectedPropertyModificationException(name);
 
         if (isLiveProperty(name))

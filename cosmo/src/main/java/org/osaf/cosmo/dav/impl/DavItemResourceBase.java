@@ -17,6 +17,7 @@ package org.osaf.cosmo.dav.impl;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -46,12 +47,15 @@ import org.osaf.cosmo.dav.NotFoundException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.acl.AclConstants;
+import org.osaf.cosmo.dav.acl.DavPrivilege;
 import org.osaf.cosmo.dav.acl.property.Owner;
 import org.osaf.cosmo.dav.acl.property.PrincipalCollectionSet;
 import org.osaf.cosmo.dav.property.CreationDate;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.DisplayName;
+import org.osaf.cosmo.dav.property.Etag;
 import org.osaf.cosmo.dav.property.IsCollection;
+import org.osaf.cosmo.dav.property.LastModified;
 import org.osaf.cosmo.dav.property.ResourceType;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.dav.property.Uuid;
@@ -105,6 +109,8 @@ public abstract class DavItemResourceBase extends DavResourceBase
 
     static {
         registerLiveProperty(DavPropertyName.CREATIONDATE);
+        registerLiveProperty(DavPropertyName.GETLASTMODIFIED);
+        registerLiveProperty(DavPropertyName.GETETAG);
         registerLiveProperty(DavPropertyName.DISPLAYNAME);
         registerLiveProperty(DavPropertyName.ISCOLLECTION);
         registerLiveProperty(DavPropertyName.RESOURCETYPE);
@@ -136,6 +142,14 @@ public abstract class DavItemResourceBase extends DavResourceBase
         if (getItem() == null)
             return null;
         return "\"" + getItem().getEntityTag() + "\"";
+    }
+
+    public long getModificationTime() {
+        if (getItem() == null)
+            return -1;
+        if (getItem().getModifiedDate() == null)
+            return new Date().getTime();
+        return getItem().getModifiedDate().getTime();
     }
 
     public void setProperty(org.apache.jackrabbit.webdav.property.DavProperty property)
@@ -206,8 +220,17 @@ public abstract class DavItemResourceBase extends DavResourceBase
     public DavCollection getParent()
         throws DavException {
         if (parent == null) {
-            DavResourceLocator parentLocator = getResourceLocator().getParentLocator();
-            parent = (DavCollection) getResourceFactory().resolve(parentLocator);
+            DavResourceLocator parentLocator =
+                getResourceLocator().getParentLocator();
+            try {
+                parent = (DavCollection)
+                    getResourceFactory().resolve(parentLocator);
+            } catch (ClassCastException e) {
+                throw new ForbiddenException("Resource " + parentLocator.getPath() + " is not a collection");
+            }
+            if (parent == null)
+                parent = new DavCollectionBase(parentLocator,
+                                               getResourceFactory());
         }
 
         return parent;
@@ -243,6 +266,10 @@ public abstract class DavItemResourceBase extends DavResourceBase
         throws DavException {
         if (log.isDebugEnabled())
             log.debug("adding ticket for " + item.getName());
+
+        // automatically add freebusy privilege along with read
+        if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_READ))
+            ticket.getPrivileges().add(Ticket.PRIVILEGE_FREEBUSY);
 
         getContentService().createTicket(item, ticket);
     }
@@ -358,17 +385,70 @@ public abstract class DavItemResourceBase extends DavResourceBase
         return msr;
     }
 
+    /**
+     * <p>
+     * Extends the superclass method.
+     * </p>
+     * <p>
+     * If the principal is a user, returns {@link DavPrivilege#READ} and
+     * {@link DavPrivilege@WRITE}. This is a shortcut that assumes the
+     * security layer has only allowed access to the owner of the home
+     * collection specified in the URL used to access this resource.
+     * Eventually this method will check the ACL for all ACEs corresponding
+     * to the current principal and return the privileges those ACEs grant.
+     * </p>
+     * <p>
+     * If the principal is a ticket, returns the dav privileges corresponding
+     * to the ticket's privileges, since a ticket is in effect its own ACE.
+     * </p>
+     */
+    protected Set<DavPrivilege> getCurrentPrincipalPrivileges() {
+        Set<DavPrivilege> privileges = super.getCurrentPrincipalPrivileges();
+        if (! privileges.isEmpty())
+            return privileges;
+
+        // XXX eventually we will want to find the aces for the user and
+        // add each of their granted privileges
+        User user = getSecurityManager().getSecurityContext().getUser();
+        if (user != null) {
+            privileges.add(DavPrivilege.READ);
+            privileges.add(DavPrivilege.WRITE);
+            privileges.add(DavPrivilege.READ_CURRENT_USER_PRIVILEGE_SET);
+            privileges.add(DavPrivilege.READ_FREE_BUSY);
+            return privileges;
+        }
+
+        Ticket ticket = getSecurityManager().getSecurityContext().getTicket();
+        if (ticket != null) {
+            privileges.add(DavPrivilege.READ_CURRENT_USER_PRIVILEGE_SET);
+
+            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_READ))
+                privileges.add(DavPrivilege.READ);
+            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_WRITE))
+                privileges.add(DavPrivilege.WRITE);
+            if (ticket.getPrivileges().contains(Ticket.PRIVILEGE_FREEBUSY))
+                privileges.add(DavPrivilege.READ_FREE_BUSY);
+
+            return privileges;
+        }
+
+        return privileges;
+    }
+
     protected void loadLiveProperties(DavPropertySet properties) {
         if (item == null)
             return;
 
         properties.add(new CreationDate(item.getCreationDate()));
-        properties.add(new DisplayName(item.getDisplayName()));
+        properties.add(new LastModified(item.getModifiedDate()));
+        properties.add(new Etag(getETag()));
+        properties.add(new DisplayName(getDisplayName()));
         properties.add(new ResourceType(getResourceTypes()));
         properties.add(new IsCollection(isCollection()));
         properties.add(new Owner(getResourceLocator(), item.getOwner()));
         properties.add(new PrincipalCollectionSet(getResourceLocator()));
-        properties.add(new TicketDiscovery(this));
+        properties.add(new TicketDiscovery(getResourceLocator(),
+                                           getTickets()));
         properties.add(new Uuid(item.getUid()));
     }
 
@@ -382,6 +462,8 @@ public abstract class DavItemResourceBase extends DavResourceBase
             throw new UnprocessableEntityException("Property " + name + " requires a value");
 
         if (name.equals(DavPropertyName.CREATIONDATE) ||
+            name.equals(DavPropertyName.GETLASTMODIFIED) ||
+            name.equals(DavPropertyName.GETETAG) ||
             name.equals(DavPropertyName.RESOURCETYPE) ||
             name.equals(DavPropertyName.ISCOLLECTION) ||
             name.equals(OWNER) ||
@@ -400,6 +482,8 @@ public abstract class DavItemResourceBase extends DavResourceBase
             return;
 
         if (name.equals(DavPropertyName.CREATIONDATE) ||
+            name.equals(DavPropertyName.GETLASTMODIFIED) ||
+            name.equals(DavPropertyName.GETETAG) ||
             name.equals(DavPropertyName.DISPLAYNAME) ||
             name.equals(DavPropertyName.RESOURCETYPE) ||
             name.equals(DavPropertyName.ISCOLLECTION) ||
@@ -437,7 +521,7 @@ public abstract class DavItemResourceBase extends DavResourceBase
 
             // XXX: language
             Object propValue = entry.getValue().getValue();
-            properties.add(new StandardDavProperty(propName, propValue, true));
+            properties.add(new StandardDavProperty(propName, propValue, false));
         }
     }
 

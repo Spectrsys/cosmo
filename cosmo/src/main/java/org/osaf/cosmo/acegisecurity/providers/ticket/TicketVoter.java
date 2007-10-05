@@ -26,9 +26,7 @@ import org.acegisecurity.vote.AccessDecisionVoter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.jackrabbit.webdav.DavMethods;
-
-import org.osaf.cosmo.dav.CosmoDavMethods;
+import org.osaf.cosmo.http.Methods;
 import org.osaf.cosmo.model.Ticket;
 
 /**
@@ -40,32 +38,6 @@ import org.osaf.cosmo.model.Ticket;
  */
 public class TicketVoter implements AccessDecisionVoter {
     private static final Log log = LogFactory.getLog(TicketVoter.class);
-
-    // XXX when implementing WebDAV ACL, move these to DavMethods class
-
-    private static final HashSet readMethods = new HashSet();
-    private static final HashSet writeMethods = new HashSet();
-
-    static {
-        readMethods.add(DavMethods.METHOD_OPTIONS);
-        readMethods.add(DavMethods.METHOD_GET);
-        readMethods.add(DavMethods.METHOD_HEAD);
-        readMethods.add(DavMethods.METHOD_PROPFIND);
-
-        writeMethods.add(DavMethods.METHOD_POST);
-        writeMethods.add(DavMethods.METHOD_PUT);
-        writeMethods.add(DavMethods.METHOD_DELETE);
-        writeMethods.add(DavMethods.METHOD_PROPPATCH);
-        writeMethods.add(DavMethods.METHOD_MKCOL);
-        writeMethods.add(DavMethods.METHOD_COPY);
-        writeMethods.add(DavMethods.METHOD_MOVE);
-        writeMethods.add(DavMethods.METHOD_LOCK);
-        writeMethods.add(DavMethods.METHOD_UNLOCK);
-
-        writeMethods.add(CosmoDavMethods.METHOD_MKTICKET);
-        writeMethods.add(CosmoDavMethods.METHOD_DELTICKET);
-        writeMethods.add(CosmoDavMethods.METHOD_MKCALENDAR);
-    }
 
     /**
      */
@@ -81,21 +53,26 @@ public class TicketVoter implements AccessDecisionVoter {
         FilterInvocation fi = (FilterInvocation) object;
         String method = fi.getHttpRequest().getMethod();
 
-        // freebusy reports have their own rules, and since we don't
-        // have any idea what kind of report this is until the content
-        // is parsed, we have to defer authorization to the servlet
-        // layer
-        if (method.equals(DavMethods.METHOD_REPORT)) {
+        // freebusy reports and certain propfinds have their own rules, and
+        // since we haven't parsed the request body yet, we have to defer
+        // authorization to the servlet layer
+        if (method.equals("REPORT") ||
+            method.equals("PROPFIND")) {
             return ACCESS_GRANTED;
         }
 
-        if (readMethods.contains(method)) {
+        // you can't make or delete a ticket with another ticket
+        if (method.equals("MKTICKET") ||
+            method.equals("DELTICKET"))
+            return ACCESS_DENIED;
+
+        if (Methods.isReadMethod(method)) {
             return ticket.getPrivileges().contains(Ticket.PRIVILEGE_READ) ?
                 ACCESS_GRANTED :
                 ACCESS_DENIED;
         }
 
-        if (writeMethods.contains(method)) {
+        if (Methods.isWriteMethod(method)) {
             return ticket.getPrivileges().contains(Ticket.PRIVILEGE_WRITE) ?
                 ACCESS_GRANTED :
                 ACCESS_DENIED;

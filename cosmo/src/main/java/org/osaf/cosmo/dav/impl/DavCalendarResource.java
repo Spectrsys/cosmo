@@ -17,34 +17,40 @@ package org.osaf.cosmo.dav.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Period;
+import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-
-import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.apache.jackrabbit.webdav.version.report.ReportType;
+import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
-import org.osaf.cosmo.dav.ForbiddenException;
-import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
+import org.osaf.cosmo.dav.caldav.InvalidCalendarLocationException;
+import org.osaf.cosmo.dav.caldav.UidConflictException;
+import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
+import org.osaf.cosmo.dav.caldav.report.MultigetReport;
+import org.osaf.cosmo.dav.caldav.report.QueryReport;
 import org.osaf.cosmo.dav.io.DavInputContext;
-import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.ContentLength;
 import org.osaf.cosmo.dav.property.ContentType;
+import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
-import org.osaf.cosmo.model.CalendarCollectionStamp;
-import org.osaf.cosmo.model.CollectionItem;
-import org.osaf.cosmo.model.EventStamp;
+import org.osaf.cosmo.model.ContentItem;
+import org.osaf.cosmo.model.ICalendarItem;
+import org.osaf.cosmo.model.IcalUidInUseException;
 import org.osaf.cosmo.model.NoteItem;
 
 /**
@@ -54,13 +60,19 @@ public abstract class DavCalendarResource extends DavContentBase
     implements ICalendarConstants {
     private static final Log log =
         LogFactory.getLog(DavCalendarResource.class);
-
+    private static final Set<ReportType> REPORT_TYPES =
+        new HashSet<ReportType>();
+    
     static {
         registerLiveProperty(DavPropertyName.GETCONTENTLENGTH);
         registerLiveProperty(DavPropertyName.GETCONTENTTYPE);
+
+        REPORT_TYPES.add(FreeBusyReport.REPORT_TYPE_CALDAV_FREEBUSY);
+        REPORT_TYPES.add(MultigetReport.REPORT_TYPE_CALDAV_MULTIGET);
+        REPORT_TYPES.add(QueryReport.REPORT_TYPE_CALDAV_QUERY);
     }
 
-    public DavCalendarResource(NoteItem item,
+    public DavCalendarResource(ContentItem item,
                                DavResourceLocator locator,
                                DavResourceFactory factory)
         throws DavException {
@@ -69,11 +81,19 @@ public abstract class DavCalendarResource extends DavContentBase
        
     // DavResource methods
 
+    public String getSupportedMethods() {
+        return "OPTIONS, GET, HEAD, POST, TRACE, PROPFIND, PROPPATCH, COPY, PUT, DELETE, MOVE, MKTICKET, DELTICKET, REPORT";
+    }
+
     /** */
     public void move(DavResource destination)
         throws org.apache.jackrabbit.webdav.DavException {
         validateDestination((DavItemResource)destination);
-        super.move(destination);
+        try {
+            super.move(destination);
+        } catch (IcalUidInUseException e) {
+            throw new UidConflictException(e);
+        }
     }
 
     /** */
@@ -81,7 +101,11 @@ public abstract class DavCalendarResource extends DavContentBase
                      boolean shallow)
         throws org.apache.jackrabbit.webdav.DavException {
         validateDestination((DavItemResource)destination);
-        super.copy(destination, shallow);
+        try {
+            super.copy(destination, shallow);
+        } catch (IcalUidInUseException e) {
+            throw new UidConflictException(e);
+        }
     }
 
     // DavResourceBase methods
@@ -98,6 +122,26 @@ public abstract class DavCalendarResource extends DavContentBase
     }
 
     // our methods
+
+    /**
+     * Returns true if this resource matches the given filter.
+     */
+    public boolean matches(CalendarFilter filter)
+        throws DavException {
+        return getContentService().matches((NoteItem)getItem(), filter);
+    }
+
+    /**
+     * Returns a VFREEBUSY component containing
+     * the freebusy periods for the resource for the specified time range.
+     * @param period time range for freebusy information
+     * @return VFREEBUSY component containing FREEBUSY periods for
+     *         specified timerange
+     */
+    public VFreeBusy generateFreeBusy(Period period) {
+        return getContentService().
+            generateFreeBusy((ICalendarItem)getItem(), period);
+    }
 
     /**
      * Returns the calendar object associated with this resource.
@@ -120,7 +164,7 @@ public abstract class DavCalendarResource extends DavContentBase
         // calendar collections into regular collections, but they
         // need to be stripped of their calendar-ness
         if (! (destination.getParent() instanceof DavCalendarCollection))
-            throw new PreconditionFailedException("Destination collection must be a calendar collection");
+            throw new InvalidCalendarLocationException("Destination collection must be a calendar collection");
     }
 
     public void writeTo(OutputContext outputContext)
@@ -149,6 +193,10 @@ public abstract class DavCalendarResource extends DavContentBase
         IOUtil.spool(bois, outputContext.getOutputStream());
     }
 
+    public Set<ReportType> getReportTypes() {
+        return REPORT_TYPES;
+    }
+
     /** */
     protected void loadLiveProperties(DavPropertySet properties) {
         super.loadLiveProperties(properties);
@@ -169,18 +217,7 @@ public abstract class DavCalendarResource extends DavContentBase
         super.setLiveProperty(property);
 
         DavPropertyName name = property.getName();
-        if (name.equals(DavPropertyName.GETCONTENTLENGTH) ||
-            name.equals(DavPropertyName.GETCONTENTTYPE))
-            throw new ProtectedPropertyModificationException(name);
-    }
-
-    /** */
-    protected void removeLiveProperty(DavPropertyName name)
-        throws DavException {
-        super.removeLiveProperty(name);
-
-        if (name.equals(DavPropertyName.GETCONTENTLENGTH) ||
-            name.equals(DavPropertyName.GETCONTENTTYPE))
+        if (name.equals(DavPropertyName.GETCONTENTTYPE))
             throw new ProtectedPropertyModificationException(name);
     }
 }

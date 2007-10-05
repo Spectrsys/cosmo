@@ -318,7 +318,15 @@ dojo.declare("cosmo.ui.DetailFormConverter", null, {
                 errMsg += '"Starts" and "Ends" time fields: ';
                 errMsg += 'Event cannot end before it starts.';
                 errMsg += '<br/>';                
-            }    
+            }
+            var rrule = eventStampProperties.rrule;
+            if (rrule && rrule.getEndDate()){
+                if (rrule.getEndDate().before(eventStampProperties.startDate)){
+                    errMsg += _("App.Error.RecurEnd") + "<br>";
+                }
+            }
+
+            
         }
         
         return errMsg;
@@ -342,11 +350,13 @@ dojo.declare("cosmo.ui.DetailFormConverter", null, {
            } else {
                return _("App.Error.NoEndTimeWithoutStartTime");
            }
-        } else {
-           if (!endTimeFieldValue){
+        } else {           
+           var deltaEndDate = delta.getStampProperty("event", "endDate");
+           var deltaStartDate = delta.getStampProperty("event", "startDate");
+           if (!endTimeFieldValue || (deltaEndDate.equals(deltaStartDate))){
                //this is attime, so kill duration, end time
                delta.removeStampProperty("event", "endDate");
-               delta.addStampProperty("event", "duration", null);
+               delta.addStampProperty("event", "duration", new cosmo.model.Duration(cosmo.model.ZERO_DURATION));
                delta.addStampProperty("event", "anyTime", false) //just in case.
                delta.addStampProperty("event", "status", null);
            } else {

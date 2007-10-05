@@ -106,10 +106,34 @@ public class CalendarUtils implements ICalendarConstants {
                 .build(is);
         return calendar;
     }
+    
+    public static Calendar copyCalendar(Calendar calendar) {
+        if (calendar == null)
+            return null;
+        try {
+            return new Calendar(calendar);
+        } catch (Exception e) {
+           throw new RuntimeException("error copying calendar: " + calendar, e);
+        } 
+    }
+    
+    public static Component copyComponent(Component comp) {
+        try {
+            return comp.copy();
+        } catch (Exception e) {
+           throw new RuntimeException("error copying component: " + comp, e);
+        } 
+    }
 
     public static boolean isSupportedComponent(String type) {
         for (String s : SUPPORTED_COMPONENT_TYPES)
             if (s.equalsIgnoreCase(type)) return true;
+        return false;
+    }
+    
+    public static boolean isSupportedCollation(String collation) {
+        for (String s : SUPPORTED_COLLATIONS)
+            if (s.equalsIgnoreCase(collation)) return true;
         return false;
     }
 
@@ -128,5 +152,14 @@ public class CalendarUtils implements ICalendarConstants {
                 return true;
         }
         return false;
+    }
+
+    public static boolean hasSupportedComponent(Calendar calendar) {
+        for (Iterator<Component> i=calendar.getComponents().iterator();
+             i.hasNext();) {
+            if (isSupportedComponent(i.next().getName()))
+                 return true;
+         }
+         return false;
     }
 }

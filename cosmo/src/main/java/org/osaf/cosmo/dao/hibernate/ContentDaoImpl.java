@@ -15,8 +15,8 @@
  */
 package org.osaf.cosmo.dao.hibernate;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,12 +32,12 @@ import org.hibernate.validator.InvalidStateException;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
+import org.osaf.cosmo.model.ICalendarItem;
 import org.osaf.cosmo.model.IcalUidInUseException;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.ItemListener;
 import org.osaf.cosmo.model.ItemTombstone;
 import org.osaf.cosmo.model.NoteItem;
-import org.osaf.cosmo.model.Stamp;
-import org.osaf.cosmo.model.StampHandler;
 
 /**
  * Implementation of ContentDao using hibernate persistence objects
@@ -46,7 +46,7 @@ import org.osaf.cosmo.model.StampHandler;
 public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
 
     private static final Log log = LogFactory.getLog(ContentDaoImpl.class);
-    private HashMap<String, StampHandler> stampHandlers = new HashMap<String, StampHandler>();
+    private List<ItemListener> itemListeners = new ArrayList<ItemListener>(0);
 
     /*
      * (non-Javadoc)
@@ -422,15 +422,14 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
             super.removeItem(item);
     }
     
-       
-    public HashMap<String, StampHandler> getStampHandlers() {
-        return stampHandlers;
+      
+    public List<ItemListener> getItemListeners() {
+        return itemListeners;
     }
 
-    public void setStampHandlers(HashMap<String, StampHandler> stampHandlers) {
-        this.stampHandlers = stampHandlers;
+    public void setItemListeners(List<ItemListener> itemListeners) {
+        this.itemListeners = itemListeners;
     }
-
 
     /**
      * Initializes the DAO, sanity checking required properties and defaulting
@@ -451,8 +450,13 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         // Remove modifications
         if(content instanceof NoteItem) {
             NoteItem note = (NoteItem) content;
-            for(NoteItem mod: note.getModifications())
-                removeContentRecursive(mod);
+            if(note.getModifies()!=null) {
+                // ensure master is dirty so that etag gets updated
+                note.getModifies().updateTimestamp();
+            } else {   
+                for(NoteItem mod: note.getModifications())
+                    removeContentRecursive(mod);
+            }
         }
             
         getSession().delete(content);
@@ -515,32 +519,19 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         
     }
     
-    private void applyStampHandlerCreate(Item item) {
-        
-        if(stampHandlers.size()==0)
-            return;
-        
-        for(Stamp stamp : item.getStamps()) {
-            StampHandler sh = stampHandlers.get(stamp.getClass().getName());
-            if(sh != null) {
-                sh.onCreateItem(stamp);
-                continue;
-            }
-        }
+    private void fireItemCreateEvent(Item item) {
+        for(ItemListener listener: itemListeners)
+            listener.onCreateItem(item);
     }
     
-    private void applyStampHandlerUpdate(Item item) {
-        
-        if(stampHandlers.size()==0)
-            return;
-        
-        for(Stamp stamp : item.getStamps()) {
-            StampHandler sh = stampHandlers.get(stamp.getClass().getName());
-            if(sh != null) {
-                sh.onUpdateItem(stamp);
-                continue;
-            }
-        }
+    private void fireItemUpdateEvent(Item item) {
+        for(ItemListener listener: itemListeners)
+            listener.onUpdateItem(item);
+    }
+    
+    private void fireItemDeleteEvent(Item item) {
+        for(ItemListener listener: itemListeners)
+            listener.onDeleteItem(item);
     }
     
     protected void createContentInternal(CollectionItem parent, ContentItem content) {
@@ -561,35 +552,44 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         checkForDuplicateUid(content);
         
         // verify icaluid not in use for collection
-        if (content instanceof NoteItem)
-            checkForDuplicateICalUid((NoteItem) content, parent);
+        if (content instanceof ICalendarItem)
+            checkForDuplicateICalUid((ICalendarItem) content, parent);
         
         setBaseItemProps(content);
         
-        // add parent to new content
-        content.getParents().add(parent);
-        
+       
         // When a note modification is added, it must be added to all
         // collections that the parent note is in, because a note modification's
         // parents are tied to the parent note.
         if(isNoteModification(content)) {
             NoteItem note = (NoteItem) content;
            
+            // ensure master is dirty so that etag gets updated
+            note.getModifies().updateTimestamp();
+            
             if(!note.getModifies().getParents().contains(parent))
                 throw new IllegalArgumentException("note modification cannot be added to collection that parent note is not in");
             
-            note.getParents().addAll(note.getModifies().getParents());
+            // Add modification to all parents of master
+            for (CollectionItem col : note.getModifies().getParents()) {
+                if (col.removeTombstone(content) == true)
+                    getSession().update(col);
+                note.getParents().add(col);
+            }
+        } else {
+            // add parent to new content
+            content.getParents().add(parent);
+            
+            // remove tombstone (if it exists) from parent
+            if(parent.removeTombstone(content)==true)
+                getSession().update(parent);
         }
         
-        // remove tombstone (if it exists) from parent
-        if(parent.removeTombstone(content)==true)
-            getSession().update(parent);
-        
-        applyStampHandlerCreate(content);
+        fireItemCreateEvent(content);
         
         getSession().save(content);    
     }
-    
+
     protected void createContentInternal(Set<CollectionItem> parents, ContentItem content) {
 
         if(parents==null)
@@ -612,10 +612,23 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         checkForDuplicateUid(content);
         
         // verify icaluid not in use for collections
-        if (content instanceof NoteItem)
-            checkForDuplicateICalUid((NoteItem) content, content.getParents());
+        if (content instanceof ICalendarItem)
+            checkForDuplicateICalUid((ICalendarItem) content, content.getParents());
         
         setBaseItemProps(content);
+        
+        // Ensure NoteItem modifications have the same parents as the 
+        // master note.
+        if (isNoteModification(content)) {
+            NoteItem note = (NoteItem) content;
+            
+            // ensure master is dirty so that etag gets updated
+            note.getModifies().updateTimestamp();
+            
+            if (!note.getModifies().getParents().equals(parents))
+                throw new IllegalArgumentException(
+                        "Note modification parents must equal the parents of master note");
+        }
         
         for(CollectionItem parent: parents) {
             content.getParents().add(parent);
@@ -623,11 +636,11 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
                 getSession().update(parent);
         }
         
-        applyStampHandlerCreate(content);
+        fireItemCreateEvent(content);
         
         getSession().save(content);
     }
-    
+
     protected void updateContentInternal(ContentItem content) {
         
         if (content == null)
@@ -640,7 +653,12 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         
         content.setModifiedDate(new Date());
         
-        applyStampHandlerUpdate(content); 
+        if(isNoteModification(content)) {
+            // ensure master is dirty so that etag gets updated
+            ((NoteItem) content).getModifies().updateTimestamp();
+        }
+        
+        fireItemUpdateEvent(content); 
     }
     
     protected void updateCollectionInternal(CollectionItem collection) {
@@ -662,11 +680,25 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
     @Override
     protected void addItemToCollectionInternal(Item item,
             CollectionItem collection) {
-        if (item instanceof NoteItem)
-            // verify icaluid is unique within collection
-            checkForDuplicateICalUid((NoteItem) item, collection);
 
+        // Don't allow note modifications to be added to a collection
+        // When a master is added, all the modifications are added
+        if (isNoteModification(item)) {
+            throw new IllegalArgumentException("cannot add modification, only master");
+        }
+        
+        if (item instanceof ICalendarItem)
+            // verify icaluid is unique within collection
+            checkForDuplicateICalUid((ICalendarItem) item, collection);
+
+        
         super.addItemToCollectionInternal(item, collection);
+        
+        // Add all modifications
+        if(item instanceof NoteItem) {
+            for(NoteItem mod: ((NoteItem) item).getModifications())
+                super.addItemToCollectionInternal(mod, collection);
+        }
     }
     
     @Override
@@ -686,18 +718,29 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         else
             super.removeItemFromCollectionInternal(item, collection);
     }
-    
-    protected void checkForDuplicateICalUid(NoteItem note, CollectionItem parent) {
+
+    protected void checkForDuplicateICalUid(ICalendarItem item, CollectionItem parent) {
 
         // TODO: should icalUid be required?  Currrently its not and all
         // items created by the webui dont' have it.
-        if (note.getIcalUid() == null || note.getModifies()!=null)
+        if (item.getIcalUid() == null) 
+            return;
+        
+        // ignore modifications
+        if(item instanceof NoteItem && ((NoteItem) item).getModifies()!=null)
             return;
 
         // Lookup item by parent/icaluid
-        Query hibQuery = getSession().getNamedQuery(
-                "noteItemId.by.parent.icaluid").setParameter("parentid",
-                parent.getId()).setParameter("icaluid", note.getIcalUid());
+        Query hibQuery = null;
+        if (item instanceof NoteItem)
+            hibQuery = getSession().getNamedQuery(
+                    "noteItemId.by.parent.icaluid").setParameter("parentid",
+                    parent.getId()).setParameter("icaluid", item.getIcalUid());
+        else
+            hibQuery = getSession().getNamedQuery(
+                    "icalendarItem.by.parent.icaluid").setParameter("parentid",
+                    parent.getId()).setParameter("icaluid", item.getIcalUid());
+        
         hibQuery.setFlushMode(FlushMode.MANUAL);
 
         Long itemId = (Long) hibQuery.uniqueResult();
@@ -705,27 +748,35 @@ public class ContentDaoImpl extends ItemDaoImpl implements ContentDao {
         // if icaluid is in use throw exception
         if (itemId != null) {
             // If the note is new, then its a duplicate icaluid
-            if (note.getId() == -1) {
-                throw new IcalUidInUseException("icalUid" + note.getIcalUid()
-                        + " already in use for collection " + parent.getUid());
+            if (item.getId() == -1) {
+                Item dup = (Item) getSession().load(Item.class, itemId);
+                throw new IcalUidInUseException("icalUid" + item.getIcalUid()
+                        + " already in use for collection " + parent.getUid(),
+                        item.getUid(), dup.getUid());
             }
             // If the note exists and there is another note with the same
             // icaluid, then its a duplicate icaluid
-            if (note.getId().equals(itemId)) {
-                throw new IcalUidInUseException("icalUid" + note.getIcalUid()
-                        + " already in use for collection " + parent.getUid());
+            if (item.getId().equals(itemId)) {
+                Item dup = (Item) getSession().load(Item.class, itemId);
+                throw new IcalUidInUseException("icalUid" + item.getIcalUid()
+                        + " already in use for collection " + parent.getUid(),
+                        item.getUid(), dup.getUid());
             }
         }
     }
 
-    protected void checkForDuplicateICalUid(NoteItem note,
+    protected void checkForDuplicateICalUid(ICalendarItem item,
             Set<CollectionItem> parents) {
 
-        if (note.getIcalUid() == null || note.getModifies()!=null)
+        if (item.getIcalUid() == null) 
+            return;
+        
+        // ignore modifications
+        if(item instanceof NoteItem && ((NoteItem) item).getModifies()!=null)
             return;
 
         for (CollectionItem parent : parents)
-            checkForDuplicateICalUid(note, parent);
+            checkForDuplicateICalUid(item, parent);
     }
     
     private boolean isNoteModification(Item item) {

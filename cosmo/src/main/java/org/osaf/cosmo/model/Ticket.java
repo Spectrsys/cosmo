@@ -52,7 +52,7 @@ import org.hibernate.validator.NotNull;
  */
 @Entity
 @Table(name="tickets")
-public class Ticket extends BaseModelObject {
+public class Ticket extends BaseModelObject implements Comparable<Ticket> {
 
     /**
      * 
@@ -73,7 +73,7 @@ public class Ticket extends BaseModelObject {
     private Date created;
     private User owner;
     private Item item;
-    
+
     /**
      */
     public Ticket() {
@@ -267,12 +267,15 @@ public class Ticket extends BaseModelObject {
     /**
      */
     public String toString() {
-        return new ToStringBuilder(this).
-            append("key", key).
-            append("timeout", timeout).
-            append("privileges", privileges).
-            append("created", created).
-            toString();
+        StringBuffer buf = new StringBuffer(key);
+        Type type = getType();
+        if (type != null)
+            buf.append(" (").append(type).append(")");
+        return buf.toString();
+    }
+
+    public int compareTo(Ticket t) {
+        return key.compareTo(t.getKey());
     }
 
     @ManyToOne(fetch=FetchType.LAZY)
@@ -293,11 +296,13 @@ public class Ticket extends BaseModelObject {
     public static class Type {
         public static final String ID_READ_ONLY = "read-only";
         public static final Type READ_ONLY =
-            new Type(ID_READ_ONLY, new String[] { PRIVILEGE_READ });
+            new Type(ID_READ_ONLY,
+                     new String[] { PRIVILEGE_READ, PRIVILEGE_FREEBUSY });
         public static final String ID_READ_WRITE = "read-write";
         public static final Type READ_WRITE =
             new Type(ID_READ_WRITE,
-                     new String[] { PRIVILEGE_READ, PRIVILEGE_WRITE });
+                     new String[] { PRIVILEGE_READ, PRIVILEGE_WRITE,
+                                    PRIVILEGE_FREEBUSY });
         public static final String ID_FREE_BUSY = "free-busy";
         public static final Type FREE_BUSY =
             new Type(ID_FREE_BUSY, new String[] { PRIVILEGE_FREEBUSY });

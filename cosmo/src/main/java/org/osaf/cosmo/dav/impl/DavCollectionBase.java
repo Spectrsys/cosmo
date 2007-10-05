@@ -35,6 +35,7 @@ import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
+import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.ResourceType;
@@ -60,6 +61,10 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.xml.DomWriter;
+
+import org.w3c.dom.Element;
 
 /**
  * Extends <code>DavResourceBase</code> to adapt the Cosmo
@@ -115,15 +120,11 @@ public class DavCollectionBase extends DavItemResourceBase
     // Jackrabbit DavResource
 
     public String getSupportedMethods() {
-        return "OPTIONS, GET, HEAD, TRACE, PROPFIND, PROPPATCH, COPY, DELETE, MOVE, MKTICKET, DELTICKET, MKCOL, MKCALENDAR";
+        return "OPTIONS, GET, HEAD, TRACE, PROPFIND, PROPPATCH, COPY, DELETE, MOVE, MKTICKET, DELTICKET, MKCOL, MKCALENDAR, REPORT";
     }
 
     public boolean isCollection() {
         return true;
-    }
-
-    public long getModificationTime() {
-        return -1;
     }
 
     public void spool(OutputContext outputContext)
@@ -139,8 +140,12 @@ public class DavCollectionBase extends DavItemResourceBase
 
     public DavResourceIterator getMembers() {
         try {
-            for (Item memberItem : ((CollectionItem)getItem()).getChildren())
-                members.add(memberToResource(memberItem));
+            for (Item memberItem : ((CollectionItem)getItem()).getChildren()) {
+                DavResource resource = memberToResource(memberItem);
+                if(resource!=null)
+                    members.add(resource);
+            }
+                
             return new DavResourceIteratorImpl(members);
         } catch (DavException e) {
             throw new RuntimeException(e);
@@ -149,10 +154,17 @@ public class DavCollectionBase extends DavItemResourceBase
 
     public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
         throws org.apache.jackrabbit.webdav.DavException {
-        if (member instanceof DavItemCollection) {
-            removeSubcollection((DavItemCollection)member);
-        } else {
-            removeContent((DavItemContent)member);
+        if (log.isDebugEnabled())
+            log.debug("removing resource '" + member.getDisplayName() +
+                      "' from '" + getDisplayName() + ";");
+
+        CollectionItem collection = (CollectionItem) getItem();
+        Item item = ((DavItemResource)member).getItem();
+
+        try {
+            getContentService().removeItemFromCollection(item, collection);
+        } catch (CollectionLockedException e) {
+            throw new LockedException();
         }
 
         members.remove(member);
@@ -316,56 +328,20 @@ public class DavCollectionBase extends DavItemResourceBase
         member.setItem(content);
     }
 
-    /**
-     * Removes the given collection resource from storage.
-     */
-    protected void removeSubcollection(DavItemCollection member)
-        throws DavException {
-        CollectionItem collection = (CollectionItem) getItem();
-        CollectionItem subcollection = (CollectionItem) member.getItem();
-
-        if (log.isDebugEnabled())
-            log.debug("removing collection " + subcollection.getName() +
-                      " from " + collection.getName());
-
-        try {
-            getContentService().removeCollection(subcollection);
-        } catch (CollectionLockedException e) {
-            throw new LockedException();
-        }
-    }
-
-    /**
-     * Removes the given content resource from storage.
-     */
-    protected void removeContent(DavItemContent member)
-        throws DavException {
-        CollectionItem collection = (CollectionItem) getItem();
-        ContentItem content = (ContentItem) member.getItem();
-
-        if (log.isDebugEnabled())
-            log.debug("removing content " + content.getName() +
-                      " from " + collection.getName());
-
-        try {
-            getContentService().removeContent(content);
-        } catch (CollectionLockedException e) {
-            throw new LockedException();
-        }
-    }
-
     protected DavResource memberToResource(Item item)
         throws DavException {
-        String uri = getResourcePath() + "/" + item.getName();
+        String path = getResourcePath() + "/" + item.getName();
         DavResourceLocator locator = getResourceLocator().getFactory().
-            createResourceLocator(getResourceLocator(), uri);
+            createResourceLocatorByPath(getResourceLocator().getContext(),
+                                        path);
         return getResourceFactory().createResource(locator, item);
     }    
 
     protected DavResource memberToResource(String uri)
         throws DavException {
         DavResourceLocator locator = getResourceLocator().getFactory().
-            createResourceLocator(getResourceLocator(), uri);
+            createResourceLocatorByUri(getResourceLocator().getContext(), 
+                                       uri);
         return getResourceFactory().resolve(locator);
     }
 
@@ -373,51 +349,101 @@ public class DavCollectionBase extends DavItemResourceBase
         throws DavException, IOException {
         if (log.isDebugEnabled())
             log.debug("writing html directory index for  " +
-                      getItem().getName());
+                      getDisplayName());
 
         context.setContentType(IOUtil.buildContentType("text/html", "UTF-8"));
-        // XXX content length unknown unless we write a temp file
-        // modification time and etag are undefined for a collection
+        context.setModificationTime(getModificationTime());
+        context.setETag(getETag());
 
-        if (! context.hasStream()) {
+        if (! context.hasStream())
             return;
-        }
 
         PrintWriter writer =
             new PrintWriter(new OutputStreamWriter(context.getOutputStream(),
                                                    "utf8"));
 
-        String title = getItem().getDisplayName();
-        if (title == null)
-            title = getItem().getUid();
-
-        writer.write("<html><head><title>");
-        writer.write(StringEscapeUtils.escapeHtml(title));
-        writer.write("</title></head>");
-        writer.write("<body>");
+        writer.write("<html>\n<head><title>");
+        writer.write(StringEscapeUtils.escapeHtml(getDisplayName()));
+        writer.write("</title></head>\n");
+        writer.write("<body>\n");
         writer.write("<h1>");
-        writer.write(StringEscapeUtils.escapeHtml(title));
-        writer.write("</h1>");
-        writer.write("<ul>");
+        writer.write(StringEscapeUtils.escapeHtml(getDisplayName()));
+        writer.write("</h1>\n");
+        
         DavResource parent = getParent();
-        if (parent != null) {
-            writer.write("<li><a href=\"");
+        if (parent.exists()) {
+            writer.write("Parent: <a href=\"");
             writer.write(parent.getResourceLocator().getHref(true));
-            writer.write("\">..</a></li>");
+            writer.write("\">");
+            writer.write(StringEscapeUtils.escapeHtml(parent.getDisplayName()));
+            writer.write("</a></li>\n");
         }
+
+        writer.write("<h2>Members</h2>\n");
+        writer.write("<ul>\n");
         for (DavResourceIterator i=getMembers(); i.hasNext();) {
-            DavItemResourceBase child = (DavItemResourceBase) i.nextResource();
-            String displayName = child.getItem().getDisplayName();
+            DavResource child = (DavResource) i.nextResource();
             writer.write("<li><a href=\"");
             writer.write(child.getResourceLocator().getHref(child.isCollection()));
             writer.write("\">");
-            writer.write(StringEscapeUtils.escapeHtml(displayName));
-            writer.write("</a></li>");
+            writer.write(StringEscapeUtils.escapeHtml(child.getDisplayName()));
+            writer.write("</a></li>\n");
         }
-        writer.write("</ul>");
+        writer.write("</ul>\n");
+
+        writer.write("<h2>Properties</h2>\n");
+        writer.write("<dl>\n");
+        for (DavPropertyIterator i=getProperties().iterator(); i.hasNext();) {
+            DavProperty prop = (DavProperty) i.nextProperty();
+            Object value = prop.getValue();
+            String text = null;
+            if (value instanceof Element) {
+                try {
+                    text = DomWriter.write((Element)value);
+                } catch (Exception e) {
+                    log.warn("Error serializing value for property " + prop.getName());
+                }
+            }
+            if (text == null)
+                text = prop.getValueText();
+            if (text == null)
+                text = "-- no value --";
+            writer.write("<dt>");
+            writer.write(StringEscapeUtils.escapeHtml(prop.getName().toString()));
+            writer.write("</dt><dd>");
+            writer.write(StringEscapeUtils.escapeHtml(text));
+            writer.write("</dd>\n");
+        }
+        writer.write("</dl>\n");
+
+        User user = getSecurityManager().getSecurityContext().getUser();
+        if (user != null) {
+            writer.write("<p>\n");
+            if (! isHomeCollection()) {
+                DavResourceLocator homeLocator =
+                    getResourceLocator().getFactory().
+                    createHomeLocator(getResourceLocator().getContext(),
+                                      user);
+                writer.write("<a href=\"");
+                writer.write(homeLocator.getHref(true));
+                writer.write("\">");
+                writer.write("Home collection");
+                writer.write("</a><br>\n");
+            }
+
+            DavResourceLocator principalLocator = 
+                getResourceLocator().getFactory().
+                createPrincipalLocator(getResourceLocator().getContext(),
+                                       user);
+            writer.write("<a href=\"");
+            writer.write(principalLocator.getHref(false));
+            writer.write("\">");
+            writer.write("Principal resource");
+            writer.write("</a><br>\n");
+        }
+
         writer.write("</body>");
-        writer.write("</html>");
-        writer.write("\n");
+        writer.write("</html>\n");
         writer.close();
     }
 }

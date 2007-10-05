@@ -54,11 +54,23 @@ public interface ICalendarConstants {
     public static final String VALUE_TRUE = "TRUE";
     
     public static final String VALUE_FALSE = "FALSE";
+    
+    /**
+     * VAVAILABILITY component (not yet fully supported in ical4j)
+     */
+    public static final String COMPONENT_VAVAILABLITY = "VAVAILABILITY";
 
     /**
      * The iCalendar component types to which the Cosmo data model maps.
      */
-    public static String[] SUPPORTED_COMPONENT_TYPES = {
-        Component.VEVENT, Component.VTODO, Component.VJOURNAL
+    public static String[] SUPPORTED_COMPONENT_TYPES = { Component.VEVENT,
+            Component.VTODO, Component.VJOURNAL, Component.VFREEBUSY,
+            COMPONENT_VAVAILABLITY };
+    
+    /**
+     * The iCalendar component types to which the Cosmo data model maps.
+     */
+    public static String[] SUPPORTED_COLLATIONS = {
+        "i;ascii-casemap", "i;octet"
     };
 }

@@ -18,24 +18,29 @@ package org.osaf.cosmo.dav.acl.resource;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.jackrabbit.server.io.IOUtil;
 import org.apache.jackrabbit.webdav.DavResourceIterator;
+import org.apache.jackrabbit.webdav.DavResourceIteratorImpl;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.io.OutputContext;
+import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.version.report.Report;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
+import org.apache.jackrabbit.webdav.version.report.ReportType;
 
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;
@@ -43,10 +48,14 @@ import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.ForbiddenException;
+import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.acl.AclConstants;
+import org.osaf.cosmo.dav.acl.DavPrivilege;
 import org.osaf.cosmo.dav.acl.property.AlternateUriSet;
 import org.osaf.cosmo.dav.acl.property.GroupMembership;
 import org.osaf.cosmo.dav.acl.property.PrincipalUrl;
+import org.osaf.cosmo.dav.acl.report.PrincipalMatchReport;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.property.CalendarHomeSet;
 import org.osaf.cosmo.dav.impl.DavResourceBase;
@@ -58,7 +67,9 @@ import org.osaf.cosmo.dav.property.IsCollection;
 import org.osaf.cosmo.dav.property.LastModified;
 import org.osaf.cosmo.dav.property.ResourceType;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.PathUtil;
+import org.osaf.cosmo.xml.DomWriter;
+
+import org.w3c.dom.Element;
 
 /**
 * <p>
@@ -72,7 +83,9 @@ import org.osaf.cosmo.util.PathUtil;
  */
 public class DavUserPrincipal extends DavResourceBase
     implements AclConstants, CaldavConstants, DavContent {
-    private static final Log log = LogFactory.getLog(DavUserPrincipal.class);
+    private static final Log log = LogFactory.getLog(DavUserPrincipal.class);    
+    private static final Set<ReportType> REPORT_TYPES =
+        new HashSet<ReportType>();
 
     static {
         registerLiveProperty(DavPropertyName.CREATIONDATE);
@@ -85,6 +98,8 @@ public class DavUserPrincipal extends DavResourceBase
         registerLiveProperty(ALTERNATEURISET);
         registerLiveProperty(PRINCIPALURL);
         registerLiveProperty(GROUPMEMBERSHIP);
+
+        REPORT_TYPES.add(PrincipalMatchReport.REPORT_TYPE_PRINCIPAL_MATCH);
     }
 
     private User user;
@@ -102,7 +117,7 @@ public class DavUserPrincipal extends DavResourceBase
     // Jackrabbit DavResource
 
     public String getSupportedMethods() {
-        return "OPTIONS, GET, HEAD, TRACE, PROPFIND";
+        return "OPTIONS, GET, HEAD, TRACE, PROPFIND, PROPPATCH, REPORT";
     }
 
     public boolean isCollection() {
@@ -127,18 +142,7 @@ public class DavUserPrincipal extends DavResourceBase
 
     public void writeTo(OutputContext context)
         throws DavException, IOException {
-        context.setContentType(IOUtil.buildContentType("text/plain",
-                                                       "UTF-8"));
-
-        if (! context.hasStream())
-            return;
-
-        PrintWriter writer =
-            new PrintWriter(new OutputStreamWriter(context.getOutputStream(),
-                                                   "utf8"));
-        writer.write(user.getUsername());
-        writer.write("\n");
-        writer.close();
+        writeHtmlRepresentation(context);
     }
 
     public void addMember(org.apache.jackrabbit.webdav.DavResource member,
@@ -148,20 +152,14 @@ public class DavUserPrincipal extends DavResourceBase
     }
 
     public DavResourceIterator getMembers() {
-        throw new UnsupportedOperationException();
+        // while it would be ideal to throw an UnsupportedOperationException,
+        // MultiStatus tries to add a MultiStatusResponse for every member
+        // of a DavResource regardless of whether or not it's a collection,
+        // so we need to return an empty iterator.
+        return new DavResourceIteratorImpl(new ArrayList());
     }
 
     public void removeMember(org.apache.jackrabbit.webdav.DavResource member)
-        throws org.apache.jackrabbit.webdav.DavException {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setProperty(org.apache.jackrabbit.webdav.property.DavProperty property)
-        throws org.apache.jackrabbit.webdav.DavException {
-        throw new UnsupportedOperationException();
-    }
-
-    public void removeProperty(DavPropertyName propertyName)
         throws org.apache.jackrabbit.webdav.DavException {
         throw new UnsupportedOperationException();
     }
@@ -199,18 +197,6 @@ public class DavUserPrincipal extends DavResourceBase
         return parent;
     }
 
-    public MultiStatusResponse
-        updateProperties(DavPropertySet setProperties,
-                         DavPropertyNameSet removePropertyNames)
-        throws DavException {
-        throw new UnsupportedOperationException();
-    }
-
-    public Report getReport(ReportInfo reportInfo)
-        throws DavException {
-        throw new UnsupportedOperationException();
-    }
-
     // our methods
 
     public User getUser() {
@@ -221,6 +207,29 @@ public class DavUserPrincipal extends DavResourceBase
         HashSet<QName> rt = new HashSet<QName>(1);
         rt.add(RESOURCE_TYPE_PRINCIPAL);
         return rt;
+    }
+
+    public Set<ReportType> getReportTypes() {
+        return REPORT_TYPES;
+    }
+
+    /**
+     * <p>
+     * Extends the superclass method to return {@link DavPrivilege#READ} if
+     * the the current principal is the non-admin user represented by this
+     * resource.
+     * </p>
+     */
+    protected Set<DavPrivilege> getCurrentPrincipalPrivileges() {
+        Set<DavPrivilege> privileges = super.getCurrentPrincipalPrivileges();
+        if (! privileges.isEmpty())
+            return privileges;
+
+        User user = getSecurityManager().getSecurityContext().getUser();
+        if (user != null && user.equals(this.user))
+            privileges.add(DavPrivilege.READ);
+
+        return privileges;
     }
     
     protected void loadLiveProperties(DavPropertySet properties) {
@@ -238,12 +247,12 @@ public class DavUserPrincipal extends DavResourceBase
 
     protected void setLiveProperty(DavProperty property)
         throws DavException {
-        throw new UnsupportedOperationException();
+        throw new ProtectedPropertyModificationException(property.getName());
     }
 
     protected void removeLiveProperty(DavPropertyName name)
         throws DavException {
-        throw new UnsupportedOperationException();
+        throw new ProtectedPropertyModificationException(name);
     }
 
     protected void loadDeadProperties(DavPropertySet properties) {
@@ -251,11 +260,85 @@ public class DavUserPrincipal extends DavResourceBase
 
     protected void setDeadProperty(DavProperty property)
         throws DavException {
-        throw new UnsupportedOperationException();
+        throw new ForbiddenException("Dead properties are not supported on this resource");
     }
 
     protected void removeDeadProperty(DavPropertyName name)
         throws DavException {
-        throw new UnsupportedOperationException();
+        throw new ForbiddenException("Dead properties are not supported on this resource");
+    }
+
+    private void writeHtmlRepresentation(OutputContext context)
+        throws DavException, IOException {
+        if (log.isDebugEnabled())
+            log.debug("writing html representation for user principal " +
+                      getDisplayName());
+
+        context.setContentType(IOUtil.buildContentType("text/html", "UTF-8"));
+        context.setModificationTime(getModificationTime());
+        context.setETag(getETag());
+
+        if (! context.hasStream()) {
+            return;
+        }
+
+        PrintWriter writer =
+            new PrintWriter(new OutputStreamWriter(context.getOutputStream(),
+                                                   "utf8"));
+
+        writer.write("<html>\n<head><title>");
+        writer.write(StringEscapeUtils.escapeHtml(getDisplayName()));
+        writer.write("</title></head>\n");
+        writer.write("<body>\n");
+        writer.write("<h1>");
+        writer.write(StringEscapeUtils.escapeHtml(getDisplayName()));
+        writer.write("</h1>\n");
+
+        writer.write("<h2>Properties</h2>\n");
+        writer.write("<dl>\n");
+        for (DavPropertyIterator i=getProperties().iterator(); i.hasNext();) {
+            DavProperty prop = (DavProperty) i.nextProperty();
+            Object value = prop.getValue();
+            String text = null;
+            if (value instanceof Element) {
+                try {
+                    text = DomWriter.write((Element)value);
+                } catch (Exception e) {
+                    log.warn("Error serializing value for property " + prop.getName());
+                }
+            }
+            if (text == null)
+                text = prop.getValueText();
+            writer.write("<dt>");
+            writer.write(StringEscapeUtils.escapeHtml(prop.getName().toString()));
+            writer.write("</dt><dd>");
+            writer.write(StringEscapeUtils.escapeHtml(text));
+            writer.write("</dd>\n");
+        }
+        writer.write("</dl>\n");
+
+        DavResource parent = getParent();
+        writer.write("<a href=\"");
+        writer.write(parent.getResourceLocator().getHref(true));
+        writer.write("\">");
+        writer.write(StringEscapeUtils.escapeHtml(parent.getDisplayName()));
+        writer.write("</a></li>\n");
+        
+        User user = getSecurityManager().getSecurityContext().getUser();
+        if (user != null) {
+            writer.write("<p>\n");
+            DavResourceLocator homeLocator =
+                getResourceLocator().getFactory().
+                createHomeLocator(getResourceLocator().getContext(), user);
+            writer.write("<a href=\"");
+            writer.write(homeLocator.getHref(true));
+            writer.write("\">");
+            writer.write("Home collection");
+            writer.write("</a><br>\n");
+        }
+
+        writer.write("</body>");
+        writer.write("</html>\n");
+        writer.close();
     }
 }

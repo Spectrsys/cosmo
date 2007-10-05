@@ -22,13 +22,17 @@ import javax.xml.namespace.QName;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.Period;
+import net.fortuna.ical4j.model.component.VFreeBusy;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.jackrabbit.webdav.io.InputContext;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
+
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.dav.ConflictException;
 import org.osaf.cosmo.dav.DavCollection;
@@ -42,12 +46,16 @@ import org.osaf.cosmo.dav.PreconditionFailedException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.dav.caldav.InvalidCalendarLocationException;
+import org.osaf.cosmo.dav.caldav.MaxResourceSizeException;
+import org.osaf.cosmo.dav.caldav.UidConflictException;
 import org.osaf.cosmo.dav.caldav.TimeZoneExtractor;
 import org.osaf.cosmo.dav.caldav.property.CalendarDescription;
 import org.osaf.cosmo.dav.caldav.property.CalendarTimezone;
 import org.osaf.cosmo.dav.caldav.property.MaxResourceSize;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarData;
+import org.osaf.cosmo.dav.caldav.property.SupportedCollationSet;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.icalendar.ICalendarConstants;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
@@ -116,7 +124,7 @@ public class DavCalendarCollection extends DavCollectionBase
     /** */
     public String getSupportedMethods() {
         // calendar collections not allowed inside calendar collections
-        return "OPTIONS, GET, HEAD, TRACE, PROPFIND, PROPPATCH, COPY, DELETE, MOVE, MKTICKET, DELTICKET, MKCOL";
+        return "OPTIONS, GET, HEAD, TRACE, PROPFIND, PROPPATCH, COPY, DELETE, MOVE, MKTICKET, DELTICKET, MKCOL, REPORT";
     }
 
     /** */
@@ -153,10 +161,29 @@ public class DavCalendarCollection extends DavCollectionBase
 
         CollectionItem collection = (CollectionItem) getItem();
         for (ContentItem memberItem :
-             getContentService().findCalendarItems(collection, filter))
-            members.add((DavCalendarResource)memberToResource(memberItem));
+             getContentService().findCalendarItems(collection, filter)) {
+            DavResource resource = memberToResource(memberItem);
+            if(resource!=null)
+                members.add((DavCalendarResource) resource);
+        }
 
         return members;
+    }
+    
+    /**
+     * Returns a VFREEBUSY component containing
+     * the freebusy periods for the calendar collection for the
+     * specified time range.
+     * @param period time range for freebusy information
+     * @return VFREEBUSY component containing FREEBUSY periods for
+     *         specified timerange
+     */
+    public VFreeBusy generateFreeBusy(Period period) {
+
+        VFreeBusy vfb = getContentService().generateFreeBusy(
+                (CollectionItem) getItem(), period);
+        
+        return vfb;
     }
 
     /**
@@ -164,7 +191,7 @@ public class DavCalendarCollection extends DavCollectionBase
      * one has been set.
      */
     public VTimeZone getTimeZone() {
-        Calendar obj = getCalendarCollectionStamp().getTimezone();
+        Calendar obj = getCalendarCollectionStamp().getTimezoneCalendar();
         if (obj == null)
             return null;
         return (VTimeZone)
@@ -193,7 +220,7 @@ public class DavCalendarCollection extends DavCollectionBase
             cc.setDescription(getItem().getName());
             // XXX: language should come from the input context
         } catch (DataSizeException e) {
-            throw new ForbiddenException(e.getMessage());
+            throw new MaxResourceSizeException(e.getMessage());
         }
     }
 
@@ -208,10 +235,11 @@ public class DavCalendarCollection extends DavCollectionBase
         if (cc.getDescription() != null)
             properties.add(new CalendarDescription(cc.getDescription(),
                                                    cc.getLanguage()));
-        if (cc.getTimezone() != null)
-            properties.add(new CalendarTimezone(cc.getTimezone().toString()));
+        if (cc.getTimezoneCalendar() != null)
+            properties.add(new CalendarTimezone(cc.getTimezoneCalendar().toString()));
 
         properties.add(new SupportedCalendarComponentSet());
+        properties.add(new SupportedCollationSet());
         properties.add(new SupportedCalendarData());
         properties.add(new MaxResourceSize());
     }
@@ -241,7 +269,7 @@ public class DavCalendarCollection extends DavCollectionBase
         }
 
         if (name.equals(CALENDARTIMEZONE))
-            cc.setTimezone(TimeZoneExtractor.extract(property));
+            cc.setTimezoneCalendar(TimeZoneExtractor.extract(property));
     }
 
     /** */
@@ -265,7 +293,7 @@ public class DavCalendarCollection extends DavCollectionBase
         }
 
         if (name.equals(CALENDARTIMEZONE)) {
-            cc.setTimezone(null);
+            cc.setTimezoneCalendar(null);
             return;
         }
     }
@@ -284,12 +312,6 @@ public class DavCalendarCollection extends DavCollectionBase
         if (! (member instanceof DavCalendarResource))
             throw new IllegalArgumentException("member not DavCalendarResource");
 
-        // XXX CALDAV:calendar-collection-location-ok
-
-        // CALDAV:max-resource-size was already taken care of when
-        // DavCollection.addMember called DavResourceBase.populateItem
-        // on the event, though it returned a 409 rather than a 412
-
         ContentItem content = null;
         if (member instanceof DavEvent) {
             saveEvent(member);
@@ -297,7 +319,7 @@ public class DavCalendarCollection extends DavCollectionBase
             try {
                 super.saveContent(member);
             } catch (IcalUidInUseException e) {
-                throw new ConflictException("Uid already in use");
+                throw new UidConflictException(e);
             }
         }
     }
@@ -310,14 +332,6 @@ public class DavCalendarCollection extends DavCollectionBase
         EventStamp event = EventStamp.getStamp(content);
         Calendar calendar = event.getCalendar();
 
-        // XXX CALDAV:min-date-time
-
-        // XXX CALDAV:max-date-time
-
-        // XXX CALDAV:max-instances
-
-        // XXX CALDAV:max-attendees-per-instance
-
         if (event.getId() != -1) {
             if (log.isDebugEnabled())
                 log.debug("updating event " + member.getResourcePath());
@@ -327,7 +341,7 @@ public class DavCalendarCollection extends DavCollectionBase
                                        (NoteItem) content,
                                        event.getEventCalendar());
             } catch (IcalUidInUseException e) {
-                throw new ConflictException("Uid already in use");
+                throw new UidConflictException(e);
             } catch (CollectionLockedException e) {
                 throw new LockedException();
             }
@@ -340,7 +354,7 @@ public class DavCalendarCollection extends DavCollectionBase
                                                  (NoteItem) content,
                                                  event.getEventCalendar());
             } catch (IcalUidInUseException e) {
-                throw new ConflictException("Uid already in use");
+                throw new UidConflictException(e);
             } catch (CollectionLockedException e) {
                 throw new LockedException();
             }
@@ -375,6 +389,6 @@ public class DavCalendarCollection extends DavCollectionBase
     private void validateDestination(DavResource destination)
         throws DavException {
         if (destination.getParent() instanceof DavCalendarCollection)
-            throw new PreconditionFailedException("Destination collection must not be a calendar collection");
+            throw new InvalidCalendarLocationException("Parent collection of destination must not be a calendar collection");
     }
 }

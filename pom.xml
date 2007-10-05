@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.osaf.cosmo</groupId>
     <artifactId>osaf-server</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Chandler Server</name>
     <url>http://chandlerproject.org</url>
@@ -128,7 +128,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <!--
         <repository>
             <id>people.apache.org/m2-snapshot-repository</id>
             <name>Apache m2 snapshot repository</name>
@@ -138,6 +137,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <!--
         <repository>
             <id>modularity snapshots</id>
             <name>Modularity Snapshot Repository</name>
@@ -250,4 +250,3 @@
         </pluginManagement>
     </build>
 </project>
-
