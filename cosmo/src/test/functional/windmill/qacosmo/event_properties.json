@@ -8,3 +8,4 @@
 {"method": "select", "params": {"id" : "eventStatus", "option": "Tentative"}}
 {"method": "type", "params": {"id" : "noteDescription", "text": "A description for the properties test"}}
 {"method": "click", "params": {"jsid" : "{$dvSaveButton}"}}
+{"params": {"milliseconds": "1500"}, "version": "0.1", "method": "waits.sleep"}

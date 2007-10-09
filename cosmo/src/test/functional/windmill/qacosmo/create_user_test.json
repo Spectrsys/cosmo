@@ -9,4 +9,5 @@
 {"method": "click", "params": {"jsid" : "{$btnsRight0}"}}
 {"method": "type", "params": {"id" : "password", "text": "tester"}}
 {"method": "click", "params": {"jsid" : "{$btnsRight0}"}}
+{"params": {"milliseconds": "2000"}, "version": "0.1", "method": "waits.sleep"}
 {"method": "click", "params": {"jsid" : "{$btnsCenter0}"}}
