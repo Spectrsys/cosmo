@@ -26,8 +26,7 @@ cosmo.model.declareStamp("cosmo.model.EventStamp", "event", "http://osafoundatio
       ["location", String, {"default":""}],
       ["rrule", cosmo.model.RecurrenceRule, {"default":null}],
       ["exdates", [Array, cosmo.datetime.Date], {"default": cosmo.model.NEW_ARRAY}],
-      ["status", String, {}],
-      ["lastPastOccurrence", cosmo.datetime.Date, {}]
+      ["status", String, {}]
     ],
     //mixins for master item stamps		 
     {
