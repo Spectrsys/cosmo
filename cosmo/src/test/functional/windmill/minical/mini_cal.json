@@ -1,5 +1,5 @@
 {"method": "waits.forElement", "params": {"id": "_month2_day28", "timeout": "40000"}}
-{"method": "waits.sleep", "params": {"milliseconds": "2500"}}
+{"method": "waits.sleep", "params": {"milliseconds": 2500}}
 {"method": "click", "params": {"id" : "_month2_day28"}}
 {"method": "waits.sleep", "params": {"milliseconds": 4000}}
 {"method": "type", "params": {"id" : "goToDateInput", "text": "05/08/2002"}}
