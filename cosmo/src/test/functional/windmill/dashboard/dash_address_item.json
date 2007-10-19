@@ -1,5 +1,5 @@
 {"method": "click", "params": {"jsid": "{$listView}"}}
-{"method": "waits.forElement", "params": {"id": "_month2_day28", "timeout": "40000"}}
+{"method": "waits.forElement", "params": {"id": "_month2_day28", "timeout": 40000}}
 {"params": {"text": "Testing Adress this item", "id": "listViewQuickItemEntry"}, "version": "0.1", "method": "type"}
 {"params": {"jsid": "{$quickCreateButton}"}, "version": "0.1", "method": "click"}
 {"params": {"milliseconds": 2000}, "version": "0.1", "method": "waits.sleep"}
