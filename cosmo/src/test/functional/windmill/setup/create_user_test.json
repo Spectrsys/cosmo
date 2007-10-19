@@ -1,6 +1,6 @@
 {"method": "waits.forElement", "params": {"id": "loginDialogFormContainer", "timeout": "40000"}}
 {"method": "click", "params": {"link" : "Create a new account"}}
-{"params": {"milliseconds": "6000"}, "version": "0.1", "method": "waits.sleep"}
+{"params": {"milliseconds": 6000}, "version": "0.1", "method": "waits.sleep"}
 {"method": "waits.forElement", "params": {"id": "modalDialogTitle", "timeout": "40000"}}
 {"params": {"id": "modalDialogTitle"}, "version": "0.1", "method": "asserts.assertNode"}
 {"params": {"jsid": "{$btnsRight0}"}, "version": "0.1", "method": "click"}
