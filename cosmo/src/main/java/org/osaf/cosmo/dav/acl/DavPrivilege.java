@@ -81,7 +81,10 @@ public class DavPrivilege
         new DavPrivilege(qn(NAMESPACE_CALDAV, "read-free-busy"));
 
     public static final DavPrivilege ALL =
-        new DavPrivilege(qn("all"), new DavPrivilege[] { READ, WRITE });
+        new DavPrivilege(qn("all"),
+                         new DavPrivilege[] { READ, WRITE,
+                                              READ_CURRENT_USER_PRIVILEGE_SET,
+                                              READ_FREE_BUSY });
 
     private QName qname;
     private boolean isAbstract;
@@ -118,14 +121,7 @@ public class DavPrivilege
     public Element toXml(Document document) {
         if (isAbstract)
             return null;
-        Element root =
-            DomUtil.createElement(document, qname.getLocalPart(), ns(qname));
-        for (DavPrivilege subPrivilege : subPrivileges) {
-            if (subPrivilege.isAbstract())
-                continue;
-            root.appendChild(subPrivilege.toXml(document));
-        }
-        return root;
+        return DomUtil.createElement(document, qname.getLocalPart(), ns(qname));
     }
 
     // Comparable methods
