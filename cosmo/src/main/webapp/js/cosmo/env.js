@@ -217,7 +217,8 @@ cosmo.env.urls = {
     "UserList": '/admin/users',
     "TermsOfService": "/help/tos",
     "PrivacyPolicy": "/help/privacy",
-    "About": "/help/about"
+    "About": "/help/about",
+    "Dav": "/dav"
 }
 
 cosmo.env.getFullUrl = function (urlKey) {
