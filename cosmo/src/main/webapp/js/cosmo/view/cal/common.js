@@ -290,22 +290,6 @@ cosmo.view.cal.removeRecurrenceGroupFromCollectionRegistry =
             opts.dateToBeginRemoval, collectionForRemoval: coll });
     cosmo.view.cal.collectionItemRegistries[collId] = newRegistry;
 };
-cosmo.view.cal.displayCollections = function (c) {
-    var newCollection = c || null;
-    var loading = cosmo.app.pim.layout.baseLayout.mainApp.centerColumn.loading;
-    // Publish this through a setTimeout call to
-    // avoid hanging the UI thread
-    if (newCollection) {
-        cosmo.app.pim.currentCollection = newCollection;
-    }
-    var f = function () { dojo.event.topic.publish('/calEvent', {
-        action: 'loadCollection', opts: { loadType: 'changeCollection',
-        collection: newCollection }, data: {}
-    }); };
-    loading.show();
-    setTimeout(f, 0);
-};
-
 /**
  * Get the start and end for the span of time to view in the cal
  */
