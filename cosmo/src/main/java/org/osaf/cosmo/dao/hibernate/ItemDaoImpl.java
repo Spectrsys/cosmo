@@ -609,7 +609,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             if (ical.getIcalUid() == null) {
                 ical.setIcalUid(item.getUid());
                 EventStamp es = EventStamp.getStamp(ical);
-                if (es != null)
+                if (es != null && es.getEvent()!=null)
                     es.setIcalUid(ical.getIcalUid());
             }
         }
