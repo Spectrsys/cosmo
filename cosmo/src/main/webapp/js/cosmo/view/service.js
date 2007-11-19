@@ -234,7 +234,7 @@ cosmo.view.service = new function () {
 
         // Give a sec for the processing state to show
         dojo.debug("before set timeout");
-        setTimeout(f, 500);
+        setTimeout(f, 35);
     }
     /**
      * Call the service to do a normal item save.
