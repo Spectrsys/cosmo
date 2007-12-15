@@ -572,7 +572,7 @@
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
                                     <artifactId>dojo</artifactId>
-                                    <version>0.4.3-0B0-SNAPSHOT</version>
+                                    <version>0.4.3-0B0-RC1</version>
                                     <type>jar</type>
                                   </artifactItem>
                                   <artifactItem>
