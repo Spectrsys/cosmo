@@ -71,6 +71,7 @@
       <!-- page body -->
       <jsp:doBody/>
       <!-- end page body -->
+      <div class="ie6spacer"></div>
     </div>
   </body>
 </html>
