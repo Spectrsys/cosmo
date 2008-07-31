@@ -1,0 +1,35 @@
+The Chandler Project is pleased to announce the 1.0.0 release of Chandler Server (Cosmo)!
+
+Chandler Server is a server and Ajax web UI for managing and sharing calendars, events, and tasks. It implements open data standards including CalDAV, WebDAV, Atom, and Atompub.
+
+This release contains bugfixes, stability improvements and general polish. For a more complete list of recently introduced features please see the release notes for our 0.16.0 release at:
+
+http://blog.chandlerproject.org/2008/07/01/chandler-server-cosmo-0160-released/
+
+Chandler Server 1.0.0 is available for download as a ready-to-run bundle at:
+
+http://chandlerproject.org/serverdownload
+
+and the source code is available from subversion at:
+
+http://svn.osafoundation.org/server/cosmo/tags/rel_1.0.0
+
+Send us feedback at the open mailing list (no subscription required):
+
+chandler-users@osafoundation.org
+
+We look forward to hearing from you!
+
+The bugs fixed in this release include:
+
+[Bug 12242] LATER items sorted above NOW items
+[Bug 12213] NPE in EntityConverter.setCalendarAttributes()
+[Bug 12214] NPE when writing html dir index
+[Bug 12225] unhandled ItemNotFoundException thrown by findItemByPath
+[Bug 12226] migration component doesn't build on java 1.6
+[Bug 12236] modification links included in occurrence atom entries
+[Bug 12113] website needs feedback mechanism
+[Bug 12194] unable to create free-busy ticket using account browser
+[Bug 12206] exdate is added after "all future items" change
+[Bug 12261] Change copy for Apple iCal subscribe button in Ticket View
+[Bug 12270] "Invite" link for subscriptions potentially confusing
