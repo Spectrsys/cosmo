@@ -122,15 +122,19 @@ public class TicketAuthenticationProvider
             item = contentDao.findItemByUid(ip.getUid());
             if (item != null)
                 return item;
+            else
+                log.debug("no item found for uid: " + ip.getUid());
         }
-
+        
         item = contentDao.findItemByPath(path);
         if (item == null)
             // if the item's parent exists, the ticket may be good for
             // that
             item = contentDao.findItemParentByPath(path);
-        if (item == null)
+        if (item == null) {
+            log.debug("no item found for path: " + path);
             throw new TicketedItemNotFoundException("Resource at " + path + " not found");
+        }
 
         return item;
     }
