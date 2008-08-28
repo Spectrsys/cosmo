@@ -40,6 +40,13 @@ public interface CaldavConstants {
         "urn:ietf:params:xml:ns:caldav";
     public static final Namespace NAMESPACE_CALDAV =
         Namespace.getNamespace(PRE_CALDAV, NS_CALDAV);
+    
+    /** The Calendar Server XML namespace */
+    public static final String PRE_CS = "CS";
+    public static final String NS_CS =
+        "http://calendarserver.org/ns/";
+    public static final Namespace NAMESPACE_CS =
+        Namespace.getNamespace(PRE_CS, NS_CS);
 
     /** The CalDAV XML element name <CALDAV:mkcalendar> */
     public static final String ELEMENT_CALDAV_MKCALENDAR = "mkcalendar";
@@ -144,6 +151,9 @@ public interface CaldavConstants {
     /** The CalDAV property name CALDAV:max-resource-size */
     public static final String PROPERTY_CALDAV_MAX_RESOURCE_SIZE =
         "max-resource-size";
+    
+    /** The Calendar Server property name CS:getctag */
+    public static final String PROPERTY_CS_GET_CTAG = "getctag";
 
     /** The CalDAV property CALDAV:calendar-data */
     public static final DavPropertyName CALENDARDATA =
@@ -180,4 +190,9 @@ public interface CaldavConstants {
 
     public static final QName RESOURCE_TYPE_CALENDAR =
         new QName(NS_CALDAV, ELEMENT_CALDAV_CALENDAR, PRE_CALDAV);
+    
+    /** The Calendar Server property CS:getctag */
+    public static final DavPropertyName GET_CTAG =
+        DavPropertyName.create(PROPERTY_CS_GET_CTAG,
+                               NAMESPACE_CS);
 }

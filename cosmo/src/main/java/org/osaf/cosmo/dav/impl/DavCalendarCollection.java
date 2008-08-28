@@ -50,6 +50,7 @@ import org.osaf.cosmo.dav.caldav.TimeZoneExtractor;
 import org.osaf.cosmo.dav.caldav.UidConflictException;
 import org.osaf.cosmo.dav.caldav.property.CalendarDescription;
 import org.osaf.cosmo.dav.caldav.property.CalendarTimezone;
+import org.osaf.cosmo.dav.caldav.property.GetCTag;
 import org.osaf.cosmo.dav.caldav.property.MaxResourceSize;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarData;
@@ -64,6 +65,7 @@ import org.osaf.cosmo.model.DataSizeException;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.IcalUidInUseException;
+import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.StampUtils;
@@ -81,6 +83,7 @@ import org.osaf.cosmo.model.StampUtils;
  * (protected)</li>
  * <li><code>CALDAV:supported-calendar-data</code> (protected)</li>
  * <li><code>CALDAV:max-resource-size</code> (protected)</li>
+ * <li><code>CS:getctag</code> (protected)</li>
  * </ul>
  *
  * @see DavCollection
@@ -99,6 +102,7 @@ public class DavCalendarCollection extends DavCollectionBase
         registerLiveProperty(SUPPORTEDCALENDARCOMPONENTSET);
         registerLiveProperty(SUPPORTEDCALENDARDATA);
         registerLiveProperty(MAXRESOURCESIZE);
+        registerLiveProperty(GET_CTAG);
         
         DEAD_PROPERTY_FILTER.add(CalendarCollectionStamp.class.getName());
     }
@@ -240,6 +244,12 @@ public class DavCalendarCollection extends DavCollectionBase
         if (cc.getTimezoneCalendar() != null)
             properties.add(new CalendarTimezone(cc.getTimezoneCalendar().toString()));
 
+        // add CS:getctag property, which is the collection's entitytag
+        // if it exists
+        Item item = getItem();
+        if(item!=null && item.getEntityTag()!=null)
+            properties.add(new GetCTag(item.getEntityTag()));
+        
         properties.add(new SupportedCalendarComponentSet());
         properties.add(new SupportedCollationSet());
         properties.add(new SupportedCalendarData());
@@ -261,7 +271,8 @@ public class DavCalendarCollection extends DavCollectionBase
 
         if (name.equals(SUPPORTEDCALENDARCOMPONENTSET) ||
             name.equals(SUPPORTEDCALENDARDATA) ||
-            name.equals(MAXRESOURCESIZE))
+            name.equals(MAXRESOURCESIZE) ||
+            name.equals(GET_CTAG))
             throw new ProtectedPropertyModificationException(name);
 
         if (name.equals(CALENDARDESCRIPTION)) {
@@ -285,7 +296,8 @@ public class DavCalendarCollection extends DavCollectionBase
 
         if (name.equals(SUPPORTEDCALENDARCOMPONENTSET) ||
             name.equals(SUPPORTEDCALENDARDATA) ||
-            name.equals(MAXRESOURCESIZE))
+            name.equals(MAXRESOURCESIZE) ||
+            name.equals(GET_CTAG))
             throw new ProtectedPropertyModificationException(name);
 
         if (name.equals(CALENDARDESCRIPTION)) {
@@ -314,7 +326,6 @@ public class DavCalendarCollection extends DavCollectionBase
         if (! (member instanceof DavCalendarResource))
             throw new IllegalArgumentException("member not DavCalendarResource");
 
-        ContentItem content = null;
         if (member instanceof DavEvent) {
             saveEvent(member);
         } else {
