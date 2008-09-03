@@ -18,10 +18,10 @@
 <%@ include   file="/WEB-INF/jsp/taglibs.jsp"            %>
 <%@ include file="/WEB-INF/jsp/tagfiles.jsp" %>
 
-<%@ attribute name="prefix" 		%>
-<%@ attribute name="selfLink"        %>
-<%@ attribute name="stylesheets"     %>
-<%@ attribute name="dojoLayers"     %>
+<%@ attribute name="prefix"       %>
+<%@ attribute name="selfLink"     %>
+<%@ attribute name="stylesheets"  %>
+<%@ attribute name="dojoLayers"   %>
 
 <cosmo:staticbaseurl var="staticBaseUrl"/>
 

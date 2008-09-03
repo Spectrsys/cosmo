@@ -1,0 +1,60 @@
+/*
+ * Copyright 2008 Open Source Applications Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
+/* Styles for the forms using three_column layout
+ *
+ */
+.threeColumnForm {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+    max-width: 460px;
+    padding-top: 10px;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.threeColumnForm p {
+    padding: 5px;
+}
+
+.threeColumnForm p.infoText{
+    line-height: 1.1em;
+    margin-bottom: 10px;
+}
+
+.threeColumnForm .infoText, .threeColumnForm .loginText {
+    font-size: 16px;
+}
+
+.threeColumnForm p.detailText{
+    line-height: 1.2em;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+
+.threeColumnForm .epilogue{
+    font-weight: normal;
+    font-size: 12px;
+}
+
+.padTopLots {
+    padding-top: 190px;
+}
+
+.threeColumnForm #sendButtonContainer {
+    padding-top: 8px;
+}

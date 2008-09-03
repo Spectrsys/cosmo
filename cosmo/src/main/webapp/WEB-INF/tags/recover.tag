@@ -24,23 +24,20 @@
 <%@ attribute name="recoverFunctionName" 		%>
 
 <fmt:setBundle basename="MessageResources"/>
-<cosmo:standardLayout prefix="${prefix}" showNav="false">
-<cosmo:staticbaseurl var="staticBaseUrl"/>
-<style type="text/css">
-#recoverer{
-	margin-left: auto;
-	margin-right: auto;
-	text-align: center;
-}
-</style>
+
+<cosmo:threeColumnLayout prefix="${prefix}" stylesheets="three_column_forms">
 
 <script type="text/javascript">
 dojo.require("cosmo.ui.widget.Recoverer");
 </script>
 
-<div dojoType="cosmo.ui.widget.Recoverer" id="recoverer" displayDefaultInfo="true" i18nPrefix="${prefix}"
-     recoverFunctionModule="${recoverFunctionModule}" recoverFunctionName="${recoverFunctionName}">
-
+<div id="center" class="column">
+  <div dojoType="cosmo.ui.widget.Recoverer" id="recoverer" class="threeColumnForm"
+       displayDefaultInfo="true" i18nPrefix="${prefix}"
+       recoverFunctionModule="${recoverFunctionModule}" recoverFunctionName="${recoverFunctionName}">
+  </div>
+  <div class="padTopLots">
+    <cosmo:aboutPopupLink/>
+  </div>
 </div>
-
-</cosmo:standardLayout>
+</cosmo:threeColumnLayout>

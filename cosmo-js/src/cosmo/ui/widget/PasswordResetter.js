@@ -50,6 +50,8 @@ dojo.declare("cosmo.ui.widget.PasswordResetter",
         //attach points
         errorBox: null,
         infoBox: null,
+        detailBox: null,
+        tableContainer: null,
         passwordLabel: null,
         passwordInput: null,
         confirmLabel: null,
@@ -62,8 +64,9 @@ dojo.declare("cosmo.ui.widget.PasswordResetter",
             this.errorBox.innerHTML = message;
         },
 
-        setInfo: function(message){
+        setInfo: function(message, detail){
             this.infoBox.innerHTML = message;
+            this.detailBox.innerHTML = detail;
         },
 
         resetPassword: function(){
@@ -71,8 +74,9 @@ dojo.declare("cosmo.ui.widget.PasswordResetter",
             if (this.validate()){
                 var d = cosmo.cmp.resetPassword(this.recoveryKey, this.passwordInput.value);
                 d.addCallback(dojo.hitch(this, function(data){
-                    this.setInfo(dojo.string.substitute(this.l10n.success,
-                                   [cosmo.env.getLoginRedirect()]));
+                    this.setInfo(this.l10n.success, dojo.string.substitute(
+                                 this.l10n.successDetail, [cosmo.env.getLoginRedirect()]));
+                    this.tableContainer.style.display="none";
                 }));
                 d.addErrback(dojo.hitch(this, function(error){
                     if (d.ioArgs.xhr.status == "404"){

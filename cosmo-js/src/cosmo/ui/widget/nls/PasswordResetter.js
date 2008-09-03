@@ -14,15 +14,17 @@
  * limitations under the License.
 */
 ({
-     initialInfo: "Almost done.<br/><br/>Please enter and confirm your new password and click 'Set Password.'<br/><br/>",
+     initialInfo: "Almost done!",
+     detailInfo: "Please enter and confirm your new password<br/>NOTE: Your password must be between 5 and 16 characters.",
      submit: "Set Password",
      passwordLabel: "Password:",
-     confirmLabel: "Confirm:",
+     confirmLabel: "Confirm password:",
      passwordPrompt: "Type your new password.",
      confirmPrompt: "Type your new password again.",
      invalidPassword: "Password must be between 5 and 16 characters.",
      invalidConfirm: "Password must be between 5 and 16 characters.",
-     success: "Thank you. Your password has been changed.<br/><br/>You can now <a href='${0}'>log in</a>.",
+     success: "Thanks!",
+     successDetail: "Your password has been changed.<br/><a class=\"infoText\" href='${0}'>Log in</a>.",
      error404: "Sorry, we could not find a password recovery key matching ${0}. Please try again.",
      errorPasswordMatch: "Passwords do not match."
 })

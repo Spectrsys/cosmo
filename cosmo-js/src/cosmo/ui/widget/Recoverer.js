@@ -50,6 +50,7 @@ dojo.declare("cosmo.ui.widget.Recoverer", [dijit._Widget, dijit._Templated],
 
         errorBox: null,
         infoBox: null,
+        detailsBox: null,
         usernameLabel: null,
         usernameInput: null,
         emailLabel: null,
@@ -67,8 +68,10 @@ dojo.declare("cosmo.ui.widget.Recoverer", [dijit._Widget, dijit._Templated],
             this.errorBox.innerHTML = message;
         },
 
-        setInfo: function(message){
+        setInfo: function(message, details){
             this.infoBox.innerHTML = message;
+            if (!details) details = "";
+            this.detailsBox.innerHTML = details;
         },
 
         recover: function(){
@@ -76,7 +79,8 @@ dojo.declare("cosmo.ui.widget.Recoverer", [dijit._Widget, dijit._Templated],
             this.setError("");
             var d = this.recoverFunction(this.usernameInput.value, this.emailInput.value);
             d.addCallback(function(data){
-                    self.setInfo(_(self.i18nPrefix + "Success"));
+                self.setInfo(_(self.i18nPrefix + "Success"),
+                             _(self.i18nPrefix + "SuccessDetail"));
                     self.tableContainer.style.visibility = "hidden";
             });
             d.addErrback(function(error){
@@ -90,7 +94,8 @@ dojo.declare("cosmo.ui.widget.Recoverer", [dijit._Widget, dijit._Templated],
 
         postCreate: function(){
             if (this.displayDefaultInfo){
-                this.setInfo(_(this.i18nPrefix + "InitialInfo"));
+                this.setInfo(_(this.i18nPrefix + "InitialInfo"),
+                             _(this.i18nPrefix + "Details"));
             }
 
             this.usernameLabel.innerHTML = _(this.i18nPrefix + "Username");
