@@ -3,6 +3,7 @@
 
 #detailView{
     overflow-x: hidden;
+    overflow-y: auto;
 }
 .cosmoDetailView {
     position: absolute;
