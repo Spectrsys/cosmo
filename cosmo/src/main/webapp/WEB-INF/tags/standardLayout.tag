@@ -102,7 +102,7 @@
             <!-- end admin console navbar -->
         </security:authorize>
               |
-              <a href="<fmt:message key="Main.CollectionDetails.HelpLink" bundle="${uiBundle}"/>"><fmt:message key="Layout.Nav.Main.Help"/></a>
+              <a href="<fmt:message key="Help.AccountBrowserUrl" bundle="${uiBundle}"/>"><fmt:message key="Layout.Nav.Main.Help"/></a>
               |
               <a href="<c:url value="/logout"/>">
                 <fmt:message key="Layout.Nav.Main.LogOut"/>
