@@ -1,20 +1,20 @@
 <p>
-The Chandler Project is pleased to announce the 1.0.0 release of Chandler Server (Cosmo)!
+The Chandler Project is pleased to announce the 1.1.0 release of Chandler Server (Cosmo)!
 </p>
 <p>
 Chandler Server is a server and Ajax web UI for managing and sharing calendars, events, and tasks. It implements open data standards including CalDAV, WebDAV, Atom, and Atompub.
 </p>
 <p>
-This release contains bugfixes, stability improvements and general polish. For a more complete list of recently introduced features please see the release notes for our <a href="http://blog.chandlerproject.org/2008/07/01/chandler-server-cosmo-0160-released/">0.16.0 release</a>.
+This release contains two significant features and four bug fixes.  Any user can now delete their own account and data by using the settings dialog.  Interoperability with some CalDAV implementations including iCal 3 should be improved by support for the CTAG draft standard.
 </p>
 <p>
-Chandler Server 1.0.0 is available for download as a ready-to-run bundle at:
+Chandler Server 1.1.0 is available for download as a ready-to-run bundle at:
 </p>
 <a href="http://chandlerproject.org/serverdownload">http://chandlerproject.org/serverdownload</a>
 <p>
 and the source code is available from subversion at:
 </p>
-<a href="http://svn.osafoundation.org/server/cosmo/tags/rel_1.0.0">http://svn.osafoundation.org/server/cosmo/tags/rel_1.0.0</a>
+<a href="http://svn.osafoundation.org/server/cosmo/tags/rel_1.1.0">http://svn.osafoundation.org/server/cosmo/tags/rel_1.1.0</a>
 <p>
 Send us feedback at the open mailing list (no subscription required):
 </p>
@@ -22,17 +22,12 @@ Send us feedback at the open mailing list (no subscription required):
 </p>
 We look forward to hearing from you!
 <p>
-The bugs fixed in this release include:
+The issues fixed in this release include:
 </p>
-<ul>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12242">[Bug 12242]</a> LATER items sorted above NOW items</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12213">[Bug 12213]</a> NPE in EntityConverter.setCalendarAttributes()</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12214">[Bug 12214]</a> NPE when writing html dir index</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12225">[Bug 12225]</a> unhandled ItemNotFoundException thrown by findItemByPath</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12226">[Bug 12226]</a> migration component doesn't build on java 1.6</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12236">[Bug 12236]</a> modification links included in occurrence atom entries</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12113">[Bug 12113]</a> website needs feedback mechanism</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12194">[Bug 12194]</a> unable to create free-busy ticket using account browser</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12206">[Bug 12206]</a> exdate is added after "all future items" change</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12261">[Bug 12261]</a> Change copy for Apple iCal subscribe button in Ticket View</li>
-<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12270">[Bug 12270]</a> "Invite" link for subscriptions potentially confusing</li></ul>
+<ul xmlns:atom="http://www.w3.org/2005/Atom">
+<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12283">[Bug 12283]</a> Users should be able to delete their own Hub accounts</li>
+<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12279">[Bug 12279]</a> Add support for CTag, Apple's extension of ETag to a Calendar Collection</li>
+<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=11851">[Bug 11851]</a> Sort triage status by TriageStatusChangedDate</li>
+<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12334">[Bug 12334]</a> Fix recovery pages</li>
+<li><a href="https://bugzilla.osafoundation.org/show_bug.cgi?id=12349">[Bug 12349]</a> In IE7, in DV, long notes obscure DV header section</li>
+</ul>
