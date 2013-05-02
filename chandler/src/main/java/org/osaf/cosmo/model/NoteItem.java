@@ -27,7 +27,7 @@ import org.osaf.cosmo.hibernate.validator.Task;
  * Extends {@link ICalendarItem} to represent a Note item.
  * A note is the basis for a pim item.
  */
-public interface NoteItem extends ICalendarItem{
+public interface NoteItem extends ICalendarItem {
 
     // Property accessors
     public String getBody();

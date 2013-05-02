@@ -20,7 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * Utility methods for WSSE token processing
@@ -56,8 +56,7 @@ public class WsseUtils {
             throw new RuntimeException("Platform does not support UTF-8?", e);
         }
         
-        BASE64Encoder b64Encoder = new BASE64Encoder();
-        return b64Encoder.encode(sha1Hash);
+        return new String(Base64.encodeBase64(sha1Hash));
     }
     
     /**

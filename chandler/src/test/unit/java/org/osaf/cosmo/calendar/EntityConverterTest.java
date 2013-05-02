@@ -572,26 +572,18 @@ public class EntityConverterTest extends TestCase {
         return null;
     }
     
-    private ICalendarItem findModByRecurrenceId(Set<ICalendarItem> items, String rid) {
-        for(ICalendarItem item: items)
-            if(item instanceof NoteItem) {
+    private NoteItem findModByRecurrenceId(Set<? extends ICalendarItem> items, String rid) {
+        for (ICalendarItem item : items) {
+            if (item != null && item instanceof NoteItem) {
                 NoteItem note = (NoteItem) item;
-                if(note.getModifies()!=null && note.getUid().contains(rid))
+                if (note.getModifies() != null && note.getUid().contains(rid)) {
                     return note;
+                }
             }
-        
+        }
         return null;
     }
-    
-    private NoteItem findModByRecurrenceId(Set<NoteItem> items, String rid) {
-        for(NoteItem note: items)
-            if(note.getModifies()!=null && note.getUid().contains(rid))
-                return note;
-            
-        
-        return null;
-    }
-    
+
     protected Calendar getCalendar(String name) throws Exception {
         CalendarBuilder cb = new CalendarBuilder();
         FileInputStream fis = new FileInputStream(baseDir + name);
