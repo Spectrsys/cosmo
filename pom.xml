@@ -114,9 +114,12 @@
         <url>http://svn.osafoundation.org/server/cosmo/</url>
     </scm>
     <modules>
-        <module>cosmo</module>
+        <module>client-js</module>
+        <module>chandler</module>
+        <module>resources</module>
+        <module>assembly</module>
         <module>migration</module>
-        <module>snarf</module>
+        <module>bundle</module>
     </modules>
     <repositories>
         <repository>
@@ -162,7 +165,6 @@
               <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
-        -->
         <repository>
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net Repository for Maven</name>
@@ -175,6 +177,7 @@
             <url>http://repository.jboss.org/maven2/</url>
             <layout>default</layout>
         </repository>
+        -->
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -313,6 +316,12 @@
                         <excludes>
                             <exclude>**/*TestCase.java</exclude>
                         </excludes>
+                        <systemProperties>
+                            <property>
+                                <name>derby.stream.error.file</name>
+                                <value>target/derby.log</value>
+                            </property>
+                        </systemProperties>
                     </configuration>
                 </plugin>
             </plugins>

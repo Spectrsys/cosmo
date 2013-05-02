@@ -65,54 +65,38 @@
             <artifactId>postgresql</artifactId>
             <version>8.2-507.jdbc3</version>
         </dependency>
+        <dependency>
+            <groupId>org.osaf.cosmo</groupId>
+            <artifactId>chandler</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
     </dependencies>
     <build>
-<!--        <pluginManagement> -->
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.1</version>
-                    <configuration>
-                        <descriptors>
-                            <descriptor>src/main/assembly/snarf.xml</descriptor>
-                        </descriptors>
-<!--                    <filters>
-                            <filter>${basedir}/config/snarf.properties</filter>
-                        </filters> -->
-                        <finalName>osaf-server-bundle-${pom.version}</finalName>
-                        <outputDirectory>dist</outputDirectory>
-                        <workDirectory>${basedir}/target/assembly/work</workDirectory>
-                        <appendAssemblyId>False</appendAssemblyId>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>make-assembly</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>attached</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-<!--
-                <plugin>
-                    <groupId>org.codehaus.cargo.maven2</groupId>
-                    <artifactId>cargo-maven2-plugin</artifactId>
-                    <configuration>
-                        <container>
-                            <containerId>tomcat5x</containerId>
-                        </container>
-                        <configuration>
-                            <properties>
-                                <cargo.servlet.port>8080</cargo.servlet.port>
-                            </properties>
-                        </configuration>
-                    </configuration>
-                </plugin>
- -->
-            </plugins>
-<!--        </pluginManagement> -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/snarf.xml</descriptor>
+                    </descriptors>
+                    <finalName>osaf-server-bundle-${pom.version}</finalName>
+                    <workDirectory>${basedir}/target/assembly/work</workDirectory>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>
 

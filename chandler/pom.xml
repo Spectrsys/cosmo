@@ -21,9 +21,9 @@
         <version>1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>cosmo</artifactId>
+    <artifactId>chandler</artifactId>
     <packaging>war</packaging>
-    <name>Cosmo</name>
+    <name>Cosmo :: Chandler Web Application</name>
     <dependencies>
         <dependency>
             <groupId>net.sf.json-lib</groupId>
@@ -475,44 +475,6 @@
         </testResources>
         <plugins>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-clean-plugin</artifactId>
-              <version>2.1.1</version>
-              <!-- This configuration is added to cleanup from war:inplace -->
-              <configuration>
-                <filesets>
-                  <fileset>
-                    <directory>${basedir}/</directory>
-                    <includes>
-                      <include>derby.log</include>
-                    </includes>
-                  </fileset>
-                  <fileset>
-                    <directory>${basedir}/src/main/webapp</directory>
-                    <includes>
-                      <!-- TODO: META-INF shouldn't be required, seems to be an issue with the current war plugin -->
-                      <include>META-INF</include>
-                      <include>WEB-INF/classes</include>
-                      <include>js/*</include>
-                      <!-- Classes and Resources from other wars -->
-                      <include>WEB-INF/lib</include>
-                      <!-- Dependencies from other wars -->
-                      <include>WEB-INF/database</include>
-                      <!-- Database location configured in application.xml -->
-                      <include>WEB-INF/logs</include>
-                      <!-- Log file location specified in application.xml -->
-                      <include>pss</include>
-                      <!-- plexus-security css and javascript -->
-                      <include>WEB-INF/jsp/pss</include>
-                      <!-- plexus-security jsps -->
-                      <include>WEB-INF/template/pss</include>
-                      <!-- plexus-security xwork templates -->
-                    </includes>
-                  </fileset>
-                </filesets>
-              </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.0.2</version>
@@ -548,17 +510,10 @@
                                 <include>urlrewrite.xml</include>
                             </includes>
                         </resource>
-                        <resource>
-                            <directory>${basedir}/build</directory>
-                            <targetPath>META-INF</targetPath>
-                            <filtering>false</filtering>
-                            <includes>
-                                <include>context.xml</include>
-                            </includes>
-                        </resource>
                     </webResources>
                 </configuration>
             </plugin>
+<!--
             <plugin>
                 <artifactId>maven-clover-plugin</artifactId>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -571,34 +526,18 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.1</version>
-                <configuration>
-                    <descriptors>
-                        <descriptor>build/assembly.xml</descriptor>
-                    </descriptors>
-                    <finalName>chandler-webapp-${pom.version}</finalName>
-                    <outputDirectory>dist</outputDirectory>
-                    <workDirectory>${basedir}/target/assembly/work</workDirectory>
-                    <appendAssemblyId>False</appendAssemblyId>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attached</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+-->
         </plugins>
     </build>
+
+<!-- 
     <profiles>
         <profile>
             <id>release</id>
+
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <activation>
                 <property>
                     <name>release</name>
@@ -620,8 +559,8 @@
                                <artifactItems>
                                  <artifactItem>
                                     <groupId>org.osaf.cosmo</groupId>
-                                    <artifactId>cosmo-js</artifactId>
-                                    <version>1.1-SNAPSHOT</version>
+                                    <artifactId>client-js</artifactId>
+                                    <version>${project.version}</version>
                                     <overWrite>false</overWrite>
                                     <type>jar</type>
                                   </artifactItem>
@@ -640,6 +579,7 @@
                 </plugins>
             </build>
         </profile>
+
         <profile>
             <id>war-inplace</id>
             <activation>
@@ -677,34 +617,6 @@
                            </configuration>
                          </execution>
                        </executions>
-                     </plugin>
-                     <plugin>
-                         <artifactId>maven-clover-plugin</artifactId>
-                         <groupId>org.apache.maven.plugins</groupId>
-                         <configuration>
-                             <jdk>1.5</jdk>
-                             <excludes>
-                                 <exclude>**/*Test/java</exclude>
-                             </excludes>
-                             <targetPercentage>45%</targetPercentage>
-                         </configuration>
-                         <executions>
-                             <execution>
-                                 <phase>verify</phase>
-                                 <goals>
-                                     <goal>instrument</goal>
-                                     <goal>check</goal>
-                                 </goals>
-                             </execution>
-                             <execution>
-                                 <id>site</id>
-                                 <phase>pre-site</phase>
-                                 <goals>
-                                     <goal>instrument</goal>
-                                     <goal>aggregate</goal>
-                                 </goals>
-                             </execution>
-                         </executions>
                      </plugin>
                 </plugins>
             </build>
@@ -767,6 +679,9 @@
             </build>
         </profile>
     </profiles>
+
+ -->
+
 </project>
 
 

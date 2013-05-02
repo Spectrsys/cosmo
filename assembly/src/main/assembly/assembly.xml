@@ -1,5 +1,7 @@
-<assembly>
-  <id></id>
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+
   <formats>
     <format>tar.gz</format>
   </formats>
@@ -53,19 +55,30 @@
     </fileSet>
   </fileSets>
   <files>
+  <!-- 
     <file>
       <source>target/cosmo-${pom.version}.war</source>
-      <outputDirectory></outputDirectory>
       <destName>chandler-${pom.version}.war</destName>
       <fileMode>420</fileMode>
     </file>
-    <file>
-      <source>../snarf/src/main/config/cosmo.properties</source>
-      <outputDirectory>etc</outputDirectory>
-      <fileMode>420</fileMode>
-    </file>
+   -->
   </files>
   <dependencySets>
+    <dependencySet>
+      <includes>
+        <include>org.osaf.cosmo:resources</include>
+      </includes>
+      <outputDirectory>/</outputDirectory>
+      <unpack>true</unpack>
+      <fileMode>420</fileMode>
+    </dependencySet>
+    <dependencySet>
+      <includes>
+        <include>org.osaf.cosmo:chandler:war</include>
+      </includes>
+      <outputFileNameMapping>${aftifact.artifactId}-${artifact.version}.war</outputFileNameMapping>
+      <fileMode>420</fileMode>
+    </dependencySet>
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
       <includes>
