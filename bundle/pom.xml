@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>osaf-server-bundle</artifactId>
-    <name>OSAF Server Bundle</name>
+    <name>Cosmo :: Server Bundle</name>
     <dependencies>
         <dependency>
           <groupId>org.osaf</groupId>
@@ -85,7 +85,7 @@
                     <descriptors>
                         <descriptor>src/main/assembly/snarf.xml</descriptor>
                     </descriptors>
-                    <finalName>osaf-server-bundle-${pom.version}</finalName>
+                    <finalName>osaf-server-bundle-${project.version}</finalName>
                     <workDirectory>${basedir}/target/assembly/work</workDirectory>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>

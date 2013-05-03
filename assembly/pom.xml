@@ -52,7 +52,7 @@
                     <descriptors>
                         <descriptor>src/main/assembly/assembly.xml</descriptor>
                     </descriptors>
-                    <finalName>chandler-webapp-${pom.version}</finalName>
+                    <finalName>chandler-webapp-${project.version}</finalName>
                     <workDirectory>${basedir}/target/assembly/work</workDirectory>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
