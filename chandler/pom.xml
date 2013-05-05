@@ -29,6 +29,16 @@
     <name>Cosmo :: Chandler Web Application</name>
     <dependencies>
         <dependency>
+            <groupId>org.osaf.cosmo</groupId>
+            <artifactId>cosmo-js</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osaf.cosmo</groupId>
+            <artifactId>olson-tzdata</artifactId>
+            <version>2007h</version>
+        </dependency>
+        <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
             <version>2.1-osaf20071017</version>
@@ -480,7 +490,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.0.2</version>
+                <version>2.2</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -514,6 +524,20 @@
                             </includes>
                         </resource>
                     </webResources>
+                    <overlays>
+                        <overlay>
+                            <groupId>org.osaf.cosmo</groupId>
+                            <artifactId>cosmo-js</artifactId>
+                            <type>jar</type>
+                            <targetPath>js/</targetPath>
+                        </overlay>
+                        <overlay>
+                            <groupId>org.osaf.cosmo</groupId>
+                            <artifactId>olson-tzdata</artifactId>
+                            <type>jar</type>
+                            <targetPath>js/</targetPath>
+                        </overlay>
+                    </overlays>
                 </configuration>
             </plugin>
             <plugin>
