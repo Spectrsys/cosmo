@@ -126,6 +126,7 @@
     </properties>
 
     <modules>
+        <module>olson</module>
         <module>client-js</module>
         <module>chandler</module>
         <module>resources</module>
