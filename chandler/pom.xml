@@ -498,7 +498,7 @@
                         </manifest>
                     </archive>
                     <filters>
-                        <filter>../config/cosmo.properties</filter>
+                        <filter>${basedir}/../config/cosmo.properties</filter>
                     </filters>
                     <webResources>
                         <resource>
