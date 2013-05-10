@@ -251,7 +251,7 @@
 
             <dependency>
                 <groupId>org.osaf.cosmo</groupId>
-                <artifactId>api</artifactId>
+                <artifactId>cosmo-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
