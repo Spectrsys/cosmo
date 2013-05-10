@@ -26,7 +26,7 @@ import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.AvailabilityItem;
 import org.osaf.cosmo.model.EntityFactory;
 

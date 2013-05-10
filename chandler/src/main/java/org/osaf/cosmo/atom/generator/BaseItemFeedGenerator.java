@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.eim.eimml.EimmlConstants;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.AuditableComparator;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Item;

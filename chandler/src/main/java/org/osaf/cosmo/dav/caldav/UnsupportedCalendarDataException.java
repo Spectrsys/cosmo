@@ -19,7 +19,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.osaf.cosmo.dav.ForbiddenException;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 
 /**
  * An exception indicating that the data enclosed in a calendar resource

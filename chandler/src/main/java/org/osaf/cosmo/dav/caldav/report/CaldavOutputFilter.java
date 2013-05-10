@@ -29,7 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.calendar.data.OutputFilter;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;

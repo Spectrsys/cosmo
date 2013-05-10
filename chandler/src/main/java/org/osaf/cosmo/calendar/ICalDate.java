@@ -30,7 +30,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.eim.schema.EimConversionException;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 
 /**
  * Represents an iCalendar date or datetime property value, or a list

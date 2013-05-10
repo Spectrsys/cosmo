@@ -24,7 +24,7 @@ import net.fortuna.ical4j.model.Component;
 import org.apache.commons.lang.StringUtils;
 
 import org.osaf.cosmo.dav.PreconditionFailedException;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 
 /**
  * An exception indicating that a calendar resource did not contain any

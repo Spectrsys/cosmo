@@ -38,7 +38,7 @@ import org.osaf.cosmo.dav.impl.DavFreeBusy;
 import org.osaf.cosmo.dav.impl.DavJournal;
 import org.osaf.cosmo.dav.impl.DavTask;
 import org.osaf.cosmo.dav.io.DavInputContext;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.EntityFactory;
 
 /**

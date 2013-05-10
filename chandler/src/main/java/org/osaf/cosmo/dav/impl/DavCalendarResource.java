@@ -46,7 +46,7 @@ import org.osaf.cosmo.dav.io.DavInputContext;
 import org.osaf.cosmo.dav.property.ContentLength;
 import org.osaf.cosmo.dav.property.ContentType;
 import org.osaf.cosmo.dav.property.DavProperty;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.ICalendarItem;

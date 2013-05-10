@@ -24,7 +24,7 @@ import org.apache.jackrabbit.webdav.xml.Namespace;
 
 import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.eim.eimml.EimmlConstants;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.server.ServerConstants;
 import org.osaf.cosmo.server.ServiceLocator;

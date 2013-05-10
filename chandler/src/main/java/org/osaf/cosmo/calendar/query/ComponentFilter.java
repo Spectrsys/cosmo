@@ -33,7 +33,7 @@ import org.apache.jackrabbit.webdav.xml.ElementIterator;
 
 import org.osaf.cosmo.calendar.util.CalendarUtils;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
+import org.osaf.cosmo.api.ICalendarConstants;
 
 import org.w3c.dom.Element;
 
