@@ -26,7 +26,7 @@
         <version>1.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>persistence</artifactId>
+    <artifactId>cosmo-persistence</artifactId>
     <name>Cosmo :: Persistence</name>
     <packaging>pom</packaging>
 

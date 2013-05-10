@@ -22,12 +22,12 @@
 
     <parent>
         <groupId>org.osaf.cosmo</groupId>
-        <artifactId>model</artifactId>
+        <artifactId>cosmo-model</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.osaf.cosmo.model</groupId>
-    <artifactId>validator</artifactId>
+    <artifactId>cosmo-model-validator</artifactId>
     <name>Cosmo :: Model :: Validator</name>
 
     <dependencies>
@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>org.osaf.cosmo</groupId>
-            <artifactId>utils</artifactId>
+            <artifactId>cosmo-utils</artifactId>
         </dependency>
     </dependencies>
 

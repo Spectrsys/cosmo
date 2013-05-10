@@ -256,22 +256,22 @@
             </dependency>
             <dependency>
                 <groupId>org.osaf.cosmo</groupId>
-                <artifactId>utils</artifactId>
+                <artifactId>cosmo-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.osaf.cosmo.model</groupId>
-                <artifactId>api</artifactId>
+                <artifactId>cosmo-model-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.osaf.cosmo.model</groupId>
-                <artifactId>validator</artifactId>
+                <artifactId>cosmo-model-validator</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.osaf.cosmo.model</groupId>
-                <artifactId>hibernate</artifactId>
+                <artifactId>cosmo-model-hibernate</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

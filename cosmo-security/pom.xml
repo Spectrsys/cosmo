@@ -26,13 +26,13 @@
         <version>1.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>security</artifactId>
+    <artifactId>cosmo-security</artifactId>
     <name>Cosmo :: Security</name>
 
     <dependencies>
         <dependency>
             <groupId>org.osaf.cosmo.model</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>cosmo-model-api</artifactId>
         </dependency>
     </dependencies>
 
