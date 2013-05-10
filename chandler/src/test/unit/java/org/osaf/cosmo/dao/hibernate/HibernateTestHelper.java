@@ -28,7 +28,7 @@ import junit.framework.Assert;
 import net.fortuna.ical4j.model.Calendar;
 
 import org.apache.commons.io.IOUtils;
-import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.Item;

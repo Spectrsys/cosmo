@@ -26,7 +26,7 @@ import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 
 import org.hibernate.annotations.Type;
-import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.ICalendarAttribute;
 import org.osaf.cosmo.model.Item;

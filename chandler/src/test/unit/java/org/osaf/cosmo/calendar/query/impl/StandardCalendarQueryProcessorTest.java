@@ -35,7 +35,7 @@ import net.fortuna.ical4j.model.property.FreeBusy;
 
 import org.osaf.cosmo.TestHelper;
 import org.osaf.cosmo.calendar.query.impl.StandardCalendarQueryProcessor;
-import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;

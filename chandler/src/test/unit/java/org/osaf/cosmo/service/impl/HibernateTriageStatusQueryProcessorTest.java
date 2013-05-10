@@ -20,7 +20,7 @@ import java.util.Set;
 import junit.framework.Assert;
 import net.fortuna.ical4j.model.DateTime;
 
-import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.dao.hibernate.AbstractHibernateDaoTestCase;
 import org.osaf.cosmo.dao.hibernate.ContentDaoImpl;

@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.dav.caldav.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.api.ICalendarConstants;

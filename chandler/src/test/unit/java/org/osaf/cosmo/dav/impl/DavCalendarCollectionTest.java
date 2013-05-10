@@ -21,7 +21,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.dav.BaseDavTestCase;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.ExtendedDavConstants;

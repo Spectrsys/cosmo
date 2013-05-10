@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 import net.fortuna.ical4j.model.DateTime;
 
 import org.osaf.cosmo.TestHelper;
-import org.osaf.cosmo.calendar.util.CalendarUtils;
+import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
