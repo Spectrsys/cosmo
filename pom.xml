@@ -131,6 +131,7 @@
         <module>cosmo-api</module>
         <module>cosmo-security</module>
         <module>cosmo-utils</module>
+        <!--module>cosmo-atom</module-->
         <module>olson</module>
         <!-- module>client-js</module -->
         <module>chandler</module>
@@ -272,6 +273,11 @@
             <dependency>
                 <groupId>org.osaf.cosmo.model</groupId>
                 <artifactId>hibernate</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osaf.cosmo</groupId>
+                <artifactId>security</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

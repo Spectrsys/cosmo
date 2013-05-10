@@ -87,33 +87,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.apache.abdera</groupId>
-            <artifactId>abdera-core</artifactId>
-            <version>0.4.0-incubating</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.abdera</groupId>
-            <artifactId>abdera-parser</artifactId>
-            <version>0.4.0-incubating</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.abdera</groupId>
-            <artifactId>abdera-server</artifactId>
-            <version>0.4.0-incubating</version>
-        </dependency>
-        <!-- runtime dependency of abdera -->
-        <dependency>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-api</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-        <!-- runtime dependency of abdera -->
-        <dependency>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-impl</artifactId>
-            <version>1.2.1</version>
-        </dependency>
+
+
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
@@ -152,11 +127,7 @@
             <version>1.1</version>
             <!-- scope>provided</scope -->
         </dependency>
-        <dependency>
-            <groupId>net.fortuna</groupId>
-            <artifactId>ical4j</artifactId>
-            <version>1.0-beta5-osaf-20080710</version>
-        </dependency>
+
         <!-- required by jcr-server -->
         <!-- XXX: should be 1.0 release version -->
         <dependency>
