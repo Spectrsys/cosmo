@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.osaf.cosmo.utils.CalendarUtils;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.w3c.dom.Document;
@@ -30,11 +30,10 @@ import org.w3c.dom.Element;
  * Represents the CalDAV supported-collation-set
  * property.
  */
-public class SupportedCollationSet extends StandardDavProperty
-    implements CaldavConstants, ICalendarConstants {
+public class SupportedCollationSet extends StandardDavProperty {
 
     public SupportedCollationSet() {
-        this(SUPPORTED_COLLATIONS);
+        this(ICalendarConstants.SUPPORTED_COLLATIONS);
     }
 
     public SupportedCollationSet(Set<String> collations) {
@@ -42,11 +41,10 @@ public class SupportedCollationSet extends StandardDavProperty
     }
 
     public SupportedCollationSet(String[] collations) {
-        super(SUPPORTEDCOLLATIONSET, collations(collations), true);
+        super(CaldavConstants.SUPPORTEDCOLLATIONSET, collations(collations), true);
         for (String collation :collations) {
             if (! CalendarUtils.isSupportedCollation(collation)) {
-                throw new IllegalArgumentException("Invalid collation '" +
-                                                   collation + "'.");
+                throw new IllegalArgumentException("Invalid collation '" + collation + "'.");
             }
         }
     }
@@ -68,7 +66,8 @@ public class SupportedCollationSet extends StandardDavProperty
 
         for (String collation : getCollations()) {
             Element e = DomUtil.createElement(document,
-                    ELEMENT_CALDAV_SUPPORTEDCOLLATION, NAMESPACE_CALDAV);
+        		CaldavConstants.ELEMENT_CALDAV_SUPPORTEDCOLLATION, 
+        		CaldavConstants.NAMESPACE_CALDAV);
             DomUtil.setText(e, collation);
             name.appendChild(e);
         }

@@ -21,7 +21,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.w3c.dom.Element;
 
 /**
@@ -54,7 +54,7 @@ import org.w3c.dom.Element;
  * name value: a property parameter name (e.g., "PARTSTAT")
  * 
  */
-public class ParamFilter implements DavConstants, CaldavConstants {
+public class ParamFilter {
 
     private IsNotDefinedFilter isNotDefinedFilter = null;
 
@@ -76,7 +76,7 @@ public class ParamFilter implements DavConstants, CaldavConstants {
      */
     public ParamFilter(Element element) throws ParseException {
         // Get name which must be present
-        name = DomUtil.getAttribute(element, ATTR_CALDAV_NAME, null);
+        name = DomUtil.getAttribute(element, CaldavConstants.ATTR_CALDAV_NAME, null);
 
         if (name == null) {
             throw new ParseException(
@@ -97,10 +97,10 @@ public class ParamFilter implements DavConstants, CaldavConstants {
                         -1);
             }
 
-            if (ELEMENT_CALDAV_TEXT_MATCH.equals(child.getLocalName())) {
+            if (CaldavConstants.ELEMENT_CALDAV_TEXT_MATCH.equals(child.getLocalName())) {
                 textMatchFilter = new TextMatchFilter(child);
 
-            } else if (ELEMENT_CALDAV_IS_NOT_DEFINED.equals(child.getLocalName())) {
+            } else if (CaldavConstants.ELEMENT_CALDAV_IS_NOT_DEFINED.equals(child.getLocalName())) {
 
                 isNotDefinedFilter = new IsNotDefinedFilter();
             } else

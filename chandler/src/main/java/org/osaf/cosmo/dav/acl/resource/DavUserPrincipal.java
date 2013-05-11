@@ -52,7 +52,7 @@ import org.osaf.cosmo.dav.acl.property.AlternateUriSet;
 import org.osaf.cosmo.dav.acl.property.GroupMembership;
 import org.osaf.cosmo.dav.acl.property.PrincipalUrl;
 import org.osaf.cosmo.dav.acl.report.PrincipalMatchReport;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.property.CalendarHomeSet;
 import org.osaf.cosmo.dav.caldav.property.CalendarUserAddressSet;
 import org.osaf.cosmo.dav.caldav.property.ScheduleInboxURL;
@@ -66,7 +66,7 @@ import org.osaf.cosmo.dav.property.IsCollection;
 import org.osaf.cosmo.dav.property.LastModified;
 import org.osaf.cosmo.dav.property.ResourceType;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.xml.DomWriter;
+import org.osaf.cosmo.api.xml.DomWriter;
 import org.w3c.dom.Element;
 
 /**
@@ -80,7 +80,7 @@ import org.w3c.dom.Element;
  * @see User
  */
 public class DavUserPrincipal extends DavResourceBase
-    implements AclConstants, CaldavConstants, DavContent {
+    implements AclConstants, DavContent {
     private static final Log log = LogFactory.getLog(DavUserPrincipal.class);    
     private static final Set<ReportType> REPORT_TYPES =
         new HashSet<ReportType>();
@@ -92,10 +92,10 @@ public class DavUserPrincipal extends DavResourceBase
         registerLiveProperty(DavPropertyName.ISCOLLECTION);
         registerLiveProperty(DavPropertyName.RESOURCETYPE);
         registerLiveProperty(DavPropertyName.GETETAG);
-        registerLiveProperty(CALENDARHOMESET);
-        registerLiveProperty(CALENDARUSERADDRESSSET);
-        registerLiveProperty(SCHEDULEINBOXURL);
-        registerLiveProperty(SCHEDULEOUTBOXURL);
+        registerLiveProperty(CaldavConstants.CALENDARHOMESET);
+        registerLiveProperty(CaldavConstants.CALENDARUSERADDRESSSET);
+        registerLiveProperty(CaldavConstants.SCHEDULEINBOXURL);
+        registerLiveProperty(CaldavConstants.SCHEDULEOUTBOXURL);
         registerLiveProperty(ALTERNATEURISET);
         registerLiveProperty(PRINCIPALURL);
         registerLiveProperty(GROUPMEMBERSHIP);
@@ -209,7 +209,7 @@ public class DavUserPrincipal extends DavResourceBase
 
     protected Set<QName> getResourceTypes() {
         HashSet<QName> rt = new HashSet<QName>(1);
-        rt.add(RESOURCE_TYPE_PRINCIPAL);
+        rt.add(CaldavConstants.RESOURCE_TYPE_PRINCIPAL);
         return rt;
     }
 

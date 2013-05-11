@@ -43,20 +43,21 @@ import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.acl.DavAce;
 import org.osaf.cosmo.dav.acl.DavAcl;
 import org.osaf.cosmo.dav.acl.DavPrivilege;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.DisplayName;
 import org.osaf.cosmo.dav.property.Etag;
 import org.osaf.cosmo.dav.property.IsCollection;
 import org.osaf.cosmo.dav.property.ResourceType;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.xml.DomWriter;
+import org.osaf.cosmo.api.xml.DomWriter;
 import org.w3c.dom.Element;
 
 /**
@@ -71,8 +72,7 @@ import org.w3c.dom.Element;
  * @see DavResourceBase
  * @see DavCollection
  */
-public class DavInboxCollection extends DavResourceBase
-    implements DavCollection, CaldavConstants {
+public class DavInboxCollection extends DavResourceBase implements DavCollection {
     private static final Log log =
         LogFactory.getLog(DavInboxCollection.class);
     private static final Set<ReportType> REPORT_TYPES =
@@ -192,8 +192,8 @@ public class DavInboxCollection extends DavResourceBase
 
     protected Set<QName> getResourceTypes() {
         HashSet<QName> rt = new HashSet<QName>(2);
-        rt.add(RESOURCE_TYPE_COLLECTION);
-        rt.add(RESOURCE_TYPE_SCHEDULE_INBOX);
+        rt.add(ExtendedDavConstants.RESOURCE_TYPE_COLLECTION);
+        rt.add(CaldavConstants.RESOURCE_TYPE_SCHEDULE_INBOX);
         return rt;
     }
 

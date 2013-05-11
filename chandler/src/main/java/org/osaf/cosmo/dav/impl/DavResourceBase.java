@@ -81,7 +81,7 @@ import org.osaf.cosmo.security.CosmoSecurityManager;
  * @see DavResource
  */
 public abstract class DavResourceBase
-    implements ExtendedDavConstants, AclConstants, DavResource {
+    implements AclConstants, DavResource {
     private static final Log log =
         LogFactory.getLog(DavResourceBase.class);
     private static final HashSet<DavPropertyName> LIVE_PROPERTIES =
@@ -90,7 +90,7 @@ public abstract class DavResourceBase
         new HashSet<ReportType>(0);
 
     static {
-        registerLiveProperty(SUPPORTEDREPORTSET);
+        registerLiveProperty(ExtendedDavConstants.SUPPORTEDREPORTSET);
         registerLiveProperty(ACL);
         registerLiveProperty(CURRENTUSERPRIVILEGESET);
     }
@@ -444,7 +444,7 @@ public abstract class DavResourceBase
     protected void setResourceProperty(DavProperty property)
         throws DavException {
         DavPropertyName name = property.getName();
-        if (name.equals(SUPPORTEDREPORTSET))
+        if (name.equals(ExtendedDavConstants.SUPPORTEDREPORTSET))
             throw new ProtectedPropertyModificationException(name);
 
         if (isLiveProperty(property.getName()))
@@ -461,7 +461,7 @@ public abstract class DavResourceBase
      */
     protected void removeResourceProperty(DavPropertyName name)
         throws DavException {
-        if (name.equals(SUPPORTEDREPORTSET))
+        if (name.equals(ExtendedDavConstants.SUPPORTEDREPORTSET))
             throw new ProtectedPropertyModificationException(name);
 
         if (isLiveProperty(name))

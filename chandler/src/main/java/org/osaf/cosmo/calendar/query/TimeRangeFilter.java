@@ -23,7 +23,7 @@ import net.fortuna.ical4j.model.component.VTimeZone;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.w3c.dom.Element;
 
 /**
@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
  * start value: an iCalendar "date with UTC time" 
  * end value: an iCalendar "date with UTC time"
  */
-public class TimeRangeFilter implements CaldavConstants {
+public class TimeRangeFilter {
 
     private Period period = null;
 
@@ -64,7 +64,7 @@ public class TimeRangeFilter implements CaldavConstants {
     public TimeRangeFilter(Element element, VTimeZone timezone) throws ParseException {
         // Get start (must be present)
         String start =
-            DomUtil.getAttribute(element, ATTR_CALDAV_START, null);
+            DomUtil.getAttribute(element, CaldavConstants.ATTR_CALDAV_START, null);
         if (start == null) {
             throw new ParseException("CALDAV:comp-filter time-range requires a start time", -1);
         }
@@ -76,7 +76,7 @@ public class TimeRangeFilter implements CaldavConstants {
 
         // Get end (must be present)
         String end =
-            DomUtil.getAttribute(element, ATTR_CALDAV_END, null);
+            DomUtil.getAttribute(element, CaldavConstants.ATTR_CALDAV_END, null);
         if (end == null) {
             throw new ParseException("CALDAV:comp-filter time-range requires an end time", -1); 
         }

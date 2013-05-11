@@ -15,18 +15,17 @@
  */
 package org.osaf.cosmo.dav.caldav.property;
 
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 
 /**
  * Represents the CalDAV calendar-timezone property.
  */
-public class CalendarTimezone extends StandardDavProperty
-    implements CaldavConstants {
+public class CalendarTimezone extends StandardDavProperty {
 
     /**
      */
     public CalendarTimezone(String text) {
-        super(CALENDARTIMEZONE, text, true);
+        super(CaldavConstants.CALENDARTIMEZONE, text, true);
     }
 }

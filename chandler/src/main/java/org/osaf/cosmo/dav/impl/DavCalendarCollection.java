@@ -42,7 +42,7 @@ import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.LockedException;
 import org.osaf.cosmo.dav.ProtectedPropertyModificationException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.InvalidCalendarLocationException;
 import org.osaf.cosmo.dav.caldav.InvalidCalendarResourceException;
 import org.osaf.cosmo.dav.caldav.MaxResourceSizeException;
@@ -56,7 +56,6 @@ import org.osaf.cosmo.dav.caldav.property.SupportedCalendarComponentSet;
 import org.osaf.cosmo.dav.caldav.property.SupportedCalendarData;
 import org.osaf.cosmo.dav.caldav.property.SupportedCollationSet;
 import org.osaf.cosmo.dav.property.DavProperty;
-import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionLockedException;
@@ -89,20 +88,19 @@ import org.osaf.cosmo.model.StampUtils;
  * @see DavCollection
  * @see CalendarCollectionItem
  */
-public class DavCalendarCollection extends DavCollectionBase
-    implements CaldavConstants, ICalendarConstants {
+public class DavCalendarCollection extends DavCollectionBase {
     private static final Log log =
         LogFactory.getLog(DavCalendarCollection.class);
     private static final Set<String> DEAD_PROPERTY_FILTER =
         new HashSet<String>();
 
     static {
-        registerLiveProperty(CALENDARDESCRIPTION);
-        registerLiveProperty(CALENDARTIMEZONE);
-        registerLiveProperty(SUPPORTEDCALENDARCOMPONENTSET);
-        registerLiveProperty(SUPPORTEDCALENDARDATA);
-        registerLiveProperty(MAXRESOURCESIZE);
-        registerLiveProperty(GET_CTAG);
+        registerLiveProperty(CaldavConstants.CALENDARDESCRIPTION);
+        registerLiveProperty(CaldavConstants.CALENDARTIMEZONE);
+        registerLiveProperty(CaldavConstants.SUPPORTEDCALENDARCOMPONENTSET);
+        registerLiveProperty(CaldavConstants.SUPPORTEDCALENDARDATA);
+        registerLiveProperty(CaldavConstants.MAXRESOURCESIZE);
+        registerLiveProperty(CaldavConstants.GET_CTAG);
         
         DEAD_PROPERTY_FILTER.add(CalendarCollectionStamp.class.getName());
     }
@@ -206,7 +204,7 @@ public class DavCalendarCollection extends DavCollectionBase
 
     protected Set<QName> getResourceTypes() {
         Set<QName> rt = super.getResourceTypes();
-        rt.add(RESOURCE_TYPE_CALENDAR);
+        rt.add(CaldavConstants.RESOURCE_TYPE_CALENDAR);
         return rt;
     }
     
@@ -269,19 +267,19 @@ public class DavCalendarCollection extends DavCollectionBase
         if (property.getValue() == null)
             throw new UnprocessableEntityException("Property " + name + " requires a value");
 
-        if (name.equals(SUPPORTEDCALENDARCOMPONENTSET) ||
-            name.equals(SUPPORTEDCALENDARDATA) ||
-            name.equals(MAXRESOURCESIZE) ||
-            name.equals(GET_CTAG))
+        if (name.equals(CaldavConstants.SUPPORTEDCALENDARCOMPONENTSET) ||
+            name.equals(CaldavConstants.SUPPORTEDCALENDARDATA) ||
+            name.equals(CaldavConstants.MAXRESOURCESIZE) ||
+            name.equals(CaldavConstants.GET_CTAG))
             throw new ProtectedPropertyModificationException(name);
 
-        if (name.equals(CALENDARDESCRIPTION)) {
+        if (name.equals(CaldavConstants.CALENDARDESCRIPTION)) {
             cc.setDescription(property.getValueText());
             cc.setLanguage(property.getLanguage());
             return;
         }
 
-        if (name.equals(CALENDARTIMEZONE))
+        if (name.equals(CaldavConstants.CALENDARTIMEZONE))
             cc.setTimezoneCalendar(TimeZoneExtractor.extract(property));
     }
 
@@ -294,19 +292,19 @@ public class DavCalendarCollection extends DavCollectionBase
         if (cc == null)
             return;
 
-        if (name.equals(SUPPORTEDCALENDARCOMPONENTSET) ||
-            name.equals(SUPPORTEDCALENDARDATA) ||
-            name.equals(MAXRESOURCESIZE) ||
-            name.equals(GET_CTAG))
+        if (name.equals(CaldavConstants.SUPPORTEDCALENDARCOMPONENTSET) ||
+            name.equals(CaldavConstants.SUPPORTEDCALENDARDATA) ||
+            name.equals(CaldavConstants.MAXRESOURCESIZE) ||
+            name.equals(CaldavConstants.GET_CTAG))
             throw new ProtectedPropertyModificationException(name);
 
-        if (name.equals(CALENDARDESCRIPTION)) {
+        if (name.equals(CaldavConstants.CALENDARDESCRIPTION)) {
             cc.setDescription(null);
             cc.setLanguage(null);
             return;
         }
 
-        if (name.equals(CALENDARTIMEZONE)) {
+        if (name.equals(CaldavConstants.CALENDARTIMEZONE)) {
             cc.setTimezoneCalendar(null);
             return;
         }

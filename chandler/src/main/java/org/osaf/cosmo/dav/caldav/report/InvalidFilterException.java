@@ -19,23 +19,22 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.osaf.cosmo.dav.ForbiddenException;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 
 /**
  * An exception indicating that the data in a report query filter is not
  * correctly constructed.
  */
-public class InvalidFilterException
-    extends ForbiddenException implements CaldavConstants {
+public class InvalidFilterException extends ForbiddenException {
     
     public InvalidFilterException(Exception e) {
         super(e.getMessage());
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "valid-filter");
+        writer.writeStartElement(CaldavConstants.NS_CALDAV, "valid-filter");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

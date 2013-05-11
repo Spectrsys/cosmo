@@ -15,19 +15,18 @@
  */
 package org.osaf.cosmo.dav.caldav.property;
 
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 
 /**
  * Represents the Calendar Server extension getctag property.
  * @see <a href="https://trac.calendarserver.org/browser/CalendarServer/trunk/doc/Extensions/caldav-ctag.txt">ctag</a> 
  */
-public class GetCTag extends StandardDavProperty
-    implements CaldavConstants {
+public class GetCTag extends StandardDavProperty {
 
     /**
      */
     public GetCTag(String text) {
-        super(GET_CTAG, text, true);
+        super(CaldavConstants.GET_CTAG, text, true);
     }
 }

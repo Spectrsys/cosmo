@@ -21,7 +21,7 @@ import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 import org.osaf.cosmo.util.UriTemplate;
-import org.osaf.cosmo.xml.QName;
+import org.osaf.cosmo.api.xml.QName;
 
 /**
  * Provides constants defined by Cosmo proprietary *DAV extensions.

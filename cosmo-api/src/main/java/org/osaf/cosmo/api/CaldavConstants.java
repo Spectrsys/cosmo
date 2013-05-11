@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.dav.caldav;
+package org.osaf.cosmo.api;
 
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
-import org.osaf.cosmo.xml.QName;
+import org.osaf.cosmo.api.xml.QName;
 
 /**
  * Provides constants for media types, XML namespaces, names and

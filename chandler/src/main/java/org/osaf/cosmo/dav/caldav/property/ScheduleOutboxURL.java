@@ -19,7 +19,7 @@ import org.apache.jackrabbit.webdav.xml.DomUtil;
 
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.model.User;
 
 import org.w3c.dom.Element;
@@ -31,7 +31,7 @@ import org.w3c.dom.Document;
  * The property is protected. The value is a single DAV:href element
  * containing the URI of schedule outbox.
  */
-public class ScheduleOutboxURL extends StandardDavProperty implements CaldavConstants {
+public class ScheduleOutboxURL extends StandardDavProperty {
 
     /**
      * Create ScheduleOutboxURL object based on given parameters
@@ -39,7 +39,7 @@ public class ScheduleOutboxURL extends StandardDavProperty implements CaldavCons
      * @param user Cosmo User
      */
     public ScheduleOutboxURL(DavResourceLocator locator, User user) {
-        super(SCHEDULEOUTBOXURL, href(locator, user), true);
+        super(CaldavConstants.SCHEDULEOUTBOXURL, href(locator, user), true);
     }
 
     /**

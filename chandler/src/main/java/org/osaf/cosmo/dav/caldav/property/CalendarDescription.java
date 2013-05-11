@@ -15,17 +15,15 @@
  */
 package org.osaf.cosmo.dav.caldav.property;
 
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 
 /**
  * Represents the <code>CALDAV:calendar-description</code> property.
  */
-public class CalendarDescription extends StandardDavProperty
-    implements CaldavConstants {
+public class CalendarDescription extends StandardDavProperty {
 
-    public CalendarDescription(String description,
-                               String language) {
-        super(CALENDARDESCRIPTION, description, language, true);
+    public CalendarDescription(String description, String language) {
+        super(CaldavConstants.CALENDARDESCRIPTION, description, language, true);
     }
 }

@@ -49,14 +49,14 @@ import org.osaf.cosmo.dav.acl.DavAce;
 import org.osaf.cosmo.dav.acl.DavAcl;
 import org.osaf.cosmo.dav.acl.DavPrivilege;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.DavProperty;
 import org.osaf.cosmo.dav.property.DisplayName;
 import org.osaf.cosmo.dav.property.Etag;
 import org.osaf.cosmo.dav.property.IsCollection;
 import org.osaf.cosmo.dav.property.ResourceType;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.xml.DomWriter;
+import org.osaf.cosmo.api.xml.DomWriter;
 import org.w3c.dom.Element;
 
 /**
@@ -74,8 +74,7 @@ import org.w3c.dom.Element;
  * @see DavResourceBase
  * @see DavCollection
  */
-public class DavOutboxCollection extends DavResourceBase
-    implements DavCollection, CaldavConstants
+public class DavOutboxCollection extends DavResourceBase implements DavCollection
 {
     private static final Log log = LogFactory.getLog(DavOutboxCollection.class);
     private static final Set<ReportType> REPORT_TYPES = new HashSet<ReportType>();
@@ -196,7 +195,7 @@ public class DavOutboxCollection extends DavResourceBase
     protected Set<QName> getResourceTypes() {
         HashSet<QName> rt = new HashSet<QName>(2);
         rt.add(RESOURCE_TYPE_COLLECTION);
-        rt.add(RESOURCE_TYPE_SCHEDULE_OUTBOX);
+        rt.add(CaldavConstants.RESOURCE_TYPE_SCHEDULE_OUTBOX);
         return rt;
     }
 

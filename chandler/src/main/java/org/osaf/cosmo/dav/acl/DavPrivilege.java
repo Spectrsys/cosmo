@@ -23,8 +23,8 @@ import org.apache.jackrabbit.webdav.xml.Namespace;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
 import org.osaf.cosmo.dav.ExtendedDavConstants;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
-import org.osaf.cosmo.xml.QName;
+import org.osaf.cosmo.api.CaldavConstants;
+import org.osaf.cosmo.api.xml.QName;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,7 +56,7 @@ import org.w3c.dom.Element;
  * </blockquote>
  */
 public class DavPrivilege
-    implements ExtendedDavConstants, CaldavConstants, XmlSerializable,
+    implements ExtendedDavConstants, XmlSerializable,
     Comparable<DavPrivilege> {
 
     public static final DavPrivilege READ =
@@ -78,7 +78,7 @@ public class DavPrivilege
     public static final DavPrivilege READ_CURRENT_USER_PRIVILEGE_SET =
         new DavPrivilege(qn("read-current-user-privilege-set"));
     public static final DavPrivilege READ_FREE_BUSY =
-        new DavPrivilege(qn(NAMESPACE_CALDAV, "read-free-busy"));
+        new DavPrivilege(qn(CaldavConstants.NAMESPACE_CALDAV, "read-free-busy"));
 
     public static final DavPrivilege ALL =
         new DavPrivilege(qn("all"),

@@ -15,19 +15,18 @@
  */
 package org.osaf.cosmo.dav.caldav.property;
 
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.model.FileItem;
 
 /**
  * Represents the CalDAV max-resource-size property.
  */
-public class MaxResourceSize extends StandardDavProperty
-    implements CaldavConstants {
+public class MaxResourceSize extends StandardDavProperty {
 
     /**
      */
     public MaxResourceSize() {
-        super(MAXRESOURCESIZE, new Long(FileItem.MAX_CONTENT_SIZE), true);
+        super(CaldavConstants.MAXRESOURCESIZE, new Long(FileItem.MAX_CONTENT_SIZE), true);
     }
 }

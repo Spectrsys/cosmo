@@ -26,7 +26,7 @@ import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.osaf.cosmo.calendar.data.OutputFilter;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.property.CalendarData;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 import org.osaf.cosmo.dav.report.MultiStatusReport;
@@ -47,10 +47,8 @@ import org.w3c.dom.Element;
  * responsible for setting the output filter when parsing the report info.
  * </p>
  */
-public abstract class CaldavMultiStatusReport extends MultiStatusReport
-    implements CaldavConstants {
-    private static final Log log =
-        LogFactory.getLog(CaldavMultiStatusReport.class);
+public abstract class CaldavMultiStatusReport extends MultiStatusReport {
+    private static final Log log = LogFactory.getLog(CaldavMultiStatusReport.class);
 
     private OutputFilter outputFilter;
 
@@ -65,7 +63,7 @@ public abstract class CaldavMultiStatusReport extends MultiStatusReport
      */
     protected DavPropertyNameSet createResultPropSpec() {
         DavPropertyNameSet spec = super.createResultPropSpec();
-        spec.remove(CALENDARDATA);
+        spec.remove(CaldavConstants.CALENDARDATA);
         return spec;
     }
 
@@ -82,7 +80,7 @@ public abstract class CaldavMultiStatusReport extends MultiStatusReport
             super.buildMultiStatusResponse(resource, props);
 
         DavCalendarResource dcr = (DavCalendarResource) resource;
-        if (getPropFindProps().contains(CALENDARDATA))
+        if (getPropFindProps().contains(CaldavConstants.CALENDARDATA))
             msr.add(new CalendarData(readCalendarData(dcr)));
 
         return msr;
@@ -110,8 +108,9 @@ public abstract class CaldavMultiStatusReport extends MultiStatusReport
             return null;
 
         Element cdata =
-            DomUtil.getChildElement(propdata, ELEMENT_CALDAV_CALENDAR_DATA,
-                                    NAMESPACE_CALDAV);
+            DomUtil.getChildElement(propdata, 
+        		CaldavConstants.ELEMENT_CALDAV_CALENDAR_DATA,
+        		CaldavConstants.NAMESPACE_CALDAV);
         if (cdata == null)
             return null;
 

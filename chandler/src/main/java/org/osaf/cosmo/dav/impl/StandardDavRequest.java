@@ -45,21 +45,20 @@ import org.osaf.cosmo.dav.UnsupportedMediaTypeException;
 import org.osaf.cosmo.dav.acl.AclConstants;
 import org.osaf.cosmo.dav.acl.DavPrivilege;
 import org.osaf.cosmo.dav.acl.DavPrivilegeSet;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.util.BufferedServletInputStream;
-import org.osaf.cosmo.xml.DomWriter;
+import org.osaf.cosmo.api.xml.DomWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  */
 public class StandardDavRequest extends WebdavRequestImpl
-    implements DavRequest, ExtendedDavConstants, AclConstants,
-    CaldavConstants, TicketConstants {
+    implements DavRequest, ExtendedDavConstants, AclConstants, TicketConstants {
     private static final Log log =
         LogFactory.getLog(StandardDavRequest.class);
     private static final MimeType APPLICATION_XML =
@@ -374,12 +373,12 @@ public class StandardDavRequest extends WebdavRequestImpl
             return propertySet;
 
         Element root = requestDocument.getDocumentElement();
-        if (! DomUtil.matches(root, ELEMENT_CALDAV_MKCALENDAR,
-                              NAMESPACE_CALDAV))
-            throw new BadRequestException("Expected " + QN_MKCALENDAR + " root element");
+        if (! DomUtil.matches(root, CaldavConstants.ELEMENT_CALDAV_MKCALENDAR,
+        		CaldavConstants.NAMESPACE_CALDAV))
+            throw new BadRequestException("Expected " + CaldavConstants.QN_MKCALENDAR + " root element");
         Element set = DomUtil.getChildElement(root, XML_SET, NAMESPACE);
         if (set == null)
-            throw new BadRequestException("Expected " + QN_SET + " child of " + QN_MKCALENDAR);
+            throw new BadRequestException("Expected " + QN_SET + " child of " + CaldavConstants.QN_MKCALENDAR);
         Element prop =DomUtil.getChildElement(set, XML_PROP, NAMESPACE);
         if (prop == null)
             throw new BadRequestException("Expected " + QN_PROP + " child of " + QN_SET);

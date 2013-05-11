@@ -39,7 +39,7 @@ import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 import org.osaf.cosmo.dav.impl.DavItemCollection;
@@ -52,15 +52,15 @@ import org.w3c.dom.Element;
  * provides a mechanism for finding free-busy information. 
  * </p>
  */
-public class FreeBusyReport extends SimpleReport implements CaldavConstants {
+public class FreeBusyReport extends SimpleReport {
     private static final Log log = LogFactory.getLog(FreeBusyReport.class);
     
     private Period freeBusyRange;
     private ArrayList<VFreeBusy> freeBusyResults;
 
     public static final ReportType REPORT_TYPE_CALDAV_FREEBUSY =
-        ReportType.register(ELEMENT_CALDAV_CALENDAR_FREEBUSY,
-                            NAMESPACE_CALDAV, FreeBusyReport.class);
+        ReportType.register(CaldavConstants.ELEMENT_CALDAV_CALENDAR_FREEBUSY,
+        		CaldavConstants.NAMESPACE_CALDAV, FreeBusyReport.class);
 
     // Report methods
 
@@ -176,26 +176,26 @@ public class FreeBusyReport extends SimpleReport implements CaldavConstants {
 
     private static Period findFreeBusyRange(ReportInfo info)
         throws DavException {
-        Element tre =
-            info.getContentElement(ELEMENT_CALDAV_TIME_RANGE,
-                                   NAMESPACE_CALDAV);
+        Element tre = info.getContentElement(
+        	CaldavConstants.ELEMENT_CALDAV_TIME_RANGE,
+       		CaldavConstants.NAMESPACE_CALDAV);
         if (tre == null)
-            throw new BadRequestException("Expected " + QN_CALDAV_TIME_RANGE);
+            throw new BadRequestException("Expected " + CaldavConstants.QN_CALDAV_TIME_RANGE);
 
         DateTime sdt = null;
         try {
-            String start = DomUtil.getAttribute(tre, ATTR_CALDAV_START, null);
+            String start = DomUtil.getAttribute(tre, CaldavConstants.ATTR_CALDAV_START, null);
             sdt = new DateTime(start);
         } catch (ParseException e) {
-            throw new BadRequestException("Attribute " + ATTR_CALDAV_START + " not parseable: " + e.getMessage());
+            throw new BadRequestException("Attribute " + CaldavConstants.ATTR_CALDAV_START + " not parseable: " + e.getMessage());
         }
 
         DateTime edt = null;
         try {
-            String end = DomUtil.getAttribute(tre, ATTR_CALDAV_END, null);
+            String end = DomUtil.getAttribute(tre, CaldavConstants.ATTR_CALDAV_END, null);
             edt = new DateTime(end);
         } catch (ParseException e) {
-            throw new BadRequestException("Attribute " + ATTR_CALDAV_END + " not parseable: " + e.getMessage());
+            throw new BadRequestException("Attribute " + CaldavConstants.ATTR_CALDAV_END + " not parseable: " + e.getMessage());
         }
 
         return new Period(sdt, edt);

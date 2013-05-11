@@ -24,16 +24,14 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
 
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.utils.CalendarUtils;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
-import org.osaf.cosmo.api.ICalendarConstants;
 
 import org.w3c.dom.Element;
 
@@ -54,7 +52,7 @@ import org.w3c.dom.Element;
  * responsibility of the business logic to enforce this. This may be changed
  * later.
  */
-public class ComponentFilter implements CaldavConstants, ICalendarConstants {
+public class ComponentFilter {
 
     private static final Log log = LogFactory
             .getLog(ComponentFilter.class);
@@ -83,7 +81,7 @@ public class ComponentFilter implements CaldavConstants, ICalendarConstants {
      */
     public ComponentFilter(Element element,VTimeZone timezone) throws ParseException {
         // Name must be present
-        name = DomUtil.getAttribute(element, ATTR_CALDAV_NAME, null);
+        name = DomUtil.getAttribute(element, CaldavConstants.ATTR_CALDAV_NAME, null);
 
         if (name == null) {
             throw new ParseException(
@@ -110,7 +108,7 @@ public class ComponentFilter implements CaldavConstants, ICalendarConstants {
                         "CALDAV:is-not-defined cannnot be present with other child elements",
                         -1);
 
-            if (ELEMENT_CALDAV_TIME_RANGE.equals(child.getLocalName())) {
+            if (CaldavConstants.ELEMENT_CALDAV_TIME_RANGE.equals(child.getLocalName())) {
 
                 // Can only have one time-range element in a comp-filter
                 if (timeRangeFilter != null) {
@@ -120,24 +118,24 @@ public class ComponentFilter implements CaldavConstants, ICalendarConstants {
                 }
 
                 timeRangeFilter = new TimeRangeFilter(child, timezone);
-            } else if (ELEMENT_CALDAV_COMP_FILTER.equals(child.getLocalName())) {
+            } else if (CaldavConstants.ELEMENT_CALDAV_COMP_FILTER.equals(child.getLocalName())) {
 
                 // Add to list
                 componentFilters.add(new ComponentFilter(child, timezone));
 
-            } else if (ELEMENT_CALDAV_PROP_FILTER.equals(child.getLocalName())) {
+            } else if (CaldavConstants.ELEMENT_CALDAV_PROP_FILTER.equals(child.getLocalName())) {
 
                 // Add to list
                 propFilters.add(new PropertyFilter(child, timezone));
 
-            } else if (ELEMENT_CALDAV_IS_NOT_DEFINED.equals(child
+            } else if (CaldavConstants.ELEMENT_CALDAV_IS_NOT_DEFINED.equals(child
                     .getLocalName())) {
                 if (childCount > 1)
                     throw new ParseException(
                             "CALDAV:is-not-defined cannnot be present with other child elements",
                             -1);
                 isNotDefinedFilter = new IsNotDefinedFilter();
-            } else if (ELEMENT_CALDAV_IS_DEFINED.equals(child
+            } else if (CaldavConstants.ELEMENT_CALDAV_IS_DEFINED.equals(child
                     .getLocalName())) {
                 // XXX provided for backwards compatibility with
                 // Evolution 2.6, which does not implement

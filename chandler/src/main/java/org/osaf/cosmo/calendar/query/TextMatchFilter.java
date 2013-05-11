@@ -21,7 +21,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.osaf.cosmo.utils.CalendarUtils;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.w3c.dom.Element;
 
 /**
@@ -40,7 +40,7 @@ import org.w3c.dom.Element;
  *  <!ATTLIST text-match collation        CDATA "i;ascii-casemap"
  *                             negate-condition (yes | no) "no">
  */
-public class TextMatchFilter implements DavConstants, CaldavConstants {
+public class TextMatchFilter {
     private boolean isNegateCondition = false;
 
     private String collation = null;
@@ -66,12 +66,12 @@ public class TextMatchFilter implements DavConstants, CaldavConstants {
         
         // Check attribute for collation
         collation =
-            DomUtil.getAttribute(element, ATTR_CALDAV_COLLATION,null);
+            DomUtil.getAttribute(element, CaldavConstants.ATTR_CALDAV_COLLATION,null);
                     
         String negateCondition = 
-            DomUtil.getAttribute(element, ATTR_CALDAV_NEGATE_CONDITION,null);
+            DomUtil.getAttribute(element, CaldavConstants.ATTR_CALDAV_NEGATE_CONDITION,null);
         
-        if((negateCondition == null) || !VALUE_YES.equals(negateCondition))
+        if((negateCondition == null) || !DavConstants.VALUE_YES.equals(negateCondition))
             isNegateCondition = false;
         else
             isNegateCondition = true;

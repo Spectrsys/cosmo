@@ -16,7 +16,7 @@
 package org.osaf.cosmo.dav.caldav.property;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.w3c.dom.Document;
@@ -25,13 +25,12 @@ import org.w3c.dom.Element;
 /**
  * Represents the CalDAV supported-calendar-data property.
  */
-public class SupportedCalendarData extends StandardDavProperty
-    implements ICalendarConstants, CaldavConstants {
+public class SupportedCalendarData extends StandardDavProperty {
 
     /**
      */
     public SupportedCalendarData() {
-        super(SUPPORTEDCALENDARDATA, null, true);
+        super(CaldavConstants.SUPPORTEDCALENDARDATA, null, true);
     }
 
     /**
@@ -39,17 +38,17 @@ public class SupportedCalendarData extends StandardDavProperty
     public Element toXml(Document document) {
         Element name = getName().toXml(document);
         
-        Element element =
-            DomUtil.createElement(document, ELEMENT_CALDAV_CALENDAR_DATA,
-                                  NAMESPACE_CALDAV);
-        DomUtil.setAttribute(element, ATTR_CALDAV_CONTENT_TYPE,
-                             NAMESPACE_CALDAV, ICALENDAR_MEDIA_TYPE);
-        DomUtil.setAttribute(element, ATTR_CALDAV_VERSION,
-                             NAMESPACE_CALDAV, ICALENDAR_VERSION);
+        Element element = DomUtil.createElement(document, 
+            CaldavConstants.ELEMENT_CALDAV_CALENDAR_DATA,
+    		CaldavConstants.NAMESPACE_CALDAV);
+        DomUtil.setAttribute(element, 
+            CaldavConstants.ATTR_CALDAV_CONTENT_TYPE,
+    		CaldavConstants.NAMESPACE_CALDAV, ICalendarConstants.ICALENDAR_MEDIA_TYPE);
+        DomUtil.setAttribute(element, CaldavConstants.ATTR_CALDAV_VERSION,
+    		CaldavConstants.NAMESPACE_CALDAV, ICalendarConstants.ICALENDAR_VERSION);
         
         name.appendChild(element);
         
         return name;
     }
-   
 }

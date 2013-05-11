@@ -18,7 +18,7 @@ package org.osaf.cosmo.dav.caldav.property;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 
 import org.osaf.cosmo.api.ICalendarConstants;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 
 import org.w3c.dom.Document;
@@ -29,20 +29,19 @@ import org.w3c.dom.Element;
  * to transmit a set of icalendar objects in the body of a report
  * response.
  */
-public class CalendarData extends StandardDavProperty
-    implements CaldavConstants, ICalendarConstants {
+public class CalendarData extends StandardDavProperty {
 
     public CalendarData(String calendarData) {
-        super(CALENDARDATA, calendarData, true);
+        super(CaldavConstants.CALENDARDATA, calendarData, true);
     }
 
     public Element toXml(Document document) {
         Element e = super.toXml(document);
 
-        DomUtil.setAttribute(e, ATTR_CALDAV_CONTENT_TYPE,
-                             NAMESPACE_CALDAV, ICALENDAR_MEDIA_TYPE);
-        DomUtil.setAttribute(e, ATTR_CALDAV_VERSION,
-                             NAMESPACE_CALDAV, ICALENDAR_VERSION);
+        DomUtil.setAttribute(e, CaldavConstants.ATTR_CALDAV_CONTENT_TYPE,
+    		CaldavConstants.NAMESPACE_CALDAV, ICalendarConstants.ICALENDAR_MEDIA_TYPE);
+        DomUtil.setAttribute(e, CaldavConstants.ATTR_CALDAV_VERSION,
+    		CaldavConstants.NAMESPACE_CALDAV, ICalendarConstants.ICALENDAR_VERSION);
 
         return e;
     }

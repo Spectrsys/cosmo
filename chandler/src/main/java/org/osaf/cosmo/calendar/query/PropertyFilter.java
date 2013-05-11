@@ -23,10 +23,11 @@ import java.util.List;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+
+import org.osaf.cosmo.api.CaldavConstants;
+
 import org.w3c.dom.Element;
 
 /**
@@ -62,7 +63,7 @@ import org.w3c.dom.Element;
  * name (e.g., "ATTENDEE")
  * 
  */
-public class PropertyFilter implements DavConstants, CaldavConstants {
+public class PropertyFilter {
     private IsNotDefinedFilter isNotDefinedFilter = null;
 
     private TimeRangeFilter timeRangeFilter = null;
@@ -91,7 +92,7 @@ public class PropertyFilter implements DavConstants, CaldavConstants {
      */
     public PropertyFilter(Element element, VTimeZone timezone) throws ParseException {
         // Name must be present
-        name = DomUtil.getAttribute(element, ATTR_CALDAV_NAME, null);
+        name = DomUtil.getAttribute(element, CaldavConstants.ATTR_CALDAV_NAME, null);
         if (name == null) {
             throw new ParseException("CALDAV:prop-filter a calendar property name (e.g., \"ATTENDEE\") is required", -1);
         }
@@ -107,7 +108,7 @@ public class PropertyFilter implements DavConstants, CaldavConstants {
             if(childCount>1 && isNotDefinedFilter!=null)
                 throw new ParseException("CALDAV:is-not-defined cannnot be present with other child elements",-1); 
             
-            if (ELEMENT_CALDAV_TIME_RANGE.
+            if (CaldavConstants.ELEMENT_CALDAV_TIME_RANGE.
                 equals(child.getLocalName())) {
 
                 // Can only have one time-range or text-match
@@ -115,7 +116,7 @@ public class PropertyFilter implements DavConstants, CaldavConstants {
                     throw new ParseException("CALDAV:prop-filter only one time-range or text-match element permitted", -1);
      
                 timeRangeFilter = new TimeRangeFilter(child, timezone);
-            } else if (ELEMENT_CALDAV_TEXT_MATCH.
+            } else if (CaldavConstants.ELEMENT_CALDAV_TEXT_MATCH.
                        equals(child.getLocalName())) {
 
                 // Can only have one time-range or text-match
@@ -125,12 +126,12 @@ public class PropertyFilter implements DavConstants, CaldavConstants {
       
                 textMatchFilter = new TextMatchFilter(child);
 
-            } else if (ELEMENT_CALDAV_PARAM_FILTER.
+            } else if (CaldavConstants.ELEMENT_CALDAV_PARAM_FILTER.
                        equals(child.getLocalName())) {
 
                 // Add to list
                 paramFilters.add(new ParamFilter(child));
-            } else if(ELEMENT_CALDAV_IS_NOT_DEFINED.equals(child.getLocalName())) {
+            } else if(CaldavConstants.ELEMENT_CALDAV_IS_NOT_DEFINED.equals(child.getLocalName())) {
                 if(childCount>1)
                     throw new ParseException("CALDAV:is-not-defined cannnot be present with other child elements",-1);
                 isNotDefinedFilter = new IsNotDefinedFilter();

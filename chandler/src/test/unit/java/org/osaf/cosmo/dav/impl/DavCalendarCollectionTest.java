@@ -24,16 +24,14 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.dav.BaseDavTestCase;
 import org.osaf.cosmo.dav.DavCollection;
-import org.osaf.cosmo.dav.ExtendedDavConstants;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.property.SupportedCollationSet;
 import org.osaf.cosmo.model.CollectionItem;
 
 /**
  * Test case for <code>DavCalendarCollection</code>.
  */
-public class DavCalendarCollectionTest extends BaseDavTestCase
-    implements ExtendedDavConstants,CaldavConstants  {
+public class DavCalendarCollectionTest extends BaseDavTestCase {
     private static final Log log = LogFactory.getLog(DavCalendarCollectionTest.class);
 
     public void testSupportedCollationSetProperty() throws Exception {
@@ -45,7 +43,7 @@ public class DavCalendarCollectionTest extends BaseDavTestCase
             (DavCalendarCollection) testHelper.findMember(home, col.getName());
         
         SupportedCollationSet prop = 
-            (SupportedCollationSet) dcc.getProperty(SUPPORTEDCOLLATIONSET);
+            (SupportedCollationSet) dcc.getProperty(CaldavConstants.SUPPORTEDCOLLATIONSET);
         
         Assert.assertNotNull(prop);
         Assert.assertTrue(prop.isProtected());

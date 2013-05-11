@@ -24,7 +24,7 @@ import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 
 import org.osaf.cosmo.dav.ExtendedDavConstants;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.model.Ticket;
 
 import org.w3c.dom.Document;
@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  
  */
 public class DavPrivilegeSet extends HashSet<DavPrivilege>
-    implements ExtendedDavConstants, CaldavConstants, XmlSerializable {
+    implements ExtendedDavConstants, XmlSerializable {
 
     public DavPrivilegeSet() {
         super();
@@ -115,7 +115,7 @@ public class DavPrivilegeSet extends HashSet<DavPrivilege>
             privileges.add(DavPrivilege.READ);
         if (DomUtil.hasChildElement(root, "write", NAMESPACE))
             privileges.add(DavPrivilege.WRITE);
-        if (DomUtil.hasChildElement(root, "read-free-busy", NAMESPACE_CALDAV))
+        if (DomUtil.hasChildElement(root, "read-free-busy", CaldavConstants.NAMESPACE_CALDAV))
             privileges.add(DavPrivilege.READ_FREE_BUSY);
 
         return privileges;

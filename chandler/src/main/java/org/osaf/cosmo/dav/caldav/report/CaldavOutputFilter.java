@@ -32,7 +32,7 @@ import org.osaf.cosmo.calendar.data.OutputFilter;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.UnsupportedCalendarDataException;
 
 import org.w3c.dom.Element;
@@ -40,8 +40,7 @@ import org.w3c.dom.Element;
 /**
  * A utility for parsing an {@link OutputFilter} from XML.
  */
-public class CaldavOutputFilter
-    implements DavConstants, CaldavConstants, ICalendarConstants {
+public class CaldavOutputFilter {
     private static final Log log = LogFactory.getLog(CaldavOutputFilter.class);
 
     /**
@@ -55,23 +54,22 @@ public class CaldavOutputFilter
         Period limit = null;
         Period limitfb = null;
 
-        String contentType =
-            DomUtil.getAttribute(cdata, ATTR_CALDAV_CONTENT_TYPE,
-                                 NAMESPACE_CALDAV);
-        if (contentType != null && ! contentType.equals(ICALENDAR_MEDIA_TYPE))
+        String contentType = DomUtil.getAttribute(cdata, 
+            CaldavConstants.ATTR_CALDAV_CONTENT_TYPE,
+           	CaldavConstants.NAMESPACE_CALDAV);
+        if (contentType != null && ! contentType.equals(ICalendarConstants.ICALENDAR_MEDIA_TYPE))
             throw new UnsupportedCalendarDataException(contentType);
-        String version =
-            DomUtil.getAttribute(cdata, ATTR_CALDAV_CONTENT_TYPE,
-                                 NAMESPACE_CALDAV);
-        if (version != null && ! version.equals(ICALENDAR_VERSION))
-                throw new UnsupportedCalendarDataException();
+        String version = DomUtil.getAttribute(cdata, 
+           	CaldavConstants.ATTR_CALDAV_CONTENT_TYPE,
+           	CaldavConstants.NAMESPACE_CALDAV);
+        if (version != null && ! version.equals(ICalendarConstants.ICALENDAR_VERSION))
+            throw new UnsupportedCalendarDataException();
 
         // Look at each child element of calendar-data
-        for (ElementIterator iter = DomUtil.getChildren(cdata);
-             iter.hasNext();) {
+        for (ElementIterator iter = DomUtil.getChildren(cdata); iter.hasNext();) {
 
             Element child = iter.nextElement();
-            if (ELEMENT_CALDAV_COMP.equals(child.getLocalName())) {
+            if (CaldavConstants.ELEMENT_CALDAV_COMP.equals(child.getLocalName())) {
 
                 // At the top-level of calendar-data there should only be one
                 // <comp> element as VCALENDAR components are the only top-level
@@ -81,19 +79,19 @@ public class CaldavOutputFilter
 
                 // Get required name attribute and verify it is VCALENDAR
                 String name = 
-                    DomUtil.getAttribute(child, ATTR_CALDAV_NAME, null);
+                    DomUtil.getAttribute(child, CaldavConstants.ATTR_CALDAV_NAME, null);
                 if ((name == null) || !Calendar.VCALENDAR.equals(name))
                     return null;
 
                 // Now parse filter item
                 result = parseCalendarDataComp(child);
 
-            } else if (ELEMENT_CALDAV_EXPAND.equals(child.getLocalName())) {
+            } else if (CaldavConstants.ELEMENT_CALDAV_EXPAND.equals(child.getLocalName())) {
                 expand = parsePeriod(child, true);
-            } else if (ELEMENT_CALDAV_LIMIT_RECURRENCE_SET.
+            } else if (CaldavConstants.ELEMENT_CALDAV_LIMIT_RECURRENCE_SET.
                        equals(child.getLocalName())) {
                 limit = parsePeriod(child, true);
-            } else if (ELEMENT_CALDAV_LIMIT_FREEBUSY_SET.
+            } else if (CaldavConstants.ELEMENT_CALDAV_LIMIT_FREEBUSY_SET.
                        equals(child.getLocalName())) {
                 limitfb = parsePeriod(child, true);
             } else {
@@ -127,7 +125,7 @@ public class CaldavOutputFilter
     private static OutputFilter parseCalendarDataComp(Element comp) {
         // Get required name attribute
         String name =
-            DomUtil.getAttribute(comp, ATTR_CALDAV_NAME, null);
+            DomUtil.getAttribute(comp, CaldavConstants.ATTR_CALDAV_NAME, null);
         if (name == null)
             return null;
 
@@ -138,7 +136,7 @@ public class CaldavOutputFilter
         ElementIterator i = DomUtil.getChildren(comp);
         while (i.hasNext()) {
             Element child = i.nextElement();
-            if (ELEMENT_CALDAV_ALLCOMP.equals(child.getLocalName())) {
+            if (CaldavConstants.ELEMENT_CALDAV_ALLCOMP.equals(child.getLocalName())) {
                 // Validity check
                 if (result.hasSubComponentFilters()) {
                     result = null;
@@ -146,7 +144,7 @@ public class CaldavOutputFilter
                 }
                 result.setAllSubComponents();
 
-            } else if (ELEMENT_CALDAV_ALLPROP.equals(child.getLocalName())) {
+            } else if (CaldavConstants.ELEMENT_CALDAV_ALLPROP.equals(child.getLocalName())) {
                 // Validity check
                 if (result.hasPropertyFilters()) {
                     result = null;
@@ -154,7 +152,7 @@ public class CaldavOutputFilter
                 }
                 result.setAllProperties();
 
-            } else if (ELEMENT_CALDAV_COMP.equals(child.getLocalName())) {
+            } else if (CaldavConstants.ELEMENT_CALDAV_COMP.equals(child.getLocalName())) {
                 // Validity check
                 if (result.isAllSubComponents()) {
                     result = null;
@@ -166,7 +164,7 @@ public class CaldavOutputFilter
                     return null;
                 } else
                     result.addSubComponent(subfilter);
-            } else if (ELEMENT_CALDAV_PROP.equals(child.getLocalName())) {
+            } else if (CaldavConstants.ELEMENT_CALDAV_PROP.equals(child.getLocalName())) {
                 // Validity check
                 if (result.isAllProperties()) {
                     result = null;
@@ -175,7 +173,7 @@ public class CaldavOutputFilter
 
                 // Get required name attribute
                 String propname =
-                    DomUtil.getAttribute(child, ATTR_CALDAV_NAME, null);
+                    DomUtil.getAttribute(child, CaldavConstants.ATTR_CALDAV_NAME, null);
                 if (propname == null) {
                     result = null;
                     return null;
@@ -184,11 +182,11 @@ public class CaldavOutputFilter
                 // Get optional novalue attribute
                 boolean novalue = false;
                 String novaluetxt =
-                    DomUtil.getAttribute(child, ATTR_CALDAV_NOVALUE, null);
+                    DomUtil.getAttribute(child, CaldavConstants.ATTR_CALDAV_NOVALUE, null);
                 if (novaluetxt != null) {
-                    if (VALUE_YES.equals(novaluetxt))
+                    if (DavConstants.VALUE_YES.equals(novaluetxt))
                         novalue = true;
-                    else if (VALUE_NO.equals(novaluetxt))
+                    else if (DavConstants.VALUE_NO.equals(novaluetxt))
                         novalue = false;
                     else {
                         result = null;
@@ -204,19 +202,14 @@ public class CaldavOutputFilter
         return result;
     }
 
-    private static Period parsePeriod(Element node)
-        throws DavException {
-        return parsePeriod(node, false);
-    }
-
     private static Period parsePeriod(Element node, boolean utc)
         throws DavException {
         DateTime trstart = null;
         DateTime trend = null;
         String start =
-            DomUtil.getAttribute(node, ATTR_CALDAV_START, null);
+            DomUtil.getAttribute(node, CaldavConstants.ATTR_CALDAV_START, null);
         if (start == null)
-            throw new BadRequestException("Expected timerange attribute " + ATTR_CALDAV_START);
+            throw new BadRequestException("Expected timerange attribute " + CaldavConstants.ATTR_CALDAV_START);
         try {
             trstart = new DateTime(start);
         } catch (ParseException e) {
@@ -226,9 +219,9 @@ public class CaldavOutputFilter
             throw new BadRequestException("Timerange start must be UTC");
 
         String end =
-            DomUtil.getAttribute(node, ATTR_CALDAV_END, null);
+            DomUtil.getAttribute(node, CaldavConstants.ATTR_CALDAV_END, null);
         if (end == null)
-            throw new BadRequestException("Expected timerange attribute " + ATTR_CALDAV_END);
+            throw new BadRequestException("Expected timerange attribute " + CaldavConstants.ATTR_CALDAV_END);
         try {
             trend = new DateTime(end);
         } catch (ParseException e) {

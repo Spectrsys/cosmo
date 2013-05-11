@@ -34,7 +34,7 @@ import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.SupportedCollationException;
 import org.osaf.cosmo.dav.caldav.TimeZoneExtractor;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
@@ -49,13 +49,12 @@ import org.w3c.dom.Element;
  * specified criteria.
  * </p>
  */
-public class QueryReport extends CaldavMultiStatusReport
-    implements CaldavConstants {
+public class QueryReport extends CaldavMultiStatusReport {
     private static final Log log = LogFactory.getLog(QueryReport.class);
 
     public static final ReportType REPORT_TYPE_CALDAV_QUERY =
-        ReportType.register(ELEMENT_CALDAV_CALENDAR_QUERY,
-                            NAMESPACE_CALDAV, QueryReport.class);
+        ReportType.register(CaldavConstants.ELEMENT_CALDAV_CALENDAR_QUERY,
+        		CaldavConstants.NAMESPACE_CALDAV, QueryReport.class);
 
     private VTimeZone tz;
     private CalendarFilter queryFilter;
@@ -162,15 +161,15 @@ public class QueryReport extends CaldavMultiStatusReport
         if (propdata == null)
             return null;
 
-        Element tzdata =
-            DomUtil.getChildElement(propdata, ELEMENT_CALDAV_TIMEZONE,
-                                    NAMESPACE_CALDAV);
+        Element tzdata = DomUtil.getChildElement(propdata, 
+        	CaldavConstants.ELEMENT_CALDAV_TIMEZONE,
+       		CaldavConstants.NAMESPACE_CALDAV);
         if (tzdata == null)
             return null;
 
         String icaltz = DomUtil.getTextTrim(tzdata);
         if (icaltz == null)
-            throw new UnprocessableEntityException("Expected text content for " + QN_CALDAV_TIMEZONE);
+            throw new UnprocessableEntityException("Expected text content for " + CaldavConstants.QN_CALDAV_TIMEZONE);
 
         return TimeZoneExtractor.extract(icaltz);
     }
@@ -178,9 +177,9 @@ public class QueryReport extends CaldavMultiStatusReport
     private static CalendarFilter findQueryFilter(ReportInfo info,
                                                   VTimeZone tz)
         throws DavException {
-        Element filterdata =
-            DomUtil.getChildElement(info.getReportElement(),
-                                    ELEMENT_CALDAV_FILTER, NAMESPACE_CALDAV);
+        Element filterdata = DomUtil.getChildElement(info.getReportElement(),
+            CaldavConstants.ELEMENT_CALDAV_FILTER, 
+            CaldavConstants.NAMESPACE_CALDAV);
         if (filterdata == null)
             return null;
 

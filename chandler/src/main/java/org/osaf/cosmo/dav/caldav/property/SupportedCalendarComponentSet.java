@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.osaf.cosmo.utils.CalendarUtils;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.w3c.dom.Document;
@@ -31,11 +31,10 @@ import org.w3c.dom.Element;
  * property. Valid component types are defined by
  * {@link ComponentTypes}.
  */
-public class SupportedCalendarComponentSet extends StandardDavProperty
-    implements CaldavConstants, ICalendarConstants {
+public class SupportedCalendarComponentSet extends StandardDavProperty {
 
     public SupportedCalendarComponentSet() {
-        this(SUPPORTED_COMPONENT_TYPES);
+        this(ICalendarConstants.SUPPORTED_COMPONENT_TYPES);
     }
 
     public SupportedCalendarComponentSet(Set<String> componentTypes) {
@@ -43,7 +42,7 @@ public class SupportedCalendarComponentSet extends StandardDavProperty
     }
 
     public SupportedCalendarComponentSet(String[] componentTypes) {
-        super(SUPPORTEDCALENDARCOMPONENTSET, componentTypes(componentTypes),
+        super(CaldavConstants.SUPPORTEDCALENDARCOMPONENTSET, componentTypes(componentTypes),
                 true);
         for (String type : componentTypes) {
             if (!CalendarUtils.isSupportedComponent(type)) {
@@ -70,8 +69,8 @@ public class SupportedCalendarComponentSet extends StandardDavProperty
 
         for (String type : getComponentTypes()) {
             Element e = DomUtil.createElement(document,
-                    ELEMENT_CALDAV_COMP, NAMESPACE_CALDAV);
-            DomUtil.setAttribute(e, ATTR_CALDAV_NAME,  NAMESPACE_CALDAV,
+            		CaldavConstants.ELEMENT_CALDAV_COMP, CaldavConstants.NAMESPACE_CALDAV);
+            DomUtil.setAttribute(e, CaldavConstants.ATTR_CALDAV_NAME,  CaldavConstants.NAMESPACE_CALDAV,
                     type);
             name.appendChild(e);
         }

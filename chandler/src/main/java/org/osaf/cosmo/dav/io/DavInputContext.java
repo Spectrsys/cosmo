@@ -34,7 +34,7 @@ import org.apache.jackrabbit.server.io.IOUtil;
 import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavException;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.InvalidCalendarDataException;
 import org.osaf.cosmo.dav.caldav.InvalidCalendarResourceException;
 import org.osaf.cosmo.dav.caldav.SupportedCalendarComponentException;
@@ -46,8 +46,7 @@ import org.osaf.cosmo.dav.caldav.UnsupportedCalendarDataException;
  *
  * @see org.apache.jackrabbit.webdav.io.InputContext
  */
-public class DavInputContext extends InputContextImpl
-    implements CaldavConstants {
+public class DavInputContext extends InputContextImpl {
     private static final Log log = LogFactory.getLog(DavInputContext.class);
 
     private String contentType;
@@ -61,7 +60,7 @@ public class DavInputContext extends InputContextImpl
                            InputStream in) {
         super(request, in);
         if (request.getMethod().equals("MKCALENDAR"))
-            contentType = CONTENT_TYPE_CALENDAR_COLLECTION;
+            contentType = CaldavConstants.CONTENT_TYPE_CALENDAR_COLLECTION;
     }
     
     // InputContext methods
@@ -104,7 +103,7 @@ public class DavInputContext extends InputContextImpl
         if (getContentType() == null)
             throw new BadRequestException("No media type specified");
         String mediaType = IOUtil.getMimeType(getContentType());
-        if (! IOUtil.getMimeType(mediaType).equals(CT_ICALENDAR))
+        if (! IOUtil.getMimeType(mediaType).equals(CaldavConstants.CT_ICALENDAR))
             throw new UnsupportedCalendarDataException(mediaType);
 
         try {

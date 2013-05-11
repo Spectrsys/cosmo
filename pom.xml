@@ -239,6 +239,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.apache.jackrabbit</groupId>
+                <artifactId>jackrabbit-jcr-webdav</artifactId>
+                <version>1.0-osaf-20061023</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.mnode.ical4j</groupId>
                 <artifactId>ical4j</artifactId>
                 <version>${ical4j.version}</version>

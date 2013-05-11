@@ -16,7 +16,7 @@
 package org.osaf.cosmo.dav.caldav.property;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.osaf.cosmo.dav.caldav.CaldavConstants;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.model.User;
 import org.w3c.dom.Document;
@@ -28,14 +28,14 @@ import org.w3c.dom.Element;
  * The property is protected. The value is a single DAV:href element
  * containing the URI of the recipient.
  */
-public class Recipient extends StandardDavProperty implements CaldavConstants {
+public class Recipient extends StandardDavProperty {
 
     /**
      * Create Recipient object based on given parameters
      * @param recipient recipient to set
      */
     public Recipient(String recipient) {
-        super(RECIPIENT, recipient, true);
+        super(CaldavConstants.RECIPIENT, recipient, true);
     }
 
     /**
@@ -43,7 +43,7 @@ public class Recipient extends StandardDavProperty implements CaldavConstants {
      * @param user user to set
      */
     public Recipient(User user) {
-        super(RECIPIENT, href(user), true);
+        super(CaldavConstants.RECIPIENT, href(user), true);
     }
 
     /**
