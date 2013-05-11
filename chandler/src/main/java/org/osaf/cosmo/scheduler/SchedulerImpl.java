@@ -56,7 +56,7 @@ public class SchedulerImpl implements Scheduler {
     /*
      * (non-Javadoc)
      * 
-     * @see org.osaf.cosmo.scheduler.Scheduler#init()
+     * @see org.osaf.cosmo.api.Scheduler#init()
      */
     public synchronized void init() {
         if (initialized)
@@ -174,7 +174,7 @@ public class SchedulerImpl implements Scheduler {
     /*
      * (non-Javadoc)
      * 
-     * @see org.osaf.cosmo.scheduler.Scheduler#refreshSchedules()
+     * @see org.osaf.cosmo.api.Scheduler#refreshSchedules()
      */
     public synchronized void refreshSchedules() {
         if (log.isDebugEnabled())
@@ -210,7 +210,7 @@ public class SchedulerImpl implements Scheduler {
     /*
      * (non-Javadoc)
      * 
-     * @see org.osaf.cosmo.scheduler.Scheduler#removeAllSchedules()
+     * @see org.osaf.cosmo.api.Scheduler#removeAllSchedules()
      */
     public void removeAllSchedules() {
         for (String user : userSchedules.keySet())
@@ -220,7 +220,7 @@ public class SchedulerImpl implements Scheduler {
     /*
      * (non-Javadoc)
      * 
-     * @see org.osaf.cosmo.scheduler.Scheduler#handleError(java.lang.String,
+     * @see org.osaf.cosmo.api.Scheduler#handleError(java.lang.String,
      *      java.lang.String, java.lang.Throwable)
      */
     public void handleError(String username, String jobName, Throwable e) {

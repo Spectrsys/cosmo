@@ -24,7 +24,7 @@ import org.osaf.cosmo.dao.ScheduleDao;
 import org.osaf.cosmo.model.Preference;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.mock.MockEntityFactory;
-import org.osaf.cosmo.scheduler.Schedule;
+import org.osaf.cosmo.api.Schedule;
 import org.osaf.cosmo.scheduler.UserPreferencesScheduleHelper;
 
 /**

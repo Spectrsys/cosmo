@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.dao.ScheduleDao;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.scheduler.Schedule;
+import org.osaf.cosmo.api.Schedule;
 import org.osaf.cosmo.service.ScheduleService;
 
 /**

@@ -274,6 +274,11 @@
                 <artifactId>cosmo-model-hibernate</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.osaf.cosmo.persistence</groupId>
+                <artifactId>cosmo-persistence-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.osaf.cosmo</groupId>

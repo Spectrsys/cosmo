@@ -18,7 +18,7 @@ package org.osaf.cosmo.dao;
 import java.util.Set;
 
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.scheduler.Schedule;
+import org.osaf.cosmo.api.Schedule;
 
 /**
  * Interface for DAO that manages User Schedules

@@ -32,6 +32,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.osaf.cosmo</groupId>
+            <artifactId>cosmo-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.osaf.cosmo.model</groupId>
             <artifactId>cosmo-model-api</artifactId>
         </dependency>

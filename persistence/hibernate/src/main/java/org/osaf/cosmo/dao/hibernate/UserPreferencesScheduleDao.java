@@ -27,7 +27,7 @@ import org.hibernate.validator.InvalidValue;
 import org.osaf.cosmo.dao.ScheduleDao;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.hibernate.HibEntityFactory;
-import org.osaf.cosmo.scheduler.Schedule;
+import org.osaf.cosmo.api.Schedule;
 import org.osaf.cosmo.scheduler.UserPreferencesScheduleHelper;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
