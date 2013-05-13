@@ -18,22 +18,22 @@ package org.osaf.cosmo.dao;
 import java.util.Set;
 
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.api.Schedule;
+import org.osaf.cosmo.model.scheduler.Schedule;
 
 /**
  * Interface for DAO that manages User Schedules
  */
 public interface ScheduleDao extends Dao {
-    
-    public Set<User> getUsersWithSchedules();
-    
-    public Schedule createScheduleForUser(Schedule schedule, User user);
-    
-    public void deleteScheduleForUser(Schedule schedule, User user);
-    
-    public Schedule updateScheduleForUser(Schedule schedule, User user);
 
-    public Set<Schedule> getSchedulesForUser(User user);
+    Set<User> getUsersWithSchedules();
+    
+    Schedule createScheduleForUser(Schedule schedule, User user);
+    
+    void deleteScheduleForUser(Schedule schedule, User user);
+    
+    Schedule updateScheduleForUser(Schedule schedule, User user);
 
-    public void enableScheduleForUser(Schedule schedule, User user, boolean enabled);
+    Set<Schedule> getSchedulesForUser(User user);
+
+    void enableScheduleForUser(Schedule schedule, User user, boolean enabled);
 }

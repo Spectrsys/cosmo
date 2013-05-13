@@ -15,12 +15,14 @@
  */
 package org.osaf.cosmo.dao;
 
+import java.util.Set;
+
+import org.osaf.cosmo.model.DuplicateEmailException;
+import org.osaf.cosmo.model.DuplicateUsernameException;
 import org.osaf.cosmo.model.PasswordRecovery;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.PageCriteria;
-import org.osaf.cosmo.util.PagedList;
-
-import java.util.Set;
+import org.osaf.cosmo.utils.page.PageCriteria;
+import org.osaf.cosmo.utils.page.PagedList;
 
 /**
  * Interface for DAOs that manage user resources.
@@ -34,7 +36,7 @@ public interface UserDao extends Dao {
     /**
      * Returns an unordered set of all user accounts in the repository.
      */
-    public Set<User> getUsers();
+    Set<User> getUsers();
 
     /**
      * Returns the sorted list of user accounts corresponding to the
@@ -42,7 +44,7 @@ public interface UserDao extends Dao {
      *
      * @param pageCriteria the pagination criteria
      */
-    public PagedList getUsers(PageCriteria<User.SortType> pageCriteria);
+    PagedList getUsers(PageCriteria<User.SortType> pageCriteria);
 
     /**
      * Returns the user account identified by the given username.
@@ -52,7 +54,7 @@ public interface UserDao extends Dao {
      * @throws DataRetrievalFailureException if the account does not
      * exist
      */
-    public User getUser(String username);
+    User getUser(String username);
     
     
     /**
@@ -63,7 +65,7 @@ public interface UserDao extends Dao {
      * @throws DataRetrievalFailureException if the account does not
      * exist
      */
-    public User getUserByUid(String uid);
+    User getUserByUid(String uid);
 
     /**
      * Returns the user account identified by the given activation id.
@@ -73,7 +75,7 @@ public interface UserDao extends Dao {
      * @throws DataRetrievalFailureException if the account does not
      * exist
      */
-    public User getUserByActivationId(String id);
+    User getUserByActivationId(String id);
 
     /**
      * Returns the user account identified by the given email address.
@@ -83,7 +85,7 @@ public interface UserDao extends Dao {
      * @throws DataRetrievalFailureException if the account does not
      * exist
      */
-    public User getUserByEmail(String email);
+    User getUserByEmail(String email);
     
     /**
      * Returns a set of users that contain a user preference that
@@ -93,7 +95,7 @@ public interface UserDao extends Dao {
      * @return set of users containing a user preference that matches
      *         key and value
      */
-    public Set<User> findUsersByPreference(String key, String value);
+    Set<User> findUsersByPreference(String key, String value);
 
     /**
      * Creates a user account in the repository. Returns a new
@@ -106,7 +108,7 @@ public interface UserDao extends Dao {
      * @throws DuplicateEmailException if the email address is already
      * in use
      */
-    public User createUser(User user);
+    User createUser(User user);
 
     /**
      * Updates a user account that exists in the repository. Returns a
@@ -122,7 +124,7 @@ public interface UserDao extends Dao {
      * @throws DuplicateEmailException if the email address is already
      * in use
      */
-    public User updateUser(User user);
+    User updateUser(User user);
 
     /**
      * Removes the user account identified by the given username from
@@ -130,14 +132,14 @@ public interface UserDao extends Dao {
      *
      * @param username the username of the account to return
      */
-    public void removeUser(String username);
+    void removeUser(String username);
 
     /**
      * Removes a user account from the repository.
      *
      * @param user the user to remove
      */
-    public void removeUser(User user);
+    void removeUser(User user);
     
     /**
      * Creates a password recovery entity in the repository. Returns a new
@@ -145,7 +147,7 @@ public interface UserDao extends Dao {
      *
      * @param passwordRecovery the password recovery entity to save
      */
-    public void createPasswordRecovery(PasswordRecovery passwordRecovery);
+    void createPasswordRecovery(PasswordRecovery passwordRecovery);
     
     /**
      * Returns the password recovery entity identified by the given key.
@@ -153,12 +155,12 @@ public interface UserDao extends Dao {
      * @param key
      * @return the passsword recovery entity identified by key
      */
-    public PasswordRecovery getPasswordRecovery(String key);
+    PasswordRecovery getPasswordRecovery(String key);
     
     /**
      * Delete <code>passwordRecovery</code> from the database.
      * 
      * @param passwordRecovery the password recovery entity to delete
      */
-    public void deletePasswordRecovery(PasswordRecovery passwordRecovery);
+    void deletePasswordRecovery(PasswordRecovery passwordRecovery);
 }

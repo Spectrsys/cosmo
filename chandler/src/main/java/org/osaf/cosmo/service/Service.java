@@ -26,11 +26,12 @@ public interface Service {
      * Initializes the service, sanity checking required properties
      * and defaulting optional properties.
      */
-    public void init();
+    void init();
 
     /**
      * Readies the service for garbage collection, shutting down any
      * resources used.
      */
-    public void destroy();
+    void destroy();
+
 }

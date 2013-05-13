@@ -56,6 +56,10 @@
             <version>2007h</version>
         </dependency>
         <dependency>
+            <groupId>org.osaf.cosmo</groupId>
+            <artifactId>security</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
             <version>2.1-osaf20071017</version>
