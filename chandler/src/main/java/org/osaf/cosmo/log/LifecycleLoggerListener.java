@@ -21,7 +21,7 @@ import javax.servlet.ServletContextListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.utils.CosmoConstants;
 
 /**
  * A {@link javax.servlet.ServletContextListener} that logs

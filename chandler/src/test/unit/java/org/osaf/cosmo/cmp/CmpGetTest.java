@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
 
-import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.utils.CosmoConstants;
 import org.osaf.cosmo.cmp.CmpServlet;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.hibernate.HibUser;

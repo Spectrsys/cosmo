@@ -28,7 +28,7 @@ import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.utils.CosmoConstants;
 import org.osaf.cosmo.acegisecurity.providers.ticket.TicketAuthenticationToken;
 import org.osaf.cosmo.acegisecurity.providers.ticket.TicketedItemNotFoundException;
 

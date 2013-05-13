@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.tool.hbm2ddl.SchemaValidator;
-import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.utils.CosmoConstants;
 import org.osaf.cosmo.hibernate.SimpleConnectionProvider;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.Preference;

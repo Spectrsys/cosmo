@@ -43,7 +43,7 @@ import net.fortuna.ical4j.model.property.RDate;
 import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.RecurrenceId;
 
-import org.osaf.cosmo.calendar.ICalendarUtils;
+import org.osaf.cosmo.utils.ICalendarUtils;
 import org.osaf.cosmo.calendar.Instance;
 import org.osaf.cosmo.calendar.InstanceList;
 

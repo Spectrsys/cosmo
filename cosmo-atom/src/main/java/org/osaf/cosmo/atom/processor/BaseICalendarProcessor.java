@@ -24,7 +24,7 @@ import net.fortuna.ical4j.model.component.VEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.osaf.cosmo.calendar.ICalendarUtils;
+import org.osaf.cosmo.utils.ICalendarUtils;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.ContentItem;

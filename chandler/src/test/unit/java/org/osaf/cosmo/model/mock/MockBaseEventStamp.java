@@ -52,11 +52,11 @@ import net.fortuna.ical4j.model.property.Repeat;
 import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Trigger;
 
-import org.osaf.cosmo.calendar.ICalendarUtils;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
+import org.osaf.cosmo.utils.ICalendarUtils;
 
 
 /**

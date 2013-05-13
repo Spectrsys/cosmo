@@ -43,7 +43,7 @@ import net.fortuna.ical4j.model.property.DtStart;
 import net.fortuna.ical4j.model.property.FreeBusy;
 import net.fortuna.ical4j.model.property.Trigger;
 
-import org.osaf.cosmo.calendar.ICalendarUtils;
+import org.osaf.cosmo.utils.ICalendarUtils;
 import org.osaf.cosmo.calendar.InstanceList;
 
 

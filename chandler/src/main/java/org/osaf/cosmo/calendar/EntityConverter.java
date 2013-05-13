@@ -59,7 +59,7 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
 
 import org.apache.commons.lang.StringUtils;
-import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.utils.CosmoConstants;
 import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.AvailabilityItem;

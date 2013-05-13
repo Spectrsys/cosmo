@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.utils;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -53,8 +53,6 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.model.property.XProperty;
 
-import org.osaf.cosmo.CosmoConstants;
-import org.osaf.cosmo.utils.Dates;
 
 /**
  * Contains utility methods for creating/updating net.fortuna.ical4j

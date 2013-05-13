@@ -29,7 +29,7 @@ import org.apache.abdera.model.Person;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.osaf.cosmo.CosmoConstants;
+import org.osaf.cosmo.utils.CosmoConstants;
 import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;

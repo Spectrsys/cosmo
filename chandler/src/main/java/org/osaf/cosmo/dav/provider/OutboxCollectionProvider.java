@@ -29,7 +29,7 @@ import net.fortuna.ical4j.model.property.RequestStatus;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.ICalendarUtils;
+import org.osaf.cosmo.utils.ICalendarUtils;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavRequest;
 import org.osaf.cosmo.dav.DavResource;
