@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>org.osaf.cosmo</groupId>
-            <artifactId>security</artifactId>
+            <artifactId>cosmo-security</artifactId>
         </dependency>
         <dependency>
             <groupId>net.sf.json-lib</groupId>

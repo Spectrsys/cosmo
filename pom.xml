@@ -301,7 +301,7 @@
 
             <dependency>
                 <groupId>org.osaf.cosmo</groupId>
-                <artifactId>security</artifactId>
+                <artifactId>cosmo-security</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
