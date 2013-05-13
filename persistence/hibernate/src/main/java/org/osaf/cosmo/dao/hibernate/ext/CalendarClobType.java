@@ -32,14 +32,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.osaf.cosmo.utils.CalendarUtils;
+import org.springframework.jdbc.support.lob.LobCreator;
+import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.orm.hibernate3.support.ClobStringType;
 
 
 /**
  * Custom Hibernate type that persists ical4j Calendar object
  * to CLOB field in database.
  */
-public class CalendarClobType
-        extends ClobStringType {
+public class CalendarClobType extends ClobStringType {
     private static final Log log = LogFactory.getLog(CalendarClobType.class);
 
     /**

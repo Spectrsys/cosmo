@@ -27,7 +27,7 @@ import javax.transaction.TransactionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
-import org.osaf.cosmo.io.BufferedContent;
+import org.osaf.cosmo.utils.io.BufferedContent;
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.orm.hibernate3.support.AbstractLobType;
@@ -36,8 +36,7 @@ import org.springframework.orm.hibernate3.support.AbstractLobType;
 /**
  * Custom Hibernate type that persists BufferedContent to BLOB field.
  */
-public class BufferedContentBlob
-        extends AbstractLobType {
+public class BufferedContentBlob extends AbstractLobType {
     private static final Log log = LogFactory.getLog(BufferedContentBlob.class);
 
     /**
