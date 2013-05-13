@@ -18,7 +18,7 @@ package org.osaf.cosmo.service;
 import java.util.Set;
 
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.scheduler.Schedule;
+import org.osaf.cosmo.model.scheduler.Schedule;
 
 /**
  * Interface for services that manage user schedules

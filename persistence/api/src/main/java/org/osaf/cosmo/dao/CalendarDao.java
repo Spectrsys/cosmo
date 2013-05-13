@@ -19,7 +19,6 @@ import java.util.Set;
 
 import net.fortuna.ical4j.model.DateTime;
 
-import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.ICalendarItem;
@@ -56,8 +55,8 @@ public interface CalendarDao {
      * @return set ICalendar objects that match specified
      *         filter.
      */
-    public Set<ICalendarItem> findCalendarItems(CollectionItem collection,
-                                             CalendarFilter filter);
+    public Set<ICalendarItem> findCalendarItems(CollectionItem collection/*, TEMPORARY FIX >>>
+                                               CalendarFilter filter*/);
     
     /**
      * Find calendar events by time range.

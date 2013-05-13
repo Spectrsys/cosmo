@@ -19,8 +19,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang.StringUtils;
+import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.dav.PreconditionFailedException;
-import org.osaf.cosmo.icalendar.ICalendarConstants;
 
 /**
  * An exception indicating that an unsuppported collation 
