@@ -28,7 +28,7 @@ import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Recur;
 
 import org.osaf.cosmo.calendar.RecurrenceExpander;
-import org.osaf.cosmo.calendar.util.Dates;
+import org.osaf.cosmo.utils.Dates;
 import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.ModificationUid;

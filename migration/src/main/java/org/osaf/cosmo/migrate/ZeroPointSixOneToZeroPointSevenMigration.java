@@ -47,7 +47,7 @@ import net.fortuna.ical4j.model.property.RRule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.calendar.RecurrenceExpander;
-import org.osaf.cosmo.calendar.util.Dates;
+import org.osaf.cosmo.utils.Dates;
 
 
 /**

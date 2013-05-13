@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar.util;
+package org.osaf.cosmo.utils;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -28,7 +28,6 @@ import net.fortuna.ical4j.model.component.Observance;
 import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.property.RRule;
 
-import com.ibm.icu.util.TimeZone;
 
 /**
  * Contains utility methods for working with ical4j TimeZone and
@@ -45,7 +44,7 @@ public class TimeZoneUtils {
     // index all timezone ids from icu registry
     static
     {
-        for(String id: TimeZone.getAvailableIDs())
+        for(String id: com.ibm.icu.util.TimeZone.getAvailableIDs())
             ALL_TIMEZONE_IDS.add(id);
         
         ALL_TIMEZONE_IDS = Collections.unmodifiableSet(ALL_TIMEZONE_IDS);

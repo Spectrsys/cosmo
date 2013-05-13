@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.commons.io.IOUtils;
-import org.osaf.cosmo.util.BufferedServletOutputStream;
+import org.osaf.cosmo.utils.BufferedServletOutputStream;
 
 /**
  * HttpServletResponseWrapper that catches INTERNAL_SERVER_ERROR

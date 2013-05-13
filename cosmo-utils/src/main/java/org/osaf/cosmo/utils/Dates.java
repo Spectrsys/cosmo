@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar.util;
+package org.osaf.cosmo.utils;
 
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
@@ -26,9 +26,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class Dates {
-    
-    private static final Log log =
-        LogFactory.getLog(Dates.class);
+    private static final Log log = LogFactory.getLog(Dates.class);
     
     
     /**

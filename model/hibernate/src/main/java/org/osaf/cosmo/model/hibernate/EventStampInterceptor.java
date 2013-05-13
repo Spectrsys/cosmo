@@ -24,7 +24,7 @@ import net.fortuna.ical4j.model.Dur;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 import org.osaf.cosmo.calendar.RecurrenceExpander;
-import org.osaf.cosmo.calendar.util.Dates;
+import org.osaf.cosmo.utils.Dates;
 import org.osaf.cosmo.model.EventStamp;
 
 /**

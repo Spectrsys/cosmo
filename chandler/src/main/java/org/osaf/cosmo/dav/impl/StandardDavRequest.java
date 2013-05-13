@@ -50,7 +50,7 @@ import org.osaf.cosmo.dav.property.StandardDavProperty;
 import org.osaf.cosmo.dav.ticket.TicketConstants;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.Ticket;
-import org.osaf.cosmo.util.BufferedServletInputStream;
+import org.osaf.cosmo.utils.BufferedServletInputStream;
 import org.osaf.cosmo.api.xml.DomWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

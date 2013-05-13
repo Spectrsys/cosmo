@@ -23,7 +23,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-import org.osaf.cosmo.util.BufferedServletInputStream;
+import org.osaf.cosmo.utils.BufferedServletInputStream;
 
 /**
  * HttpServletRequestWrapper that allows a BufferedServletInputStream to be

@@ -16,7 +16,7 @@
 package org.osaf.cosmo.model.util;
 
 import org.osaf.cosmo.calendar.ICalendarUtils;
-import org.osaf.cosmo.calendar.util.Dates;
+import org.osaf.cosmo.utils.Dates;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
