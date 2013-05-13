@@ -30,7 +30,7 @@ import net.fortuna.ical4j.model.property.Trigger;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.osaf.cosmo.hibernate.validator.EventException;
+import org.osaf.cosmo.model.validator.EventException;
 import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;

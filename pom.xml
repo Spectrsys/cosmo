@@ -132,13 +132,13 @@
         <module>cosmo-api</module>
         <module>cosmo-security</module>
         <module>cosmo-utils</module>
-        <!--module>cosmo-atom</module-->
         <module>olson</module>
         <!-- module>client-js</module -->
         <module>chandler</module>
         <module>model</module>
         <module>persistence</module>
         <module>resources</module>
+        <module>cosmo-atom</module>
         <module>assembly</module>
         <module>migration</module>
         <module>bundle</module>

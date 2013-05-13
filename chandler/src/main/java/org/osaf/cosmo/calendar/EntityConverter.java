@@ -80,7 +80,6 @@ import org.osaf.cosmo.model.StampUtils;
 import org.osaf.cosmo.model.TaskStamp;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.TriageStatusUtil;
-import org.osaf.cosmo.model.hibernate.HibEventExceptionStamp;
 
 /**
  * A component that converts iCalendar objects to entities and vice versa.
@@ -459,7 +458,7 @@ public class EntityConverter {
         NoteItem note = (NoteItem) stamp.getItem();
         TreeMap<String, VEvent> sortedMap = new TreeMap<String, VEvent>();
         for(NoteItem exception : note.getModifications()) {
-            EventExceptionStamp exceptionStamp = HibEventExceptionStamp.getStamp(exception);
+            EventExceptionStamp exceptionStamp = (EventExceptionStamp) exception.getStamp(EventExceptionStamp.class);
             
             // if modification isn't stamped as an event then ignore
             if(exceptionStamp==null)
