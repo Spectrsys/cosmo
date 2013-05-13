@@ -41,9 +41,9 @@ import org.osaf.cosmo.model.PasswordRecovery;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.hibernate.BaseModelObject;
 import org.osaf.cosmo.model.hibernate.HibUser;
-import org.osaf.cosmo.util.ArrayPagedList;
-import org.osaf.cosmo.util.PageCriteria;
-import org.osaf.cosmo.util.PagedList;
+import org.osaf.cosmo.utils.ArrayPagedList;
+import org.osaf.cosmo.utils.page.PageCriteria;
+import org.osaf.cosmo.utils.page.PagedList;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**

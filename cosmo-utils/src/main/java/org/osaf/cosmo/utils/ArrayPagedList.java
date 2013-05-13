@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.util;
+package org.osaf.cosmo.utils;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import org.osaf.cosmo.utils.page.PageCriteria;
+import org.osaf.cosmo.utils.page.PagedList;
 
 /**
  * A paginated section of a list that knows how many elements are in the total list,

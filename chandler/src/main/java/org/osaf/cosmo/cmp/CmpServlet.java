@@ -68,7 +68,7 @@ import org.osaf.cosmo.server.SpaceUsageReport;
 import org.osaf.cosmo.server.StatusSnapshot;
 import org.osaf.cosmo.server.UserPath;
 import org.osaf.cosmo.spring.CosmoPropertyPlaceholderConfigurer;
-import org.osaf.cosmo.util.PageCriteria;
+import org.osaf.cosmo.utils.page.PageCriteria;
 
 import org.springframework.beans.BeansException;
 import org.springframework.dao.DataRetrievalFailureException;

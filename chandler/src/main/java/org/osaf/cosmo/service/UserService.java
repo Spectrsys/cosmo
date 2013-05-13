@@ -19,8 +19,8 @@ import java.util.Set;
 
 import org.osaf.cosmo.model.PasswordRecovery;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.PageCriteria;
-import org.osaf.cosmo.util.PagedList;
+import org.osaf.cosmo.utils.page.PageCriteria;
+import org.osaf.cosmo.utils.page.PagedList;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
 

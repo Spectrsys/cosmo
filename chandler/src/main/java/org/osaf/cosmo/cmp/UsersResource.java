@@ -25,9 +25,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.PageCriteria;
-import org.osaf.cosmo.util.PagedList;
-import org.osaf.cosmo.util.URLQuery;
+import org.osaf.cosmo.utils.page.PageCriteria;
+import org.osaf.cosmo.utils.page.PagedList;
+import org.osaf.cosmo.utils.URLQuery;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -27,7 +27,7 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
-import org.osaf.cosmo.util.PageCriteria;
+import org.osaf.cosmo.utils.page.PageCriteria;
 
 /**
  * Interface for building Hibernate query criteria.

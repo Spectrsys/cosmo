@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.util;
+package org.osaf.cosmo.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.ServletInputStream;
 
-import org.osaf.cosmo.io.BufferedContent;
+import org.osaf.cosmo.utils.io.BufferedContent;
 
 /**
  * ServletInputStream implementation that relies on an

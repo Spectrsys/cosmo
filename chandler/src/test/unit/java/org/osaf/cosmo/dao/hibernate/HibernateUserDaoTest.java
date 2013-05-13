@@ -29,8 +29,8 @@ import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.hibernate.HibPasswordRecovery;
 import org.osaf.cosmo.model.hibernate.HibPreference;
 import org.osaf.cosmo.model.hibernate.HibUser;
-import org.osaf.cosmo.util.PageCriteria;
-import org.osaf.cosmo.util.PagedList;
+import org.osaf.cosmo.utils.page.PageCriteria;
+import org.osaf.cosmo.utils.page.PagedList;
 
 
 public class HibernateUserDaoTest extends AbstractHibernateDaoTestCase {

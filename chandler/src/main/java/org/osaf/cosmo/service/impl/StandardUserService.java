@@ -29,12 +29,13 @@ import org.osaf.cosmo.model.DuplicateUsernameException;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.PasswordRecovery;
 import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.model.User.SortType;
 import org.osaf.cosmo.service.OverlordDeletionException;
 import org.osaf.cosmo.service.ServiceEvent;
 import org.osaf.cosmo.service.ServiceListener;
 import org.osaf.cosmo.service.UserService;
-import org.osaf.cosmo.util.PageCriteria;
-import org.osaf.cosmo.util.PagedList;
+import org.osaf.cosmo.utils.page.PageCriteria;
+import org.osaf.cosmo.utils.page.PagedList;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
 

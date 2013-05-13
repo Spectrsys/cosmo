@@ -36,9 +36,9 @@ import org.osaf.cosmo.model.Preference;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.mock.MockAuditableObject;
 import org.osaf.cosmo.model.mock.MockUser;
-import org.osaf.cosmo.util.ArrayPagedList;
-import org.osaf.cosmo.util.PageCriteria;
-import org.osaf.cosmo.util.PagedList;
+import org.osaf.cosmo.utils.ArrayPagedList;
+import org.osaf.cosmo.utils.page.PageCriteria;
+import org.osaf.cosmo.utils.page.PagedList;
 
 /**
  * Mock implementation of {@link UserDao} useful for testing.

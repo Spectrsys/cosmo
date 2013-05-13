@@ -18,7 +18,7 @@ package org.osaf.cosmo.dao.hibernate;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 
-import org.osaf.cosmo.util.PageCriteria;
+import org.osaf.cosmo.utils.page.PageCriteria;
 
 /**
  * Interface for building Hibernate query criteria.
