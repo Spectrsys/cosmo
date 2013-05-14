@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.scheduler;
+package org.osaf.cosmo.dao.hibernate;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,10 +21,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.osaf.cosmo.api.Schedule;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.Preference;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.StringPropertyUtils;
+import org.osaf.cosmo.utils.StringPropertyUtils;
 
 /**
  * Helper class that translates Schedule objects into user

@@ -52,11 +52,15 @@ public class CalendarDaoImpl extends HibernateDaoSupport implements CalendarDao 
     private EntityConverter entityConverter = new EntityConverter(null);
    
    
+	public Set<ICalendarItem> findCalendarItems(CollectionItem collection) {
+		// TODO: remove this method after removing temporary fix in parent class
+		return findCalendarItems(collection, null);
+	}
+    
     /* (non-Javadoc)
      * @see org.osaf.cosmo.dao.CalendarDao#findCalendarItems(org.osaf.cosmo.model.CollectionItem, org.osaf.cosmo.model.calendar.filter.CalendarFilter)
      */
-    public Set<ICalendarItem> findCalendarItems(CollectionItem collection,
-                                             CalendarFilter filter) {
+    public Set<ICalendarItem> findCalendarItems(CollectionItem collection, CalendarFilter filter) {
 
         try {
             CalendarFilterConverter filterConverter = new CalendarFilterConverter();
@@ -177,5 +181,5 @@ public class CalendarDaoImpl extends HibernateDaoSupport implements CalendarDao 
         }
 
     }
-    
+
 }

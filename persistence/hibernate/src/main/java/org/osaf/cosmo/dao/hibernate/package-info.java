@@ -26,32 +26,32 @@
     
     @TypeDef(
             name="bufferedcontent_blob",
-            typeClass = org.osaf.cosmo.hibernate.BufferedContentBlob.class
+            typeClass = org.osaf.cosmo.dao.hibernate.ext.BufferedContentBlob.class
         ),
 
     @TypeDef(
             name="calendar_clob",
-            typeClass = org.osaf.cosmo.hibernate.CalendarClobType.class
+            typeClass = org.osaf.cosmo.dao.hibernate.ext.CalendarClobType.class
     ),
 
     @TypeDef(
             name="xml_clob",
-            typeClass = org.osaf.cosmo.hibernate.XmlClobType.class
+            typeClass = org.osaf.cosmo.dao.hibernate.ext.XmlClobType.class
     ),
     
     @TypeDef(
             name="composite_calendar",
-            typeClass = org.osaf.cosmo.hibernate.CalendarType.class
+            typeClass = org.osaf.cosmo.dao.hibernate.ext.CalendarType.class
     ),
     
     @TypeDef(
             name="long_timestamp",
-            typeClass = org.osaf.cosmo.hibernate.LongTimestampType.class
+            typeClass = org.osaf.cosmo.dao.hibernate.ext.LongTimestampType.class
     ),
     
     @TypeDef(
             name="boolean_integer",
-            typeClass = org.osaf.cosmo.hibernate.BooleanIntegerType.class
+            typeClass = org.osaf.cosmo.dao.hibernate.ext.BooleanIntegerType.class
     )
 })
 
@@ -110,7 +110,7 @@
     @NamedQuery(name="logEntry.by.collection.date", query="from HibEventLogEntry e where id1=:parentId and entryDate between :startDate and :endDate")
     
 })
-package org.osaf.cosmo.model.hibernate;
+package org.osaf.cosmo.dao.hibernate;
 
 import org.hibernate.annotations.NamedQueries;
 import org.hibernate.annotations.NamedQuery;
