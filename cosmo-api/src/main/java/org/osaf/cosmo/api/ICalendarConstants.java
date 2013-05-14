@@ -33,13 +33,25 @@ public interface ICalendarConstants {
      * The MIME media type identifying a content item containing
      * data formatted with iCalendar.
      */
-    public static final String ICALENDAR_MEDIA_TYPE = "text/calendar";
+    public static final String MEDIA_TYPE_ICAL = "text/calendar";
 
     /**
      * The file extension commonly used to designate a file containing
      * data formatted with iCalendar.
      */
     public static final String ICALENDAR_FILE_EXTENSION = "ics";
+
+    /**
+     * The MIME media type identifying ATOM content
+     */
+    public static final String MEDIA_TYPE_ATOM = "application/atom+xml";
+    public static final String MEDIA_TYPE_ATOMSVC = "application/atomsvc+xml";
+
+    /**
+     * The MIME media type identifying a content item containing
+     * data formatted with iCalendar.
+     */
+    public static final String MEDIA_TYPE_HTML = "text/html";
 
     /**
      * The icalender parameter used on a DTSTART to indicate that the event

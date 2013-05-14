@@ -43,7 +43,7 @@ public class SupportedCalendarData extends StandardDavProperty {
     		CaldavConstants.NAMESPACE_CALDAV);
         DomUtil.setAttribute(element, 
             CaldavConstants.ATTR_CALDAV_CONTENT_TYPE,
-    		CaldavConstants.NAMESPACE_CALDAV, ICalendarConstants.ICALENDAR_MEDIA_TYPE);
+    		CaldavConstants.NAMESPACE_CALDAV, ICalendarConstants.MEDIA_TYPE_ICAL);
         DomUtil.setAttribute(element, CaldavConstants.ATTR_CALDAV_VERSION,
     		CaldavConstants.NAMESPACE_CALDAV, ICalendarConstants.ICALENDAR_VERSION);
         

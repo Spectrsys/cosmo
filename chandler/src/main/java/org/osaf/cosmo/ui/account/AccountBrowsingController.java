@@ -456,7 +456,7 @@ public class AccountBrowsingController extends MultiActionController
             log.debug("spooling event " + stamp.getItem().getUid());
 
         response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType(ICALENDAR_MEDIA_TYPE);
+        response.setContentType(MEDIA_TYPE_ICAL);
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Disposition",
                            makeCalendarContentDisposition(stamp.getItem()));
@@ -482,7 +482,7 @@ public class AccountBrowsingController extends MultiActionController
 
         // set headers
         response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType(ICALENDAR_MEDIA_TYPE);
+        response.setContentType(MEDIA_TYPE_ICAL);
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Disposition",
                            makeCalendarContentDisposition(calendar.getItem()));

@@ -369,7 +369,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newWebcalLink(CollectionItem collection)
         throws GeneratorException {
-        return newLink(REL_WEBCAL, ICALENDAR_MEDIA_TYPE,
+        return newLink(REL_WEBCAL, MEDIA_TYPE_ICAL,
                        getLocator().getWebcalUrl(collection));
     }
 

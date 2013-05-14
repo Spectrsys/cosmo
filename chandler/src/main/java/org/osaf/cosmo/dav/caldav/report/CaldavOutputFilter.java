@@ -57,7 +57,7 @@ public class CaldavOutputFilter {
         String contentType = DomUtil.getAttribute(cdata, 
             CaldavConstants.ATTR_CALDAV_CONTENT_TYPE,
            	CaldavConstants.NAMESPACE_CALDAV);
-        if (contentType != null && ! contentType.equals(ICalendarConstants.ICALENDAR_MEDIA_TYPE))
+        if (contentType != null && ! contentType.equals(ICalendarConstants.MEDIA_TYPE_ICAL))
             throw new UnsupportedCalendarDataException(contentType);
         String version = DomUtil.getAttribute(cdata, 
            	CaldavConstants.ATTR_CALDAV_CONTENT_TYPE,

@@ -178,7 +178,7 @@ public abstract class DavCalendarResource extends DavContentBase
             log.debug("spooling file " + getResourcePath());
 
         String contentType =
-            IOUtil.buildContentType(ICALENDAR_MEDIA_TYPE, "UTF-8");
+            IOUtil.buildContentType(MEDIA_TYPE_ICAL, "UTF-8");
         outputContext.setContentType(contentType);
   
         // Get calendar
@@ -213,7 +213,7 @@ public abstract class DavCalendarResource extends DavContentBase
             throw new RuntimeException("Can't convert calendar", e);
         }
 
-        properties.add(new ContentType(ICALENDAR_MEDIA_TYPE, "UTF-8"));
+        properties.add(new ContentType(MEDIA_TYPE_ICAL, "UTF-8"));
     }
 
     /** */

@@ -146,7 +146,7 @@ public class WebcalServlet extends HttpServlet implements ICalendarConstants {
         resp.setDateHeader("Last-Modified", collection.getModifiedDate().getTime());
         
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.setContentType(ICALENDAR_MEDIA_TYPE);
+        resp.setContentType(MEDIA_TYPE_ICAL);
         resp.setCharacterEncoding("UTF-8");
 
         // send Content-Disposition to provide another hint to clients

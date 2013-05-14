@@ -22,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
-import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.eim.eimml.EimmlConstants;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.User;
@@ -37,8 +36,7 @@ import org.w3c.dom.Element;
  * various protocols and interfaces provided by the server.
  */
 public class UserServiceResource
-    implements CmpResource, OutputsXml, AtomConstants, EimmlConstants,
-               ICalendarConstants, ServerConstants {
+    implements CmpResource, OutputsXml, EimmlConstants, ServerConstants {
     private static final Log log =
         LogFactory.getLog(UserServiceResource.class);
 
@@ -101,13 +99,11 @@ public class UserServiceResource
         service.appendChild(mcLink);
 
         Element atomLink = makeLinkElement(doc, SVC_ATOM,
-                                           MEDIA_TYPE_ATOMSVC,
-                                           locator.getAtomUrl(user));
+        	ICalendarConstants.MEDIA_TYPE_ATOMSVC, locator.getAtomUrl(user));
         service.appendChild(atomLink);
 
         Element davLink = makeLinkElement(doc, SVC_DAV,
-                                          CmpConstants.MEDIA_TYPE_XML,
-                                          locator.getDavUrl(user));
+            CmpConstants.MEDIA_TYPE_XML, locator.getDavUrl(user));
         service.appendChild(davLink);
 
         Element davPrincipalLink =
@@ -122,7 +118,7 @@ public class UserServiceResource
                             locator.getDavCalendarHomeUrl(user));
         service.appendChild(davCalendarHomeLink);
 
-        Element atomBase = makeBaseElement(doc, SVC_ATOM, MEDIA_TYPE_ATOM,
+        Element atomBase = makeBaseElement(doc, SVC_ATOM, ICalendarConstants.MEDIA_TYPE_ATOM,
                                            locator.getAtomBase());
         service.appendChild(atomBase);
 
@@ -130,13 +126,12 @@ public class UserServiceResource
                                          locator.getMorseCodeBase());
         service.appendChild(mcBase);
 
-        Element pimBase = makeBaseElement(doc, SVC_PIM, MEDIA_TYPE_HTML,
+        Element pimBase = makeBaseElement(doc, SVC_PIM, ICalendarConstants.MEDIA_TYPE_HTML,
                                           locator.getPimBase());
         service.appendChild(pimBase);
 
         Element webcalBase = makeBaseElement(doc, SVC_WEBCAL,
-                                             ICALENDAR_MEDIA_TYPE,
-                                             locator.getWebcalBase());
+        	ICalendarConstants.MEDIA_TYPE_ICAL, locator.getWebcalBase());
         service.appendChild(webcalBase);
 
         return service;

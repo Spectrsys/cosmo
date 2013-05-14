@@ -30,7 +30,7 @@ public class UnsupportedCalendarDataException extends ForbiddenException {
 
     public UnsupportedCalendarDataException() {
         super("Calendar data must be of media type " 
-            + ICalendarConstants.ICALENDAR_MEDIA_TYPE + ", version "
+            + ICalendarConstants.MEDIA_TYPE_ICAL + ", version "
             + ICalendarConstants.ICALENDAR_VERSION);
         getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
