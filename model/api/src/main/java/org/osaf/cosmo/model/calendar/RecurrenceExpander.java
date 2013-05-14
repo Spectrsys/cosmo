@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.model.calendar;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -137,20 +137,20 @@ public class RecurrenceExpander {
                 // Its an all day event so duration is one day
                 duration = new Dur(1, 0, 0, 0);
             }
-            end = org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(start), start);
+            end = org.osaf.cosmo.utils.Dates.getInstance(duration.getTime(start), start);
         } else {
             if(end instanceof DateTime) {
                 // Handle case where dtend is before dtstart, in which the duration
                 // will be 0, since it is a timed event
                 if(end.before(start)) {
-                    end = org.osaf.cosmo.calendar.util.Dates.getInstance(
+                    end = org.osaf.cosmo.utils.Dates.getInstance(
                             new Dur(0, 0, 0, 0).getTime(start), start);
                 }
             } else {
                 // Handle case where dtend is before dtstart, in which the duration
                 // will be 1 day since its an all-day event
                 if(end.before(start)) {
-                    end = org.osaf.cosmo.calendar.util.Dates.getInstance(
+                    end = org.osaf.cosmo.utils.Dates.getInstance(
                             new Dur(1, 0, 0, 0).getTime(start), start);
                 }
             }
@@ -184,7 +184,7 @@ public class RecurrenceExpander {
             } else {
                 for (Iterator j = rdate.getDates().iterator(); j.hasNext();) {
                     Date startDate = (Date) j.next();
-                    Date endDate = org.osaf.cosmo.calendar.util.Dates.getInstance(duration
+                    Date endDate = org.osaf.cosmo.utils.Dates.getInstance(duration
                             .getTime(startDate), startDate);
                     if (startDate.before(dateRange[0]))
                         dateRange[0] = startDate;
@@ -219,7 +219,7 @@ public class RecurrenceExpander {
             // date and update dateRange if necessary
             if(startDates.size()>0) {
                 Date lastStart = (Date) startDates.get(startDates.size()-1);
-                Date endDate = org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(lastStart), start);
+                Date endDate = org.osaf.cosmo.utils.Dates.getInstance(duration.getTime(lastStart), start);
                 
                 if (endDate.after(dateRange[1]))
                     dateRange[1] = endDate;
@@ -335,7 +335,7 @@ public class RecurrenceExpander {
             cal.add(java.util.Calendar.DAY_OF_WEEK, 1);
         
         Date rangeEnd = 
-            org.osaf.cosmo.calendar.util.Dates.getInstance(cal.getTime(), occurrence);
+            org.osaf.cosmo.utils.Dates.getInstance(cal.getTime(), occurrence);
         
         InstanceList instances = getOcurrences(calendar, occurrence, rangeEnd, null);
         
@@ -362,7 +362,7 @@ public class RecurrenceExpander {
             Duration duration = (Duration) comp.getProperties().getProperty(
                     Property.DURATION);
             if (duration != null) {
-                dtEnd = new DtEnd(org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getDuration()
+                dtEnd = new DtEnd(org.osaf.cosmo.utils.Dates.getInstance(duration.getDuration()
                         .getTime(dtStart), dtStart));
             }
         }

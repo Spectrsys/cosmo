@@ -30,7 +30,8 @@ import net.fortuna.ical4j.model.parameter.Value;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.osaf.cosmo.calendar.UnknownTimeZoneException;
+import org.osaf.cosmo.model.calendar.ICalDate;
+import org.osaf.cosmo.model.calendar.UnknownTimeZoneException;
 
 public class ICalDateTest extends TestCase {
     private static final Log log = LogFactory.getLog(ICalDateTest.class);

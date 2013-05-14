@@ -23,7 +23,7 @@ import net.fortuna.ical4j.model.Dur;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.ICalDate;
+import org.osaf.cosmo.model.calendar.ICalDate;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.schema.BaseStampApplicator;

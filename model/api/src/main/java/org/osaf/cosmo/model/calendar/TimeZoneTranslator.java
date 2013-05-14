@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.model.calendar;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -22,7 +22,7 @@ import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 
-import org.osaf.cosmo.calendar.util.TimeZoneUtils;
+import org.osaf.cosmo.utils.TimeZoneUtils;
 
 /**
  * Provides methods for translating an arbitrary timezone into

@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.osaf.cosmo.calendar.EntityConverter;
+import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.query.CalendarFilterEvaluater;
 import org.osaf.cosmo.dao.CalendarDao;

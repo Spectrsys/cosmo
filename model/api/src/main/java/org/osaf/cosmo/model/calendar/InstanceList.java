@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.model.calendar;
 
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import org.osaf.cosmo.utils.ICalendarUtils;
 
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.Date;
@@ -149,7 +151,7 @@ public class InstanceList extends TreeMap {
                 // Its an all day event so duration is one day
                 duration = new Dur(1, 0, 0, 0);
             }
-            end = org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(start), start);
+            end = org.osaf.cosmo.utils.Dates.getInstance(duration.getTime(start), start);
         } else {
             end = convertToUTCIfNecessary(end);
             if(startValue.equals(Value.DATE_TIME)) {
@@ -158,14 +160,14 @@ public class InstanceList extends TreeMap {
                 // Handle case where dtend is before dtstart, in which the duration
                 // will be 0, since it is a timed event
                 if(end.before(start)) {
-                    end = org.osaf.cosmo.calendar.util.Dates.getInstance(
+                    end = org.osaf.cosmo.utils.Dates.getInstance(
                             new Dur(0, 0, 0, 0).getTime(start), start);
                 }
             } else {
                 // Handle case where dtend is before dtstart, in which the duration
                 // will be 1 day since its an all-day event
                 if(end.before(start)) {
-                    end = org.osaf.cosmo.calendar.util.Dates.getInstance(
+                    end = org.osaf.cosmo.utils.Dates.getInstance(
                             new Dur(1, 0, 0, 0).getTime(start), start);
                 }
             }
@@ -205,7 +207,7 @@ public class InstanceList extends TreeMap {
                     Date startDate = (Date) j.next();
                     startDate = convertToUTCIfNecessary(startDate);
                     startDate = adjustFloatingDateIfNecessary(startDate);
-                    Date endDate = org.osaf.cosmo.calendar.util.Dates.getInstance(duration
+                    Date endDate = org.osaf.cosmo.utils.Dates.getInstance(duration
                             .getTime(startDate), startDate);
                     // Add RDATE if it overlaps range
                     if(inRange(startDate,endDate,rangeStart,rangeEnd)) {
@@ -238,8 +240,8 @@ public class InstanceList extends TreeMap {
                     (start instanceof DateTime) ? Value.DATE_TIME : Value.DATE);
             for (int j = 0; j < startDates.size(); j++) {
                 Date sd = (Date) startDates.get(j);
-                Date startDate = org.osaf.cosmo.calendar.util.Dates.getInstance(sd, start);
-                Date endDate = org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(sd), start);
+                Date startDate = org.osaf.cosmo.utils.Dates.getInstance(sd, start);
+                Date endDate = org.osaf.cosmo.utils.Dates.getInstance(duration.getTime(sd), start);
                 Instance instance = new Instance(comp, startDate, endDate);
                 put(instance.getRid().toString(), instance);
             }
@@ -322,7 +324,7 @@ public class InstanceList extends TreeMap {
                 // Its an all day event so duration is one day
                 duration = new Dur(1, 0, 0, 0);
             }
-            dtend = org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(dtstart), dtstart);
+            dtend = org.osaf.cosmo.utils.Dates.getInstance(duration.getTime(dtstart), dtstart);
         } else {
             // Convert to UTC if needed
             dtend = convertToUTCIfNecessary(dtend);
@@ -332,14 +334,14 @@ public class InstanceList extends TreeMap {
                 // Handle case where dtend is before dtstart, in which the duration
                 // will be 0, since it is a timed event
                 if(dtend.before(dtstart)) {
-                    dtend = org.osaf.cosmo.calendar.util.Dates.getInstance(
+                    dtend = org.osaf.cosmo.utils.Dates.getInstance(
                             new Dur(0, 0, 0, 0).getTime(dtstart), dtstart);
                 }
             } else {
                 // Handle case where dtend is before dtstart, in which the duration
                 // will be 1 day since its an all-day event
                 if(dtend.before(dtstart)) {
-                    dtend = org.osaf.cosmo.calendar.util.Dates.getInstance(
+                    dtend = org.osaf.cosmo.utils.Dates.getInstance(
                             new Dur(1, 0, 0, 0).getTime(dtstart), dtstart);
                 }
             }
@@ -481,7 +483,7 @@ public class InstanceList extends TreeMap {
             Duration duration = (Duration) comp.getProperties().getProperty(
                     Property.DURATION);
             if (duration != null) {
-                dtEnd = new DtEnd(org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getDuration()
+                dtEnd = new DtEnd(org.osaf.cosmo.utils.Dates.getInstance(duration.getDuration()
                         .getTime(dtStart), dtStart));
             }
         }
@@ -545,7 +547,7 @@ public class InstanceList extends TreeMap {
         
         // Return new startRange only if it is before the original startRange 
         if(cal.getTime().before(startRange))
-            return org.osaf.cosmo.calendar.util.Dates.getInstance(cal.getTime(), startRange);
+            return org.osaf.cosmo.utils.Dates.getInstance(cal.getTime(), startRange);
         
         return startRange;
     }
@@ -562,8 +564,7 @@ public class InstanceList extends TreeMap {
             return endRange;
         
         
-        endRange = ICalendarUtils.normalizeUTCDateTimeToDefaultOffset(
-                (DateTime) endRange, timezone);
+        endRange = ICalendarUtils.normalizeUTCDateTimeToDefaultOffset((DateTime) endRange, timezone);
         
        
         return endRange;

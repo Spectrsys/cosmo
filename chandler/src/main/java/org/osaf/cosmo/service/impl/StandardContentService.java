@@ -25,7 +25,7 @@ import net.fortuna.ical4j.model.DateTime;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.RecurrenceExpander;
+import org.osaf.cosmo.model.calendar.RecurrenceExpander;
 import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;

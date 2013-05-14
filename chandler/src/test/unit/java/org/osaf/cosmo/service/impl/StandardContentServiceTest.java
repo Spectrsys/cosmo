@@ -31,7 +31,7 @@ import net.fortuna.ical4j.model.component.VEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.TestHelper;
-import org.osaf.cosmo.calendar.EntityConverter;
+import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;

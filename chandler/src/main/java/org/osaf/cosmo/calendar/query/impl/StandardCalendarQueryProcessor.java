@@ -40,9 +40,9 @@ import net.fortuna.ical4j.model.property.Uid;
 import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.EntityConverter;
-import org.osaf.cosmo.calendar.Instance;
-import org.osaf.cosmo.calendar.InstanceList;
+import org.osaf.cosmo.model.calendar.EntityConverter;
+import org.osaf.cosmo.model.calendar.Instance;
+import org.osaf.cosmo.model.calendar.InstanceList;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.query.CalendarFilterEvaluater;
 import org.osaf.cosmo.calendar.query.CalendarQueryProcessor;
@@ -84,8 +84,7 @@ public class StandardCalendarQueryProcessor implements CalendarQueryProcessor {
                     + " by filter " + filter);
         }
 
-        return new HashSet<ICalendarItem>((Set<ICalendarItem>) calendarDao
-                .findCalendarItems(collection, filter));
+        return new HashSet<ICalendarItem>((Set<ICalendarItem>) calendarDao.findCalendarItems(collection, filter));
     }
 
     /* (non-Javadoc)
@@ -265,11 +264,11 @@ public class StandardCalendarQueryProcessor implements CalendarQueryProcessor {
             end = (DateTime) instance.getEnd();
            
             if (start.compareTo(freeBusyRange.getStart()) < 0) {
-                start = (DateTime) org.osaf.cosmo.calendar.util.Dates.getInstance(freeBusyRange
+                start = (DateTime) org.osaf.cosmo.utils.Dates.getInstance(freeBusyRange
                         .getStart(), start);
             }
             if (end.compareTo(freeBusyRange.getEnd()) > 0) {
-                end = (DateTime) org.osaf.cosmo.calendar.util.Dates.getInstance(freeBusyRange.getEnd(),
+                end = (DateTime) org.osaf.cosmo.utils.Dates.getInstance(freeBusyRange.getEnd(),
                         end);
             }
             if (Status.VEVENT_TENTATIVE.equals(instance.getComp()

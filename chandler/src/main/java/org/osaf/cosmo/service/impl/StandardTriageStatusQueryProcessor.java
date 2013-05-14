@@ -33,9 +33,9 @@ import net.fortuna.ical4j.model.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.Instance;
-import org.osaf.cosmo.calendar.InstanceList;
-import org.osaf.cosmo.calendar.RecurrenceExpander;
+import org.osaf.cosmo.model.calendar.Instance;
+import org.osaf.cosmo.model.calendar.InstanceList;
+import org.osaf.cosmo.model.calendar.RecurrenceExpander;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.EventStamp;

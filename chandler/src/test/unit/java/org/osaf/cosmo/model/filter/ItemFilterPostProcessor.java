@@ -22,9 +22,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.osaf.cosmo.calendar.Instance;
-import org.osaf.cosmo.calendar.InstanceList;
-import org.osaf.cosmo.calendar.RecurrenceExpander;
+import org.osaf.cosmo.model.calendar.Instance;
+import org.osaf.cosmo.model.calendar.InstanceList;
+import org.osaf.cosmo.model.calendar.RecurrenceExpander;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;

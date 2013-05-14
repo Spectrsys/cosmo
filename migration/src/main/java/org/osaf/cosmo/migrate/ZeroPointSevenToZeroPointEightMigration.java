@@ -50,7 +50,7 @@ public class ZeroPointSevenToZeroPointEightMigration extends AbstractMigration {
     
     static {
         // use custom timezone registry
-        System.setProperty("net.fortuna.ical4j.timezone.registry", "org.osaf.cosmo.calendar.CosmoTimeZoneRegistryFactory");
+        System.setProperty("net.fortuna.ical4j.timezone.registry", "org.osaf.cosmo.model.calendar.CosmoTimeZoneRegistryFactory");
     }
     
     @Override

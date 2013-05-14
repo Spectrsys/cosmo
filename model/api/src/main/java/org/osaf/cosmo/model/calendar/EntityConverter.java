@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.model.calendar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +61,7 @@ import net.fortuna.ical4j.model.property.Version;
 import org.apache.commons.lang.StringUtils;
 import org.osaf.cosmo.utils.CosmoConstants;
 import org.osaf.cosmo.utils.CalendarUtils;
+import org.osaf.cosmo.utils.ICalendarUtils;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.AvailabilityItem;
 import org.osaf.cosmo.model.CalendarCollectionStamp;

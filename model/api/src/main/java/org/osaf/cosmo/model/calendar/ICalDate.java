@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.model.calendar;
 
 import java.text.ParseException;
 import java.util.Map.Entry;
@@ -29,7 +29,6 @@ import net.fortuna.ical4j.model.parameter.Value;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.eim.schema.EimConversionException;
 import org.osaf.cosmo.api.ICalendarConstants;
 
 /**
@@ -62,11 +61,11 @@ public class ICalDate implements ICalendarConstants {
      * <li><code>TZID</code></li>
      * <li><code>X-OSAF-ANYTIME</code></li>
      *
-     * @throws EimConversionException
+     * @throws ParseException
+     * @throws UnknownTimeZoneException
      * </ul>
      */
-    public ICalDate(String text)
-        throws ParseException, UnknownTimeZoneException {
+    public ICalDate(String text) throws ParseException, UnknownTimeZoneException {
         ICalValueParser parser = new ICalValueParser(text);
         parser.parse();
         text = parser.getValue();

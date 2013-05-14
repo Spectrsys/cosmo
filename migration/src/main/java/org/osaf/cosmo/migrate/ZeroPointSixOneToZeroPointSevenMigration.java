@@ -46,7 +46,7 @@ import net.fortuna.ical4j.model.property.RRule;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.RecurrenceExpander;
+import org.osaf.cosmo.model.calendar.RecurrenceExpander;
 import org.osaf.cosmo.utils.Dates;
 
 
@@ -63,7 +63,7 @@ public class ZeroPointSixOneToZeroPointSevenMigration extends AbstractMigration 
     
     static {
         // use custom timezone registry
-        System.setProperty("net.fortuna.ical4j.timezone.registry", "org.osaf.cosmo.calendar.CosmoTimeZoneRegistryFactory");
+        System.setProperty("net.fortuna.ical4j.timezone.registry", "org.osaf.cosmo.model.calendar.CosmoTimeZoneRegistryFactory");
     }
     
     @Override

@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.osaf.cosmo.calendar.FreeBusyUtils;
+import org.osaf.cosmo.model.calendar.FreeBusyUtils;
 import org.osaf.cosmo.utils.ICalendarUtils;
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavCollection;

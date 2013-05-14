@@ -21,7 +21,7 @@ import net.fortuna.ical4j.model.component.VFreeBusy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.EntityConverter;
+import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;

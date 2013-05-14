@@ -23,7 +23,7 @@ import net.fortuna.ical4j.model.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.InvalidStateException;
-import org.osaf.cosmo.calendar.EntityConverter;
+import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;

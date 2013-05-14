@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.model.calendar;
 
 import java.util.Iterator;
 import java.util.List;
@@ -35,8 +35,7 @@ import org.apache.commons.id.uuid.VersionFourGenerator;
 
 public class FreeBusyUtils {
     
-    private static final VersionFourGenerator uuidGenerator =
-        new VersionFourGenerator();
+    private static final VersionFourGenerator uuidGenerator = new VersionFourGenerator();
     
     /**
         A VFREEBUSY component overlaps a given time range if the condition

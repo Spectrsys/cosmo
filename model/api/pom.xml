@@ -35,6 +35,18 @@
             <groupId>org.osaf.cosmo.model</groupId>
             <artifactId>cosmo-model-validator</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>commons-id</groupId>
+            <artifactId>commons-id</artifactId>
+            <version>0.1-dev</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>3.8</version>
+        </dependency>
+        
     </dependencies>
 
 </project>

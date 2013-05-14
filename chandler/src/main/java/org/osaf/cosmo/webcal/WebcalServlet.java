@@ -27,7 +27,7 @@ import net.fortuna.ical4j.model.Calendar;
 import org.apache.abdera.util.EntityTag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.EntityConverter;
+import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.icalendar.ICalendarClientFilterManager;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.icalendar.ICalendarOutputter;

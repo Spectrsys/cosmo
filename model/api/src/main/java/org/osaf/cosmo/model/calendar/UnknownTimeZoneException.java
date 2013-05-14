@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.model.calendar;
 
 /**
  * An exception that signifies some client operation specified a
@@ -29,8 +29,7 @@ public class UnknownTimeZoneException extends Exception {
 
     /**
      */
-    public UnknownTimeZoneException(String message,
-                                    Throwable cause) {
+    public UnknownTimeZoneException(String message, Throwable cause) {
         super(message, cause);
     }
 }

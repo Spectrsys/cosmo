@@ -44,8 +44,8 @@ import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.RecurrenceId;
 
 import org.osaf.cosmo.utils.ICalendarUtils;
-import org.osaf.cosmo.calendar.Instance;
-import org.osaf.cosmo.calendar.InstanceList;
+import org.osaf.cosmo.model.calendar.Instance;
+import org.osaf.cosmo.model.calendar.InstanceList;
 
 /**
  * This is a filter object that allows filtering a {@link Calendar} by

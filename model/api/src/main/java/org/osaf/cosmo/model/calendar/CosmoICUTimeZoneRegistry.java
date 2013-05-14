@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar;
+package org.osaf.cosmo.model.calendar;
 
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ import net.fortuna.ical4j.model.component.VTimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.util.TimeZoneUtils;
+import org.osaf.cosmo.utils.TimeZoneUtils;
 
 /**
  * Implementation of a <code>TimeZoneRegistry</code>. This implementation will 
@@ -65,8 +65,15 @@ public class CosmoICUTimeZoneRegistry implements TimeZoneRegistry {
      * @see net.fortuna.ical4j.model.TimeZoneRegistry#register(net.fortuna.ical4j.model.TimeZone)
      */
     public final void register(final TimeZone timezone) {
-        timezones.put(timezone.getID(), timezone);
+    	register(timezone, false);  // already registered tz takes precedence
     }
+
+	public void register(final TimeZone timezone, boolean update) {
+		String id = timezone.getID();
+		if (update || !timezones.containsKey(id)) {
+            timezones.put(id, timezone);
+		}
+	}
 
     /*
      * (non-Javadoc)
@@ -108,4 +115,5 @@ public class CosmoICUTimeZoneRegistry implements TimeZoneRegistry {
         }
         return timezone;
     }
+
 }

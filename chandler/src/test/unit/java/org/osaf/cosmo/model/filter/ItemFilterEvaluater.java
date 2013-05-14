@@ -20,7 +20,7 @@ import java.util.Date;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 
-import org.osaf.cosmo.calendar.EntityConverter;
+import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.calendar.query.CalendarFilter;
 import org.osaf.cosmo.calendar.query.CalendarFilterEvaluater;
 import org.osaf.cosmo.calendar.query.ComponentFilter;
