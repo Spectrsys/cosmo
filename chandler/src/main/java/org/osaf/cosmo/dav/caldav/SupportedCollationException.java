@@ -20,25 +20,23 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang.StringUtils;
 import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.api.ICalendarConstants;
 
 /**
  * An exception indicating that an unsuppported collation 
  * was specified.
  */
-public class SupportedCollationException
-    extends PreconditionFailedException
-    implements ICalendarConstants, CaldavConstants {
+public class SupportedCollationException extends PreconditionFailedException {
     
     public SupportedCollationException() {
-        super("Collation must be one of " +
-              StringUtils.join(SUPPORTED_COLLATIONS, ", "));
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+        super("Collation must be one of " + StringUtils.join(ICalendarConstants.SUPPORTED_COLLATIONS, ", "));
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "supported-collation");
+        writer.writeStartElement(CaldavConstants.NS_CALDAV, "supported-collation");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

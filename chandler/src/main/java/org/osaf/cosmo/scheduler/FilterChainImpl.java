@@ -18,6 +18,8 @@ package org.osaf.cosmo.scheduler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.osaf.cosmo.model.scheduler.Filter;
+import org.osaf.cosmo.model.scheduler.FilterChain;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 

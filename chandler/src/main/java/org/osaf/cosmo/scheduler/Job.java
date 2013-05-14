@@ -18,6 +18,8 @@ package org.osaf.cosmo.scheduler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.osaf.cosmo.model.scheduler.Filter;
+import org.osaf.cosmo.model.scheduler.FilterChain;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
@@ -40,8 +42,7 @@ public abstract class Job extends QuartzJobBean implements StatefulJob {
     protected final void executeInternal(JobExecutionContext context)
             throws JobExecutionException {
         // kick off new filter chain
-        FilterChain filterChain = new FilterChainImpl(this,
-                new ArrayList<Filter>(filters), scheduler);
+        FilterChain filterChain = new FilterChainImpl(this, new ArrayList<Filter>(filters), scheduler);
         filterChain.doFilter(context);
     }
 

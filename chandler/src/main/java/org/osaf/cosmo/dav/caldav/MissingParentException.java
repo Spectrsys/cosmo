@@ -18,23 +18,23 @@ package org.osaf.cosmo.dav.caldav;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.ConflictException;
 
 /**
  * An exception indicating that a calendar resource cannot be created at
  * the request URI until its parent resource has been created.
  */
-public class MissingParentException
-    extends ConflictException implements CaldavConstants {
-    
+public class MissingParentException extends ConflictException {
+
     public MissingParentException(String message) {
         super(message);
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "calendar-collection-location-ok");
+        writer.writeStartElement(CaldavConstants.NS_CALDAV, "calendar-collection-location-ok");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

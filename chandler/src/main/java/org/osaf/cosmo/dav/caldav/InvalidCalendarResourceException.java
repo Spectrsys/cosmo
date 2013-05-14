@@ -18,23 +18,23 @@ package org.osaf.cosmo.dav.caldav;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.ForbiddenException;
 
 /**
  * An exception indicating that a calendar resource does not obey the
  * restrictions specified in section 4.1 of RFC 4791.
  */
-public class InvalidCalendarResourceException
-    extends ForbiddenException implements CaldavConstants {
+public class InvalidCalendarResourceException extends ForbiddenException {
     
     public InvalidCalendarResourceException(String message) {
         super(message);
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "valid-calendar-object-resource");
+        writer.writeStartElement(CaldavConstants.NS_CALDAV, "valid-calendar-object-resource");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

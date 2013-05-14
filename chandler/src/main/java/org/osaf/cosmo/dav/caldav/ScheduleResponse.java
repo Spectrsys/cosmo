@@ -20,6 +20,7 @@ import net.fortuna.ical4j.model.property.RequestStatus;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.property.CalendarData;
 import org.osaf.cosmo.dav.caldav.property.Recipient;
 import org.w3c.dom.Document;
@@ -43,7 +44,7 @@ import org.w3c.dom.Element;
  * busy state of the corresponding recipient, assuming that the freebusy
  * request for that recipient succeeded.
  */
-public class ScheduleResponse implements DavConstants, CaldavConstants, XmlSerializable {
+public class ScheduleResponse implements XmlSerializable {
 	private String description = null;
 	private CalendarData calendarData = null;
 	private RequestStatus status = null;
@@ -109,17 +110,24 @@ public class ScheduleResponse implements DavConstants, CaldavConstants, XmlSeria
 	 * @see org.apache.jackrabbit.webdav.xml.XmlSerializable#toXml(org.w3c.dom.Document)
 	 */
 	public Element toXml(Document document) {
-		Element response = DomUtil.createElement(document, ELEMENT_CALDAV_RESPONSE, NAMESPACE_CALDAV);
+		Element response = DomUtil.createElement(document, 
+			CaldavConstants.ELEMENT_CALDAV_RESPONSE, 
+			CaldavConstants.NAMESPACE_CALDAV);
 		response.appendChild(recipient.toXml(document));
 		
-		Element statusElem = DomUtil.createElement(document, ELEMENT_CALDAV_REQUEST_STATUS, NAMESPACE_CALDAV, getStatus().getValue());
+		Element statusElem = DomUtil.createElement(document, 
+			CaldavConstants.ELEMENT_CALDAV_REQUEST_STATUS, 
+			CaldavConstants.NAMESPACE_CALDAV, 
+			getStatus().getValue());
 		response.appendChild(statusElem);
 		
 		if (calendarData != null) {
 			response.appendChild(calendarData.toXml(document));
 		}
 		if (description != null) {
-			Element respDesc = DomUtil.createElement(document, XML_RESPONSEDESCRIPTION, NAMESPACE, description);
+			Element respDesc = DomUtil.createElement(document, 
+				DavConstants.XML_RESPONSEDESCRIPTION, 
+				DavConstants.NAMESPACE, description);
 			response.appendChild(respDesc);
 		}
 		return response;
