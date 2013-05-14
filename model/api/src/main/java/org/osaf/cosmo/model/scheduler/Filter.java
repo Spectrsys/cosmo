@@ -13,15 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.scheduler;
+package org.osaf.cosmo.model.scheduler;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 /**
- * Filter chain passed to Filter implementations. Based off servlet filters.
+ * Interface for a filter to be executed by a Job. This allows code to be run
+ * before/after a job is executed. For example, a SecurityContext can be
+ * initialized.
  */
-public interface FilterChain {
-    public void doFilter(JobExecutionContext context)
+public interface Filter {
+
+    /**
+     * Method filter should implement. After before code is run, the filter
+     * chain should be invoked and then after code should be run.
+     * 
+     * @param context
+     * @param chain
+     * @throws JobExecutionException
+     */
+    public void doFilter(JobExecutionContext context, FilterChain chain)
             throws JobExecutionException;
 }

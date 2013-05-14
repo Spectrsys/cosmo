@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.scheduler;
+package org.osaf.cosmo.dao.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.osaf.cosmo.model.scheduler.Filter;
+import org.osaf.cosmo.model.scheduler.FilterChain;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
