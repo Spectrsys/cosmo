@@ -27,8 +27,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.osaf.cosmo.model.calendar.EntityConverter;
-import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.query.CalendarFilterEvaluater;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilterEvaluater;
 import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.dao.hibernate.query.CalendarFilterConverter;
 import org.osaf.cosmo.dao.hibernate.query.ItemFilterProcessor;
@@ -53,7 +53,7 @@ public class CalendarDaoImpl extends HibernateDaoSupport implements CalendarDao 
    
    
     /* (non-Javadoc)
-     * @see org.osaf.cosmo.dao.CalendarDao#findCalendarItems(org.osaf.cosmo.model.CollectionItem, org.osaf.cosmo.calendar.query.CalendarFilter)
+     * @see org.osaf.cosmo.dao.CalendarDao#findCalendarItems(org.osaf.cosmo.model.CollectionItem, org.osaf.cosmo.model.calendar.filter.CalendarFilter)
      */
     public Set<ICalendarItem> findCalendarItems(CollectionItem collection,
                                              CalendarFilter filter) {

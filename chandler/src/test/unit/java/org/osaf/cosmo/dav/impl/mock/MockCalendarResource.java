@@ -17,14 +17,13 @@ package org.osaf.cosmo.dav.impl.mock;
 
 import net.fortuna.ical4j.model.Calendar;
 
-import org.osaf.cosmo.calendar.query.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EntityFactory;
-import org.osaf.cosmo.model.NoteItem;
 
 /**
  * <p>

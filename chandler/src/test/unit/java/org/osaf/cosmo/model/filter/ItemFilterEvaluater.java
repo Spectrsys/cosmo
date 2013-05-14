@@ -21,14 +21,13 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 
 import org.osaf.cosmo.model.calendar.EntityConverter;
-import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.query.CalendarFilterEvaluater;
-import org.osaf.cosmo.calendar.query.ComponentFilter;
-import org.osaf.cosmo.calendar.query.TimeRangeFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilterEvaluater;
+import org.osaf.cosmo.model.calendar.filter.ComponentFilter;
+import org.osaf.cosmo.model.calendar.filter.TimeRangeFilter;
 import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.ContentItem;
-import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Stamp;

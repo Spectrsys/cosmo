@@ -26,8 +26,8 @@ import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 
-import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.query.UnsupportedCollationException;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.UnsupportedCollationException;
 import org.osaf.cosmo.dav.BadRequestException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;

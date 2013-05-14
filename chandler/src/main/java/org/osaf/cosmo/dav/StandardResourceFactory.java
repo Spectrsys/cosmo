@@ -17,7 +17,7 @@ package org.osaf.cosmo.dav;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.query.CalendarQueryProcessor;
+import org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipalCollection;
 import org.osaf.cosmo.dav.impl.DavAvailability;

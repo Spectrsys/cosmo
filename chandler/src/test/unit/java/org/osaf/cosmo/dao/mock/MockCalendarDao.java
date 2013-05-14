@@ -22,8 +22,8 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.DateTime;
 
 import org.osaf.cosmo.model.calendar.EntityConverter;
-import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.query.CalendarFilterEvaluater;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilterEvaluater;
 import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;

@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar.query;
+package org.osaf.cosmo.model.calendar.filter;
 
 import java.text.ParseException;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
 import org.osaf.cosmo.api.CaldavConstants;

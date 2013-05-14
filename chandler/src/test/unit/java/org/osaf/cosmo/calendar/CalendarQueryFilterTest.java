@@ -24,12 +24,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.query.ComponentFilter;
-import org.osaf.cosmo.calendar.query.ParamFilter;
-import org.osaf.cosmo.calendar.query.PropertyFilter;
-import org.osaf.cosmo.calendar.query.TextMatchFilter;
-import org.osaf.cosmo.calendar.query.TimeRangeFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.ComponentFilter;
+import org.osaf.cosmo.model.calendar.filter.ParamFilter;
+import org.osaf.cosmo.model.calendar.filter.PropertyFilter;
+import org.osaf.cosmo.model.calendar.filter.TextMatchFilter;
+import org.osaf.cosmo.model.calendar.filter.TimeRangeFilter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

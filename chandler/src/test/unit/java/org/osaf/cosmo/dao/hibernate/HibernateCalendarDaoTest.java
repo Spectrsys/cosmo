@@ -25,12 +25,12 @@ import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Period;
 
 import org.osaf.cosmo.model.calendar.EntityConverter;
-import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.query.ComponentFilter;
-import org.osaf.cosmo.calendar.query.IsNotDefinedFilter;
-import org.osaf.cosmo.calendar.query.PropertyFilter;
-import org.osaf.cosmo.calendar.query.TextMatchFilter;
-import org.osaf.cosmo.calendar.query.TimeRangeFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.ComponentFilter;
+import org.osaf.cosmo.model.calendar.filter.IsNotDefinedFilter;
+import org.osaf.cosmo.model.calendar.filter.PropertyFilter;
+import org.osaf.cosmo.model.calendar.filter.TextMatchFilter;
+import org.osaf.cosmo.model.calendar.filter.TimeRangeFilter;
 import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.CalendarCollectionStamp;

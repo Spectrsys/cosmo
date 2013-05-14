@@ -43,11 +43,11 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.model.calendar.Instance;
 import org.osaf.cosmo.model.calendar.InstanceList;
-import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.query.CalendarFilterEvaluater;
-import org.osaf.cosmo.calendar.query.CalendarQueryProcessor;
-import org.osaf.cosmo.calendar.query.ComponentFilter;
-import org.osaf.cosmo.calendar.query.TimeRangeFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilterEvaluater;
+import org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor;
+import org.osaf.cosmo.model.calendar.filter.ComponentFilter;
+import org.osaf.cosmo.model.calendar.filter.TimeRangeFilter;
 import org.osaf.cosmo.dao.CalendarDao;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
@@ -75,7 +75,7 @@ public class StandardCalendarQueryProcessor implements CalendarQueryProcessor {
     private EntityConverter entityConverter = new EntityConverter(null);
     
     /* (non-Javadoc)
-     * @see org.osaf.cosmo.calendar.query.CalendarQueryProcessor#filterQuery(org.osaf.cosmo.model.CollectionItem, org.osaf.cosmo.calendar.query.CalendarFilter)
+     * @see org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor#filterQuery(org.osaf.cosmo.model.CollectionItem, org.osaf.cosmo.model.calendar.filter.CalendarFilter)
      */
     public Set<ICalendarItem> filterQuery(CollectionItem collection,
             CalendarFilter filter) {
@@ -88,7 +88,7 @@ public class StandardCalendarQueryProcessor implements CalendarQueryProcessor {
     }
 
     /* (non-Javadoc)
-     * @see org.osaf.cosmo.calendar.query.CalendarQueryProcessor#filterQuery(org.osaf.cosmo.model.ICalendarItem, org.osaf.cosmo.calendar.query.CalendarFilter)
+     * @see org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor#filterQuery(org.osaf.cosmo.model.ICalendarItem, org.osaf.cosmo.model.calendar.filter.CalendarFilter)
      */
     public boolean filterQuery(ICalendarItem item, CalendarFilter filter) {
         if (log.isDebugEnabled())
@@ -102,7 +102,7 @@ public class StandardCalendarQueryProcessor implements CalendarQueryProcessor {
     }
 
     /* (non-Javadoc)
-     * @see org.osaf.cosmo.calendar.query.CalendarQueryProcessor#freeBusyQuery(org.osaf.cosmo.model.User, net.fortuna.ical4j.model.Period)
+     * @see org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor#freeBusyQuery(org.osaf.cosmo.model.User, net.fortuna.ical4j.model.Period)
      */
     public VFreeBusy freeBusyQuery(User user, Period period) {
         PeriodList busyPeriods = new PeriodList();
@@ -127,7 +127,7 @@ public class StandardCalendarQueryProcessor implements CalendarQueryProcessor {
     }
     
     /* (non-Javadoc)
-     * @see org.osaf.cosmo.calendar.query.CalendarQueryProcessor#freeBusyQuery(org.osaf.cosmo.model.CollectionItem, net.fortuna.ical4j.model.Period)
+     * @see org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor#freeBusyQuery(org.osaf.cosmo.model.CollectionItem, net.fortuna.ical4j.model.Period)
      */
     public VFreeBusy freeBusyQuery(CollectionItem collection, Period period) {
         PeriodList busyPeriods = new PeriodList();
@@ -142,7 +142,7 @@ public class StandardCalendarQueryProcessor implements CalendarQueryProcessor {
     }
 
     /* (non-Javadoc)
-     * @see org.osaf.cosmo.calendar.query.CalendarQueryProcessor#freeBusyQuery(org.osaf.cosmo.model.ICalendarItem, net.fortuna.ical4j.model.Period)
+     * @see org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor#freeBusyQuery(org.osaf.cosmo.model.ICalendarItem, net.fortuna.ical4j.model.Period)
      */
     public VFreeBusy freeBusyQuery(ICalendarItem item, Period period) {
         PeriodList busyPeriods = new PeriodList();

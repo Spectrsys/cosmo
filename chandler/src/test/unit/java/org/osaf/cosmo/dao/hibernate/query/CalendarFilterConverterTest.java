@@ -20,11 +20,11 @@ import junit.framework.TestCase;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Period;
 
-import org.osaf.cosmo.calendar.query.CalendarFilter;
-import org.osaf.cosmo.calendar.query.ComponentFilter;
-import org.osaf.cosmo.calendar.query.PropertyFilter;
-import org.osaf.cosmo.calendar.query.TextMatchFilter;
-import org.osaf.cosmo.calendar.query.TimeRangeFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.ComponentFilter;
+import org.osaf.cosmo.model.calendar.filter.PropertyFilter;
+import org.osaf.cosmo.model.calendar.filter.TextMatchFilter;
+import org.osaf.cosmo.model.calendar.filter.TimeRangeFilter;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.TaskStamp;

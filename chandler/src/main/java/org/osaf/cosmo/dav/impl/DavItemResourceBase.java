@@ -34,7 +34,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
-import org.osaf.cosmo.calendar.query.CalendarQueryProcessor;
+import org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor;
 import org.osaf.cosmo.dav.ConflictException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavException;

@@ -15,7 +15,7 @@
  */
 package org.osaf.cosmo.dav;
 
-import org.osaf.cosmo.calendar.query.CalendarQueryProcessor;
+import org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor;
 import org.osaf.cosmo.icalendar.ICalendarClientFilterManager;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.security.CosmoSecurityManager;

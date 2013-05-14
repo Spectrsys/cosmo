@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.calendar.query;
+package org.osaf.cosmo.model.calendar.filter;
 
 /**
- * RuntimeExceptoin that indicates that an unsupported calendar query
+ * RuntimeExceptoin that indicates that an unsupported collation
  * was specified.
  */
-public class UnsupportedQueryException extends RuntimeException {
-    public UnsupportedQueryException() {}
+public class UnsupportedCollationException extends RuntimeException {
+    public UnsupportedCollationException() {}
     
-    public UnsupportedQueryException(String message) {
+    public UnsupportedCollationException(String message) {
         super(message);
     }
 }
