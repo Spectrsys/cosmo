@@ -34,7 +34,7 @@ import org.osaf.cosmo.icalendar.ICalendarOutputter;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.StampUtils;
-import org.osaf.cosmo.security.CosmoSecurityException;
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.server.CollectionPath;
 import org.osaf.cosmo.service.ContentService;
 import org.springframework.beans.BeansException;

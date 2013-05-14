@@ -49,7 +49,7 @@ import org.osaf.cosmo.model.TicketType;
 import org.osaf.cosmo.model.Tombstone;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.security.CosmoSecurityException;
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.server.ServiceLocator;
 import org.osaf.cosmo.service.ContentService;

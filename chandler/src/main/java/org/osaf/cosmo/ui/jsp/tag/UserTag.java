@@ -16,7 +16,7 @@
 package org.osaf.cosmo.ui.jsp.tag;
 
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.security.CosmoSecurityException;
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 
 import javax.servlet.ServletContext;

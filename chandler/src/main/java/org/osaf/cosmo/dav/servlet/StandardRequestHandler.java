@@ -58,7 +58,7 @@ import org.osaf.cosmo.dav.provider.UserPrincipalCollectionProvider;
 import org.osaf.cosmo.dav.provider.UserPrincipalProvider;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.ItemSecurityException;
-import org.osaf.cosmo.security.CosmoSecurityException;
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.security.Permission;
 import org.osaf.cosmo.server.ServerConstants;
 import org.springframework.dao.OptimisticLockingFailureException;

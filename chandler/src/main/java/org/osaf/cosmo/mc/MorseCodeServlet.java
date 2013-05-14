@@ -45,7 +45,7 @@ import org.osaf.cosmo.model.ItemSecurityException;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.TicketType;
 import org.osaf.cosmo.model.UidInUseException;
-import org.osaf.cosmo.security.CosmoSecurityException;
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.server.CollectionPath;
 import org.osaf.cosmo.server.ServiceLocator;
