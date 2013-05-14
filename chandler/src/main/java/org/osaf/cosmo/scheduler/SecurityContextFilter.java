@@ -19,6 +19,8 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.model.scheduler.Filter;
+import org.osaf.cosmo.model.scheduler.FilterChain;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.service.UserService;
 import org.quartz.JobExecutionContext;
