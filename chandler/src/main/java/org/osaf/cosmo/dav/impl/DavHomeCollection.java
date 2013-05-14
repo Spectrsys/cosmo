@@ -26,6 +26,7 @@ import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
+import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.HomeCollectionItem;
@@ -76,8 +77,8 @@ public class DavHomeCollection extends DavCollectionBase {
 			
 			// for now scheduling is an option
 			if(isSchedulingEnabled()) {
-			    members.add(memberToResource(TEMPLATE_USER_INBOX.bindAbsolute(getResourceLocator().getBaseHref(), getResourcePath())));
-			    members.add(memberToResource(TEMPLATE_USER_OUTBOX.bindAbsolute(getResourceLocator().getBaseHref(), getResourcePath())));
+			    members.add(memberToResource(ExtendedDavConstants.TEMPLATE_USER_INBOX.bindAbsolute(getResourceLocator().getBaseHref(), getResourcePath())));
+			    members.add(memberToResource(ExtendedDavConstants.TEMPLATE_USER_OUTBOX.bindAbsolute(getResourceLocator().getBaseHref(), getResourcePath())));
 			}
 			
 			if (log.isTraceEnabled()) {

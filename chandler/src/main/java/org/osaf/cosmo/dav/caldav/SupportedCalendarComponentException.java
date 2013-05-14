@@ -18,31 +18,27 @@ package org.osaf.cosmo.dav.caldav;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
-
 import org.apache.commons.lang.StringUtils;
 
-import org.osaf.cosmo.dav.PreconditionFailedException;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.api.ICalendarConstants;
+import org.osaf.cosmo.dav.PreconditionFailedException;
 
 /**
  * An exception indicating that a calendar resource did not contain any
  * supported calendar components.
  */
-public class SupportedCalendarComponentException
-    extends PreconditionFailedException
-    implements ICalendarConstants, CaldavConstants {
+public class SupportedCalendarComponentException extends PreconditionFailedException {
     
     public SupportedCalendarComponentException() {
         super("Calendar object must contain at least one of " +
-              StringUtils.join(SUPPORTED_COMPONENT_TYPES, ", "));
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+              StringUtils.join(ICalendarConstants.SUPPORTED_COMPONENT_TYPES, ", "));
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "supported-calendar-component");
+        writer.writeStartElement(CaldavConstants.NS_CALDAV, "supported-calendar-component");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

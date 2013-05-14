@@ -41,7 +41,7 @@ import org.osaf.cosmo.model.TaskStamp;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.TriageStatusUtil;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.DateUtil;
+import org.osaf.cosmo.utils.DateUtil;
 import org.springframework.context.MessageSource;
 
 /**

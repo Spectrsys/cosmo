@@ -18,23 +18,23 @@ package org.osaf.cosmo.dav.caldav;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.ForbiddenException;
 
 /**
  * An exception indicating that a calendar resource cannot ever be created at
  * the request URI.
  */
-public class InvalidCalendarLocationException
-    extends ForbiddenException implements CaldavConstants {
+public class InvalidCalendarLocationException extends ForbiddenException {
     
     public InvalidCalendarLocationException(String message) {
         super(message);
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "calendar-collection-location-ok");
+        writer.writeStartElement(CaldavConstants.NS_CALDAV, "calendar-collection-location-ok");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }
