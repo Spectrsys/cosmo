@@ -20,7 +20,7 @@ import javax.persistence.Entity;
 
 import net.fortuna.ical4j.model.Calendar;
 
-import org.osaf.cosmo.hibernate.validator.Availability;
+import org.osaf.cosmo.model.validator.Availability;
 import org.osaf.cosmo.model.AvailabilityItem;
 import org.osaf.cosmo.model.Item;
 

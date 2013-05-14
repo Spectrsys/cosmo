@@ -28,7 +28,7 @@ import org.osaf.cosmo.model.Attribute;
 import org.osaf.cosmo.model.CalendarAttribute;
 import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.QName;
-import org.osaf.cosmo.util.DateUtil;
+import org.osaf.cosmo.utils.DateUtil;
 
 /**
  * Hibernate persistent CalendarAtttribute.

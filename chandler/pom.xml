@@ -149,6 +149,13 @@
             <!-- scope>provided</scope -->
         </dependency>
 
+        <!-- TODO: remove this dependency after factoring out the use of EntityTag -->
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-core</artifactId>
+            <version>0.4.0-incubating</version>
+        </dependency>
+
         <!-- required by jcr-server -->
         <!-- XXX: should be 1.0 release version -->
         <dependency>
