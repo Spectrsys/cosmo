@@ -64,7 +64,7 @@ public class CosmoICUTimeZoneRegistry implements TimeZoneRegistry {
      * (non-Javadoc)
      * @see net.fortuna.ical4j.model.TimeZoneRegistry#register(net.fortuna.ical4j.model.TimeZone)
      */
-    public final void register(final TimeZone timezone) {
+    public void register(final TimeZone timezone) {
     	register(timezone, false);  // already registered tz takes precedence
     }
 

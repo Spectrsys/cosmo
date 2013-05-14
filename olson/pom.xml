@@ -18,18 +18,21 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.osaf.cosmo</groupId>
         <artifactId>osaf-server</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>olson-tzdata</artifactId>
     <version>2007h</version>
     <packaging>jar</packaging>
-    <name>olson tzdata</name>
+    <name>Cosmo:: Olson timezone database</name>
+
     <dependencies>
     </dependencies>
+
     <build>
         <resources>
             <resource>

@@ -118,9 +118,17 @@ public class CosmoTimeZoneRegistry implements TimeZoneRegistry {
      * (non-Javadoc)
      * @see net.fortuna.ical4j.model.TimeZoneRegistry#register(net.fortuna.ical4j.model.TimeZone)
      */
-    public final void register(final TimeZone timezone) {
-        timezones.put(timezone.getID(), timezone);
+    public void register(final TimeZone timezone) {
+    	register(timezone, false);  // already registered tz takes precedence
     }
+
+	public void register(final TimeZone timezone, boolean update) {
+		String id = timezone.getID();
+		if (update || !timezones.containsKey(id)) {
+            timezones.put(id, timezone);
+		}
+	}
+
 
     /*
      * (non-Javadoc)
@@ -180,4 +188,5 @@ public class CosmoTimeZoneRegistry implements TimeZoneRegistry {
         }
         return null;
     }
+
 }
