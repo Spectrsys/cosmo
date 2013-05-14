@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.acegisecurity.userdetails.CosmoUserDetails;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.DateUtil;
+import org.osaf.cosmo.utils.DateUtil;
 import org.osaf.cosmo.wsse.UsernameToken;
 import org.osaf.cosmo.wsse.WsseUtils;
 

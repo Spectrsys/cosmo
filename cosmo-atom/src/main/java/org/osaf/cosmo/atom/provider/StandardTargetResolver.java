@@ -37,7 +37,7 @@ import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.service.ContentService;
 import org.osaf.cosmo.service.UserService;
-import org.osaf.cosmo.util.UriTemplate;
+import org.osaf.cosmo.utils.UriTemplate;
 
 /**
  * Resolves the request to a resource target.

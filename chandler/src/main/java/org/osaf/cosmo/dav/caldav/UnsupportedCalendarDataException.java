@@ -19,30 +19,31 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.osaf.cosmo.dav.ForbiddenException;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.api.ICalendarConstants;
 
 /**
  * An exception indicating that the data enclosed in a calendar resource
  * was not of a supported media type.
  */
-public class UnsupportedCalendarDataException
-    extends ForbiddenException
-    implements ICalendarConstants, CaldavConstants {
+public class UnsupportedCalendarDataException extends ForbiddenException {
 
     public UnsupportedCalendarDataException() {
-        super("Calendar data must be of media type " + ICALENDAR_MEDIA_TYPE + ", version " + ICALENDAR_VERSION);
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+        super("Calendar data must be of media type " 
+            + ICalendarConstants.ICALENDAR_MEDIA_TYPE + ", version "
+            + ICalendarConstants.ICALENDAR_VERSION);
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
     
     public UnsupportedCalendarDataException(String mediaType) {
         super("Calendar data of type " + mediaType + " not allowed; only " +
-              CT_ICALENDAR);
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+        		CaldavConstants.CT_ICALENDAR);
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "supported-calendar-data");
+        writer.writeStartElement(CaldavConstants.NS_CALDAV, "supported-calendar-data");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

@@ -18,6 +18,7 @@ package org.osaf.cosmo.dav.caldav;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.ForbiddenException;
 
 /**
@@ -25,16 +26,16 @@ import org.osaf.cosmo.dav.ForbiddenException;
  * invalid calendar data.
  */
 public class InvalidCalendarDataException
-    extends ForbiddenException implements CaldavConstants {
+    extends ForbiddenException {
     
     public InvalidCalendarDataException(String message) {
         super(message);
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "valid-calendar-data");
+        writer.writeStartElement(CaldavConstants.NS_CALDAV, "valid-calendar-data");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

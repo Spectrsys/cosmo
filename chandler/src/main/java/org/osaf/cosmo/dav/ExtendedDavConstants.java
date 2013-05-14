@@ -20,7 +20,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
-import org.osaf.cosmo.util.UriTemplate;
+import org.osaf.cosmo.utils.UriTemplate;
 import org.osaf.cosmo.api.xml.QName;
 
 /**

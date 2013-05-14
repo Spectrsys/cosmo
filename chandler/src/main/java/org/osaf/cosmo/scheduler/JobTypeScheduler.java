@@ -15,6 +15,7 @@
  */
 package org.osaf.cosmo.scheduler;
 
+import org.osaf.cosmo.api.Schedule;
 import org.osaf.cosmo.model.User;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;

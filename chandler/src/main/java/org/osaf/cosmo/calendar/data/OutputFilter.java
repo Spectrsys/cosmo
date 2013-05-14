@@ -383,14 +383,14 @@ public class OutputFilter {
                 // Its an all day event so duration is one day
                 duration = new Dur(1, 0, 0, 0);
             }
-            end = (DateTime) org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(start), start);
+            end = (DateTime) org.osaf.cosmo.utils.Dates.getInstance(duration.getTime(start), start);
         }
 
         Period p = new Period(start, end);
         if (! p.intersects(getLimit())) {
             Dur duration = new Dur(start, end);
             start = new DateTime(rid.getDate());
-            end = (DateTime) org.osaf.cosmo.calendar.util.Dates.getInstance(duration.getTime(start), start);
+            end = (DateTime) org.osaf.cosmo.utils.Dates.getInstance(duration.getTime(start), start);
             p = new Period(start, end);
             if (! p.intersects(getLimit())) {
                 if (Range.THISANDFUTURE.equals(range)) {

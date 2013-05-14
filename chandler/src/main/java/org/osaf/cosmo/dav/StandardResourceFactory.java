@@ -45,7 +45,7 @@ import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.service.ContentService;
 import org.osaf.cosmo.service.UserService;
-import org.osaf.cosmo.util.UriTemplate;
+import org.osaf.cosmo.utils.UriTemplate;
 
 /**
  * Standard implementation of <code>DavResourceFactory</code>.

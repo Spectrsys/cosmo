@@ -23,14 +23,15 @@ import net.fortuna.ical4j.model.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.util.TimeZoneUtils;
+import org.osaf.cosmo.utils.TimeZoneUtils;
+import org.osaf.cosmo.api.Schedule;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemSecurityException;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.service.ContentService;
-import org.osaf.cosmo.util.StringPropertyUtils;
+import org.osaf.cosmo.utils.StringPropertyUtils;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;

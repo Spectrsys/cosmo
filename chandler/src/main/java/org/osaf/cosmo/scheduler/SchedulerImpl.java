@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.api.Schedule;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.service.ScheduleService;
 import org.quartz.JobDetail;

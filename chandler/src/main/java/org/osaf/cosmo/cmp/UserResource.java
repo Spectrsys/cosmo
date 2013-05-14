@@ -24,8 +24,8 @@ import org.osaf.cosmo.model.CollectionSubscription;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.Preference;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.DateUtil;
-import org.osaf.cosmo.util.UriTemplate;
+import org.osaf.cosmo.utils.DateUtil;
+import org.osaf.cosmo.utils.UriTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

@@ -18,23 +18,23 @@ package org.osaf.cosmo.dav.caldav;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.ForbiddenException;
 
 /**
  * An exception indicating that a calendar resource contained more data
  * than can be stored.
  */
-public class MaxResourceSizeException
-    extends ForbiddenException implements CaldavConstants {
+public class MaxResourceSizeException extends ForbiddenException {
     
     public MaxResourceSizeException(String message) {
         super(message);
-        getNamespaceContext().addNamespace(PRE_CALDAV, NS_CALDAV);
+        getNamespaceContext().addNamespace(CaldavConstants.PRE_CALDAV, CaldavConstants.NS_CALDAV);
     }
 
     protected void writeContent(XMLStreamWriter writer)
         throws XMLStreamException {
-        writer.writeStartElement(NS_CALDAV, "max-resource-size");
+        writer.writeStartElement(CaldavConstants.NS_CALDAV, "max-resource-size");
         writer.writeCharacters(getMessage());
         writer.writeEndElement();
     }

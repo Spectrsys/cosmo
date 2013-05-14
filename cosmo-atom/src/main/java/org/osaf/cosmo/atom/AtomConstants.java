@@ -17,7 +17,7 @@ package org.osaf.cosmo.atom;
 
 import javax.xml.namespace.QName;
 
-import org.osaf.cosmo.util.UriTemplate;
+import org.osaf.cosmo.utils.UriTemplate;
 
 /**
  */

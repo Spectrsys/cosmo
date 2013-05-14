@@ -19,8 +19,9 @@ import java.text.ParseException;
 
 import net.fortuna.ical4j.model.TimeZone;
 
+import org.osaf.cosmo.api.Schedule;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.StringPropertyUtils;
+import org.osaf.cosmo.utils.StringPropertyUtils;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;

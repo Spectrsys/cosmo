@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -34,7 +35,7 @@ import org.w3c.dom.Element;
  * correspond to, the scheduling status of the request for that
  * recipient, any error codes and an optional description.
  */
-public class ScheduleMultiResponse implements CaldavConstants, XmlSerializable {
+public class ScheduleMultiResponse implements XmlSerializable {
 	private ArrayList<ScheduleResponse> responses = new ArrayList<ScheduleResponse>(1);
 	
 	public boolean addResponse(ScheduleResponse response) {
@@ -49,7 +50,9 @@ public class ScheduleMultiResponse implements CaldavConstants, XmlSerializable {
 	 * )
 	 */
 	public Element toXml(Document document) {
-		Element multistatus = DomUtil.createElement(document, ELEMENT_CALDAV_SCHEDULE_RESPONSE, NAMESPACE_CALDAV);
+		Element multistatus = DomUtil.createElement(document, 
+			CaldavConstants.ELEMENT_CALDAV_SCHEDULE_RESPONSE, 
+			CaldavConstants.NAMESPACE_CALDAV);
 		for (ScheduleResponse response : responses) {
 			multistatus.appendChild(response.toXml(document));
 		}

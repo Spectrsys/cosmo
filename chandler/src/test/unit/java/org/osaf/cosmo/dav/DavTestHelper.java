@@ -27,7 +27,7 @@ import org.osaf.cosmo.dav.impl.DavHomeCollection;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.util.UriTemplate;
+import org.osaf.cosmo.utils.UriTemplate;
 
 public class DavTestHelper extends MockHelper
     implements ExtendedDavConstants {

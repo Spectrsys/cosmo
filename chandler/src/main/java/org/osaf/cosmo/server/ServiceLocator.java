@@ -25,7 +25,7 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.User;
 
-import org.osaf.cosmo.util.UriTemplate;
+import org.osaf.cosmo.utils.UriTemplate;
 
 /**
  * This class encapsulates the addressing scheme for all client

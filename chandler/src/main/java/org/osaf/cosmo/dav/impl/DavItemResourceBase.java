@@ -43,6 +43,7 @@ import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
 import org.osaf.cosmo.dav.DavResourceLocatorFactory;
 import org.osaf.cosmo.dav.ExistsException;
+import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.ForbiddenException;
 import org.osaf.cosmo.dav.LockedException;
 import org.osaf.cosmo.dav.NotFoundException;
@@ -78,7 +79,7 @@ import org.osaf.cosmo.model.QName;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.service.ContentService;
-import org.osaf.cosmo.util.PathUtil;
+import org.osaf.cosmo.utils.PathUtil;
 import org.w3c.dom.Element;
 
 /**
@@ -121,9 +122,9 @@ public abstract class DavItemResourceBase extends DavResourceBase
         registerLiveProperty(DavPropertyName.DISPLAYNAME);
         registerLiveProperty(DavPropertyName.ISCOLLECTION);
         registerLiveProperty(DavPropertyName.RESOURCETYPE);
-        registerLiveProperty(OWNER);
+        registerLiveProperty(ExtendedDavConstants.OWNER);
         registerLiveProperty(PRINCIPALCOLLECTIONSET);
-        registerLiveProperty(UUID);
+        registerLiveProperty(ExtendedDavConstants.UUID);
         registerLiveProperty(TICKETDISCOVERY);
     }
 
@@ -474,7 +475,7 @@ public abstract class DavItemResourceBase extends DavResourceBase
         unauthenticated.setProtected(true);
         acl.getAces().add(unauthenticated);
 
-        DavAce owner = new DavAce.PropertyAce(OWNER);
+        DavAce owner = new DavAce.PropertyAce(ExtendedDavConstants.OWNER);
         owner.getPrivileges().add(DavPrivilege.ALL);
         owner.setProtected(true);
         acl.getAces().add(owner);
@@ -487,7 +488,7 @@ public abstract class DavItemResourceBase extends DavResourceBase
                 DavResourceLocator l =
                     f.createPrincipalLocator(getResourceLocator().getContext(),
                                             parent.getOwner());
-                DavAce parentOwner = new DavAce.PropertyAce(OWNER);
+                DavAce parentOwner = new DavAce.PropertyAce(ExtendedDavConstants.OWNER);
                 parentOwner.getPrivileges().add(DavPrivilege.ALL);
                 parentOwner.setProtected(true);
                 parentOwner.setInherited(l.getHref(false));
@@ -592,10 +593,10 @@ public abstract class DavItemResourceBase extends DavResourceBase
             name.equals(DavPropertyName.GETETAG) ||
             name.equals(DavPropertyName.RESOURCETYPE) ||
             name.equals(DavPropertyName.ISCOLLECTION) ||
-            name.equals(OWNER) ||
+            name.equals(ExtendedDavConstants.OWNER) ||
             name.equals(PRINCIPALCOLLECTIONSET) ||
             name.equals(TICKETDISCOVERY) ||
-            name.equals(UUID))
+            name.equals(ExtendedDavConstants.UUID))
             throw new ProtectedPropertyModificationException(name);
 
         if (name.equals(DavPropertyName.DISPLAYNAME))
@@ -613,10 +614,10 @@ public abstract class DavItemResourceBase extends DavResourceBase
             name.equals(DavPropertyName.DISPLAYNAME) ||
             name.equals(DavPropertyName.RESOURCETYPE) ||
             name.equals(DavPropertyName.ISCOLLECTION) ||
-            name.equals(OWNER) ||
+            name.equals(ExtendedDavConstants.OWNER) ||
             name.equals(PRINCIPALCOLLECTIONSET) ||
             name.equals(TICKETDISCOVERY) ||
-            name.equals(UUID))
+            name.equals(ExtendedDavConstants.UUID))
             throw new ProtectedPropertyModificationException(name);
 
         getProperties().remove(name);
