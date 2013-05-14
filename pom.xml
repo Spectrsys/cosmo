@@ -134,7 +134,7 @@
         <module>cosmo-utils</module>
         <module>olson</module>
         <!-- module>client-js</module -->
-        <module>chandler</module>
+        <module>cosmo-webapp</module>
         <module>model</module>
         <module>persistence</module>
         <module>resources</module>
@@ -392,7 +392,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-eclipse-plugin</artifactId>
-                    <version>2.5.1</version>
+                    <version>2.9</version>
                     <configuration>
                         <projectNameTemplate>[groupId].[artifactId]</projectNameTemplate>
                     </configuration>
