@@ -24,7 +24,7 @@ import org.springframework.security.Authentication;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.osaf.cosmo.acegisecurity.userdetails.CosmoUserDetails;
 import org.osaf.cosmo.model.Preference;
-import org.osaf.cosmo.ui.UIConstants;
+import org.osaf.cosmo.utils.UIConstants;
 import org.springframework.util.Assert;
 
 /**

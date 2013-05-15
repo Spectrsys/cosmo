@@ -22,26 +22,21 @@
 
     <parent>
         <groupId>org.osaf.cosmo</groupId>
-        <artifactId>cosmo-persistence</artifactId>
+        <artifactId>osaf-server</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.osaf.cosmo.persistence</groupId>
-    <artifactId>cosmo-persistence-api</artifactId>
-    <name>Cosmo :: Persistence :: API</name>
+    <artifactId>cosmo-service</artifactId>
+    <name>Cosmo :: Service API</name>
 
     <dependencies>
         <dependency>
             <groupId>org.osaf.cosmo</groupId>
-            <artifactId>cosmo-security</artifactId>
+            <artifactId>cosmo-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.osaf.cosmo</groupId>
-            <artifactId>cosmo-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.osaf.cosmo.model</groupId>
-            <artifactId>cosmo-model-api</artifactId>
+            <groupId>org.osaf.cosmo.persistence</groupId>
+            <artifactId>cosmo-persistence-api</artifactId>
         </dependency>
     </dependencies>
 

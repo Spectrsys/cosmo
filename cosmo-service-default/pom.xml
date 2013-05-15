@@ -22,26 +22,27 @@
 
     <parent>
         <groupId>org.osaf.cosmo</groupId>
-        <artifactId>cosmo-persistence</artifactId>
+        <artifactId>osaf-server</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.osaf.cosmo.persistence</groupId>
-    <artifactId>cosmo-persistence-api</artifactId>
-    <name>Cosmo :: Persistence :: API</name>
+    <artifactId>cosmo-service-default</artifactId>
+    <name>Cosmo :: Service Default Implementation</name>
 
     <dependencies>
         <dependency>
             <groupId>org.osaf.cosmo</groupId>
-            <artifactId>cosmo-security</artifactId>
+            <artifactId>cosmo-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.osaf.cosmo</groupId>
-            <artifactId>cosmo-api</artifactId>
+            <groupId>org.osaf.cosmo.persistence</groupId>
+            <artifactId>cosmo-persistence-api</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.osaf.cosmo.model</groupId>
-            <artifactId>cosmo-model-api</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>2.5.3</version>
         </dependency>
     </dependencies>
 

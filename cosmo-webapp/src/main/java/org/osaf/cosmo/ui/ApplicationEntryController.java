@@ -26,6 +26,7 @@ import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.service.UserService;
 import org.osaf.cosmo.spring.CosmoPropertyPlaceholderConfigurer;
+import org.osaf.cosmo.utils.UIConstants;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 

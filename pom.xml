@@ -130,7 +130,12 @@
 
     <modules>
         <module>cosmo-api</module>
+        <module>cosmo-aop</module>
+        <module>cosmo-aspect</module>
+        <module>cosmo-db</module>
         <module>cosmo-security</module>
+        <module>cosmo-security-acegi</module>
+        <module>cosmo-service</module>
         <module>cosmo-utils</module>
         <module>olson</module>
         <!-- module>client-js</module -->
@@ -287,15 +292,25 @@
                 <artifactId>cosmo-persistence-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.osaf.cosmo.persistence</groupId>
-                <artifactId>api</artifactId>
+                <artifactId>cosmo-persistence-hibernate</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.osaf.cosmo</groupId>
+                <artifactId>cosmo-aop</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.osaf.cosmo.persistence</groupId>
-                <artifactId>hibernate</artifactId>
+                <groupId>org.osaf.cosmo</groupId>
+                <artifactId>cosmo-aspect</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osaf.cosmo</groupId>
+                <artifactId>cosmo-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
