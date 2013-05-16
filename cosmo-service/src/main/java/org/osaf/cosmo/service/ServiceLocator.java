@@ -22,10 +22,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.osaf.cosmo.model.CollectionItem;
+import org.osaf.cosmo.model.ExtendedDavConstants;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.ServiceLocatorRegistry;
 import org.osaf.cosmo.model.User;
 
 import org.osaf.cosmo.utils.UriTemplate;
+import org.osaf.cosmo.utils.server.ServerConstants;
 
 /**
  * This class encapsulates the addressing scheme for all client
@@ -71,7 +74,7 @@ public class ServiceLocator implements ServerConstants {
 
     private String appMountUrl;
     private String ticketKey;
-    private ServiceLocatorFactory factory;
+    private ServiceLocatorRegistry factory;
 
     /**
      * Returns a <code>ServiceLocator</code> instance that uses the
@@ -81,8 +84,7 @@ public class ServiceLocator implements ServerConstants {
      * @param appMountUrl the application mount URL
      * @param factory the service location factory
      */
-    public ServiceLocator(String appMountUrl,
-                          ServiceLocatorFactory factory) {
+    public ServiceLocator(String appMountUrl, ServiceLocatorRegistry factory) {
         this(appMountUrl, null, factory);
     }
 
@@ -97,7 +99,7 @@ public class ServiceLocator implements ServerConstants {
      */
     public ServiceLocator(String appMountUrl,
                           String ticketKey,
-                          ServiceLocatorFactory factory) {
+                          ServiceLocatorRegistry factory) {
         this.appMountUrl = appMountUrl;
         this.ticketKey = ticketKey;
         this.factory = factory;
@@ -248,8 +250,7 @@ public class ServiceLocator implements ServerConstants {
     public String getDavUserPrincipalUrl() {
         StringBuffer buf = new StringBuffer();
         buf.append(appMountUrl).append(factory.getDavPrefix()).
-            append(org.osaf.cosmo.dav.ExtendedDavConstants.
-                   TEMPLATE_USERS.bind());
+            append(ExtendedDavConstants.TEMPLATE_USERS.bind());
         return buf.toString();
     }
 
@@ -266,7 +267,7 @@ public class ServiceLocator implements ServerConstants {
     public String getDavUrl(User user) {
          StringBuffer buf = new StringBuffer();
          buf.append(appMountUrl).append(factory.getDavPrefix()).
-             append(org.osaf.cosmo.dav.ExtendedDavConstants.
+             append(ExtendedDavConstants.
                     TEMPLATE_HOME.bind(user.getUsername()));
          return buf.toString();
     }
@@ -277,8 +278,7 @@ public class ServiceLocator implements ServerConstants {
     public String getDavPrincipalUrl(User user) {
          StringBuffer buf = new StringBuffer();
          buf.append(appMountUrl).append(factory.getDavPrefix()).
-            append(org.osaf.cosmo.dav.ExtendedDavConstants.
-                    TEMPLATE_USER.bind(user.getUsername()));
+            append(ExtendedDavConstants.TEMPLATE_USER.bind(user.getUsername()));
          return buf.toString();
     }
 
@@ -288,8 +288,7 @@ public class ServiceLocator implements ServerConstants {
     public String getDavCalendarHomeUrl(User user) {
         StringBuffer buf = new StringBuffer();
         buf.append(appMountUrl).append(factory.getDavPrefix()).
-            append(org.osaf.cosmo.dav.ExtendedDavConstants.
-                   TEMPLATE_HOME.bind(user.getUsername())).
+            append(ExtendedDavConstants.TEMPLATE_HOME.bind(user.getUsername())).
                    append("/");
         return buf.toString();
     }
@@ -376,7 +375,7 @@ public class ServiceLocator implements ServerConstants {
         return ticketKey;
     }
 
-    public ServiceLocatorFactory getFactory() {
+    public ServiceLocatorRegistry getFactory() {
         return factory;
     }
 

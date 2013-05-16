@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.osaf.cosmo.model.ServiceLocatorRegistry;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 
@@ -30,7 +31,7 @@ import org.osaf.cosmo.security.CosmoSecurityManager;
  *
  * @see ServiceLocator
  */
-public class ServiceLocatorFactory {
+public class ServiceLocatorFactory implements ServiceLocatorRegistry {
     private static final Log log =
         LogFactory.getLog(ServiceLocatorFactory.class);
 
