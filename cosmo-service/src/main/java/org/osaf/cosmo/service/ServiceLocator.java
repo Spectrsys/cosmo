@@ -65,7 +65,7 @@ import org.osaf.cosmo.utils.server.ServerConstants;
  * @see CollectionPath
  * @see UserPath
  */
-public class ServiceLocator implements ServerConstants {
+public class ServiceLocator {
     private static final Log log = LogFactory.getLog(ServiceLocator.class);
 
     private static final String PATH_COLLECTION = "collection";
@@ -110,12 +110,12 @@ public class ServiceLocator implements ServerConstants {
      */
     public Map<String,String> getBaseUrls() {
         HashMap<String,String> urls = new HashMap<String,String>();
-        urls.put(SVC_ATOM, getAtomBase());
-        urls.put(SVC_MORSE_CODE, getMorseCodeBase());
-        urls.put(SVC_PIM, getPimBase());
-        urls.put(SVC_WEBCAL, getWebcalBase());
-        urls.put(SVC_DAV, getDavBase());
-        urls.put(SVC_DAV_PRINCIPAL, getDavUserPrincipalUrl());
+        urls.put(ServerConstants.SVC_ATOM, getAtomBase());
+        urls.put(ServerConstants.SVC_MORSE_CODE, getMorseCodeBase());
+        urls.put(ServerConstants.SVC_PIM, getPimBase());
+        urls.put(ServerConstants.SVC_WEBCAL, getWebcalBase());
+        urls.put(ServerConstants.SVC_DAV, getDavBase());
+        urls.put(ServerConstants.SVC_DAV_PRINCIPAL, getDavUserPrincipalUrl());
         return urls;
     }
 
@@ -124,11 +124,11 @@ public class ServiceLocator implements ServerConstants {
      */
     public Map<String,String> getCollectionUrls(CollectionItem collection) {
         HashMap<String,String> urls = new HashMap<String,String>();
-        urls.put(SVC_ATOM, getAtomUrl(collection));
-        urls.put(SVC_DAV, getDavUrl(collection));
-        urls.put(SVC_MORSE_CODE, getMorseCodeUrl(collection));
-        urls.put(SVC_PIM, getPimUrl(collection));
-        urls.put(SVC_WEBCAL, getWebcalUrl(collection));
+        urls.put(ServerConstants.SVC_ATOM, getAtomUrl(collection));
+        urls.put(ServerConstants.SVC_DAV, getDavUrl(collection));
+        urls.put(ServerConstants.SVC_MORSE_CODE, getMorseCodeUrl(collection));
+        urls.put(ServerConstants.SVC_PIM, getPimUrl(collection));
+        urls.put(ServerConstants.SVC_WEBCAL, getWebcalUrl(collection));
         return urls;
     }
 
@@ -137,12 +137,12 @@ public class ServiceLocator implements ServerConstants {
      */
     public Map<String,String> getUserUrls(User user) {
         HashMap<String,String> urls = new HashMap<String,String>();
-        urls.put(SVC_ATOM, getAtomUrl(user));
-        urls.put(SVC_CMP, getCmpUrl(user));
-        urls.put(SVC_DAV, getDavUrl(user));
-        urls.put(SVC_MORSE_CODE, getMorseCodeUrl(user));
-        urls.put(SVC_DAV_PRINCIPAL, getDavPrincipalUrl(user));
-        urls.put(SVC_DAV_CALENDAR_HOME, getDavCalendarHomeUrl(user));
+        urls.put(ServerConstants.SVC_ATOM, getAtomUrl(user));
+        urls.put(ServerConstants.SVC_CMP, getCmpUrl(user));
+        urls.put(ServerConstants.SVC_DAV, getDavUrl(user));
+        urls.put(ServerConstants.SVC_MORSE_CODE, getMorseCodeUrl(user));
+        urls.put(ServerConstants.SVC_DAV_PRINCIPAL, getDavPrincipalUrl(user));
+        urls.put(ServerConstants.SVC_DAV_CALENDAR_HOME, getDavCalendarHomeUrl(user));
         return urls;
     }
 
@@ -418,8 +418,9 @@ public class ServiceLocator implements ServerConstants {
 
         buf.append(pathPrefix).append("/").append(uid);
 
-        if (ticketKey != null)
-            buf.append("?").append(PARAM_TICKET).append("=").append(ticketKey);
+        if (ticketKey != null) {
+            buf.append("?").append(ServerConstants.PARAM_TICKET).append("=").append(ticketKey);
+        }
 
         return buf.toString();
     }
@@ -455,7 +456,7 @@ public class ServiceLocator implements ServerConstants {
         buf.append(path);
 
         if (withTicket && ticketKey != null)
-            buf.append("?").append(PARAM_TICKET).append("=").append(ticketKey);
+            buf.append("?").append(ServerConstants.PARAM_TICKET).append("=").append(ticketKey);
 
         return buf.toString();                                  
     }

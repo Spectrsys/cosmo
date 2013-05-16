@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.security.aop;
+package org.osaf.cosmo.aspect;
 
 import java.util.Date;
 import java.util.Set;
@@ -24,11 +24,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.osaf.cosmo.aop.OrderedAdvice;
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.dao.ContentDao;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
-
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemSecurityException;
 import org.osaf.cosmo.model.NoteItem;
@@ -36,12 +36,10 @@ import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.filter.ItemFilter;
 import org.osaf.cosmo.security.CosmoSecurityContext;
-import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.security.Permission;
-import org.osaf.cosmo.security.util.SecurityHelper;
+import org.osaf.cosmo.service.SecurityHelper;
 import org.osaf.cosmo.service.triage.TriageStatusQueryContext;
-import org.springframework.core.Ordered;
 
 /**
  * Security Advice for determining access to service

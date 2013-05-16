@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.security.aop;
+package org.osaf.cosmo.aspect;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
