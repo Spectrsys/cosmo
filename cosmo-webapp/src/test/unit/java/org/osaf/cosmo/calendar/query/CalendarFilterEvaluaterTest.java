@@ -24,6 +24,15 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Period;
 
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilterEvaluater;
+import org.osaf.cosmo.model.calendar.filter.ComponentFilter;
+import org.osaf.cosmo.model.calendar.filter.IsNotDefinedFilter;
+import org.osaf.cosmo.model.calendar.filter.ParamFilter;
+import org.osaf.cosmo.model.calendar.filter.PropertyFilter;
+import org.osaf.cosmo.model.calendar.filter.TextMatchFilter;
+import org.osaf.cosmo.model.calendar.filter.TimeRangeFilter;
+
 /**
  * Test CalendarFilterEvaluater
  */

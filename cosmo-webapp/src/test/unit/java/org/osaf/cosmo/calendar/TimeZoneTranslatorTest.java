@@ -25,6 +25,8 @@ import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
+import org.osaf.cosmo.model.calendar.TimeZoneTranslator;
+
 /**
  * Test TimeZoneTranslator
  */

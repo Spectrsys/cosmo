@@ -51,6 +51,8 @@ import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.StampUtils;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.TriageStatusUtil;
+import org.osaf.cosmo.model.calendar.EntityConverter;
+import org.osaf.cosmo.model.calendar.ICalDate;
 import org.osaf.cosmo.model.mock.MockCalendarCollectionStamp;
 import org.osaf.cosmo.model.mock.MockCollectionItem;
 import org.osaf.cosmo.model.mock.MockEntityFactory;
@@ -59,6 +61,7 @@ import org.osaf.cosmo.model.mock.MockEventStamp;
 import org.osaf.cosmo.model.mock.MockNoteItem;
 import org.osaf.cosmo.model.mock.MockTaskStamp;
 import org.osaf.cosmo.model.mock.MockTriageStatus;
+import org.osaf.cosmo.utils.ICalendarUtils;
 
 /**
  * Test EntityConverter.

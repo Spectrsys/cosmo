@@ -30,6 +30,10 @@
     <dependencies>
         <dependency>
             <groupId>org.osaf.cosmo</groupId>
+            <artifactId>cosmo-dav</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osaf.cosmo</groupId>
             <artifactId>cosmo-api</artifactId>
         </dependency>
         <dependency>
@@ -122,13 +126,6 @@
             <!-- scope>provided</scope -->
         </dependency>
 
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.7.1</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- TODO: remove this dependency after factoring out the use of EntityTag -->
         <dependency>
             <groupId>org.apache.abdera</groupId>
@@ -138,11 +135,6 @@
 
         <!-- required by jcr-server -->
         <!-- XXX: should be 1.0 release version -->
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-jcr-commons</artifactId>
-            <version>1.0-osaf-20060508</version>
-        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -165,21 +157,6 @@
             <artifactId>mail</artifactId>
             <version>1.4</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-jcr-server</artifactId>
-            <version>1.0-osaf-20061023</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-server</artifactId>
-            <version>1.0-osaf-20061023</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-jcr-webdav</artifactId>
-            <version>1.0-osaf-20061023</version>
         </dependency>
         <dependency>
             <groupId>oro</groupId>

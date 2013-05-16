@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.model.calendar.ICalValueParser;
 
 public class ICalValueParserTest extends TestCase {
     private static final Log log =

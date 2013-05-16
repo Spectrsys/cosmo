@@ -30,6 +30,9 @@ import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VEvent;
 
+import org.osaf.cosmo.model.calendar.Instance;
+import org.osaf.cosmo.model.calendar.InstanceList;
+
 /**
  * Test InstanceList, the meat and potatoes of recurrence
  * expansion.

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.http;
+package org.osaf.cosmo.utils.http;
 
 import java.util.HashSet;
 

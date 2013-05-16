@@ -22,6 +22,7 @@ import net.fortuna.ical4j.model.DateTime;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.ICalendarItem;
+import org.osaf.cosmo.model.calendar.filter.CalendarFilter;
 
 /**
  * Interface for DAO that provides query apis for finding 
@@ -40,7 +41,7 @@ public interface CalendarDao {
      *            collection to search
      * @return calendar event represented by uid and calendar
      */
-    public ContentItem findEventByIcalUid(String uid,
+    ContentItem findEventByIcalUid(String uid,
             CollectionItem collection);
     
 
@@ -55,8 +56,7 @@ public interface CalendarDao {
      * @return set ICalendar objects that match specified
      *         filter.
      */
-    public Set<ICalendarItem> findCalendarItems(CollectionItem collection/*, TEMPORARY FIX >>>
-                                               CalendarFilter filter*/);
+    Set<ICalendarItem> findCalendarItems(CollectionItem collection, CalendarFilter filter);
     
     /**
      * Find calendar events by time range.
@@ -70,7 +70,7 @@ public interface CalendarDao {
      * @return set ContentItem objects that contain EventStamps that occur
      *         int the given timeRange.
      */
-    public Set<ContentItem> findEvents(CollectionItem collection,
+    Set<ContentItem> findEvents(CollectionItem collection,
                                              DateTime rangeStart, DateTime rangeEnd,
                                              boolean expandRecurringEvents);
 
