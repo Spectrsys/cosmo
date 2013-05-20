@@ -39,7 +39,7 @@ public interface DavResourceLocator {
      * as the value for a <code>DAV:href</code> property. Appends a trailing
      * slash if <code>isCollection</code>.
      */
-    public String getHref(boolean isCollection);
+    String getHref(boolean isCollection);
 
     /**
      * Returns the escaped URL of the resource that can be used as the value
@@ -47,37 +47,35 @@ public interface DavResourceLocator {
      * absolute-path relative (i.e. including the base path but not the
      * prefix). Appends a trailing slash if <code>isCollection</code>.
      */
-    public String getHref(boolean absolute,
-                          boolean isCollection);
+    String getHref(boolean absolute, boolean isCollection);
 
     /**
      * Returns a URL representing the href as per {@link getHref(boolean)}.
      */
-    public URL getUrl(boolean isCollection);
+    URL getUrl(boolean isCollection);
 
     /**
      * Returns a URL representing the href as per
      * {@link getHref(boolean, boolean)}.
      */
-    public URL getUrl(boolean absolute,
-                      boolean isCollection);
+    URL getUrl(boolean absolute, boolean isCollection);
 
     /**
      * Returns the scheme and authority portion of the URL.
      */
-    public String getPrefix();
+    String getPrefix();
 
     /**
      * Returns the leading portion of the path (unescaped) that identifies the
      * root of the dav namespace.
      */
-    public String getBasePath();
+    String getBasePath();
 
     /**
      * Returns the absolute escaped URL corresponding to the base path that
      * can be used as the value for a <code>DAV:href</code> property.
      */
-    public String getBaseHref();
+    String getBaseHref();
 
     /**
      * Returns the escaped URL corresponding to the base path that can be
@@ -85,13 +83,13 @@ public interface DavResourceLocator {
      * either absolute or absolute-path relative (i.e. including the base
      * path but not the prefix).
      */
-    public String getBaseHref(boolean absolute);
+    String getBaseHref(boolean absolute);
 
     /**
      * Returns the trailing portion of the path that identifies the resource
      * within the dav namespace.
      */
-    public String getPath();
+    String getPath();
 
     /**
      * Returns a URL that provides context for resolving other locators.
@@ -99,15 +97,15 @@ public interface DavResourceLocator {
      * locator's prefix, and its path is the same as this locator's base
      * path.
      */
-    public URL getContext();
+    URL getContext();
 
     /**
      * Returns a locator identifying the parent resource.
      */
-    public DavResourceLocator getParentLocator();
+    DavResourceLocator getParentLocator();
 
     /**
      * Returns the factory that instantiated this locator.
      */
-    public DavResourceLocatorFactory getFactory();
+    DavResourceLocatorFactory getFactory();
 }

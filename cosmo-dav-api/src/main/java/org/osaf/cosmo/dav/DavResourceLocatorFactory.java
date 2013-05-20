@@ -38,8 +38,7 @@ public interface DavResourceLocatorFactory {
      * base path
      * @param path the unescaped path of the resource
      */
-    public DavResourceLocator createResourceLocatorByPath(URL context,
-                                                          String path);
+    DavResourceLocator createResourceLocatorByPath(URL context, String path);
 
     /**
      * <p>
@@ -56,8 +55,7 @@ public interface DavResourceLocatorFactory {
      * base path
      * @param path the unescaped path of the resource
      */
-    public DavResourceLocator createResourceLocatorByUri(URL context,
-                                                         String uri)
+    DavResourceLocator createResourceLocatorByUri(URL context, String uri)
         throws DavException;
 
     /**
@@ -70,8 +68,7 @@ public interface DavResourceLocatorFactory {
      * base path
      * @param path the user
      */
-    public DavResourceLocator createHomeLocator(URL context,
-                                                User user)
+    DavResourceLocator createHomeLocator(URL context, User user)
         throws DavException;
 
     /**
@@ -84,7 +81,6 @@ public interface DavResourceLocatorFactory {
      * base path
      * @param path the user
      */
-    public DavResourceLocator createPrincipalLocator(URL context,
-                                                     User user)
+    DavResourceLocator createPrincipalLocator(URL context, User user)
         throws DavException;
 }
