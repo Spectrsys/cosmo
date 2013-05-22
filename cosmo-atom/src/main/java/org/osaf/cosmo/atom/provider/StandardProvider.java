@@ -30,9 +30,8 @@ import org.osaf.cosmo.atom.generator.GeneratorException;
 import org.osaf.cosmo.atom.generator.GeneratorFactory;
 import org.osaf.cosmo.atom.generator.ServiceGenerator;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.server.ServiceLocator;
-import org.osaf.cosmo.server.ServiceLocatorFactory;
-import org.springframework.dao.OptimisticLockingFailureException;
+import org.osaf.cosmo.service.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocatorFactory;
 
 public class StandardProvider extends AbstractProvider {
 
@@ -146,11 +145,7 @@ public class StandardProvider extends AbstractProvider {
             // logs don't get too polluted with errors.  For example, OptimisticLockingFailureException
             // is expected and should be handled by the retry logic that is one layer above.
             // Although not ideal, for now simply check for this type and log at a different level.
-            if(e instanceof OptimisticLockingFailureException) {
-                log.info("Unexpected processing error", e);
-            } else {
-                log.error("Unexpected processing error", e);
-            }
+            log.error("Unexpected processing error", e);
             
             if (transaction != null)
                 transaction.compensate(request, e);

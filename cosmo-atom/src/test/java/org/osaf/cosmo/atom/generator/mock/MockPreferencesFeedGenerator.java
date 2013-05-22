@@ -19,15 +19,13 @@ import java.net.URLEncoder;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.atom.generator.GeneratorException;
 import org.osaf.cosmo.atom.generator.PreferencesFeedGenerator;
 import org.osaf.cosmo.model.Preference;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * Mock implementation of {@link PreferencesFeedGenerator} that

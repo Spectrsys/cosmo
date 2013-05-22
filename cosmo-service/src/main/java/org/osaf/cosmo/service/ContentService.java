@@ -29,6 +29,8 @@ import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.filter.ItemFilter;
+import org.osaf.cosmo.service.lock.LockManager;
+import org.osaf.cosmo.service.lock.SingleVMLockManager;
 import org.osaf.cosmo.service.triage.TriageStatusQueryContext;
 
 /**
@@ -368,5 +370,7 @@ public interface ContentService extends Service {
      */
     public void removeTicket(Item item,
                              String key);
+
+    public LockManager getLockManager();
     
 }

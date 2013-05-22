@@ -26,9 +26,9 @@ import org.apache.abdera.model.Feed;
 import org.apache.abdera.model.Link;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.eim.eimml.EimmlConstants;
-import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.AuditableComparator;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Item;
@@ -37,7 +37,7 @@ import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.NoteOccurrence;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.filter.NoteItemFilter;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * A base class for feed generators that work with collections and items.
@@ -331,7 +331,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newPimLink(Item item)
         throws GeneratorException {
-        return newLink(Link.REL_ALTERNATE, MEDIA_TYPE_HTML,
+        return newLink(Link.REL_ALTERNATE, ICalendarConstants.MEDIA_TYPE_HTML,
                        getLocator().getPimUrl(item, true));
     }
 
@@ -382,7 +382,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newTicketsLink(CollectionItem collection)
         throws GeneratorException {
-        return newLink(REL_TICKET, MEDIA_TYPE_ATOM,
+        return newLink(REL_TICKET, ICalendarConstants.MEDIA_TYPE_ATOM,
                        ticketsIri(collection));
     }
 
@@ -394,7 +394,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newSelfLink(Item item)
         throws GeneratorException {
-        return newLink(Link.REL_SELF, MEDIA_TYPE_ATOM, selfIri(item));
+        return newLink(Link.REL_SELF, ICalendarConstants.MEDIA_TYPE_ATOM, selfIri(item));
     }
 
     /**
@@ -405,7 +405,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newExpandedLink(NoteItem item)
         throws GeneratorException {
-        return newLink(REL_EXPANDED, MEDIA_TYPE_ATOM, expandedIri(item));
+        return newLink(REL_EXPANDED, ICalendarConstants.MEDIA_TYPE_ATOM, expandedIri(item));
     }
 
     /**
@@ -417,7 +417,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newMasterLink(NoteOccurrence occurrence)
         throws GeneratorException {
-        return newLink(REL_MASTER, MEDIA_TYPE_ATOM,
+        return newLink(REL_MASTER, ICalendarConstants.MEDIA_TYPE_ATOM,
                        selfIri(occurrence.getMasterNote()));
     }
 
@@ -443,7 +443,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newEditLink(NoteItem item)
         throws GeneratorException {
-        return newLink(Link.REL_EDIT, MEDIA_TYPE_ATOM, selfIri(item, false));
+        return newLink(Link.REL_EDIT, ICalendarConstants.MEDIA_TYPE_ATOM, selfIri(item, false));
     }
 
     /**
@@ -455,7 +455,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newParentLink(CollectionItem collection)
         throws GeneratorException {
-        return newLink(REL_PARENT, MEDIA_TYPE_ATOM, selfIri(collection));
+        return newLink(REL_PARENT, ICalendarConstants.MEDIA_TYPE_ATOM, selfIri(collection));
     }
 
     /**
@@ -467,7 +467,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newModifiesLink(NoteItem item)
         throws GeneratorException {
-        return newLink(REL_MODIFIES, MEDIA_TYPE_ATOM, selfIri(item));
+        return newLink(REL_MODIFIES, ICalendarConstants.MEDIA_TYPE_ATOM, selfIri(item));
     }
 
     /**
@@ -479,7 +479,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newModificationLink(NoteItem item)
         throws GeneratorException {
-        return newLink(REL_MODIFICATION, MEDIA_TYPE_ATOM, detachedIri(item));
+        return newLink(REL_MODIFICATION, ICalendarConstants.MEDIA_TYPE_ATOM, detachedIri(item));
     }
 
     /**
@@ -491,7 +491,7 @@ public abstract class BaseItemFeedGenerator
      */
     protected Link newDetachedLink(NoteItem item)
         throws GeneratorException {
-        return newLink(REL_DETACHED, MEDIA_TYPE_ATOM, detachedIri(item));
+        return newLink(REL_DETACHED, ICalendarConstants.MEDIA_TYPE_ATOM, detachedIri(item));
     }
 
     /**

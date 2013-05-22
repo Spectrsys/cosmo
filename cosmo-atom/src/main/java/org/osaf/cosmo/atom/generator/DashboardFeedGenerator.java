@@ -30,8 +30,8 @@ import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.TriageStatusUtil;
 import org.osaf.cosmo.model.filter.EventStampFilter;
-import org.osaf.cosmo.server.ServiceLocator;
 import org.osaf.cosmo.service.ContentService;
+import org.osaf.cosmo.service.ServiceLocator;
 import org.osaf.cosmo.service.triage.TriageStatusQueryContext;
 
 /**

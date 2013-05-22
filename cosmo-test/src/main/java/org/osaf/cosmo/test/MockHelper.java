@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo;
+package org.osaf.cosmo.test;
 
 import org.apache.commons.id.random.SessionIdGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor;
-import org.osaf.cosmo.calendar.query.impl.StandardCalendarQueryProcessor;
+import org.osaf.cosmo.api.icalendar.ICalendarClientFilterManager;
 import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
 import org.osaf.cosmo.dao.mock.MockUserDao;
-import org.osaf.cosmo.icalendar.ICalendarClientFilterManager;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionSubscription;
 import org.osaf.cosmo.model.ContentItem;
@@ -34,14 +32,17 @@ import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Preference;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor;
 import org.osaf.cosmo.model.mock.MockEntityFactory;
+import org.osaf.cosmo.model.mock.TestHelper;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.security.mock.MockSecurityManager;
 import org.osaf.cosmo.security.mock.MockTicketPrincipal;
 import org.osaf.cosmo.security.mock.MockUserPrincipal;
-import org.osaf.cosmo.server.ServiceLocatorFactory;
 import org.osaf.cosmo.service.ContentService;
+import org.osaf.cosmo.service.ServiceLocatorFactory;
 import org.osaf.cosmo.service.UserService;
+import org.osaf.cosmo.service.impl.StandardCalendarQueryProcessor;
 import org.osaf.cosmo.service.impl.StandardContentService;
 import org.osaf.cosmo.service.impl.StandardTriageStatusQueryProcessor;
 import org.osaf.cosmo.service.impl.StandardUserService;

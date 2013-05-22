@@ -20,6 +20,7 @@ import java.io.Reader;
 import java.util.Iterator;
 
 import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.data.HCalendarParser;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -28,7 +29,6 @@ import net.fortuna.ical4j.model.component.VEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.hcalendar.HCalendarParser;
 import org.osaf.cosmo.model.EntityFactory;
 
 /**

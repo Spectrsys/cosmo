@@ -136,6 +136,7 @@
     <modules>
         <module>cosmo-api</module>
         <module>cosmo-aop</module>
+        <module>cosmo-eim</module>
         <module>cosmo-aspect</module>
         <module>cosmo-dav</module>
         <module>cosmo-dav-api</module>
@@ -147,6 +148,7 @@
         <module>cosmo-service-default</module>
         <module>cosmo-spring</module>
         <module>cosmo-utils</module>
+        <module>cosmo-test</module>
         <module>olson</module>
         <!-- module>client-js</module -->
         <module>cosmo-webapp</module>
@@ -368,7 +370,17 @@
             </dependency>
             <dependency>
                 <groupId>org.osaf.cosmo</groupId>
+                <artifactId>cosmo-atom</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osaf.cosmo</groupId>
                 <artifactId>cosmo-aspect</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osaf.cosmo</groupId>
+                <artifactId>cosmo-eim</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -486,6 +498,12 @@
 	            <scope>provided</scope>
 	        </dependency>
 
+            <dependency>
+                <groupId>org.osaf.cosmo</groupId>
+                <artifactId>cosmo-test</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

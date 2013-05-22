@@ -19,12 +19,12 @@ import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.atom.generator.ItemFeedGenerator;
 import org.osaf.cosmo.atom.generator.GeneratorException;
+import org.osaf.cosmo.atom.generator.ItemFeedGenerator;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.filter.NoteItemFilter;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * Mock implementation of {@link ItemFeedGenerator} that generates dummy

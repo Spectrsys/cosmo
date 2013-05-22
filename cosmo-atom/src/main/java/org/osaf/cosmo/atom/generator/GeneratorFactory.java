@@ -15,7 +15,7 @@
  */
 package org.osaf.cosmo.atom.generator;
 
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * An interface for factories that create {@link FeedGenerator}

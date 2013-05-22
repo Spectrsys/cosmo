@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.icalendar;
+package org.osaf.cosmo.api.icalendar;
 
 import net.fortuna.ical4j.model.Calendar;
 
@@ -27,5 +27,5 @@ public interface ICalendarClientFilter {
      * Manipulate Calendar instance.
      * @param calendar
      */
-    public void filterCalendar(Calendar calendar);
+    void filterCalendar(Calendar calendar);
 }

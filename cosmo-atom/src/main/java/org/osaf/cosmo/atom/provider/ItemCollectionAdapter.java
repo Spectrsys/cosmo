@@ -50,6 +50,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.atom.InsufficientPrivilegesException;
 import org.osaf.cosmo.atom.UidConflictException;
@@ -63,8 +64,6 @@ import org.osaf.cosmo.atom.processor.ProcessorException;
 import org.osaf.cosmo.atom.processor.ProcessorFactory;
 import org.osaf.cosmo.atom.processor.UnsupportedContentTypeException;
 import org.osaf.cosmo.atom.processor.ValidationException;
-import org.osaf.cosmo.model.calendar.EntityConverter;
-import org.osaf.cosmo.utils.CalendarUtils;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
@@ -83,13 +82,14 @@ import org.osaf.cosmo.model.NoteOccurrence;
 import org.osaf.cosmo.model.StampUtils;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.model.filter.EventStampFilter;
 import org.osaf.cosmo.model.filter.NoteItemFilter;
 import org.osaf.cosmo.model.filter.Restrictions;
 import org.osaf.cosmo.model.text.XhtmlCollectionFormat;
-import org.osaf.cosmo.security.CosmoSecurityException;
-import org.osaf.cosmo.server.ServiceLocator;
 import org.osaf.cosmo.service.ContentService;
+import org.osaf.cosmo.service.ServiceLocator;
+import org.osaf.cosmo.utils.CalendarUtils;
 
 public class ItemCollectionAdapter extends BaseCollectionAdapter implements AtomConstants {
    

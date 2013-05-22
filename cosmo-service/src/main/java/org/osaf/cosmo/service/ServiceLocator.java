@@ -15,20 +15,19 @@
  */
 package org.osaf.cosmo.service;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ExtendedDavConstants;
 import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.ServiceLocatorRegistry;
 import org.osaf.cosmo.model.User;
-
 import org.osaf.cosmo.utils.UriTemplate;
+import org.osaf.cosmo.utils.server.CollectionPath;
 import org.osaf.cosmo.utils.server.ServerConstants;
+import org.osaf.cosmo.utils.server.UserPath;
 
 /**
  * This class encapsulates the addressing scheme for all client

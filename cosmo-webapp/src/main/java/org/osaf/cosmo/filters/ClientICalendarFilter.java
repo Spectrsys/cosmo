@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.icalendar.ICalendarClientFilterManager;
+import org.osaf.cosmo.api.icalendar.ICalendarClientFilterManager;
 
 /**
  * A filter used to initialize the client identifier for

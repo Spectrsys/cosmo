@@ -25,15 +25,13 @@ import org.apache.abdera.model.Feed;
 import org.apache.abdera.model.Generator;
 import org.apache.abdera.model.Link;
 import org.apache.abdera.model.Person;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.osaf.cosmo.utils.CosmoConstants;
 import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
+import org.osaf.cosmo.utils.CosmoConstants;
 
 /**
  * A base class for feed generators.

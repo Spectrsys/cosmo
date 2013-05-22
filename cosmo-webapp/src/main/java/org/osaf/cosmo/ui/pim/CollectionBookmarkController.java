@@ -24,17 +24,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityContext;
-import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.security.CosmoSecurityManager;
-import org.osaf.cosmo.server.ServiceLocatorFactory;
 import org.osaf.cosmo.service.ContentService;
+import org.osaf.cosmo.service.ServiceLocatorFactory;
+import org.osaf.cosmo.spring.CosmoPropertyPlaceholderConfigurer;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
-import org.osaf.cosmo.spring.CosmoPropertyPlaceholderConfigurer;
 
 
 /**

@@ -26,7 +26,7 @@ import org.osaf.cosmo.atom.generator.ItemFeedGenerator;
 import org.osaf.cosmo.atom.generator.UnsupportedFormatException;
 import org.osaf.cosmo.atom.generator.UnsupportedProjectionException;
 import org.osaf.cosmo.model.NoteItem;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 public class ExpandedItemCollectionAdapter extends ItemCollectionAdapter {
     private static final Log log =

@@ -53,6 +53,8 @@ import org.osaf.cosmo.atom.AtomException;
 import org.osaf.cosmo.atom.generator.GeneratorFactory;
 import org.osaf.cosmo.model.AuditableObject;
 import org.osaf.cosmo.model.EntityFactory;
+import org.osaf.cosmo.service.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocatorFactory;
 import org.osaf.cosmo.utils.DateUtil;
 import org.osaf.cosmo.utils.server.ServerConstants;
 

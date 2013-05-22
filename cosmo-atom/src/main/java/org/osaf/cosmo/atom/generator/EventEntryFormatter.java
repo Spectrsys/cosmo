@@ -22,13 +22,12 @@ import net.fortuna.ical4j.model.TimeZone;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.osaf.cosmo.utils.Dates;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.NoteOccurrence;
 import org.osaf.cosmo.model.StampUtils;
-import org.osaf.cosmo.util.DateUtil;
+import org.osaf.cosmo.utils.DateUtil;
+import org.osaf.cosmo.utils.Dates;
 
 /**
  * Produces text and HTML representations of an event-stamped item for use

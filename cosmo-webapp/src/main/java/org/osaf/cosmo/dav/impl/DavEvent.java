@@ -21,7 +21,6 @@ import net.fortuna.ical4j.model.ComponentList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResourceFactory;
 import org.osaf.cosmo.dav.DavResourceLocator;
@@ -30,6 +29,7 @@ import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.EventStamp;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.StampUtils;
+import org.osaf.cosmo.model.calendar.EntityConverter;
 
 /**
  * Extends <code>DavCalendarResource</code> to adapt the Cosmo

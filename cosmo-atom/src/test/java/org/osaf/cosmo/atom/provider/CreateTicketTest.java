@@ -17,15 +17,13 @@ package org.osaf.cosmo.atom.provider;
 
 import org.apache.abdera.protocol.server.RequestContext;
 import org.apache.abdera.protocol.server.ResponseContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.atom.provider.mock.MockTicketsRequestContext;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.TicketType;
-import org.osaf.cosmo.model.hibernate.HibTicket;
+import org.osaf.cosmo.model.mock.MockTicket;
 
 /**
  * Test class for {@link TicketProvider#createEntry()} tests.
@@ -83,7 +81,7 @@ public class CreateTicketTest extends BaseTicketsCollectionAdapterTestCase {
 
     public void testInvalidEntryNoKey() throws Exception {
         CollectionItem collection = helper.makeAndStoreDummyCollection();
-        Ticket ticket = new HibTicket(TicketType.READ_ONLY);
+        Ticket ticket = new MockTicket(TicketType.READ_ONLY);
         RequestContext req = createRequestContext(collection, ticket);
 
         ResponseContext res = adapter.postEntry(req);
@@ -93,7 +91,7 @@ public class CreateTicketTest extends BaseTicketsCollectionAdapterTestCase {
 
     public void testInvalidEntryNoType() throws Exception {
         CollectionItem collection = helper.makeAndStoreDummyCollection();
-        Ticket ticket = new HibTicket();
+        Ticket ticket = new MockTicket();
         ticket.setKey("invalidEntryNoTypeTicket");
         ticket.setKey("foo");
         RequestContext req = createRequestContext(collection, ticket);

@@ -34,8 +34,8 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.text.XhtmlTicketFormat;
 import org.osaf.cosmo.security.CosmoSecurityManager;
-import org.osaf.cosmo.server.ServiceLocator;
 import org.osaf.cosmo.service.ContentService;
+import org.osaf.cosmo.service.ServiceLocator;
 
 public class TicketsCollectionAdapter extends BaseCollectionAdapter
     implements AtomConstants {

@@ -17,6 +17,7 @@ package org.osaf.cosmo.dav;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.api.icalendar.ICalendarClientFilterManager;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipalCollection;
 import org.osaf.cosmo.dav.impl.DavAvailability;
@@ -29,7 +30,6 @@ import org.osaf.cosmo.dav.impl.DavHomeCollection;
 import org.osaf.cosmo.dav.impl.DavInboxCollection;
 import org.osaf.cosmo.dav.impl.DavOutboxCollection;
 import org.osaf.cosmo.dav.impl.DavTask;
-import org.osaf.cosmo.icalendar.ICalendarClientFilterManager;
 import org.osaf.cosmo.model.AvailabilityItem;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;

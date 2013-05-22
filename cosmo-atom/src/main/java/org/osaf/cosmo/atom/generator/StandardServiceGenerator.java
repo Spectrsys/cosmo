@@ -26,7 +26,7 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.HomeCollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * Standard implementation of {@link ServiceGenerator}.

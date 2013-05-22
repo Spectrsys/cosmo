@@ -17,13 +17,11 @@ package org.osaf.cosmo.atom.provider;
 
 import org.apache.abdera.protocol.server.RequestContext;
 import org.apache.abdera.protocol.server.ResponseContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.atom.provider.mock.MockSubscriptionsRequestContext;
 import org.osaf.cosmo.model.CollectionSubscription;
-import org.osaf.cosmo.model.hibernate.HibCollectionSubscription;
+import org.osaf.cosmo.model.mock.MockCollectionSubscription;
 
 /**
  * Test class for {@link SubscriptionProvider#createEntry()} tests.
@@ -80,7 +78,7 @@ public class CreateSubscriptionTest extends BaseSubscriptionCollectionAdapterTes
     }
 
     public void testNoTicketKey() throws Exception {
-        CollectionSubscription sub = new HibCollectionSubscription();
+        CollectionSubscription sub = new MockCollectionSubscription();
         sub.setCollectionUid("deadbeef");
         RequestContext req = createRequestContext(sub);
 
@@ -90,7 +88,7 @@ public class CreateSubscriptionTest extends BaseSubscriptionCollectionAdapterTes
     }
 
     public void testNoCollectionUid() throws Exception {
-        CollectionSubscription sub = new HibCollectionSubscription();
+        CollectionSubscription sub = new MockCollectionSubscription();
         sub.setTicketKey("deadbeef");
         RequestContext req = createRequestContext(sub);
 

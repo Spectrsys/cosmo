@@ -24,7 +24,6 @@ import org.apache.abdera.protocol.server.RequestContext;
 import org.apache.abdera.protocol.server.ResponseContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.MockHelper;
 import org.osaf.cosmo.atom.generator.GeneratorFactory;
 import org.osaf.cosmo.atom.generator.mock.MockGeneratorFactory;
 import org.osaf.cosmo.atom.processor.ProcessorFactory;
@@ -34,6 +33,7 @@ import org.osaf.cosmo.atom.provider.mock.MockCollectionAdapter;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.mock.MockEntityFactory;
+import org.osaf.cosmo.test.MockHelper;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**

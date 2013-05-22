@@ -23,11 +23,10 @@ import org.apache.abdera.parser.ParseException;
 import org.apache.abdera.protocol.server.ProviderHelper;
 import org.apache.abdera.protocol.server.RequestContext;
 import org.apache.abdera.protocol.server.ResponseContext;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.atom.InsufficientPrivilegesException;
 import org.osaf.cosmo.atom.generator.GeneratorException;
 import org.osaf.cosmo.atom.generator.ItemFeedGenerator;
@@ -41,8 +40,7 @@ import org.osaf.cosmo.model.ItemSecurityException;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.UidInUseException;
 import org.osaf.cosmo.model.util.ThisAndFutureHelper;
-import org.osaf.cosmo.security.CosmoSecurityException;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 public class DetachedItemCollectionAdapter extends ItemCollectionAdapter {
     private static final Log log =

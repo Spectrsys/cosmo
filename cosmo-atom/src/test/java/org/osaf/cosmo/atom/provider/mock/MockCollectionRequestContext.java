@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.atom.provider.CollectionTarget;
 import org.osaf.cosmo.model.CollectionItem;
-import org.osaf.cosmo.model.hibernate.HibCollectionItem;
+import org.osaf.cosmo.model.mock.MockCollectionItem;
 
 /**
  * Mock implementation of {@link RequestContext}.
@@ -70,7 +70,7 @@ public class MockCollectionRequestContext extends BaseMockRequestContext
     }
 
     private static CollectionItem newCollection(String uid) {
-        CollectionItem collection = new HibCollectionItem();
+        CollectionItem collection = new MockCollectionItem();
         collection.setUid(uid);
         return collection;
     }

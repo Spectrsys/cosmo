@@ -19,16 +19,15 @@ import java.util.SortedSet;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.filter.EventStampFilter;
 import org.osaf.cosmo.model.filter.ItemFilter;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * A class that generates basic Atom feeds whose content are formatted

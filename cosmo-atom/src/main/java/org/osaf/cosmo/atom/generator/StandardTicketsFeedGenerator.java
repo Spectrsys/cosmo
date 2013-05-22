@@ -26,7 +26,7 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.text.XhtmlTicketFormat;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * An interface for classes that generate Atom feeds and entries

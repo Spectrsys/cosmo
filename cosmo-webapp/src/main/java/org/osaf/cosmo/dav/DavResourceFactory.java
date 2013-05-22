@@ -15,9 +15,9 @@
  */
 package org.osaf.cosmo.dav;
 
-import org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor;
-import org.osaf.cosmo.icalendar.ICalendarClientFilterManager;
+import org.osaf.cosmo.api.icalendar.ICalendarClientFilterManager;
 import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.calendar.filter.CalendarQueryProcessor;
 import org.osaf.cosmo.security.CosmoSecurityManager;
 import org.osaf.cosmo.service.ContentService;
 import org.osaf.cosmo.service.UserService;
@@ -43,7 +43,7 @@ public interface DavResourceFactory {
      * {@link NotFoundException} is thrown.
      * </p>
      */
-    public DavResource resolve(DavResourceLocator locator,
+    DavResource resolve(DavResourceLocator locator,
                                DavRequest request)
         throws DavException;
 
@@ -55,7 +55,7 @@ public interface DavResourceFactory {
      * If the identified resource does not exists, returns <code>null</code>.
      * </p>
      */
-    public DavResource resolve(DavResourceLocator locator)
+    DavResource resolve(DavResourceLocator locator)
         throws DavException;
 
     /**
@@ -64,17 +64,17 @@ public interface DavResourceFactory {
      * <code>Item</code> located by the given <code>DavResourceLocator</code>.
      * </p>
      */
-    public DavResource createResource(DavResourceLocator locator,
+    DavResource createResource(DavResourceLocator locator,
                                       Item item)
         throws DavException;
 
-    public ContentService getContentService();
+    ContentService getContentService();
     
-    public ICalendarClientFilterManager getClientFilterManager();
+    ICalendarClientFilterManager getClientFilterManager();
 
-    public CalendarQueryProcessor getCalendarQueryProcessor();
+    CalendarQueryProcessor getCalendarQueryProcessor();
     
-    public UserService getUserService();
+    UserService getUserService();
 
-    public CosmoSecurityManager getSecurityManager();
+    CosmoSecurityManager getSecurityManager();
 }

@@ -33,7 +33,7 @@ import org.osaf.cosmo.model.ItemSecurityException;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.text.XhtmlSubscriptionFormat;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * An interface for classes that generate Atom feeds and entries

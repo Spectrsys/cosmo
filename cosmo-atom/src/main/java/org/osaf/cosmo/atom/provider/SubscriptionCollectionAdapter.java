@@ -33,7 +33,7 @@ import org.osaf.cosmo.atom.processor.ValidationException;
 import org.osaf.cosmo.model.CollectionSubscription;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.text.XhtmlSubscriptionFormat;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 import org.osaf.cosmo.service.UserService;
 
 public class SubscriptionCollectionAdapter extends BaseCollectionAdapter

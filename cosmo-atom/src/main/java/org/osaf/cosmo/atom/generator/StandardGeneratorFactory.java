@@ -16,15 +16,13 @@
 package org.osaf.cosmo.atom.generator;
 
 import org.apache.abdera.Abdera;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.atom.AtomConstants;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.security.CosmoSecurityManager;
-import org.osaf.cosmo.server.ServiceLocator;
 import org.osaf.cosmo.service.ContentService;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * Standard implementation of <code>GeneratorFactory</code>.
