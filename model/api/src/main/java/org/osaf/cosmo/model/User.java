@@ -113,7 +113,7 @@ public interface User extends AuditableObject{
             return urlString;
         }
 
-        static SortType getByUrlString(String string) {
+        public static SortType getByUrlString(String string) {
             if (string.equals(NAME_URL_STRING)){
                 return NAME;
             } else if (string.equals(USERNAME_URL_STRING)){

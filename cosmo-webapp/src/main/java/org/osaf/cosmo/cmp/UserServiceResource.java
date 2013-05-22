@@ -18,16 +18,13 @@ package org.osaf.cosmo.cmp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
-
-import org.osaf.cosmo.eim.eimml.EimmlConstants;
 import org.osaf.cosmo.api.ICalendarConstants;
+import org.osaf.cosmo.eim.eimml.EimmlConstants;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.server.ServerConstants;
-import org.osaf.cosmo.server.ServiceLocator;
-
+import org.osaf.cosmo.service.ServiceLocator;
+import org.osaf.cosmo.utils.server.ServerConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

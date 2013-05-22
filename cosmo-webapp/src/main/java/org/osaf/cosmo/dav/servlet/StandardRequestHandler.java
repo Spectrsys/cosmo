@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.abdera.util.EntityTag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;
 import org.osaf.cosmo.dav.DavException;
@@ -58,9 +59,8 @@ import org.osaf.cosmo.dav.provider.UserPrincipalCollectionProvider;
 import org.osaf.cosmo.dav.provider.UserPrincipalProvider;
 import org.osaf.cosmo.model.EntityFactory;
 import org.osaf.cosmo.model.ItemSecurityException;
-import org.osaf.cosmo.api.CosmoSecurityException;
 import org.osaf.cosmo.security.Permission;
-import org.osaf.cosmo.server.ServerConstants;
+import org.osaf.cosmo.utils.server.ServerConstants;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.web.HttpRequestHandler;
 

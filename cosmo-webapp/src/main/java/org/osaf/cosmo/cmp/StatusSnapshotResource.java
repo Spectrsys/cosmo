@@ -17,8 +17,7 @@ package org.osaf.cosmo.cmp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.osaf.cosmo.server.StatusSnapshot;
+import org.osaf.cosmo.utils.server.StatusSnapshot;
 
 /**
  * A resource view of a {@link StatusSnapshot}. This is a read-only

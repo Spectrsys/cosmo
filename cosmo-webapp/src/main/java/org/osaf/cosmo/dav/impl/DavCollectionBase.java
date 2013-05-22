@@ -56,9 +56,10 @@ import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.EntityFactory;
+import org.osaf.cosmo.model.ExtendedDavConstants;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.xml.DomWriter;
+import org.osaf.cosmo.api.xml.DomWriter;
 import org.w3c.dom.Element;
 
 /**
@@ -86,7 +87,7 @@ public class DavCollectionBase extends DavItemResourceBase
     private ArrayList members;
 
     static {
-        registerLiveProperty(EXCLUDEFREEBUSYROLLUP);
+        registerLiveProperty(ExtendedDavConstants.EXCLUDEFREEBUSYROLLUP);
 
         REPORT_TYPES.add(FreeBusyReport.REPORT_TYPE_CALDAV_FREEBUSY);
         REPORT_TYPES.add(MultigetReport.REPORT_TYPE_CALDAV_MULTIGET);
@@ -228,7 +229,7 @@ public class DavCollectionBase extends DavItemResourceBase
 
     protected Set<QName> getResourceTypes() {
         HashSet<QName> rt = new HashSet<QName>(1);
-        rt.add(RESOURCE_TYPE_COLLECTION);
+        rt.add(ExtendedDavConstants.RESOURCE_TYPE_COLLECTION);
         return rt;
     }
 
@@ -260,7 +261,7 @@ public class DavCollectionBase extends DavItemResourceBase
         if (property.getValue() == null)
             throw new UnprocessableEntityException("Property " + name + " requires a value");
 
-        if (name.equals(EXCLUDEFREEBUSYROLLUP)) {
+        if (name.equals(ExtendedDavConstants.EXCLUDEFREEBUSYROLLUP)) {
             Boolean flag = Boolean.valueOf(property.getValueText());
             cc.setExcludeFreeBusyRollup(flag);
         }
@@ -275,7 +276,7 @@ public class DavCollectionBase extends DavItemResourceBase
         if (cc == null)
             return;
 
-        if (name.equals(EXCLUDEFREEBUSYROLLUP))
+        if (name.equals(ExtendedDavConstants.EXCLUDEFREEBUSYROLLUP))
             cc.setExcludeFreeBusyRollup(false);
     }
 

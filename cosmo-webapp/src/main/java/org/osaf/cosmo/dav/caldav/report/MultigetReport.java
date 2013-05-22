@@ -25,21 +25,19 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.BadRequestException;
-import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavCollection;
 import org.osaf.cosmo.dav.DavContent;
+import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
 import org.osaf.cosmo.dav.UnprocessableEntityException;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
-
 import org.w3c.dom.Element;
 
 /**
@@ -53,8 +51,8 @@ import org.w3c.dom.Element;
 public class MultigetReport extends CaldavMultiStatusReport {
     private static final Log log = LogFactory.getLog(MultigetReport.class);
     public static final ReportType REPORT_TYPE_CALDAV_MULTIGET =
-        ReportType.register(ELEMENT_CALDAV_CALENDAR_MULTIGET,
-                            NAMESPACE_CALDAV, MultigetReport.class);
+        ReportType.register(CaldavConstants.ELEMENT_CALDAV_CALENDAR_MULTIGET,
+                            CaldavConstants.NAMESPACE_CALDAV, MultigetReport.class);
 
     private Set<String> hrefs;
 

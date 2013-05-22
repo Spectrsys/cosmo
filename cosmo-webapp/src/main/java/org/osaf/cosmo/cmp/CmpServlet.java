@@ -31,17 +31,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ValidationException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
-import org.hibernate.validator.InvalidStateException;
-
 import org.osaf.cosmo.model.DuplicateEmailException;
 import org.osaf.cosmo.model.DuplicateUsernameException;
 import org.osaf.cosmo.model.EntityFactory;
@@ -50,33 +48,30 @@ import org.osaf.cosmo.model.ModelValidationException;
 import org.osaf.cosmo.model.PasswordRecovery;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.security.CosmoSecurityManager;
-import org.osaf.cosmo.service.OverlordDeletionException;
+import org.osaf.cosmo.server.ServiceLocatorFactory;
+import org.osaf.cosmo.server.SpaceUsageReport;
 import org.osaf.cosmo.service.ContentService;
-import org.osaf.cosmo.service.UserService;
+import org.osaf.cosmo.service.OverlordDeletionException;
 import org.osaf.cosmo.service.ServiceListener;
+import org.osaf.cosmo.service.ServiceLocator;
+import org.osaf.cosmo.service.UserService;
 import org.osaf.cosmo.service.account.AccountActivator;
 import org.osaf.cosmo.service.account.ActivationContext;
 import org.osaf.cosmo.service.account.ActivationListener;
 import org.osaf.cosmo.service.account.OutOfTheBoxContext;
 import org.osaf.cosmo.service.account.OutOfTheBoxHelper;
 import org.osaf.cosmo.service.account.OutOfTheBoxListener;
-import org.osaf.cosmo.service.account.PasswordRecoveryMessageContext;
 import org.osaf.cosmo.service.account.PasswordRecoverer;
-import org.osaf.cosmo.server.ServiceLocator;
-import org.osaf.cosmo.server.ServiceLocatorFactory;
-import org.osaf.cosmo.server.SpaceUsageReport;
-import org.osaf.cosmo.server.StatusSnapshot;
-import org.osaf.cosmo.server.UserPath;
+import org.osaf.cosmo.service.account.PasswordRecoveryMessageContext;
 import org.osaf.cosmo.spring.CosmoPropertyPlaceholderConfigurer;
 import org.osaf.cosmo.utils.page.PageCriteria;
-
+import org.osaf.cosmo.utils.server.StatusSnapshot;
+import org.osaf.cosmo.utils.server.UserPath;
 import org.springframework.beans.BeansException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
 import org.w3c.dom.Document;
-
 import org.xml.sax.SAXException;
 
 /**
@@ -920,7 +915,7 @@ public class CmpServlet extends HttpServlet {
                         e.getMessage());
             } catch (ModelValidationException e) {
                 handleModelValidationError(resp, e);
-            } catch (InvalidStateException ise) {
+            } catch (ValidationException ise) {
                 handleInvalidStateException(resp, ise);
             }
         }
@@ -982,7 +977,7 @@ public class CmpServlet extends HttpServlet {
                            e.getMessage());
         } catch (ModelValidationException e) {
             handleModelValidationError(resp, e);
-        }catch (InvalidStateException ise) {
+        } catch (ValidationException ise) {
             handleInvalidStateException(resp, ise);
         }
     }
@@ -1024,7 +1019,7 @@ public class CmpServlet extends HttpServlet {
                            e.getMessage());
         } catch (ModelValidationException e) {
             handleModelValidationError(resp, e);
-        } catch (InvalidStateException ise) {
+        } catch (ValidationException ise) {
             handleInvalidStateException(resp, ise);
         }
     }
@@ -1060,7 +1055,7 @@ public class CmpServlet extends HttpServlet {
                            e.getMessage());
         } catch (ModelValidationException e) {
             handleModelValidationError(resp, e);
-        } catch (InvalidStateException ise) {
+        } catch (ValidationException ise) {
             handleInvalidStateException(resp, ise);
         }
     }
@@ -1165,10 +1160,9 @@ public class CmpServlet extends HttpServlet {
         } else return null;
     }
     
-    private void handleInvalidStateException(HttpServletResponse resp,
-                                             InvalidStateException ise)
+    private void handleInvalidStateException(HttpServletResponse resp, ValidationException ise)
         throws IOException {
-        String message = ise.getInvalidValues()[0].getMessage();
+        String message = ise.getMessage();
         log.warn("model validation error: " + message);
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
     }

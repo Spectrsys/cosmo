@@ -42,6 +42,22 @@
             <groupId>org.osaf.cosmo.persistence</groupId>
             <artifactId>cosmo-persistence-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osaf.cosmo.persistence</groupId>
+            <artifactId>cosmo-persistence-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osaf.cosmo</groupId>
+            <artifactId>cosmo-security-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

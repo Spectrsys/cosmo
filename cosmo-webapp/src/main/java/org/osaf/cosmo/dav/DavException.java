@@ -24,6 +24,8 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.osaf.cosmo.model.ExtendedDavConstants;
+
 /**
  * An unclassified WebDAV Exception.
  */

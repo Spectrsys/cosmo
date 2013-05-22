@@ -21,11 +21,9 @@ import java.util.Set;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
-
-import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.api.xml.QName;
-
+import org.osaf.cosmo.model.ExtendedDavConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

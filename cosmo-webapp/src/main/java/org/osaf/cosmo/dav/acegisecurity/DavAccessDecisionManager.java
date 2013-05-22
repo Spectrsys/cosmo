@@ -17,6 +17,21 @@ package org.osaf.cosmo.dav.acegisecurity;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.dav.acl.AclEvaluator;
+import org.osaf.cosmo.dav.acl.DavPrivilege;
+import org.osaf.cosmo.dav.acl.TicketAclEvaluator;
+import org.osaf.cosmo.dav.acl.UserAclEvaluator;
+import org.osaf.cosmo.model.ExtendedDavConstants;
+import org.osaf.cosmo.model.Item;
+import org.osaf.cosmo.model.Ticket;
+import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.security.acegi.providers.ticket.TicketAuthenticationToken;
+import org.osaf.cosmo.security.acegi.userdetails.CosmoUserDetails;
+import org.osaf.cosmo.service.UserService;
+import org.osaf.cosmo.utils.UriTemplate;
+import org.osaf.cosmo.utils.http.Methods;
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
@@ -25,21 +40,6 @@ import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.InsufficientAuthenticationException;
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.acegisecurity.providers.ticket.TicketAuthenticationToken;
-import org.osaf.cosmo.acegisecurity.userdetails.CosmoUserDetails;
-import org.osaf.cosmo.dav.ExtendedDavConstants;
-import org.osaf.cosmo.dav.acl.AclEvaluator;
-import org.osaf.cosmo.dav.acl.DavPrivilege;
-import org.osaf.cosmo.dav.acl.TicketAclEvaluator;
-import org.osaf.cosmo.dav.acl.UserAclEvaluator;
-import org.osaf.cosmo.http.Methods;
-import org.osaf.cosmo.model.Item;
-import org.osaf.cosmo.model.Ticket;
-import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.service.UserService;
-import org.osaf.cosmo.utils.UriTemplate;
 
 /**
  * <p>

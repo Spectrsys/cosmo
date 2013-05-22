@@ -209,7 +209,7 @@ public class DavUserPrincipal extends DavResourceBase
 
     protected Set<QName> getResourceTypes() {
         HashSet<QName> rt = new HashSet<QName>(1);
-        rt.add(CaldavConstants.RESOURCE_TYPE_PRINCIPAL);
+        rt.add(AclConstants.RESOURCE_TYPE_PRINCIPAL);
         return rt;
     }
 

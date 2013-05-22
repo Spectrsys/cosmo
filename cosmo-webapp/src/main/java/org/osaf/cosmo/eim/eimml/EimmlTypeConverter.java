@@ -34,7 +34,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.util.DateUtil;
+import org.osaf.cosmo.utils.DateUtil;
 
 /**
  * This class converts between EIMML primitive types and Java types.

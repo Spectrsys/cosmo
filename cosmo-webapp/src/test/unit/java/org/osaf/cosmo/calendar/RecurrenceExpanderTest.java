@@ -29,6 +29,8 @@ import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osaf.cosmo.model.calendar.InstanceList;
+import org.osaf.cosmo.model.calendar.RecurrenceExpander;
 
 /**
  * Test RecurrenceExpander.

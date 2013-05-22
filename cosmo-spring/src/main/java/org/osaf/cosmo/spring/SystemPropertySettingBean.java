@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
 
-public class SystemPropertySettingBean implements InitializingBean{
+public class SystemPropertySettingBean implements InitializingBean {
 
     private Map properties = new HashMap();
         

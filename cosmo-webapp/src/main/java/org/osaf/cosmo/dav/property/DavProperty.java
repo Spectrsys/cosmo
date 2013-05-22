@@ -15,7 +15,7 @@
  */
 package org.osaf.cosmo.dav.property;
 
-import org.osaf.cosmo.dav.ExtendedDavConstants;
+import org.osaf.cosmo.model.ExtendedDavConstants;
 
 /**
  * <p>

@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.server.ServerConstants;
+import org.osaf.cosmo.utils.server.ServerConstants;
 
 /**
  * Filter that searches for known exception types (either caught

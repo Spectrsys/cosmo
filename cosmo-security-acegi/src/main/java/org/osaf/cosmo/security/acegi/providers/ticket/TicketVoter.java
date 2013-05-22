@@ -22,9 +22,9 @@ import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.vote.AccessDecisionVoter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.http.Methods;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.TicketType;
+import org.osaf.cosmo.utils.http.Methods;
 
 /**
  * Votes affirmatively if the authenticated principal is a ticket and

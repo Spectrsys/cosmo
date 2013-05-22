@@ -53,10 +53,8 @@ import org.osaf.cosmo.atom.AtomException;
 import org.osaf.cosmo.atom.generator.GeneratorFactory;
 import org.osaf.cosmo.model.AuditableObject;
 import org.osaf.cosmo.model.EntityFactory;
-import org.osaf.cosmo.server.ServerConstants;
-import org.osaf.cosmo.server.ServiceLocator;
-import org.osaf.cosmo.server.ServiceLocatorFactory;
-import org.osaf.cosmo.util.DateUtil;
+import org.osaf.cosmo.utils.DateUtil;
+import org.osaf.cosmo.utils.server.ServerConstants;
 
 public abstract class BaseCollectionAdapter extends AbstractCollectionAdapter
     implements ExtendedCollectionAdapter, AtomConstants, ServerConstants {

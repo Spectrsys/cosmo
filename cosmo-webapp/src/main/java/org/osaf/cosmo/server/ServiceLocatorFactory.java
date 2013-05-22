@@ -19,10 +19,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.osaf.cosmo.model.ServiceLocatorRegistry;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.security.CosmoSecurityManager;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * This class produces instances of <code>ServiceLocator</code> that

@@ -20,7 +20,7 @@ import java.util.Set;
 import org.osaf.cosmo.model.CollectionLockedException;
 import org.osaf.cosmo.model.TicketType;
 import org.osaf.cosmo.model.UidInUseException;
-import org.osaf.cosmo.server.ServiceLocator;
+import org.osaf.cosmo.service.ServiceLocator;
 
 /**
  * Interface for controllers that implement the operations specified

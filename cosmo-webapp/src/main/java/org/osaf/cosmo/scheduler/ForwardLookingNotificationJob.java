@@ -29,7 +29,6 @@ import net.fortuna.ical4j.model.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.calendar.util.TimeZoneUtils;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.ItemNotFoundException;
@@ -42,6 +41,7 @@ import org.osaf.cosmo.model.filter.Restrictions;
 import org.osaf.cosmo.model.util.NoteUtils;
 import org.osaf.cosmo.scheduler.ForwardLookingReport.NowResult;
 import org.osaf.cosmo.scheduler.ForwardLookingReport.UpcomingResult;
+import org.osaf.cosmo.utils.TimeZoneUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 

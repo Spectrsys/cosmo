@@ -20,6 +20,8 @@ import junit.framework.TestCase;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.component.VTimeZone;
 
+import org.osaf.cosmo.utils.TimeZoneUtils;
+
 /**
  * Test TimeZoneUtils
  */

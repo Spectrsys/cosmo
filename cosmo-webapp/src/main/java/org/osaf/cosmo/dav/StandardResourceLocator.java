@@ -20,8 +20,7 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.osaf.cosmo.util.PathUtil;
+import org.osaf.cosmo.utils.PathUtil;
 
 /**
  * Standard implementation of {@link DavResourceLocator}.

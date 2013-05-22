@@ -20,13 +20,9 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.ElementIterator;
-
 import org.osaf.cosmo.server.SpaceUsageReport;
-import org.osaf.cosmo.util.DateUtil;
-
+import org.osaf.cosmo.utils.DateUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
