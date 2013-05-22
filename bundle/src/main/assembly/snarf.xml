@@ -119,10 +119,10 @@
 
         <dependencySet>
             <includes>
-              <include>org.osaf.cosmo:chandler:war</include>
+              <include>org.osaf.cosmo:cosmo-webapp:war</include>
             </includes>
             <outputDirectory>tomcat/webapps/</outputDirectory>
-            <outputFileNameMapping>${artifactId}.war</outputFileNameMapping>
+            <outputFileNameMapping>chandler.war</outputFileNameMapping>
             <fileMode>420</fileMode>
         </dependencySet>
     </dependencySets>

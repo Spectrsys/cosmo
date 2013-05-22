@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.osaf.cosmo</groupId>
-            <artifactId>chandler</artifactId>
+            <artifactId>cosmo-webapp</artifactId>
             <version>${project.version}</version>
             <type>war</type>
         </dependency>

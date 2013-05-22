@@ -74,9 +74,9 @@
     </dependencySet>
     <dependencySet>
       <includes>
-        <include>org.osaf.cosmo:chandler:war</include>
+        <include>org.osaf.cosmo:cosmo-webapp:war</include>
       </includes>
-      <outputFileNameMapping>${aftifact.artifactId}-${artifact.version}.war</outputFileNameMapping>
+      <outputFileNameMapping>chandler-${artifact.version}.war</outputFileNameMapping>
       <fileMode>420</fileMode>
     </dependencySet>
     <dependencySet>
