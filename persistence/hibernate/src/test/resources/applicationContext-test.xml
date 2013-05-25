@@ -42,7 +42,7 @@
       <value>org.apache.derby.jdbc.EmbeddedDriver</value>
     </property>
     <property name="url">
-      <value>jdbc:derby:target/test-db;create=true</value>
+      <value>jdbc:derby:memory:test-db;create=true</value>
     </property>
   </bean>
 

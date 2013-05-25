@@ -33,16 +33,16 @@ public class AbstractHibernateDaoTestCase extends AbstractSpringDaoTestCase {
         super.onTearDownAfterTransaction();
 
         // Get a reference to the Session and bind it to the TransactionManager
-//        SessionHolder holder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
-//        Session s = holder.getSession(); 
-//        TransactionSynchronizationManager.unbindResource(sessionFactory);
-//        SessionFactoryUtils.releaseSession(s, sessionFactory);
+        SessionHolder holder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
+        Session s = holder.getSession(); 
+        TransactionSynchronizationManager.unbindResource(sessionFactory);
+        SessionFactoryUtils.releaseSession(s, sessionFactory);
     }
 
 
     protected void clearSession() {
         //session.flush();
-//        session.clear();
+        session.clear();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class AbstractHibernateDaoTestCase extends AbstractSpringDaoTestCase {
         super.onSetUpBeforeTransaction();
 
         // Unbind session from TransactionManager
-//        session = SessionFactoryUtils.getSession(sessionFactory, true);
-//        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
+        session = SessionFactoryUtils.getSession(sessionFactory, true);
+        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
     }
 }
