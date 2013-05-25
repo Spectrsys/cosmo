@@ -90,13 +90,9 @@ import org.osaf.cosmo.utils.CalendarUtils;
 
 public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
 
-    protected UserDaoImpl userDao = null;
+    protected UserDaoImpl userDao;
 
-    protected ContentDaoImpl contentDao = null;
-
-    public HibernateContentDaoTest() {
-        super();
-    }
+    protected ContentDaoImpl contentDao;
 
     public void testContentDaoCreateContent() throws Exception {
         User user = getUser(userDao, "testuser");

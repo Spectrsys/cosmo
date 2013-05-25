@@ -45,13 +45,9 @@ import org.osaf.cosmo.model.hibernate.HibTaskStamp;
  */
 public class HibernateContentDaoTombstonesTest extends AbstractHibernateDaoTestCase {
 
-    protected UserDaoImpl userDao = null;
+    protected UserDaoImpl userDao;
 
-    protected ContentDaoImpl contentDao = null;
-
-    public HibernateContentDaoTombstonesTest() {
-        super();
-    }
+    protected ContentDaoImpl contentDao;
 
     public void testContentDaoAttributeTombstones() throws Exception {
         User user = getUser(userDao, "testuser");

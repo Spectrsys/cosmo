@@ -20,12 +20,8 @@ import junit.framework.Assert;
 public class HibernateServerPropertyDaoTest extends
         AbstractHibernateDaoTestCase {
 
-    protected ServerPropertyDaoImpl serverPropertyDao = null;
-    
-    public HibernateServerPropertyDaoTest() {
-        super();
-    }
-    
+    protected ServerPropertyDaoImpl serverPropertyDao;
+
     public void testServerProperties() throws Exception {
         serverPropertyDao.setServerProperty("testprop1", "testvalue1");
         clearSession();

@@ -30,18 +30,13 @@ import org.osaf.cosmo.model.hibernate.HibCollectionSubscription;
 import org.osaf.cosmo.model.hibernate.HibItem;
 import org.osaf.cosmo.model.hibernate.HibTicket;
 
-public class HibernateUserDaoSubscriptionTest
-    extends AbstractHibernateDaoTestCase {
-    private static final Log log =
-        LogFactory.getLog(HibernateUserDaoSubscriptionTest.class);
-    
+public class HibernateUserDaoSubscriptionTest extends AbstractHibernateDaoTestCase {
+
+    private static final Log log = LogFactory.getLog(HibernateUserDaoSubscriptionTest.class);
+
     protected ContentDaoImpl contentDao = null;
     protected UserDaoImpl userDao = null;
-    
-    public HibernateUserDaoSubscriptionTest() {
-        super();
-    }
-    
+
     public void testSubscribe() throws Exception {
         User user = getUser(userDao, "subuser1");
         CollectionItem root = (CollectionItem) contentDao.getRootItem(user);
@@ -103,8 +98,7 @@ public class HibernateUserDaoSubscriptionTest
         return helper.getUser(userDao, contentDao, username);
     }
 
-    private CollectionItem getCollection(CollectionItem parent,
-                                         String name)
+    private CollectionItem getCollection(CollectionItem parent, String name)
         throws Exception {
         for (Item child : (Set<Item>) parent.getChildren()) {
             if (child.getName().equals(name))

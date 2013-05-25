@@ -28,8 +28,7 @@
     http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.0.xsd
     http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-  <bean id="messageSource"
-        class="org.springframework.context.support.ResourceBundleMessageSource">
+  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
     <property name="basename" value="MessageResources"/>
   </bean>
 
@@ -37,37 +36,25 @@
        config properties available to other spring beans -->
   <jee:jndi-lookup id="cosmoConfigPath" jndi-name="java:comp/env/cosmo/config"/>
 
-  <bean id="propertyPlaceholderConfigurer"
-        class="org.osaf.cosmo.spring.CosmoPropertyPlaceholderConfigurer">
+  <bean id="propertyPlaceholderConfigurer" class="org.osaf.cosmo.spring.CosmoPropertyPlaceholderConfigurer">
     <property name="locations">
       <list>
-        <ref local="cosmoConfigPath"/>
+        <ref bean="cosmoConfigPath"/>
       </list>
     </property>
   </bean>
 
-  <!-- resources needed for database access -->
-  <jee:jndi-lookup id="jdbcDataSource" jndi-name="java:comp/env/jdbc/cosmo"/>
+  <bean id="defaultLobHandler" class="org.osaf.cosmo.dao.hibernate.ext.CosmoLobHandler" />
 
-  <bean id="defaultLobHandler"
-        class="org.osaf.cosmo.hibernate.CosmoLobHandler">
-  </bean>
+  <bean id="validatePreUpdateEventListener" class="org.hibernate.validator.event.ValidatePreUpdateEventListener"/>
 
-  <bean id="validatePreUpdateEventListener"
-      class="org.hibernate.validator.event.ValidatePreUpdateEventListener"/>
+  <bean id="validatePreInsertEventListener" class="org.hibernate.validator.event.ValidatePreInsertEventListener"/>
 
-  <bean id="validatePreInsertEventListener"
-      class="org.hibernate.validator.event.ValidatePreInsertEventListener"/>
+  <bean id="auditableObjectInterceptor" class="org.osaf.cosmo.model.hibernate.AuditableObjectInterceptor"/>
 
-  
-  <bean id="auditableObjectInterceptor"
-      class="org.osaf.cosmo.model.hibernate.AuditableObjectInterceptor"/>
-      
-  <bean id="eventStampInterceptor"
-      class="org.osaf.cosmo.model.hibernate.EventStampInterceptor"/>
-  
-  <bean id="cosmoHibernateInterceptor"
-      class="org.osaf.cosmo.hibernate.CompoundInterceptor">
+  <bean id="eventStampInterceptor" class="org.osaf.cosmo.model.hibernate.EventStampInterceptor"/>
+
+  <bean id="cosmoHibernateInterceptor" class="org.osaf.cosmo.dao.hibernate.ext.CompoundInterceptor">
       <property name="interceptors">
         <list>
             <ref local="auditableObjectInterceptor"/>
@@ -75,16 +62,15 @@
         </list>
     </property>
   </bean>
-      
-  <bean id="cosmoEntityFactory"
-      class="org.osaf.cosmo.model.hibernate.HibEntityFactory"/>
 
-  <bean id="sessionFactory"
-        class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+  <bean id="cosmoEntityFactory" class="org.osaf.cosmo.model.hibernate.HibEntityFactory"/>
+
+  <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
     <property name="lobHandler" ref="defaultLobHandler" />
     <property name="annotatedPackages">
         <list>
             <value>org.osaf.cosmo.model.hibernate</value>
+            <value>org.osaf.cosmo.dao.hibernate</value>
         </list>
     </property>
     <property name="annotatedClasses">
@@ -152,146 +138,50 @@
         <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
         <prop key="hibernate.show_sql">false</prop>
         <prop key="hibernate.jdbc.batch_size">25</prop>
+        <prop key="hibernate.hbm2ddl.auto">${cosmo.hibernate.hbm2ddl}</prop>
         <!-- configure in cosmo.propeties -->
         <prop key="hibernate.dialect">${cosmo.hibernate.dialect}</prop>
       </props>
     </property>
-    <property name="dataSource" ref="jdbcDataSource"/>
+    <property name="dataSource" ref="dataSource"/>
   </bean>
 
-  <!-- Transaction manager for a single Hibernate SessionFactory
-       (alternative to JTA) -->
-  <bean id="transactionManager"
-        class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+  <!-- Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
+  <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
     <property name="sessionFactory">
       <ref local="sessionFactory" />
     </property>
   </bean>
-  
-  <!--  AOP Configuration -->
-  
-  <!-- transactional advice -->
-  <tx:advice id="txAdvice" transaction-manager="transactionManager">
-    <!-- the transactional semantics... -->
-    <tx:attributes>
-      <!-- getPasswordRecovery is only 'get' thats not read-only -->
-      <tx:method name="getPasswordRecovery"/>
-      
-      <!--  checked exception OverlordDeletionException should cause rollback  -->
-      <tx:method name="remove*" rollback-for="OverlordDeletionException"/>
 
-      <!-- all methods starting with 'get', 'load', and 'find' are read-only -->
-      <tx:method name="get*" read-only="true"/>
-      <tx:method name="load*" read-only="true"/>
-      <tx:method name="find*" read-only="true"/>
-      
-      <!-- other methods use the default transaction settings -->
-      <tx:method name="*"/>
-    </tx:attributes>
-  </tx:advice>
-  
-  <!-- required for aspectj annotations support -->
-  <aop:aspectj-autoproxy/>
-  
-  <!--  Monitors all service calls (ContentService for now) and
-        logs all calls that aren't secured by advice in SecurityAdvice 
-   -->
-  <bean id="securityAdviceMonitorAspect" class="org.osaf.cosmo.security.aop.SecurityAdviceMonitor">
-    <property name="order" value="4"/>
-  </bean>
-  
-  <!--  Intercepts service calls and verifies current principal has sufficient
-        privileges to execute api.  Aspect bean is annotated with aspecj
-        annotations.
-   -->
-  <bean id="securityAspect" init-method="init" class="org.osaf.cosmo.security.aop.SecurityAdvice">
-    <property name="securityManager">
-      <ref local="securityManager" />
-    </property>
-    <property name="contentDao">
-      <ref local="contentDao" />
-    </property>
-    <property name="userDao">
-      <ref local="userDao" />
-    </property>
-    <property name="order" value="5"/>
-    <property name="enabled" value="true"/>
-  </bean>
-  
-  <!--  Intercepts service calls and logs events
-   -->
-  <bean id="eventLogAspect" init-method="init" class="org.osaf.cosmo.event.aop.EventLogAdvice">
-    <property name="securityManager">
-      <ref local="securityManager" />
-    </property>
-    <property name="eventLogDao">
-      <ref local="eventLogDao" />
-    </property>
-    <property name="order" value="6"/>
-    <property name="enabled" value="true"/>
-  </bean>
-  
-  <!-- Timing advice, useful for timing operations -->
-  <bean id="timingAdvice" class="org.springframework.aop.interceptor.PerformanceMonitorInterceptor">
-    <property name="loggerName" value="org.osaf.cosmo.perf" />
-  </bean>
-  
-  <!-- Interceptor that throws away curent Hibernate session 
-       and binds new one on errors -->
-  <bean id="throwAwayHibernateSessionAdvice" class="org.osaf.cosmo.hibernate.ThrowAwayHibernateSessionOnErrorInterceptor">
-    <property name="sessionFactory">
-      <ref local="sessionFactory" />
-    </property>
-  </bean>
- 
-  <!--  define advice for all service methods -->
-  <aop:config>
-      <aop:pointcut id="serviceOperation"
-                  expression="execution(* org.osaf.cosmo.service.*Service.*(..))"/>
-    
-      <aop:advisor pointcut-ref="serviceOperation" order="1" advice-ref="timingAdvice"/>
-      <aop:advisor pointcut-ref="serviceOperation" order="2" advice-ref="throwAwayHibernateSessionAdvice"/>
-      <aop:advisor pointcut-ref="serviceOperation" order="3" advice-ref="txAdvice"/>
-      
-  </aop:config>
-  
- 
   <!-- data access objects -->
-
-  <bean id="hibernateTemplate"
-        class="org.springframework.orm.hibernate3.HibernateTemplate">
+  <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
     <constructor-arg><ref bean="sessionFactory"/></constructor-arg>
   </bean>
 
-  <bean id="itemPathTranslator"
-        class="org.osaf.cosmo.dao.hibernate.DefaultItemPathTranslator">
+  <bean id="itemPathTranslator" class="org.osaf.cosmo.dao.hibernate.DefaultItemPathTranslator">
     <constructor-arg><ref bean="hibernateTemplate"/></constructor-arg>
   </bean>
 
-  <bean id="idGenerator"
-        class="org.apache.commons.id.uuid.VersionFourGenerator" />
-  
-  <bean id="ticketKeyGenerator"
-        class="org.apache.commons.id.random.SessionIdGenerator" />
+  <bean id="idGenerator" class="org.apache.commons.id.uuid.VersionFourGenerator" />
 
-  <bean id="serverPropertyDao"
-        class="org.osaf.cosmo.dao.hibernate.ServerPropertyDaoImpl"
-        init-method="init"
-        destroy-method="destroy">
+  <bean id="ticketKeyGenerator" class="org.apache.commons.id.random.SessionIdGenerator" />
+
+  <bean id="serverPropertyDao" class="org.osaf.cosmo.dao.hibernate.ServerPropertyDaoImpl"
+    init-method="init" destroy-method="destroy">
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
-  <bean id="eventLogDao"
-        class="org.osaf.cosmo.dao.hibernate.EventLogDaoImpl"
-        init-method="init"
-        destroy-method="destroy">
+
+  <bean id="standardItemFilterProcessor" class="org.osaf.cosmo.dao.hibernate.query.StandardItemFilterProcessor" />
+
+
+  <bean id="eventLogDao" class="org.osaf.cosmo.dao.hibernate.EventLogDaoImpl"
+    init-method="init" destroy-method="destroy">
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
-  <bean id="contentDao"
-        class="org.osaf.cosmo.dao.hibernate.ContentDaoImpl"
-        init-method="init"
-        destroy-method="destroy">
+  <bean id="contentDao" class="org.osaf.cosmo.dao.hibernate.ContentDaoImpl"
+    init-method="init" destroy-method="destroy">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="itemPathTranslator" ref="itemPathTranslator"/>
     <property name="idGenerator">
@@ -305,19 +195,16 @@
     </property>
   </bean>
 
-  <bean id="userDao"
-        class="org.osaf.cosmo.dao.hibernate.UserDaoImpl"
-        init-method="init"
-        destroy-method="destroy">
+  <bean id="userDao" class="org.osaf.cosmo.dao.hibernate.UserDaoImpl"
+    init-method="init" destroy-method="destroy">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="idGenerator">
       <ref local="idGenerator" />
     </property>
   </bean>
 
-  <bean id="calendarDao"
-        class="org.osaf.cosmo.dao.hibernate.CalendarDaoImpl"
-        init-method="init">
+  <bean id="calendarDao" class="org.osaf.cosmo.dao.hibernate.CalendarDaoImpl"
+    init-method="init">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="itemFilterProcessor">
       <ref local="standardItemFilterProcessor" />

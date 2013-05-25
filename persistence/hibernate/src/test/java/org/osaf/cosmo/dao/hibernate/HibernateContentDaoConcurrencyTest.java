@@ -61,18 +61,9 @@ import edu.emory.mathcs.backport.java.util.Collections;
  */
 public class HibernateContentDaoConcurrencyTest extends AbstractHibernateDaoTestCase {
 
-    protected UserDaoImpl userDao = null;
-    protected ContentDaoImpl contentDao = null;
-    protected DataSource jdbcDataSource = null;
-    
-    public HibernateContentDaoConcurrencyTest() {
-        super();
-    }
-    
-    @Override
-    protected void onSetUp() throws Exception {
-        super.onSetUp();
-    }
+    protected UserDaoImpl userDao;
+    protected ContentDaoImpl contentDao;
+    protected DataSource jdbcDataSource;
 
     public void testConcurrentContentDaoUpdateContent() throws Exception {
         

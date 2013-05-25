@@ -44,15 +44,10 @@ import org.osaf.cosmo.model.hibernate.HibStringAttribute;
 
 public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCase {
 
-    protected UserDaoImpl userDao = null;
-    protected ContentDaoImpl contentDao = null;
+    protected UserDaoImpl userDao;
+    protected ContentDaoImpl contentDao;
 
     private static final Log log = LogFactory.getLog(HibernateContentDaoStampingTest.class);
-
-    
-    public HibernateContentDaoStampingTest() {
-        super();
-    }
 
     public void testStampsCreate() throws Exception {
         EntityConverter entityConverter = new EntityConverter(null);

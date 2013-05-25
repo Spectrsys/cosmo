@@ -25,12 +25,8 @@ import org.osaf.cosmo.model.hibernate.HibNoteItem;
 
 public class HibernateContentDaoModificationsTest extends AbstractHibernateDaoTestCase {
 
-    protected UserDaoImpl userDao = null;
-    protected ContentDaoImpl contentDao = null;
-
-    public HibernateContentDaoModificationsTest() {
-        super();
-    }
+    protected UserDaoImpl userDao;
+    protected ContentDaoImpl contentDao;
 
     public void testModificationsCreate() throws Exception {
         User user = getUser(userDao, "testuser");

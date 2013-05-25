@@ -49,18 +49,14 @@ import org.osaf.cosmo.model.hibernate.HibNoteItem;
  */
 public class HibernateItemDaoFilterTest extends AbstractHibernateDaoTestCase {
 
-    protected ContentDaoImpl contentDao = null;
+    protected ContentDaoImpl contentDao;
 
-    protected UserDaoImpl userDao = null;
-    
+    protected UserDaoImpl userDao;
+
     protected final String CALENDAR_UID_1 = "calendar1";
     protected final String CALENDAR_UID_2 = "calendar2";
     protected final String NOTE_UID = "note";
 
-    public HibernateItemDaoFilterTest() {
-        super();
-    }
-    
     @Override
     protected void onSetUpInTransaction() throws Exception {
         // TODO Auto-generated method stub

@@ -41,14 +41,10 @@ public class HibernateEventLogDaoTest extends AbstractHibernateDaoTestCase {
 
     protected EventLogDaoImpl eventLogDao = null;
 
-    public HibernateEventLogDaoTest() {
-        super();
-    }
+    private HibUser user;
+    private HibCollectionItem col1, col2;
+    private HibNoteItem note;
 
-    HibUser user;
-    HibCollectionItem col1, col2;
-    HibNoteItem note;
-    
     @Override
     protected void onSetUp() throws Exception {
         super.onSetUp();

@@ -19,17 +19,15 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 public abstract class AbstractSpringDaoTestCase extends AbstractTransactionalSpringContextTests {
 
-    public AbstractSpringDaoTestCase()
-    {
+    public AbstractSpringDaoTestCase() {
         setPopulateProtectedVariables(true);
     }
-    
+
     @Override
     protected String[] getConfigLocations() {
         return new String[] {
-                "applicationContext.xml",
-                "applicationContext-test.xml",
-            };
+            "applicationContext-test.xml"
+        };
     }
 
 }

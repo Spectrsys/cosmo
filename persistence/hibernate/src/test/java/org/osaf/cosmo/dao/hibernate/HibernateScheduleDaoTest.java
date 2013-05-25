@@ -25,23 +25,10 @@ import org.osaf.cosmo.model.hibernate.HibUser;
  * Test UserPreferencesScheduleDao
  */
 public class HibernateScheduleDaoTest extends AbstractHibernateDaoTestCase {
-    
-    protected UserPreferencesScheduleDao scheduleDao = null;
-    protected UserDaoImpl userDao = null;
-    
-    @Override
-    protected String[] getConfigLocations() {
-        return new String[] {
-                "applicationContext.xml",
-                "applicationContext-scheduler.xml",
-                "applicationContext-test.xml",
-            };
-    }
-    
-    public HibernateScheduleDaoTest() {
-        super();
-    }
-    
+
+    protected UserPreferencesScheduleDao scheduleDao;
+    protected UserDaoImpl userDao;
+
     public void testGetUsersWithSchedules() {
         User user1 = new HibUser();
         user1.setUsername("user1");

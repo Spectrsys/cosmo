@@ -45,13 +45,8 @@ import org.osaf.cosmo.model.hibernate.HibQName;
  */
 public class StandardItemFilterProcessorTest extends AbstractHibernateDaoTestCase {
 
-    StandardItemFilterProcessor queryBuilder = new StandardItemFilterProcessor();
-    TimeZoneRegistry registry =
-        TimeZoneRegistryFactory.getInstance().createRegistry();
-    
-    public StandardItemFilterProcessorTest() {
-        super();
-    }
+    private StandardItemFilterProcessor queryBuilder = new StandardItemFilterProcessor();
+    private TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
 
     public void testUidQuery() throws Exception {
         ItemFilter filter = new ItemFilter();

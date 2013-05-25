@@ -23,40 +23,34 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 public class AbstractHibernateDaoTestCase extends AbstractSpringDaoTestCase {
 
-    protected HibernateTestHelper helper = null;
-    
-    protected Session session = null;
-    protected SessionFactory sessionFactory = null;
-    
-    public AbstractHibernateDaoTestCase() {
-        super();
-        helper = new HibernateTestHelper();
-    }
-    
-    
+    protected HibernateTestHelper helper = new HibernateTestHelper();
+
+    protected Session session;
+    protected SessionFactory sessionFactory;
+
     @Override
     protected void onTearDownAfterTransaction() throws Exception {
         super.onTearDownAfterTransaction();
-        
+
         // Get a reference to the Session and bind it to the TransactionManager
-        SessionHolder holder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
-        Session s = holder.getSession(); 
-        TransactionSynchronizationManager.unbindResource(sessionFactory);
-        SessionFactoryUtils.releaseSession(s, sessionFactory);
+//        SessionHolder holder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
+//        Session s = holder.getSession(); 
+//        TransactionSynchronizationManager.unbindResource(sessionFactory);
+//        SessionFactoryUtils.releaseSession(s, sessionFactory);
     }
 
 
     protected void clearSession() {
         //session.flush();
-        session.clear();
+//        session.clear();
     }
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
-        
+
         // Unbind session from TransactionManager
-        session = SessionFactoryUtils.getSession(sessionFactory, true);
-        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
+//        session = SessionFactoryUtils.getSession(sessionFactory, true);
+//        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
     }
 }

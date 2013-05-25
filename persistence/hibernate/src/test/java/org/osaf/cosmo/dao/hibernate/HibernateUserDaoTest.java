@@ -34,13 +34,9 @@ import org.osaf.cosmo.utils.page.PagedList;
 
 
 public class HibernateUserDaoTest extends AbstractHibernateDaoTestCase {
-    
-    protected UserDaoImpl userDao = null;
-    
-    public HibernateUserDaoTest() {
-        super();
-    }
-    
+
+    protected UserDaoImpl userDao;
+
     public void testCreateUser() {
         User user1 = new HibUser();
         user1.setUsername("user1");

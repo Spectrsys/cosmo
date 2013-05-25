@@ -52,15 +52,11 @@ import org.osaf.cosmo.model.hibernate.HibNoteItem;
  */
 public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
 
-    protected CalendarDaoImpl calendarDao = null;
+    protected CalendarDaoImpl calendarDao;
 
-    protected ContentDaoImpl contentDao = null;
+    protected ContentDaoImpl contentDao;
 
-    protected UserDaoImpl userDao = null;
-
-    public HibernateCalendarDaoTest() {
-        super();
-    }
+    protected UserDaoImpl userDao;
 
     public void testCalendarDaoBasic() throws Exception {
         CollectionItem calendar = generateCalendar("test", "testuser");
