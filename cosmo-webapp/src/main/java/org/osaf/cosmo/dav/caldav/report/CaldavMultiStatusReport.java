@@ -17,20 +17,17 @@ package org.osaf.cosmo.dav.caldav.report;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-
-import org.osaf.cosmo.calendar.data.OutputFilter;
+import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.DavException;
 import org.osaf.cosmo.dav.DavResource;
-import org.osaf.cosmo.api.CaldavConstants;
 import org.osaf.cosmo.dav.caldav.property.CalendarData;
 import org.osaf.cosmo.dav.impl.DavCalendarResource;
 import org.osaf.cosmo.dav.report.MultiStatusReport;
-
+import org.osaf.cosmo.model.calendar.OutputFilter;
 import org.w3c.dom.Element;
 
 /**

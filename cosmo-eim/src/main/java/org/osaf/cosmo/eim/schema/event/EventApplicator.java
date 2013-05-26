@@ -23,15 +23,12 @@ import net.fortuna.ical4j.model.Dur;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.model.calendar.ICalDate;
 import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.EimRecordField;
 import org.osaf.cosmo.eim.schema.BaseStampApplicator;
 import org.osaf.cosmo.eim.schema.EimFieldValidator;
 import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValidationException;
-import org.osaf.cosmo.eim.schema.EimValueConverter;
-import org.osaf.cosmo.eim.schema.text.DurationFormat;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.EventExceptionStamp;
 import org.osaf.cosmo.model.EventStamp;
@@ -40,6 +37,9 @@ import org.osaf.cosmo.model.ModificationUid;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Stamp;
 import org.osaf.cosmo.model.StampUtils;
+import org.osaf.cosmo.model.calendar.ICalDate;
+import org.osaf.cosmo.model.eim.schema.EimValueConverter;
+import org.osaf.cosmo.model.eim.schema.text.DurationFormat;
 
 /**
  * Applies EIM records to event stamps.

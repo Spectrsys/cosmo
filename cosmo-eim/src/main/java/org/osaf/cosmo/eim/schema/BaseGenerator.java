@@ -45,6 +45,7 @@ import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.StringAttribute;
 import org.osaf.cosmo.model.TextAttribute;
 import org.osaf.cosmo.model.TimestampAttribute;
+import org.osaf.cosmo.utils.EimSchemaConstants;
 
 /**
  * Base class for classes that generate EIM records from items and stamps.

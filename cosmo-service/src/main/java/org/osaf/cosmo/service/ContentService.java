@@ -30,7 +30,6 @@ import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.filter.ItemFilter;
 import org.osaf.cosmo.service.lock.LockManager;
-import org.osaf.cosmo.service.lock.SingleVMLockManager;
 import org.osaf.cosmo.service.triage.TriageStatusQueryContext;
 
 /**

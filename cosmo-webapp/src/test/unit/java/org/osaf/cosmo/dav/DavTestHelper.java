@@ -19,14 +19,15 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.MockHelper;
 import org.osaf.cosmo.dav.acl.resource.DavUserPrincipal;
 import org.osaf.cosmo.dav.impl.DavCalendarCollection;
 import org.osaf.cosmo.dav.impl.DavEvent;
 import org.osaf.cosmo.dav.impl.DavHomeCollection;
 import org.osaf.cosmo.model.CollectionItem;
+import org.osaf.cosmo.model.ExtendedDavConstants;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.test.MockHelper;
 import org.osaf.cosmo.utils.UriTemplate;
 
 public class DavTestHelper extends MockHelper

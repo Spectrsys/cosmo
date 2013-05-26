@@ -29,11 +29,11 @@ import org.osaf.cosmo.eim.EimRecord;
 import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.TextField;
 import org.osaf.cosmo.eim.schema.BaseStampGenerator;
-import org.osaf.cosmo.eim.schema.EimValueConverter;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.StampUtils;
+import org.osaf.cosmo.model.eim.schema.EimValueConverter;
 
 /**
  * Generates EIM records from event stamps.

@@ -59,6 +59,17 @@
             <artifactId>jsontools-core</artifactId>
             <version>1.4</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.osaf.cosmo.model</groupId>
+            <artifactId>cosmo-model-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

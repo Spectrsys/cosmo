@@ -31,13 +31,13 @@ import org.osaf.cosmo.eim.schema.BaseStampApplicator;
 import org.osaf.cosmo.eim.schema.EimFieldValidator;
 import org.osaf.cosmo.eim.schema.EimSchemaException;
 import org.osaf.cosmo.eim.schema.EimValidationException;
-import org.osaf.cosmo.eim.schema.EimValueConverter;
-import org.osaf.cosmo.eim.schema.text.DurationFormat;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Stamp;
 import org.osaf.cosmo.model.StampUtils;
+import org.osaf.cosmo.model.eim.schema.EimValueConverter;
+import org.osaf.cosmo.model.eim.schema.text.DurationFormat;
 
 /**
  * Applies display alarm EIM records to an EventStamp/NoteItem.
