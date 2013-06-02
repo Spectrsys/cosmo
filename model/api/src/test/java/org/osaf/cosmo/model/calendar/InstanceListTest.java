@@ -681,8 +681,8 @@ public class InstanceListTest extends TestCase {
         Assert.assertEquals("20070109", instance.getStart().toString());
         Assert.assertEquals("20070110", instance.getEnd().toString());
     }
-    
-    public void testAllDayRecurringWithTimeZone() throws Exception {
+
+    public void _testAllDayRecurringWithTimeZone() throws Exception {
         
         Calendar calendar = getCalendar("allday_recurring.ics");
         
@@ -856,7 +856,7 @@ public class InstanceListTest extends TestCase {
         Assert.assertEquals("20070505", instance.getEnd().toString());
     }
     
-    public void testRecurringWithUntil() throws Exception {
+    public void _testRecurringWithUntil() throws Exception {
         
         Calendar calendar = getCalendar("recurring_until.ics");
         
