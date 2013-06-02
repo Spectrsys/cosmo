@@ -15,20 +15,24 @@
  */
 package org.osaf.cosmo.cmp;
 
+import java.util.UUID;
+
 import org.apache.commons.id.random.SessionIdGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osaf.cosmo.BaseMockServletTestCase;
-import org.osaf.cosmo.TestHelper;
 import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
 import org.osaf.cosmo.dao.mock.MockUserDao;
 import org.osaf.cosmo.model.EntityFactory;
+import org.osaf.cosmo.model.PasswordRecovery;
 import org.osaf.cosmo.model.mock.MockEntityFactory;
+import org.osaf.cosmo.model.mock.TestHelper;
 import org.osaf.cosmo.service.account.AutomaticAccountActivator;
-import org.osaf.cosmo.service.account.MockPasswordRecoverer;
 import org.osaf.cosmo.service.account.OutOfTheBoxHelper;
+import org.osaf.cosmo.service.account.PasswordRecoverer;
+import org.osaf.cosmo.service.account.PasswordRecoveryMessageContext;
 import org.osaf.cosmo.service.impl.StandardContentService;
 import org.osaf.cosmo.service.impl.StandardTriageStatusQueryProcessor;
 import org.osaf.cosmo.service.impl.StandardUserService;
@@ -66,8 +70,15 @@ public abstract class BaseCmpServletTestCase extends BaseMockServletTestCase {
         AutomaticAccountActivator accountActivator =
             new AutomaticAccountActivator();
         accountActivator.setUserDao(userDao);
-        MockPasswordRecoverer passwordRecoverer = 
-            new MockPasswordRecoverer();
+        PasswordRecoverer passwordRecoverer = new PasswordRecoverer() {
+            @Override
+            public String createRecoveryKey() {
+                return UUID.randomUUID().toString();
+            }
+            @Override
+            public void sendRecovery(PasswordRecovery passwordRecovery, PasswordRecoveryMessageContext context) {
+            }
+        };
         OutOfTheBoxHelper ootbHelper = new OutOfTheBoxHelper();
         ootbHelper.setContentDao(contentDao);
         ootbHelper.setMessageSource(messageSource);

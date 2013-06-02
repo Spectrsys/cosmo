@@ -40,7 +40,7 @@ public class MockSecurityManager implements CosmoSecurityManager {
 
     private static ThreadLocal contexts = new ThreadLocal();
 
-    private MockSecurityHelper testHelper;
+    private MockSecurityHelper testHelper = new MockSecurityHelper();
 
     /**
      */

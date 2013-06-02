@@ -15,42 +15,35 @@
  */
 package org.osaf.cosmo.dao.hibernate;
 
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
-import org.springframework.orm.hibernate3.SessionHolder;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 public class AbstractHibernateDaoTestCase extends AbstractSpringDaoTestCase {
 
     protected HibernateTestHelper helper = new HibernateTestHelper();
+    protected SessionFactory sessionFactory = null;
 
-    protected Session session;
-    protected SessionFactory sessionFactory;
-
-    @Override
-    protected void onTearDownAfterTransaction() throws Exception {
-        super.onTearDownAfterTransaction();
-
-        // Get a reference to the Session and bind it to the TransactionManager
-        SessionHolder holder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
-        Session s = holder.getSession(); 
-        TransactionSynchronizationManager.unbindResource(sessionFactory);
-        SessionFactoryUtils.releaseSession(s, sessionFactory);
-    }
-
+//    @Override
+//    protected void onTearDownAfterTransaction() throws Exception {
+//        super.onTearDownAfterTransaction();
+//        
+//        // Get a reference to the Session and bind it to the TransactionManager
+//        SessionHolder holder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
+//        Session s = holder.getSession(); 
+//        TransactionSynchronizationManager.unbindResource(sessionFactory);
+//        SessionFactoryUtils.releaseSession(s, sessionFactory);
+//    }
 
     protected void clearSession() {
         //session.flush();
-        session.clear();
+//        session.clear();
     }
 
-    @Override
-    protected void onSetUpBeforeTransaction() throws Exception {
-        super.onSetUpBeforeTransaction();
-
-        // Unbind session from TransactionManager
-        session = SessionFactoryUtils.getSession(sessionFactory, true);
-        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
-    }
+//    @Override
+//    protected void onSetUpBeforeTransaction() throws Exception {
+//        super.onSetUpBeforeTransaction();
+//        
+//        // Unbind session from TransactionManager
+//        session = SessionFactoryUtils.getSession(sessionFactory, true);
+//        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
+//    }
 }

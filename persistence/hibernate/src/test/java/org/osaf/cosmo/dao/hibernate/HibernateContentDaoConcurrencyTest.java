@@ -63,7 +63,7 @@ public class HibernateContentDaoConcurrencyTest extends AbstractHibernateDaoTest
 
     protected UserDaoImpl userDao;
     protected ContentDaoImpl contentDao;
-    protected DataSource jdbcDataSource;
+    protected DataSource dataSource;
 
     public void testConcurrentContentDaoUpdateContent() throws Exception {
         
@@ -296,7 +296,7 @@ public class HibernateContentDaoConcurrencyTest extends AbstractHibernateDaoTest
     }
     
     protected void cleanupDb () throws Exception {
-        Connection conn = jdbcDataSource.getConnection();
+        Connection conn = dataSource.getConnection();
         
         Statement stmt = conn.createStatement();
         stmt.executeUpdate("delete from event_stamp");

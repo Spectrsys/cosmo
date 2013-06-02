@@ -23,6 +23,7 @@ import java.util.List;
 import junit.framework.Assert;
 import net.fortuna.ical4j.model.DateTime;
 
+import org.hibernate.classic.Session;
 import org.osaf.cosmo.model.ItemChangeRecord;
 import org.osaf.cosmo.model.event.EventLogEntry;
 import org.osaf.cosmo.model.event.ItemAddedEntry;
@@ -45,6 +46,8 @@ public class HibernateEventLogDaoTest extends AbstractHibernateDaoTestCase {
     private HibCollectionItem col1, col2;
     private HibNoteItem note;
 
+    private Session session;
+
     @Override
     protected void onSetUp() throws Exception {
         super.onSetUp();
@@ -66,6 +69,8 @@ public class HibernateEventLogDaoTest extends AbstractHibernateDaoTestCase {
         note.setUid("uid3");
         note.setLastModifiedBy("Test McTester");
         note.setDisplayName("note");
+
+        session = sessionFactory.getCurrentSession();
     }
     
     

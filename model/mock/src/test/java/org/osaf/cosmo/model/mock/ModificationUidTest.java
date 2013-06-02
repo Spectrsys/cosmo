@@ -19,6 +19,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.DefaultTimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 
@@ -28,8 +29,8 @@ import org.osaf.cosmo.model.ModificationUid;
 
 public class ModificationUidTest extends TestCase {
    
-    private static final TimeZoneRegistry TIMEZONE_REGISTRY =
-        TimeZoneRegistryFactory.getInstance().createRegistry();
+    private static final TimeZoneRegistry TIMEZONE_REGISTRY = new DefaultTimeZoneRegistryFactory().createRegistry();
+//        TimeZoneRegistryFactory.getInstance().createRegistry();
     
     public void testModificationUid() throws Exception {
         Item parent = new MockNoteItem();

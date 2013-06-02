@@ -17,28 +17,19 @@ package org.osaf.cosmo.cmp;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.ElementIterator;
-
-import org.osaf.cosmo.utils.CosmoConstants;
-import org.osaf.cosmo.cmp.CmpServlet;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.hibernate.HibUser;
-import org.osaf.cosmo.util.DateUtil;
-
+import org.osaf.cosmo.utils.DateUtil;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

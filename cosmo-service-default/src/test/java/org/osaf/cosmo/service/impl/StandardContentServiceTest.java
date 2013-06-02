@@ -15,7 +15,7 @@
  */
 package org.osaf.cosmo.service.impl;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -67,7 +67,7 @@ public class StandardContentServiceTest extends TestCase {
     private SingleVMLockManager lockManager;
     private TestHelper testHelper;
     
-    protected String baseDir = "src/test/unit/resources/testdata/";
+    protected String baseDir = "/";
 
     /** */
     protected void setUp() throws Exception {
@@ -388,7 +388,10 @@ public class StandardContentServiceTest extends TestCase {
     
     private Calendar getCalendar(String filename) throws Exception {
         CalendarBuilder cb = new CalendarBuilder();
-        FileInputStream fis = new FileInputStream(baseDir + filename);
+        InputStream fis = getClass().getResourceAsStream(baseDir + filename);
+        if (fis == null) {
+            throw new IllegalArgumentException(baseDir + filename + " not found");
+        }
         Calendar calendar = cb.build(fis);
         return calendar;
     }

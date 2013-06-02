@@ -211,4 +211,10 @@
     </property>
   </bean>
 
+  <!--  DAO -->
+  <bean id="scheduleDao" class="org.osaf.cosmo.dao.hibernate.UserPreferencesScheduleDao"
+    init-method="init" destroy-method="destroy">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
 </beans>

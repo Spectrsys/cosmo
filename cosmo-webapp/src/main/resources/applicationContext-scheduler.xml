@@ -20,14 +20,6 @@
     xsi:schemaLocation="
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <!--  DAO -->
-  <bean id="scheduleDao"
-        class="org.osaf.cosmo.dao.hibernate.UserPreferencesScheduleDao"
-        init-method="init"
-        destroy-method="destroy">
-    <property name="sessionFactory" ref="sessionFactory"/>
-  </bean>
-
   <!--  Service -->
   <bean id="scheduleService"
         class="org.osaf.cosmo.service.impl.StandardScheduleService"

@@ -31,7 +31,6 @@ import junit.framework.TestCase;
 import org.apache.commons.id.random.SessionIdGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.TestHelper;
 import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
@@ -43,7 +42,6 @@ import org.osaf.cosmo.eim.EimRecordSetIterator;
 import org.osaf.cosmo.eim.IntegerField;
 import org.osaf.cosmo.eim.SimpleEimRecordSetIterator;
 import org.osaf.cosmo.eim.TextField;
-import org.osaf.cosmo.eim.schema.EimSchemaConstants;
 import org.osaf.cosmo.eim.schema.contentitem.ContentItemConstants;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.CollectionItemDetails;
@@ -59,11 +57,13 @@ import org.osaf.cosmo.model.eim.schema.text.TriageStatusFormat;
 import org.osaf.cosmo.model.mock.MockCollectionItem;
 import org.osaf.cosmo.model.mock.MockEntityFactory;
 import org.osaf.cosmo.model.mock.MockTriageStatus;
+import org.osaf.cosmo.model.mock.TestHelper;
 import org.osaf.cosmo.security.mock.MockSecurityManager;
 import org.osaf.cosmo.service.impl.StandardContentService;
 import org.osaf.cosmo.service.impl.StandardTriageStatusQueryProcessor;
 import org.osaf.cosmo.service.impl.StandardUserService;
 import org.osaf.cosmo.service.lock.SingleVMLockManager;
+import org.osaf.cosmo.utils.EimSchemaConstants;
 
 /**
  * Test Case for <code>StandardMorseCodeController/code> which uses mock

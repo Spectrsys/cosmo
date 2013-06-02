@@ -22,12 +22,14 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.id.random.SessionIdGenerator;
-import org.osaf.cosmo.TestHelper;
+import org.osaf.cosmo.api.Schedule;
+import org.osaf.cosmo.dao.UserPreferencesScheduleHelper;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
 import org.osaf.cosmo.dao.mock.MockUserDao;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.mock.MockEntityFactory;
+import org.osaf.cosmo.model.mock.TestHelper;
 import org.osaf.cosmo.service.impl.StandardUserService;
 
 /**

@@ -17,16 +17,14 @@ package org.osaf.cosmo.dav.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.jackrabbit.webdav.property.DavProperty;
-
 import org.osaf.cosmo.dav.BaseDavTestCase;
-import org.osaf.cosmo.dav.ExtendedDavConstants;
 import org.osaf.cosmo.dav.caldav.report.FreeBusyReport;
 import org.osaf.cosmo.dav.caldav.report.MultigetReport;
 import org.osaf.cosmo.dav.caldav.report.QueryReport;
 import org.osaf.cosmo.dav.property.ExcludeFreeBusyRollup;
 import org.osaf.cosmo.model.CollectionItem;
+import org.osaf.cosmo.model.ExtendedDavConstants;
 
 /**
  * Test case for <code>DavCollectionBase</code>.

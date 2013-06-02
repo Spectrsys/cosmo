@@ -19,11 +19,13 @@ import java.util.Date;
 
 import junit.framework.Assert;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.DefaultTimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 
 import org.hibernate.Query;
+import org.hibernate.classic.Session;
 import org.osaf.cosmo.dao.hibernate.AbstractHibernateDaoTestCase;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.EventStamp;
@@ -46,7 +48,16 @@ import org.osaf.cosmo.model.hibernate.HibQName;
 public class StandardItemFilterProcessorTest extends AbstractHibernateDaoTestCase {
 
     private StandardItemFilterProcessor queryBuilder = new StandardItemFilterProcessor();
-    private TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+    private TimeZoneRegistry registry = new DefaultTimeZoneRegistryFactory().createRegistry();
+//    TimeZoneRegistryFactory.getInstance().createRegistry();
+    private Session session;
+
+    @Override
+    protected void onSetUp() throws Exception {
+        super.onSetUp();
+
+        session = sessionFactory.getCurrentSession();
+    }
 
     public void testUidQuery() throws Exception {
         ItemFilter filter = new ItemFilter();

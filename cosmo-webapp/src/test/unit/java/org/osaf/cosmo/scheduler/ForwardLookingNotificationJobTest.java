@@ -28,7 +28,6 @@ import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 
 import org.apache.commons.id.random.SessionIdGenerator;
-import org.osaf.cosmo.TestHelper;
 import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
@@ -38,6 +37,7 @@ import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.TriageStatus;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.mock.MockEventStamp;
+import org.osaf.cosmo.model.mock.TestHelper;
 import org.osaf.cosmo.scheduler.ForwardLookingReport.UpcomingResult;
 import org.osaf.cosmo.service.impl.StandardContentService;
 import org.osaf.cosmo.service.impl.StandardTriageStatusQueryProcessor;
