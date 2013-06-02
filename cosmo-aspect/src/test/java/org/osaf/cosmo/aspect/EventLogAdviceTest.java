@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.event.aop;
+package org.osaf.cosmo.aspect;
 
 import java.util.Date;
 import java.util.List;
@@ -24,7 +24,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.TestHelper;
 import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
@@ -32,10 +31,11 @@ import org.osaf.cosmo.dao.mock.MockEventLogDao;
 import org.osaf.cosmo.model.CollectionItem;
 import org.osaf.cosmo.model.ContentItem;
 import org.osaf.cosmo.model.ItemChangeRecord;
+import org.osaf.cosmo.model.ItemChangeRecord.Action;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
-import org.osaf.cosmo.model.ItemChangeRecord.Action;
 import org.osaf.cosmo.model.mock.MockNoteItem;
+import org.osaf.cosmo.model.mock.TestHelper;
 import org.osaf.cosmo.security.mock.MockSecurityContext;
 import org.osaf.cosmo.security.mock.MockSecurityManager;
 import org.osaf.cosmo.security.mock.MockTicketPrincipal;
@@ -62,8 +62,7 @@ public class EventLogAdviceTest extends TestCase {
     private TestHelper testHelper;
     private ContentService proxyService;
     private MockSecurityManager securityManager;
-    
-   
+
     /** */
     protected void setUp() throws Exception {
         testHelper = new TestHelper();

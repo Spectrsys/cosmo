@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.osaf.cosmo.security.aop;
+package org.osaf.cosmo.aspect;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +23,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osaf.cosmo.TestHelper;
 import org.osaf.cosmo.dao.mock.MockCalendarDao;
 import org.osaf.cosmo.dao.mock.MockContentDao;
 import org.osaf.cosmo.dao.mock.MockDaoStorage;
@@ -34,6 +33,7 @@ import org.osaf.cosmo.model.ItemSecurityException;
 import org.osaf.cosmo.model.Ticket;
 import org.osaf.cosmo.model.User;
 import org.osaf.cosmo.model.mock.MockNoteItem;
+import org.osaf.cosmo.model.mock.TestHelper;
 import org.osaf.cosmo.security.Permission;
 import org.osaf.cosmo.security.mock.MockSecurityContext;
 import org.osaf.cosmo.security.mock.MockSecurityManager;
