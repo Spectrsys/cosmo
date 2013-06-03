@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <!-- services -->
+  <bean id="passwordGenerator" class="org.apache.commons.id.random.SessionIdGenerator"/>
+
+  <bean id="accountActivator" class="org.osaf.cosmo.service.account.EmailAccountActivator">
+    <property name="idGenerator">
+      <ref bean="idGenerator" />
+    </property>
+    <property name="mailSender">
+      <ref bean="mailSender" />
+    </property>
+    <property name="messageSource">
+      <ref bean="messageSource" />
+    </property>
+    <property name="required">
+        <value>${cosmo.service.account.requireActivation}</value>
+    </property>
+  </bean>
+
+  <bean id="passwordRecoverer" class="org.osaf.cosmo.service.account.EmailPasswordRecoverer">
+    <property name="idGenerator">
+      <ref bean="idGenerator" />
+    </property>
+    <property name="mailSender">
+      <ref bean="mailSender" />
+    </property>
+    <property name="messageSource">
+      <ref bean="messageSource" />
+    </property>
+  </bean>
+
+  <bean id="userService" class="org.osaf.cosmo.service.impl.StandardUserService"
+    init-method="init" destroy-method="destroy">
+    <property name="contentDao" ref="contentDao"/>
+    <property name="userDao" ref="userDao"/>
+    <property name="passwordGenerator" ref="passwordGenerator"/>
+  </bean>
+    
+  <bean id="contentLockManager" class="org.osaf.cosmo.service.lock.SingleVMLockManager"/>
+
+  <bean id="contentService" class="org.osaf.cosmo.service.impl.StandardContentService"
+    init-method="init" destroy-method="destroy">
+    <property name="calendarDao" ref="calendarDao"/>
+    <property name="contentDao" ref="contentDao"/>
+    <property name="lockManager" ref="contentLockManager"/>
+    <property name="triageStatusQueryProcessor" ref="triageStatusQueryProcessor"/>
+  </bean>
+
+  <bean id="serverPropertyService" class="org.osaf.cosmo.service.impl.StandardServerPropertyService"
+    init-method="init" destroy-method="destroy">
+    <property name="serverPropertyDao" ref="serverPropertyDao"/>
+  </bean>
+
+  <bean id="ootbHelper" class="org.osaf.cosmo.service.account.OutOfTheBoxHelper">
+    <property name="contentDao" ref="contentDao"/>
+    <property name="messageSource" ref="messageSource" />
+    <property name="entityFactory" ref="cosmoEntityFactory"/>
+  </bean>
+
+  <bean id="triageStatusQueryProcessor" class="org.osaf.cosmo.service.impl.StandardTriageStatusQueryProcessor">
+    <property name="contentDao" ref="contentDao" />
+  </bean>
+
+  <bean id="calendarQueryProcessor" class="org.osaf.cosmo.service.impl.StandardCalendarQueryProcessor">
+    <property name="calendarDao" ref="calendarDao"/>
+    <property name="contentDao" ref="contentDao"/>
+  </bean>
+
+</beans>

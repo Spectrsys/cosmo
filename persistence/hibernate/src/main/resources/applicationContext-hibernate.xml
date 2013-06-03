@@ -28,13 +28,12 @@
     http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.0.xsd
     http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-    <property name="basename" value="MessageResources"/>
+  <!-- Interceptor that throws away curent Hibernate session and binds new one on errors -->
+  <bean id="throwAwayHibernateSessionAdvice" class="org.osaf.cosmo.dao.hibernate.ext.ThrowAwayHibernateSessionOnErrorInterceptor">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory" />
+    </property>
   </bean>
-
-  <!-- load the cosmo properties file and make the cosmo
-       config properties available to other spring beans -->
-  <jee:jndi-lookup id="cosmoConfigPath" jndi-name="java:comp/env/cosmo/config"/>
 
   <bean id="propertyPlaceholderConfigurer" class="org.osaf.cosmo.spring.CosmoPropertyPlaceholderConfigurer">
     <property name="locations">
@@ -57,8 +56,8 @@
   <bean id="cosmoHibernateInterceptor" class="org.osaf.cosmo.dao.hibernate.ext.CompoundInterceptor">
       <property name="interceptors">
         <list>
-            <ref local="auditableObjectInterceptor"/>
-            <ref local="eventStampInterceptor"/>
+            <ref bean="auditableObjectInterceptor"/>
+            <ref bean="eventStampInterceptor"/>
         </list>
     </property>
   </bean>
@@ -123,10 +122,10 @@
     <property name="eventListeners">
       <map>
         <entry key="pre-update">
-          <ref local="validatePreUpdateEventListener"/>
+          <ref bean="validatePreUpdateEventListener"/>
         </entry>
         <entry key="pre-insert">
-          <ref local="validatePreInsertEventListener"/>
+          <ref bean="validatePreInsertEventListener"/>
         </entry>
       </map>
     </property>
@@ -149,7 +148,7 @@
   <!-- Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
   <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
     <property name="sessionFactory">
-      <ref local="sessionFactory" />
+      <ref bean="sessionFactory" />
     </property>
   </bean>
 
@@ -162,8 +161,6 @@
     <constructor-arg><ref bean="hibernateTemplate"/></constructor-arg>
   </bean>
 
-  <bean id="idGenerator" class="org.apache.commons.id.uuid.VersionFourGenerator" />
-
   <bean id="ticketKeyGenerator" class="org.apache.commons.id.random.SessionIdGenerator" />
 
   <bean id="serverPropertyDao" class="org.osaf.cosmo.dao.hibernate.ServerPropertyDaoImpl"
@@ -171,9 +168,7 @@
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
-
   <bean id="standardItemFilterProcessor" class="org.osaf.cosmo.dao.hibernate.query.StandardItemFilterProcessor" />
-
 
   <bean id="eventLogDao" class="org.osaf.cosmo.dao.hibernate.EventLogDaoImpl"
     init-method="init" destroy-method="destroy">
@@ -185,13 +180,13 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="itemPathTranslator" ref="itemPathTranslator"/>
     <property name="idGenerator">
-      <ref local="idGenerator" />
+      <ref bean="idGenerator" />
     </property>
     <property name="ticketKeyGenerator">
-      <ref local="ticketKeyGenerator" />
+      <ref bean="ticketKeyGenerator" />
     </property>
     <property name="itemFilterProcessor">
-      <ref local="standardItemFilterProcessor" />
+      <ref bean="standardItemFilterProcessor" />
     </property>
   </bean>
 
@@ -199,7 +194,7 @@
     init-method="init" destroy-method="destroy">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="idGenerator">
-      <ref local="idGenerator" />
+      <ref bean="idGenerator" />
     </property>
   </bean>
 
@@ -207,7 +202,7 @@
     init-method="init">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="itemFilterProcessor">
-      <ref local="standardItemFilterProcessor" />
+      <ref bean="standardItemFilterProcessor" />
     </property>
   </bean>
 

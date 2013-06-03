@@ -21,10 +21,8 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!--  Service -->
-  <bean id="scheduleService"
-        class="org.osaf.cosmo.service.impl.StandardScheduleService"
-        init-method="init"
-        destroy-method="destroy">
+  <bean id="scheduleService" class="org.osaf.cosmo.service.impl.StandardScheduleService"
+    init-method="init" destroy-method="destroy">
     <property name="scheduleDao" ref="scheduleDao"/>
   </bean>
   
@@ -62,7 +60,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="hibernateJobFilter" class="org.osaf.cosmo.scheduler.HibernateSessionFilter">
+  <bean id="hibernateJobFilter" class="org.osaf.cosmo.dao.hibernate.HibernateSessionFilter">
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
@@ -82,20 +80,20 @@
 
   <bean id="scheduler" lazy-init="true" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
       <property name="autoStartup" value="false"/>
-	  <property name="schedulerContextAsMap">
+      <property name="schedulerContextAsMap">
         <map>
-          <entry key="contentService" value-ref="contentService"/>
-          <entry key="userService" value-ref="userService"/>
-          <entry key="notifiers" value-ref="jobNotifiers"/>
-          <entry key="filters" value-ref="jobFilters"/>
-          <entry key="scheduler" value-ref="cosmoScheduler"/>
+          <entry key="contentService"><ref bean="contentService" /></entry>
+          <entry key="userService"><ref bean="userService" /></entry>
+          <entry key="notifiers"><ref bean="jobNotifiers" /></entry>
+          <entry key="filters"><ref bean="jobFilters" /></entry>
+          <entry key="scheduler"><ref bean="cosmoScheduler" /></entry>
         </map>
     </property>
-	<property name="quartzProperties">
-		<props>
-			<prop key="org.quartz.threadPool.threadCount">${cosmo.scheduler.threadPoolSize}</prop>
-		</props>
-	</property>
+    <property name="quartzProperties">
+        <props>
+            <prop key="org.quartz.threadPool.threadCount">${cosmo.scheduler.threadPoolSize}</prop>
+        </props>
+    </property>
   </bean>
 
   <bean id="forwardLookingJobScheduler" class="org.osaf.cosmo.scheduler.ForwardLookingJobTypeScheduler">
@@ -105,13 +103,12 @@
     <property name="testMode" value="${cosmo.scheduler.testMode}"/>
   </bean>
 
-  <bean id="cosmoScheduler" depends-on="dbInitializer"
-                            init-method="init" 
-	                        destroy-method="destroy" 
-	                        class="org.osaf.cosmo.scheduler.SchedulerImpl">
+  <!-- depends-on="dbInitializer" -->
+  <bean id="cosmoScheduler" class="org.osaf.cosmo.scheduler.SchedulerImpl"
+    init-method="init" destroy-method="destroy">
     <property name="enabled" value="${cosmo.scheduler.enabled}"/>
-	<property name="maxJobsPerUser" value="1"/>
-	<property name="scheduler" ref="scheduler"/>
+    <property name="maxJobsPerUser" value="1"/>
+    <property name="scheduler" ref="scheduler"/>
     <property name="scheduleService" ref="scheduleService"/>
     <property name="jobSchedulers">
       <map>
@@ -120,9 +117,9 @@
     </property>
     <property name="refreshInterval" value="90000"/>
   </bean>
-	
+    
   <bean id="schedulerManager" class="org.osaf.cosmo.scheduler.SchedulerManager">
-    <property name="scheduler" ref="cosmoScheduler"/>	  
+    <property name="scheduler" ref="cosmoScheduler"/>
   </bean>
 
 </beans>

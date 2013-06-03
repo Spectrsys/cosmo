@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <!-- atom protocol resources -->
+
+  <bean id="abdera" class="org.apache.abdera.Abdera"/>
+
+  <bean id="atomGeneratorFactory" class="org.osaf.cosmo.atom.generator.StandardGeneratorFactory"
+    init-method="init">
+    <property name="abdera"><ref bean="abdera"/></property>
+    <property name="contentFactory">
+      <bean class="org.osaf.cosmo.atom.generator.ContentFactory"/>
+    </property>
+    <property name="contentService">
+      <ref bean="contentService"/>
+    </property>
+    <property name="securityManager">
+      <ref bean="securityManager"/>
+    </property>
+  </bean>
+    
+  <bean id="atomTargetResolver" class="org.osaf.cosmo.atom.provider.StandardTargetResolver"
+    init-method="init">
+    <property name="contentService">
+      <ref bean="contentService"/>
+    </property>
+    <property name="userService">
+      <ref bean="userService"/>
+    </property>
+  </bean>
+    
+  <bean id="atomBaseAdapter" class="org.osaf.cosmo.atom.provider.BaseCollectionAdapter"
+    init-method="init" abstract="true">
+    <property name="generatorFactory"><ref bean="atomGeneratorFactory"/></property>
+    <property name="serviceLocatorFactory">
+      <ref bean="serviceLocatorFactory"/>
+    </property>
+    <property name="entityFactory" ref="cosmoEntityFactory"/>
+  </bean>
+
+  <bean id="atomStandardProcessorFactory" class="org.osaf.cosmo.atom.processor.StandardProcessorFactory">
+    <property name="entityFactory" ref="cosmoEntityFactory"/>
+  </bean>
+
+  <bean id="atomItemAdapter" class="org.osaf.cosmo.atom.provider.ItemCollectionAdapter"
+    init-method="init" parent="atomBaseAdapter">
+    <property name="processorFactory">
+      <ref bean="atomStandardProcessorFactory"/>
+    </property>
+    <property name="contentService">
+      <ref bean="contentService"/>
+    </property>
+  </bean>
+  
+  <bean id="atomDetachedItemAdapter" class="org.osaf.cosmo.atom.provider.DetachedItemCollectionAdapter"
+    init-method="init" parent="atomItemAdapter"/>
+
+  <bean id="atomExpandedItemAdapter" class="org.osaf.cosmo.atom.provider.ExpandedItemCollectionAdapter"
+    init-method="init" parent="atomItemAdapter"/>
+
+  <bean id="atomSubscriptionAdapter" class="org.osaf.cosmo.atom.provider.SubscriptionCollectionAdapter"
+    init-method="init" parent="atomBaseAdapter">
+    <property name="userService">
+      <ref bean="userService"/>
+    </property>
+  </bean>
+
+  <bean id="atomPreferencesAdapter" class="org.osaf.cosmo.atom.provider.PreferencesCollectionAdapter"
+    init-method="init" parent="atomBaseAdapter">
+    <property name="userService">
+      <ref bean="userService"/>
+    </property>
+  </bean>
+
+  <bean id="atomTicketsAdapter" class="org.osaf.cosmo.atom.provider.TicketsCollectionAdapter"
+    init-method="init" parent="atomBaseAdapter">
+    <property name="contentService">
+      <ref bean="contentService"/>
+    </property>
+    <property name="securityManager">
+      <ref bean="securityManager"/>
+    </property>
+  </bean>
+
+  <bean id="atomUserAdapter" class="org.osaf.cosmo.atom.provider.UserCollectionAdapter"
+    init-method="init" parent="atomBaseAdapter"/>
+
+  <bean id="atomWorkspaceManager" class="org.osaf.cosmo.atom.provider.StandardWorkspaceManager">
+     <property name="itemAdapter">
+       <ref bean="atomItemAdapter"/>
+     </property>
+     <property name="detachedItemAdapter">
+       <ref bean="atomDetachedItemAdapter"/>
+     </property>
+     <property name="expandedItemAdapter">
+       <ref bean="atomExpandedItemAdapter"/>
+     </property>
+     <property name="subscriptionAdapter">
+       <ref bean="atomSubscriptionAdapter"/>
+     </property>
+     <property name="preferencesAdapter">
+        <ref bean="atomPreferencesAdapter"/>
+     </property>
+     <property name="ticketsAdapter">
+       <ref bean="atomTicketsAdapter"/>
+     </property>
+     <property name="userAdapter">
+       <ref bean="atomUserAdapter"/>
+     </property>
+  </bean>
+
+  <bean id="atomProvider" class="org.osaf.cosmo.atom.provider.StandardProvider">
+    <property name="abdera"><ref bean="abdera"/></property>
+    <property name="workspaceManager"><ref bean="atomWorkspaceManager"/></property>
+    <property name="generatorFactory"><ref bean="atomGeneratorFactory"/></property>
+    <property name="serviceLocatorFactory">
+      <ref bean="serviceLocatorFactory"/>
+    </property>
+    <property name="targetResolver">
+      <ref bean="atomTargetResolver"/>
+    </property>
+  </bean>
+
+</beans>

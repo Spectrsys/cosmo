@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  ">
+
+  <!-- dav protocol resources -->
+  <bean id="davResourceLocatorFactory" class="org.osaf.cosmo.dav.StandardResourceLocatorFactory"/>
+
+  <bean id="davResourceFactory" class="org.osaf.cosmo.dav.StandardResourceFactory">
+    <constructor-arg ref="contentService"/>
+    <constructor-arg ref="userService"/>
+    <constructor-arg ref="securityManager"/>
+    <constructor-arg ref="cosmoEntityFactory"/>
+    <constructor-arg ref="calendarQueryProcessor"/>
+    <constructor-arg ref="iCalendarClientFilterManager"/>
+    <property name="schedulingEnabled" value="${cosmo.caldav.schedulingEnabled}"/>
+  </bean>
+
+  <bean id="dav" class="org.osaf.cosmo.dav.servlet.StandardRequestHandler">
+    <property name="resourceLocatorFactory" ref="davResourceLocatorFactory"/>
+    <property name="resourceFactory" ref="davResourceFactory"/>
+    <property name="entityFactory" ref="cosmoEntityFactory"/>
+  </bean>
+
+</beans>

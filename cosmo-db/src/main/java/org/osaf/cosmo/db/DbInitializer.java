@@ -159,7 +159,7 @@ public class DbInitializer {
             // access to DataSource.  Should be fixed in Spring 2.0.2.
             SimpleConnectionProvider.setConnection(datasource.getConnection());
             Configuration config = localSessionFactory.getConfiguration();
-            config.setProperty(Environment.CONNECTION_PROVIDER, "org.osaf.cosmo.hibernate.SimpleConnectionProvider");
+            config.setProperty(Environment.CONNECTION_PROVIDER, "org.osaf.cosmo.dao.hibernate.ext.SimpleConnectionProvider");
             log.info("validating schema");
             new SchemaValidator(config).validate();
             log.info("schema validation passed");

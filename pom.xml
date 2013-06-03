@@ -434,6 +434,11 @@
                 <artifactId>cosmo-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.osaf.cosmo</groupId>
+                <artifactId>cosmo-db</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.osaf.cosmo</groupId>
