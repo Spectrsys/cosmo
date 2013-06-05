@@ -38,16 +38,9 @@
   <bean id="schedulerManager" class="java.lang.String"/>
 
   <bean id="dataSource" class="org.h2.jdbcx.JdbcDataSource">
-<!--     <property name="driverClassName"> -->
-<!--       <value>org.h2.Driver</value> -->
-<!--     </property> -->
     <property name="URL" value="jdbc:h2:file:target/test" />
   </bean>
 
-<!-- 
-  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-    <constructor-arg ref="dataSource" />
-  </bean>
--->
+  <bean id="idGenerator" class="org.apache.commons.id.uuid.VersionFourGenerator" />
 
 </beans>
