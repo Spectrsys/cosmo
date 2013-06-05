@@ -3,11 +3,20 @@
 <Configure id="server" class="org.eclipse.jetty.server.Server">
 
   <New class="org.eclipse.jetty.plus.jndi.Resource">
-    <Arg>jdbc/cosmo</Arg>
+    <Arg>jdbc/cosmoX</Arg>
     <Arg>
       <New class="org.apache.derby.jdbc.EmbeddedDataSource">
         <Set name="DatabaseName">target/chandler-derby-db</Set>
         <Set name="createDatabase">create</Set>
+      </New>
+    </Arg>
+  </New>
+
+  <New class="org.eclipse.jetty.plus.jndi.Resource">
+    <Arg>jdbc/cosmo</Arg>
+    <Arg>
+      <New class="org.h2.jdbcx.JdbcDataSource">
+        <Set name="URL">jdbc:h2:file:target/test</Set>
       </New>
     </Arg>
   </New>

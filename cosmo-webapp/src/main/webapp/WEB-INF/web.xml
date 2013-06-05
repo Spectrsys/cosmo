@@ -28,8 +28,10 @@
       classpath:applicationContext-mail.xml,
       classpath:applicationContext-hibernate.xml,
       classpath:applicationContext-acegi.xml,
+      classpath:applicationContext-service.xml,
       classpath:applicationContext-default-service.xml,
       classpath:applicationContext-dbinitializer.xml,
+      classpath:applicationContext-atom.xml,
       classpath*:/applicationContext*.xml
     </param-value>
   </context-param>

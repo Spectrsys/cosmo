@@ -22,7 +22,7 @@
 <cosmo:baseurl var="baseUrl"/>
 <cosmo:jsurl var="jsUrl"/>
 <u:bind var="PRODUCT_VERSION"
-        type="org.osaf.cosmo.CosmoConstants"
+        type="org.osaf.cosmo.utils.CosmoConstants"
         field="PRODUCT_VERSION"/>
 
 <%@ attribute name="timezones"        %>

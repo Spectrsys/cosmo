@@ -40,7 +40,7 @@ a {
 </style>
 <script type="text/javascript" src="${staticBaseUrl}/cosmo.js"></script>
 <u:bind var="PRODUCT_VERSION"
-        type="org.osaf.cosmo.CosmoConstants"
+        type="org.osaf.cosmo.utils.CosmoConstants"
         field="PRODUCT_VERSION"/>
 
 <div style="width:100%;" align="center">
