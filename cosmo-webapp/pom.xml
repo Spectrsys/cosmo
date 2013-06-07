@@ -62,6 +62,10 @@
         </dependency>
         <dependency>
             <groupId>org.osaf.cosmo</groupId>
+            <artifactId>cosmo-aspect</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osaf.cosmo</groupId>
             <artifactId>cosmo-atom</artifactId>
         </dependency>
 

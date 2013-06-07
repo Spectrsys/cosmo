@@ -28,11 +28,21 @@
       classpath:applicationContext-mail.xml,
       classpath:applicationContext-hibernate.xml,
       classpath:applicationContext-acegi.xml,
+      classpath:applicationContext-aspect.xml,
       classpath:applicationContext-service.xml,
       classpath:applicationContext-default-service.xml,
       classpath:applicationContext-dbinitializer.xml,
       classpath:applicationContext-atom.xml,
-      classpath*:/applicationContext*.xml
+      classpath:applicationContext-dav.xml,
+      classpath:applicationContext-ical.xml,
+      classpath:applicationContext-jmx.xml,
+      classpath:applicationContext-scheduler.xml,
+      classpath:applicationContext-security-cmp.xml,
+      classpath:applicationContext-security-dav.xml,
+      classpath:applicationContext-security-feed.xml,
+      classpath:applicationContext-security-mc.xml,
+      classpath:applicationContext-security-pim.xml,
+      classpath:applicationContext-security-webcal.xml,
     </param-value>
   </context-param>
   <context-param>

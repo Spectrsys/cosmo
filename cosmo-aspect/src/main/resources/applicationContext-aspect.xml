@@ -77,7 +77,7 @@
         privileges to execute api.  Aspect bean is annotated with aspecj
         annotations.
    -->
-  <bean id="securityAspect" init-method="init" class="org.osaf.cosmo.security.aop.SecurityAdvice">
+  <bean id="securityAspect" init-method="init" class="org.osaf.cosmo.aspect.SecurityAdvice">
     <property name="securityManager">
       <ref bean="securityManager" />
     </property>
@@ -92,7 +92,7 @@
   </bean>
 
   <!--  Intercepts service calls and logs events -->
-  <bean id="eventLogAspect" init-method="init" class="org.osaf.cosmo.event.aop.EventLogAdvice">
+  <bean id="eventLogAspect" init-method="init" class="org.osaf.cosmo.aspect.EventLogAdvice">
     <property name="securityManager">
       <ref bean="securityManager" />
     </property>
