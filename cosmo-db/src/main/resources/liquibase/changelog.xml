@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <include file="2013-06-09/content_data.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/item.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/attribute.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/dictionary_values.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/stamp.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/event_log.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/event_stamp.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/users.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/user_preferences.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/pwrecovery.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/subscription.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/collection_item.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/tombstones.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/tickets.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/ticket_privilege.xml" relativeToChangelogFile="true" />
+    <include file="2013-06-09/multistring_values.xml" relativeToChangelogFile="true" />
+
+</databaseChangeLog>

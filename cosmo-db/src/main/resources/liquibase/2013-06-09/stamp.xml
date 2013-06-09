@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-09">
+        <createTable tableName="STAMP">
+            <column name="STAMPTYPE" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="CREATEDATE" type="BIGINT(19)"/>
+            <column name="ETAG" type="VARCHAR(255)"/>
+            <column name="MODIFYDATE" type="BIGINT(19)"/>
+            <column name="ITEMID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="ITEMID" baseTableName="STAMP" constraintName="stamp_itemid__item_id"
+            referencedColumnNames="ID" referencedTableName="ITEM"
+            deferrable="false" initiallyDeferred="false"
+            onDelete="RESTRICT" onUpdate="RESTRICT"
+        />
+        <addUniqueConstraint columnNames="ITEMID,STAMPTYPE" constraintName="itemid_stamptype_unique"
+            deferrable="false" initiallyDeferred="false"
+            tableName="STAMP"/>
+    </changeSet>
+
+</databaseChangeLog>

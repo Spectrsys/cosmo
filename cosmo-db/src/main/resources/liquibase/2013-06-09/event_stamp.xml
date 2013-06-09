@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-09">
+        <createTable tableName="EVENT_STAMP">
+            <column name="ICALDATA" type="LONGVARCHAR">
+                <constraints nullable="false" />
+            </column>
+            <column name="ENDDATE" type="VARCHAR(16)"/>
+            <column name="ISFLOATING" type="BOOLEAN(1)"/>
+            <column name="ISRECURRING" type="BOOLEAN(1)"/>
+            <column name="STARTDATE" type="VARCHAR(16)"/>
+            <column name="STAMPID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="STAMPID" baseTableName="EVENT_STAMP" constraintName="STAMPID_EVENT_STAMP__STAMP_ID"
+            deferrable="false" initiallyDeferred="false"
+            onDelete="RESTRICT" onUpdate="RESTRICT"
+            referencedColumnNames="ID" referencedTableName="STAMP"/>
+    </changeSet>
+
+</databaseChangeLog>

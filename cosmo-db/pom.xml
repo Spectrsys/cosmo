@@ -51,4 +51,25 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>3.0.0-rc3-SNAPSHOT</version>
+                <configuration>
+                    <url>jdbc:h2:file:target/test</url>
+                    <driver>org.h2.Driver</driver>
+                    <changeLogFile>src/main/resources/liquibase/changelog.xml</changeLogFile>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>1.3.171</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-09">
+        <createTable tableName="TOMBSTONES">
+            <column name="TOMBSTONETYPE" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="REMOVEDATE" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOCALNAME" type="VARCHAR(255)"/>
+            <column name="NAMESPACE" type="VARCHAR(255)"/>
+            <column name="ITEMUID" type="VARCHAR(255)"/>
+            <column name="STAMPTYPE" type="VARCHAR(255)"/>
+            <column name="ITEMID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ITEMID" baseTableName="TOMBSTONES" constraintName="itemid_tomstones__item_id"
+            deferrable="false" initiallyDeferred="false"
+            onDelete="RESTRICT" onUpdate="RESTRICT"
+            referencedColumnNames="ID" referencedTableName="ITEM"/>
+    </changeSet>
+
+</databaseChangeLog>

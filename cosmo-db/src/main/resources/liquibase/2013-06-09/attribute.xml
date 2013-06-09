@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-09">
+        <createTable tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="CREATEDATE" type="BIGINT(19)"/>
+            <column name="ETAG" type="VARCHAR(255)"/>
+            <column name="MODIFYDATE" type="BIGINT(19)"/>
+            <column name="LOCALNAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NAMESPACE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BINVALUE" type="LONGVARBINARY"/>
+            <column name="BOOLEANVALUE" type="BOOLEAN(1)"/>
+            <column name="DATEVALUE" type="TIMESTAMP"/>
+            <column name="TZVALUE" type="VARCHAR(32)"/>
+            <column name="DECVALUE" type="DECIMAL(65535, 32767)"/>
+            <column name="TEXTVALUE" type="LONGVARCHAR"/>
+            <column name="INTVALUE" type="BIGINT(19)"/>
+            <column name="STRINGVALUE" type="VARCHAR(2048)"/>
+            <column name="ITEMID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ITEMID" baseTableName="ATTRIBUTE" constraintName="ITEMID_ATTRIBUTE__ITEM_ID"
+            deferrable="false" initiallyDeferred="false"
+            onDelete="RESTRICT" onUpdate="RESTRICT"
+            referencedColumnNames="ID" referencedTableName="ITEM"/>
+        <addUniqueConstraint columnNames="ITEMID,NAMESPACE,LOCALNAME" constraintName="itemid_namespace_localname"
+            deferrable="false" initiallyDeferred="false" tableName="ATTRIBUTE"/>
+    </changeSet>
+
+</databaseChangeLog>

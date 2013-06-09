@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-09">
+        <createTable tableName="USER_PREFERENCES">
+            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="CREATEDATE" type="BIGINT(19)"/>
+            <column name="ETAG" type="VARCHAR(255)"/>
+            <column name="MODIFYDATE" type="BIGINT(19)"/>
+            <column name="PREFERENCENAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PREFERENCEVALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USERID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="USERID" baseTableName="USER_PREFERENCES" constraintName="USERID_USER_PREFERENCES__USERS_ID"
+            deferrable="false" initiallyDeferred="false"
+            onDelete="RESTRICT" onUpdate="RESTRICT"
+            referencedColumnNames="ID" referencedTableName="USERS"/>
+        <addUniqueConstraint columnNames="USERID,PREFERENCENAME" constraintName="userid_preference_unique"
+            deferrable="false" initiallyDeferred="false" tableName="USER_PREFERENCES"/>
+    </changeSet>
+
+</databaseChangeLog>

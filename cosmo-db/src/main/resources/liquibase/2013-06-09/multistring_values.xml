@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-09">
+        <createTable tableName="MULTISTRING_VALUES">
+            <column name="ATTRIBUTEID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STRINGVALUE" type="VARCHAR(2048)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ATTRIBUTEID" baseTableName="MULTISTRING_VALUES" constraintName="ATTRIBUTEID_MULTISTRING_VALUES__ATTRIBUTE_ID"
+            deferrable="false" initiallyDeferred="false"
+            onDelete="RESTRICT" onUpdate="RESTRICT"
+            referencedColumnNames="ID" referencedTableName="ATTRIBUTE"/>
+    </changeSet>
+
+</databaseChangeLog>

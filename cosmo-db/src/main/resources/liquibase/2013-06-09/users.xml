@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-09">
+        <createTable tableName="USERS">
+            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="CREATEDATE" type="BIGINT(19)"/>
+            <column name="ETAG" type="VARCHAR(255)"/>
+            <column name="MODIFYDATE" type="BIGINT(19)"/>
+            <column name="ACTIVATIONID" type="VARCHAR(255)"/>
+            <column name="ADMIN" type="BOOLEAN(1)"/>
+            <column name="EMAIL" type="VARCHAR(128)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="FIRSTNAME" type="VARCHAR(128)"/>
+            <column name="LASTNAME" type="VARCHAR(128)"/>
+            <column name="LOCKED" type="BOOLEAN(1)"/>
+            <column name="PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UID" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="USERNAME" type="VARCHAR(32)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

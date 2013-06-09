@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-09">
+        <createTable tableName="EVENT_LOG">
+            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="AUTHID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="AUTHTYPE" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ENTRYDATE" type="BIGINT(19)"/>
+            <column name="ID1" type="BIGINT(19)"/>
+            <column name="ID2" type="BIGINT(19)"/>
+            <column name="ID3" type="BIGINT(19)"/>
+            <column name="ID4" type="BIGINT(19)"/>
+            <column name="STRVAL1" type="VARCHAR(255)"/>
+            <column name="STRVAL2" type="VARCHAR(255)"/>
+            <column name="STRVAL3" type="VARCHAR(255)"/>
+            <column name="STRVAL4" type="VARCHAR(255)"/>
+            <column name="EVENTTYPE" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UID1" type="VARCHAR(255)"/>
+            <column name="UID2" type="VARCHAR(255)"/>
+            <column name="UID3" type="VARCHAR(255)"/>
+            <column name="UID4" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

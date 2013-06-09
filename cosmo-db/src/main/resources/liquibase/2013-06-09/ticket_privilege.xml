@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-09">
+        <createTable tableName="TICKET_PRIVILEGE">
+            <column name="TICKETID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PRIVILEGE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="TICKETID, PRIVILEGE" constraintName="ticketid_privilege_pk" tableName="TICKET_PRIVILEGE"/>
+        <addForeignKeyConstraint baseColumnNames="TICKETID" baseTableName="TICKET_PRIVILEGE" constraintName="TICKETID_TICKET_PRIVILEGE__TICKETS_ID"
+            deferrable="false" initiallyDeferred="false"
+            onDelete="RESTRICT" onUpdate="RESTRICT"
+            referencedColumnNames="ID" referencedTableName="TICKETS"/>
+    </changeSet>
+
+</databaseChangeLog>
