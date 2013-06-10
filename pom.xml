@@ -141,8 +141,6 @@
         <module>cosmo-aop</module>
         <module>cosmo-eim</module>
         <module>cosmo-aspect</module>
-        <module>cosmo-dav</module>
-        <module>cosmo-dav-api</module>
         <module>cosmo-db</module>
         <module>cosmo-security</module>
         <module>cosmo-security-acegi</module>
@@ -271,11 +269,6 @@
                 <artifactId>cosmo-dav-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.osaf.cosmo</groupId>
-                <artifactId>cosmo-dav</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>javax.mail</groupId>
@@ -335,11 +328,6 @@
             <dependency>
                 <groupId>org.osaf.cosmo</groupId>
                 <artifactId>cosmo-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.osaf.cosmo</groupId>
-                <artifactId>cosmo-dav</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
