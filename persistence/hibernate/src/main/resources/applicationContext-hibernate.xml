@@ -45,10 +45,6 @@
 
   <bean id="defaultLobHandler" class="org.osaf.cosmo.dao.hibernate.ext.CosmoLobHandler" />
 
-  <bean id="validatePreUpdateEventListener" class="org.hibernate.validator.event.ValidatePreUpdateEventListener"/>
-
-  <bean id="validatePreInsertEventListener" class="org.hibernate.validator.event.ValidatePreInsertEventListener"/>
-
   <bean id="auditableObjectInterceptor" class="org.osaf.cosmo.model.hibernate.AuditableObjectInterceptor"/>
 
   <bean id="eventStampInterceptor" class="org.osaf.cosmo.model.hibernate.EventStampInterceptor"/>
@@ -119,21 +115,12 @@
         </list>
     </property>
     <property name="entityInterceptor" ref="cosmoHibernateInterceptor"/>
-    <property name="eventListeners">
-      <map>
-        <entry key="pre-update">
-          <ref bean="validatePreUpdateEventListener"/>
-        </entry>
-        <entry key="pre-insert">
-          <ref bean="validatePreInsertEventListener"/>
-        </entry>
-      </map>
-    </property>
     <property name="hibernateProperties">
       <props>
         <prop key="hibernate.generate_statistics">true</prop>
         <prop key="hibernate.cache.use_query_cache">true</prop>
         <prop key="hibernate.cache.use_second_level_cache">true</prop>
+        <prop key="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory</prop>
         <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
         <prop key="hibernate.show_sql">false</prop>
         <prop key="hibernate.jdbc.batch_size">25</prop>

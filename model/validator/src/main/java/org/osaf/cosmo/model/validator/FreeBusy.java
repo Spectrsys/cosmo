@@ -24,10 +24,14 @@ import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
 
+import net.fortuna.ical4j.model.Calendar;
+
 @Constraint(validatedBy = FreeBusyValidator.class)
 @Target(METHOD) 
 @Retention(RUNTIME)
 @Documented
 public @interface FreeBusy {
     String message() default "has no VFREEBUSY";
+    Class<?>[] groups() default {};
+    Class<? extends Calendar>[] payload() default {};
 }

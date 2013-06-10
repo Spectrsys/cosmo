@@ -22,8 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.validator.InvalidStateException;
-import org.hibernate.validator.InvalidValue;
 import org.osaf.cosmo.api.Schedule;
 import org.osaf.cosmo.dao.ScheduleDao;
 import org.osaf.cosmo.dao.UserPreferencesScheduleHelper;
@@ -97,19 +95,7 @@ public class UserPreferencesScheduleDao extends HibernateDaoSupport implements S
         } catch (HibernateException e) {
             getSession().clear();
             throw convertHibernateAccessException(e);
-        } catch (InvalidStateException ise) {
-            logInvalidStateException(ise);
-            throw ise;
         }
     }
-    
-    protected void logInvalidStateException(InvalidStateException ise) {
-        // log more info about the invalid state
-        if(log.isDebugEnabled()) {
-            log.debug(ise.getLocalizedMessage());
-            for (InvalidValue iv : ise.getInvalidValues())
-                log.debug("property name: " + iv.getPropertyName() + " value: "
-                        + iv.getValue());
-        }
-    }
+
 }

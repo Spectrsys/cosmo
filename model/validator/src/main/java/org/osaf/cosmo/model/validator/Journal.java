@@ -24,10 +24,14 @@ import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
 
+import net.fortuna.ical4j.model.Calendar;
+
 @Constraint(validatedBy = JournalValidator.class)
 @Target(METHOD) 
 @Retention(RUNTIME)
 @Documented
 public @interface Journal {
     String message() default "has no VJOURNAL";
+    Class<?>[] groups() default {};
+    Class<? extends Calendar>[] payload() default {};
 }

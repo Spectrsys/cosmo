@@ -50,13 +50,7 @@ public class CalendarDaoImpl extends HibernateDaoSupport implements CalendarDao 
 
     private ItemFilterProcessor itemFilterProcessor = null;
     private EntityConverter entityConverter = new EntityConverter(null);
-   
-   
-	public Set<ICalendarItem> findCalendarItems(CollectionItem collection) {
-		// TODO: remove this method after removing temporary fix in parent class
-		return findCalendarItems(collection, null);
-	}
-    
+
     /* (non-Javadoc)
      * @see org.osaf.cosmo.dao.CalendarDao#findCalendarItems(org.osaf.cosmo.model.CollectionItem, org.osaf.cosmo.model.calendar.filter.CalendarFilter)
      */
@@ -70,6 +64,7 @@ public class CalendarDaoImpl extends HibernateDaoSupport implements CalendarDao 
                 Set results = itemFilterProcessor.processFilter(getSession(), itemFilter);
                 return (Set<ICalendarItem>) results;
             } catch (IllegalArgumentException e) {
+                log.warn("Unsupported component filter", e);
             }
             
             // Use brute-force method if CalendarFilter can't be translated
@@ -81,6 +76,8 @@ public class CalendarDaoImpl extends HibernateDaoSupport implements CalendarDao 
             // Do a first pass query if possible to reduce the number
             // of items we have to examine.  Otherwise we have to examine
             // all items.
+            java.lang.System.out.println("Filter is " + filter + " " + collection.getChildren().size());
+
             ItemFilter firstPassItemFilter = filterConverter.getFirstPassFilter(collection, filter);
             if(firstPassItemFilter!=null)
                 itemsToProcess = itemFilterProcessor.processFilter(getSession(), firstPassItemFilter);

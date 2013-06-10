@@ -15,6 +15,8 @@
  */
 package org.osaf.cosmo.dao.hibernate;
 
+import javax.validation.ValidationException;
+
 import junit.framework.Assert;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -22,8 +24,6 @@ import net.fortuna.ical4j.model.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.validator.InvalidStateException;
-import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.CalendarCollectionStamp;
 import org.osaf.cosmo.model.CollectionItem;
@@ -34,6 +34,7 @@ import org.osaf.cosmo.model.MessageStamp;
 import org.osaf.cosmo.model.NoteItem;
 import org.osaf.cosmo.model.Stamp;
 import org.osaf.cosmo.model.User;
+import org.osaf.cosmo.model.calendar.EntityConverter;
 import org.osaf.cosmo.model.hibernate.HibCalendarCollectionStamp;
 import org.osaf.cosmo.model.hibernate.HibEventExceptionStamp;
 import org.osaf.cosmo.model.hibernate.HibEventStamp;
@@ -209,8 +210,7 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
             contentDao.createContent(root, item);
             clearSession();
             Assert.fail("able to create invalid event!");
-        } catch (InvalidStateException e) {}
-        catch (IllegalStateException e) {}
+        } catch (ValidationException e) { }
     }
     
     public void testRemoveStamp() throws Exception {
@@ -310,7 +310,7 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
             contentDao.updateCollection(root);
             clearSession();
             Assert.fail("able to save invalid timezone");
-        } catch (InvalidStateException ise) {
+        } catch (ValidationException e) {
             
         } 
     }
@@ -364,7 +364,7 @@ public class HibernateContentDaoStampingTest extends AbstractHibernateDaoTestCas
             ContentItem newItem = contentDao.createContent(root, item);
             clearSession();
             Assert.fail("able to save invalid exception event");
-        } catch (InvalidStateException e) {
+        } catch (ValidationException e) {
         }
     }
 

@@ -32,8 +32,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.validator.InvalidStateException;
-import org.hibernate.validator.InvalidValue;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.DuplicateEmailException;
 import org.osaf.cosmo.model.DuplicateUsernameException;
@@ -81,9 +79,6 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
         } catch (HibernateException e) {
             getSession().clear();
             throw convertHibernateAccessException(e);
-        } catch (InvalidStateException ise) {
-            logInvalidStateException(ise);
-            throw ise;
         }
 
     }
@@ -235,9 +230,6 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
         } catch (HibernateException e) {
             getSession().clear();
             throw convertHibernateAccessException(e);
-        } catch (InvalidStateException ise) {
-            logInvalidStateException(ise);
-            throw ise;
         }
     }
     
@@ -422,14 +414,5 @@ public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
     protected BaseModelObject getBaseModelObject(Object obj) {
         return (BaseModelObject) obj;
     }
-    
-    protected void logInvalidStateException(InvalidStateException ise) {
-        // log more info about the invalid state
-        if(log.isDebugEnabled()) {
-            log.debug(ise.getLocalizedMessage());
-            for (InvalidValue iv : ise.getInvalidValues())
-                log.debug("property name: " + iv.getPropertyName() + " value: "
-                        + iv.getValue());
-        }
-    }
+
 }

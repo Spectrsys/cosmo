@@ -47,17 +47,19 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-annotations</artifactId>
-            <version>3.3.1.GA</version>
+            <version>3.5.6-Final</version>
         </dependency>
+        <!-- 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-commons-annotations</artifactId>
             <version>3.3.0.ga</version>
         </dependency>
+        -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>3.0.0.ga</version>
+            <version>4.2.0.Final</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

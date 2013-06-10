@@ -60,6 +60,7 @@ public class HibernateCalendarDaoTest extends AbstractHibernateDaoTestCase {
 
     public void testCalendarDaoBasic() throws Exception {
         CollectionItem calendar = generateCalendar("test", "testuser");
+
         CollectionItem root = (CollectionItem) contentDao.getRootItem(getUser(userDao, "testuser"));
         
         CollectionItem newItem = contentDao.createCollection(root, calendar);

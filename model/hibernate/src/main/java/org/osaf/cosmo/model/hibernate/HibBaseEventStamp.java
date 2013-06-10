@@ -25,6 +25,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SecondaryTable;
+import javax.validation.constraints.NotNull;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
@@ -60,12 +61,11 @@ import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Trigger;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.validator.NotNull;
-import org.osaf.cosmo.utils.ICalendarUtils;
 import org.osaf.cosmo.api.ICalendarConstants;
 import org.osaf.cosmo.model.BaseEventStamp;
 import org.osaf.cosmo.model.Item;
 import org.osaf.cosmo.model.NoteItem;
+import org.osaf.cosmo.utils.ICalendarUtils;
 
 
 /**

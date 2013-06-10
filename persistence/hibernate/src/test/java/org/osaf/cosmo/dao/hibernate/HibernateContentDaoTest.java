@@ -26,6 +26,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
+
 import junit.framework.Assert;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.model.property.ProdId;
@@ -34,7 +37,6 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.DOMWriter;
-import org.hibernate.validator.InvalidStateException;
 import org.osaf.cosmo.api.xml.DomWriter;
 import org.osaf.cosmo.dao.UserDao;
 import org.osaf.cosmo.model.Attribute;
@@ -189,8 +191,8 @@ public class HibernateContentDaoTest extends AbstractHibernateDaoTestCase {
         try {
             contentDao.createContent(root, item);
             Assert.fail("able to create invalid content.");
-        } catch (InvalidStateException e) {
-            Assert.assertEquals("name", e.getInvalidValues()[0].getPropertyName());
+        } catch (ConstraintViolationException e) {
+            Assert.assertEquals("name", e.getConstraintViolations().iterator().next().getPropertyPath().toString());
         }
     }
 

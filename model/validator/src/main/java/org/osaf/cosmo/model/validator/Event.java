@@ -24,10 +24,14 @@ import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
 
+import net.fortuna.ical4j.model.Calendar;
+
 @Constraint(validatedBy = EventValidator.class)
 @Target(METHOD) 
 @Retention(RUNTIME)
 @Documented
 public @interface Event {
     String message() default "has no VEVENT";
+    Class<?>[] groups() default {};
+    Class<? extends Calendar>[] payload() default {};
 }

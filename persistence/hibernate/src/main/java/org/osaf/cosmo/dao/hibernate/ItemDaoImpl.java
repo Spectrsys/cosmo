@@ -33,8 +33,6 @@ import org.hibernate.Query;
 import org.hibernate.UnresolvableObjectException;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.validator.InvalidStateException;
-import org.hibernate.validator.InvalidValue;
 import org.osaf.cosmo.dao.ItemDao;
 import org.osaf.cosmo.dao.hibernate.query.ItemFilterProcessor;
 import org.osaf.cosmo.model.CollectionItem;
@@ -213,9 +211,6 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
         } catch (HibernateException e) {
             getSession().clear();
             throw convertHibernateAccessException(e);
-        } catch (InvalidStateException ise) {
-            logInvalidStateException(ise);
-            throw ise;
         }
     }
     
@@ -292,9 +287,6 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
         } catch (HibernateException e) {
             getSession().clear();
             throw convertHibernateAccessException(e);
-        } catch (InvalidStateException ise) {
-            logInvalidStateException(ise);
-            throw ise;
         }
     }
 
@@ -378,9 +370,6 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
         } catch (HibernateException e) {
             getSession().clear();
             throw convertHibernateAccessException(e);
-        } catch (InvalidStateException ise) {
-            logInvalidStateException(ise);
-            throw ise;
         }
     }
     
@@ -435,9 +424,6 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
         } catch (HibernateException e) {
             getSession().clear();
             throw convertHibernateAccessException(e);
-        } catch (InvalidStateException ise) {
-            logInvalidStateException(ise);
-            throw ise;
         }
     }
 
@@ -792,17 +778,7 @@ public abstract class ItemDaoImpl extends HibernateDaoSupport implements ItemDao
             return;
         getSession().lock(item, LockMode.NONE);
     }
-    
-    protected void logInvalidStateException(InvalidStateException ise) {
-        // log more info about the invalid state
-        if(log.isDebugEnabled()) {
-            log.debug(ise.getLocalizedMessage());
-            for (InvalidValue iv : ise.getInvalidValues())
-                log.debug("property name: " + iv.getPropertyName() + " value: "
-                        + iv.getValue());
-        }
-    }
-    
+
     protected void removeItemFromCollectionInternal(Item item, CollectionItem collection) {
        
         getSession().update(collection);
