@@ -3,12 +3,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
     ">
 
     <changeSet author="lukasz" id="2013-06-09">
         <createTable tableName="DICTIONARY_VALUES">
-            <column name="ATTRIBUTEID" type="BIGINT(19)">
+            <column name="ATTRIBUTEID" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="STRINGVALUE" type="VARCHAR(2048)"/>

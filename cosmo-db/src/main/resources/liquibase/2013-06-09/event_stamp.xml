@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
     ">
 
     <changeSet author="lukasz" id="2013-06-09">
@@ -12,10 +12,10 @@
                 <constraints nullable="false" />
             </column>
             <column name="ENDDATE" type="VARCHAR(16)"/>
-            <column name="ISFLOATING" type="BOOLEAN(1)"/>
-            <column name="ISRECURRING" type="BOOLEAN(1)"/>
+            <column name="ISFLOATING" type="BOOLEAN"/>
+            <column name="ISRECURRING" type="BOOLEAN"/>
             <column name="STARTDATE" type="VARCHAR(16)"/>
-            <column name="STAMPID" type="BIGINT(19)">
+            <column name="STAMPID" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
         </createTable>

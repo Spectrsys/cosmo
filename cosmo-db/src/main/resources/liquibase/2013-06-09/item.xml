@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
     ">
 
     <changeSet author="lukasz" id="2013-06-09">
@@ -11,14 +11,14 @@
             <column name="ITEMTYPE" type="VARCHAR(16)">
                 <constraints nullable="false"/>
             </column>
-            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+            <column autoIncrement="true" name="ID" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="CREATEDATE" type="BIGINT(19)"/>
+            <column name="CREATEDATE" type="BIGINT"/>
             <column name="ETAG" type="VARCHAR(255)"/>
-            <column name="MODIFYDATE" type="BIGINT(19)"/>
-            <column name="CLIENTCREATEDATE" type="BIGINT(19)"/>
-            <column name="CLIENTMODIFIEDDATE" type="BIGINT(19)"/>
+            <column name="MODIFYDATE" type="BIGINT"/>
+            <column name="CLIENTCREATEDATE" type="BIGINT"/>
+            <column name="CLIENTMODIFIEDDATE" type="BIGINT"/>
             <column name="DISPLAYNAME" type="VARCHAR(1024)"/>
             <column name="ITEMNAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -26,27 +26,27 @@
             <column name="UID" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="VERSION" type="INT(10)">
+            <column name="VERSION" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="LASTMODIFICATION" type="INT(10)"/>
+            <column name="LASTMODIFICATION" type="INT"/>
             <column name="LASTMODIFIEDBY" type="VARCHAR(255)"/>
-            <column name="NEEDSREPLY" type="BOOLEAN(1)"/>
-            <column name="SENT" type="BOOLEAN(1)"/>
-            <column name="ISAUTOTRIAGE" type="BOOLEAN(1)"/>
-            <column name="TRIAGESTATUSCODE" type="INT(10)"/>
-            <column name="TRIAGESTATUSRANK" type="DECIMAL(65535, 32767)"/>
+            <column name="NEEDSREPLY" type="BOOLEAN"/>
+            <column name="SENT" type="BOOLEAN"/>
+            <column name="ISAUTOTRIAGE" type="BOOLEAN"/>
+            <column name="TRIAGESTATUSCODE" type="INT"/>
+            <column name="TRIAGESTATUSRANK" type="DECIMAL"/>
             <column name="ICALUID" type="VARCHAR(255)"/>
             <column name="CONTENTENCODING" type="VARCHAR(32)"/>
             <column name="CONTENTLANGUAGE" type="VARCHAR(32)"/>
-            <column name="CONTENTLENGTH" type="BIGINT(19)"/>
+            <column name="CONTENTLENGTH" type="BIGINT"/>
             <column name="CONTENTTYPE" type="VARCHAR(64)"/>
-            <column name="HASMODIFICATIONS" type="BOOLEAN(1)"/>
-            <column name="OWNERID" type="BIGINT(19)">
+            <column name="HASMODIFICATIONS" type="BOOLEAN"/>
+            <column name="OWNERID" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="CONTENTDATAID" type="BIGINT(19)"/>
-            <column name="MODIFIESITEMID" type="BIGINT(19)"/>
+            <column name="CONTENTDATAID" type="BIGINT"/>
+            <column name="MODIFIESITEMID" type="BIGINT"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="CONTENTDATAID" baseTableName="ITEM" constraintName="contentdataid_item__content_data_id"
             deferrable="false" initiallyDeferred="false"

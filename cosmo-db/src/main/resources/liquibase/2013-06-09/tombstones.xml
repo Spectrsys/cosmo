@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
     ">
 
     <changeSet author="lukasz" id="2013-06-09">
@@ -11,17 +11,17 @@
             <column name="TOMBSTONETYPE" type="VARCHAR(16)">
                 <constraints nullable="false"/>
             </column>
-            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+            <column autoIncrement="true" name="ID" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="REMOVEDATE" type="BIGINT(19)">
+            <column name="REMOVEDATE" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="LOCALNAME" type="VARCHAR(255)"/>
             <column name="NAMESPACE" type="VARCHAR(255)"/>
             <column name="ITEMUID" type="VARCHAR(255)"/>
             <column name="STAMPTYPE" type="VARCHAR(255)"/>
-            <column name="ITEMID" type="BIGINT(19)">
+            <column name="ITEMID" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>

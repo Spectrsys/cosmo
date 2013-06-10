@@ -3,12 +3,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
     ">
 
     <changeSet author="lukasz" id="2013-06-09">
         <createTable tableName="SERVER_PROPERTIES">
-            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+            <column autoIncrement="true" name="ID" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
             <column name="PROPERTYNAME" type="VARCHAR(255)">
@@ -16,6 +16,10 @@
             </column>
             <column name="PROPERTYVALUE" type="VARCHAR(2048)"/>
         </createTable>
+
+        <insert tableName="SERVER_PROPERTIES">
+            <column name="cosmo.schemaVersion" value="160" />
+        </insert>
     </changeSet>
 
 </databaseChangeLog>

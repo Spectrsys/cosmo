@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    ">
 
-  <!-- a helper for setting up the database schema and loading seed data -->
-  <bean id="dbInitializer" class="org.osaf.cosmo.db.DbInitializer"
-    init-method="initialize">
-    <property name="userService" ref="userService"/>
-    <property name="serverPropertyService" ref="serverPropertyService"/>
-    <property name="localSessionFactory" ref="&amp;sessionFactory"/>
+  <bean id="dbInitializer" class="liquibase.integration.spring.SpringLiquibase" lazy-init="false">
     <property name="dataSource" ref="dataSource"/>
-    <property name="validateSchema" value="true"/>
-    <property name="rootLoginUrl" value="/account/view"/>
-    <property name="entityFactory" ref="cosmoEntityFactory"/>
+    <property name="changeLog" value="liquibase/changelog.xml" />
   </bean>
 
 </beans>

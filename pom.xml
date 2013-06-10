@@ -126,6 +126,7 @@
         <derby.version>10.9.1.0</derby.version>
         <ical4j.version>1.0.4</ical4j.version>
         <junit.version>3.8.1</junit.version>
+        <liquibase.version>2.0.5</liquibase.version>
         <jsp-api.version>2.0</jsp-api.version>
         <mail-api.version>1.4</mail-api.version>
         <servlet-api.version>2.4</servlet-api.version>
@@ -452,6 +453,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>${liquibase.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
@@ -617,6 +624,11 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.liquibase</groupId>
+                    <artifactId>liquibase-maven-plugin</artifactId>
+                    <version>${liquibase.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-eclipse-plugin</artifactId>

@@ -3,25 +3,25 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
     ">
 
     <changeSet author="lukasz" id="2013-06-09">
         <createTable tableName="EVENT_LOG">
-            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+            <column autoIncrement="true" name="ID" type="BIGINT">
                 <constraints primaryKey="true" />
             </column>
-            <column name="AUTHID" type="BIGINT(19)">
+            <column name="AUTHID" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="AUTHTYPE" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="ENTRYDATE" type="BIGINT(19)"/>
-            <column name="ID1" type="BIGINT(19)"/>
-            <column name="ID2" type="BIGINT(19)"/>
-            <column name="ID3" type="BIGINT(19)"/>
-            <column name="ID4" type="BIGINT(19)"/>
+            <column name="ENTRYDATE" type="BIGINT"/>
+            <column name="ID1" type="BIGINT"/>
+            <column name="ID2" type="BIGINT"/>
+            <column name="ID3" type="BIGINT"/>
+            <column name="ID4" type="BIGINT"/>
             <column name="STRVAL1" type="VARCHAR(255)"/>
             <column name="STRVAL2" type="VARCHAR(255)"/>
             <column name="STRVAL3" type="VARCHAR(255)"/>

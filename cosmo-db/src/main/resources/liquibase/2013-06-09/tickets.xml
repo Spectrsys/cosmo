@@ -3,17 +3,17 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
     ">
 
     <changeSet author="lukasz" id="2013-06-09">
         <createTable tableName="TICKETS">
-            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+            <column autoIncrement="true" name="ID" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="CREATEDATE" type="BIGINT(19)"/>
+            <column name="CREATEDATE" type="BIGINT"/>
             <column name="ETAG" type="VARCHAR(255)"/>
-            <column name="MODIFYDATE" type="BIGINT(19)"/>
+            <column name="MODIFYDATE" type="BIGINT"/>
             <column name="CREATIONDATE" type="TIMESTAMP"/>
             <column name="TICKETKEY" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
@@ -21,8 +21,8 @@
             <column name="TICKETTIMEOUT" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="ITEMID" type="BIGINT(19)"/>
-            <column name="OWNERID" type="BIGINT(19)"/>
+            <column name="ITEMID" type="BIGINT"/>
+            <column name="OWNERID" type="BIGINT"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ITEMID" baseTableName="TICKETS" constraintName="ITEMID_TICKETS__ITEM_ID"
             deferrable="false" initiallyDeferred="false"

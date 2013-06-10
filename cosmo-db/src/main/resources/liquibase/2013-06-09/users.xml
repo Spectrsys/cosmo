@@ -3,25 +3,25 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
     ">
 
     <changeSet author="lukasz" id="2013-06-09">
         <createTable tableName="USERS">
-            <column autoIncrement="true" name="ID" type="BIGINT(19)">
+            <column autoIncrement="true" name="ID" type="BIGINT">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="CREATEDATE" type="BIGINT(19)"/>
+            <column name="CREATEDATE" type="BIGINT"/>
             <column name="ETAG" type="VARCHAR(255)"/>
-            <column name="MODIFYDATE" type="BIGINT(19)"/>
+            <column name="MODIFYDATE" type="BIGINT"/>
             <column name="ACTIVATIONID" type="VARCHAR(255)"/>
-            <column name="ADMIN" type="BOOLEAN(1)"/>
+            <column name="ADMIN" type="BOOLEAN"/>
             <column name="EMAIL" type="VARCHAR(128)">
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="FIRSTNAME" type="VARCHAR(128)"/>
             <column name="LASTNAME" type="VARCHAR(128)"/>
-            <column name="LOCKED" type="BOOLEAN(1)"/>
+            <column name="LOCKED" type="BOOLEAN"/>
             <column name="PASSWORD" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -32,6 +32,20 @@
                 <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="root@localhost" />
+            <column name="FIRSTNAME" value="Cosmo" />
+            <column name="LASTNAME" value="Administrator" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="32a8bd4d676f4fef0920c7da8db2bad7"/>
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d6" />
+            <column name="USERNAME" value="root" />
+        </insert>
     </changeSet>
 
 </databaseChangeLog>
