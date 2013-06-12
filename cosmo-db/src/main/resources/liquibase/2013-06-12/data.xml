@@ -1,0 +1,2563 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
+    ">
+
+    <changeSet author="lukasz" id="2013-06-12">
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user1@example.com" />
+            <column name="FIRSTNAME" value="User 1" />
+            <column name="LASTNAME" value="User 1" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="56e6c12b2d9fac9140e807a9fe99e4e7"/><!-- vatalend2n1 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d61" />
+            <column name="USERNAME" value="user1" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user1" />
+            <column name="ITEMNAME" value="user1" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad1" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user1'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user1 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be11" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be11" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user1'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be11' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad1' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user1 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be11' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user2@example.com" />
+            <column name="FIRSTNAME" value="User 2" />
+            <column name="LASTNAME" value="User 2" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="f93edd9d755b87b7b4fbecc652a1e206"/><!-- vatalend2n2 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d62" />
+            <column name="USERNAME" value="user2" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user2" />
+            <column name="ITEMNAME" value="user2" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad2" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user2'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user2 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be12" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be12" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user2'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be12' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad2' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user2 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be12' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user3@example.com" />
+            <column name="FIRSTNAME" value="User 3" />
+            <column name="LASTNAME" value="User 3" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="0559b8f70a7dd342fc3fd2725b9851ef"/><!-- vatalend2n3 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d63" />
+            <column name="USERNAME" value="user3" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user3" />
+            <column name="ITEMNAME" value="user3" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad3" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user3'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user3 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be13" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be13" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user3'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be13' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad3' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user3 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be13' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user4@example.com" />
+            <column name="FIRSTNAME" value="User 4" />
+            <column name="LASTNAME" value="User 4" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="52e3df332df114d0ad2173075512c8a5"/><!-- vatalend2n4 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d64" />
+            <column name="USERNAME" value="user4" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user4" />
+            <column name="ITEMNAME" value="user4" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad4" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user4'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user4 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be14" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be14" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user4'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be14' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad4' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user4 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be14' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user5@example.com" />
+            <column name="FIRSTNAME" value="User 5" />
+            <column name="LASTNAME" value="User 5" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="96a84fc2759f36d26c9071df795de203"/><!-- vatalend2n5 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d65" />
+            <column name="USERNAME" value="user5" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user5" />
+            <column name="ITEMNAME" value="user5" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad5" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user5'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user5 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be15" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be15" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user5'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be15' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad5' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user5 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be15' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user6@example.com" />
+            <column name="FIRSTNAME" value="User 6" />
+            <column name="LASTNAME" value="User 6" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="f7645aba80ed7999436db3697803d2f2"/><!-- vatalend2n6 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d66" />
+            <column name="USERNAME" value="user6" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user6" />
+            <column name="ITEMNAME" value="user6" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad6" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user6'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user6 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be16" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be16" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user6'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be16' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad6' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user6 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be16' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user7@example.com" />
+            <column name="FIRSTNAME" value="User 7" />
+            <column name="LASTNAME" value="User 7" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="08fbf4c63c160f58c99d4f783873e922"/><!-- vatalend2n7 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d67" />
+            <column name="USERNAME" value="user7" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user7" />
+            <column name="ITEMNAME" value="user7" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad7" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user7'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user7 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be17" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be17" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user7'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be17' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad7' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user7 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be17' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user8@example.com" />
+            <column name="FIRSTNAME" value="User 8" />
+            <column name="LASTNAME" value="User 8" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="72a38539f30b9900537bce7e243d8072"/><!-- vatalend2n8 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d68" />
+            <column name="USERNAME" value="user8" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user8" />
+            <column name="ITEMNAME" value="user8" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad8" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user8'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user8 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be18" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be18" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user8'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be18' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad8' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user8 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be18' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user9@example.com" />
+            <column name="FIRSTNAME" value="User 9" />
+            <column name="LASTNAME" value="User 9" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="c7e4b9b06c9d225acbd79ec2b44ce74e"/><!-- vatalend2n9 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d69" />
+            <column name="USERNAME" value="user9" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user9" />
+            <column name="ITEMNAME" value="user9" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad9" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user9'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user9 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be19" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be19" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user9'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be19' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad9' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user9 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be19' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user10@example.com" />
+            <column name="FIRSTNAME" value="User 10" />
+            <column name="LASTNAME" value="User 10" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="80056d7ef0e82c4064fecf3e9338349a"/><!-- vatalend2n10 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d610" />
+            <column name="USERNAME" value="user10" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user10" />
+            <column name="ITEMNAME" value="user10" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad10" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user10'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user10 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be110" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be110" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user10'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be110' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad10' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user10 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be110' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user11@example.com" />
+            <column name="FIRSTNAME" value="User 11" />
+            <column name="LASTNAME" value="User 11" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="b99f819bb5c824210e2a691f95b91ccf"/><!-- vatalend2n11 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d611" />
+            <column name="USERNAME" value="user11" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user11" />
+            <column name="ITEMNAME" value="user11" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad11" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user11'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user11 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be111" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be111" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user11'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be111' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad11' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user11 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be111' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user12@example.com" />
+            <column name="FIRSTNAME" value="User 12" />
+            <column name="LASTNAME" value="User 12" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="77d2bd98c8f70a71257ae5f47736ef87"/><!-- vatalend2n12 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d612" />
+            <column name="USERNAME" value="user12" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user12" />
+            <column name="ITEMNAME" value="user12" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad12" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user12'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user12 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be112" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be112" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user12'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be112' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad12' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user12 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be112' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user13@example.com" />
+            <column name="FIRSTNAME" value="User 13" />
+            <column name="LASTNAME" value="User 13" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="2cada407c1d824cfc25a280c7d9194ee"/><!-- vatalend2n13 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d613" />
+            <column name="USERNAME" value="user13" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user13" />
+            <column name="ITEMNAME" value="user13" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad13" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user13'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user13 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be113" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be113" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user13'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be113' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad13' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user13 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be113' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user14@example.com" />
+            <column name="FIRSTNAME" value="User 14" />
+            <column name="LASTNAME" value="User 14" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="7cf87b4420c658f6504bdc510b7eeba8"/><!-- vatalend2n14 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d614" />
+            <column name="USERNAME" value="user14" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user14" />
+            <column name="ITEMNAME" value="user14" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad14" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user14'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user14 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be114" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be114" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user14'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be114' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad14' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user14 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be114' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user15@example.com" />
+            <column name="FIRSTNAME" value="User 15" />
+            <column name="LASTNAME" value="User 15" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="5d8a7247f64feb9367af8daf7c830ce7"/><!-- vatalend2n15 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d615" />
+            <column name="USERNAME" value="user15" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user15" />
+            <column name="ITEMNAME" value="user15" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad15" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user15'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user15 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be115" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be115" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user15'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be115' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad15' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user15 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be115' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user16@example.com" />
+            <column name="FIRSTNAME" value="User 16" />
+            <column name="LASTNAME" value="User 16" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="86fe65035c06eb9f2f5f73ec49f9ad28"/><!-- vatalend2n16 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d616" />
+            <column name="USERNAME" value="user16" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user16" />
+            <column name="ITEMNAME" value="user16" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad16" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user16'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user16 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be116" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be116" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user16'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be116' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad16' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user16 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be116' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user17@example.com" />
+            <column name="FIRSTNAME" value="User 17" />
+            <column name="LASTNAME" value="User 17" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="915f6678c2fb09e89e2f624fee75ede3"/><!-- vatalend2n17 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d617" />
+            <column name="USERNAME" value="user17" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user17" />
+            <column name="ITEMNAME" value="user17" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad17" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user17'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user17 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be117" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be117" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user17'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be117' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad17' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user17 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be117' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user18@example.com" />
+            <column name="FIRSTNAME" value="User 18" />
+            <column name="LASTNAME" value="User 18" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="7d475628d1b6bee3f7cf5337e7bd7aa6"/><!-- vatalend2n18 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d618" />
+            <column name="USERNAME" value="user18" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user18" />
+            <column name="ITEMNAME" value="user18" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad18" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user18'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user18 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be118" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be118" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user18'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be118' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad18' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user18 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be118' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user19@example.com" />
+            <column name="FIRSTNAME" value="User 19" />
+            <column name="LASTNAME" value="User 19" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="5da18b68a277396d29edcc7c87687816"/><!-- vatalend2n19 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d619" />
+            <column name="USERNAME" value="user19" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user19" />
+            <column name="ITEMNAME" value="user19" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad19" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user19'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user19 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be119" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be119" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user19'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be119' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad19' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user19 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be119' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user20@example.com" />
+            <column name="FIRSTNAME" value="User 20" />
+            <column name="LASTNAME" value="User 20" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="60db0cf6ad62dc9caf3303fb1f28219a"/><!-- vatalend2n20 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d620" />
+            <column name="USERNAME" value="user20" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user20" />
+            <column name="ITEMNAME" value="user20" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad20" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user20'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user20 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be120" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be120" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user20'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be120' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad20' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user20 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be120' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user21@example.com" />
+            <column name="FIRSTNAME" value="User 21" />
+            <column name="LASTNAME" value="User 21" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="7c896bd533a5a448836f131228b100ca"/><!-- vatalend2n21 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d621" />
+            <column name="USERNAME" value="user21" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user21" />
+            <column name="ITEMNAME" value="user21" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad21" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user21'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user21 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be121" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be121" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user21'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be121' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad21' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user21 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be121' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user22@example.com" />
+            <column name="FIRSTNAME" value="User 22" />
+            <column name="LASTNAME" value="User 22" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="f8293d1c90f5a524a5ee70f7fb4c58c8"/><!-- vatalend2n22 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d622" />
+            <column name="USERNAME" value="user22" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user22" />
+            <column name="ITEMNAME" value="user22" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad22" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user22'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user22 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be122" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be122" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user22'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be122' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad22' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user22 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be122' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user23@example.com" />
+            <column name="FIRSTNAME" value="User 23" />
+            <column name="LASTNAME" value="User 23" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="91b791a5b98928f04c663df4e90e2127"/><!-- vatalend2n23 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d623" />
+            <column name="USERNAME" value="user23" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user23" />
+            <column name="ITEMNAME" value="user23" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad23" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user23'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user23 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be123" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be123" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user23'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be123' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad23' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user23 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be123' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user24@example.com" />
+            <column name="FIRSTNAME" value="User 24" />
+            <column name="LASTNAME" value="User 24" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="3d5911b48a014649183a662439339de1"/><!-- vatalend2n24 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d624" />
+            <column name="USERNAME" value="user24" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user24" />
+            <column name="ITEMNAME" value="user24" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad24" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user24'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user24 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be124" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be124" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user24'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be124' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad24' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user24 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be124' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user25@example.com" />
+            <column name="FIRSTNAME" value="User 25" />
+            <column name="LASTNAME" value="User 25" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="11ca53b3a4e6a350d8c1c988877c6b00"/><!-- vatalend2n25 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d625" />
+            <column name="USERNAME" value="user25" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user25" />
+            <column name="ITEMNAME" value="user25" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad25" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user25'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user25 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be125" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be125" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user25'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be125' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad25' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user25 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be125' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user26@example.com" />
+            <column name="FIRSTNAME" value="User 26" />
+            <column name="LASTNAME" value="User 26" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="481776b07ec43a501c533ca36940c662"/><!-- vatalend2n26 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d626" />
+            <column name="USERNAME" value="user26" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user26" />
+            <column name="ITEMNAME" value="user26" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad26" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user26'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user26 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be126" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be126" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user26'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be126' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad26' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user26 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be126' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user27@example.com" />
+            <column name="FIRSTNAME" value="User 27" />
+            <column name="LASTNAME" value="User 27" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="acb676567f9368d4fe5fcf6377931190"/><!-- vatalend2n27 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d627" />
+            <column name="USERNAME" value="user27" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user27" />
+            <column name="ITEMNAME" value="user27" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad27" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user27'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user27 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be127" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be127" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user27'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be127' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad27' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user27 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be127' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user28@example.com" />
+            <column name="FIRSTNAME" value="User 28" />
+            <column name="LASTNAME" value="User 28" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="1fe1daa7473db0ad6c6f8f03b04e0be2"/><!-- vatalend2n28 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d628" />
+            <column name="USERNAME" value="user28" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user28" />
+            <column name="ITEMNAME" value="user28" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad28" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user28'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user28 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be128" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be128" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user28'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be128' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad28' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user28 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be128' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user29@example.com" />
+            <column name="FIRSTNAME" value="User 29" />
+            <column name="LASTNAME" value="User 29" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="3906dab8a8e564f65049e39048a36978"/><!-- vatalend2n29 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d629" />
+            <column name="USERNAME" value="user29" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user29" />
+            <column name="ITEMNAME" value="user29" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad29" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user29'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user29 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be129" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be129" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user29'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be129' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad29' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user29 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be129' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user30@example.com" />
+            <column name="FIRSTNAME" value="User 30" />
+            <column name="LASTNAME" value="User 30" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="19c8d33cad3a276a7f7250c512c9fc4e"/><!-- vatalend2n30 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d630" />
+            <column name="USERNAME" value="user30" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user30" />
+            <column name="ITEMNAME" value="user30" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad30" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user30'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user30 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be130" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be130" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user30'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be130' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad30' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user30 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be130' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user31@example.com" />
+            <column name="FIRSTNAME" value="User 31" />
+            <column name="LASTNAME" value="User 31" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="21f769495d9f80bb508dede0b7ba981a"/><!-- vatalend2n31 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d631" />
+            <column name="USERNAME" value="user31" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user31" />
+            <column name="ITEMNAME" value="user31" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad31" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user31'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user31 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be131" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be131" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user31'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be131' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad31' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user31 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be131' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user32@example.com" />
+            <column name="FIRSTNAME" value="User 32" />
+            <column name="LASTNAME" value="User 32" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="2d1c9a29fee33a04b7f5f9844853e369"/><!-- vatalend2n32 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d632" />
+            <column name="USERNAME" value="user32" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user32" />
+            <column name="ITEMNAME" value="user32" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad32" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user32'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user32 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be132" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be132" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user32'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be132' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad32' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user32 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be132' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user33@example.com" />
+            <column name="FIRSTNAME" value="User 33" />
+            <column name="LASTNAME" value="User 33" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="db7a665d3d045422a8d96d3ce67992eb"/><!-- vatalend2n33 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d633" />
+            <column name="USERNAME" value="user33" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user33" />
+            <column name="ITEMNAME" value="user33" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad33" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user33'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user33 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be133" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be133" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user33'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be133' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad33' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user33 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be133' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user34@example.com" />
+            <column name="FIRSTNAME" value="User 34" />
+            <column name="LASTNAME" value="User 34" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="c57b37bfebe7a31944385bfcd624f191"/><!-- vatalend2n34 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d634" />
+            <column name="USERNAME" value="user34" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user34" />
+            <column name="ITEMNAME" value="user34" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad34" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user34'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user34 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be134" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be134" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user34'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be134' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad34' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user34 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be134' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user35@example.com" />
+            <column name="FIRSTNAME" value="User 35" />
+            <column name="LASTNAME" value="User 35" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="92b67581abf4bee8c68ec2cbb1ed47c6"/><!-- vatalend2n35 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d635" />
+            <column name="USERNAME" value="user35" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user35" />
+            <column name="ITEMNAME" value="user35" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad35" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user35'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user35 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be135" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be135" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user35'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be135' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad35' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user35 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be135' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user36@example.com" />
+            <column name="FIRSTNAME" value="User 36" />
+            <column name="LASTNAME" value="User 36" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="7d0b0f7785ef4d09a3eee39ad7a4cef0"/><!-- vatalend2n36 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d636" />
+            <column name="USERNAME" value="user36" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user36" />
+            <column name="ITEMNAME" value="user36" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad36" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user36'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user36 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be136" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be136" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user36'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be136' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad36' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user36 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be136' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user37@example.com" />
+            <column name="FIRSTNAME" value="User 37" />
+            <column name="LASTNAME" value="User 37" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="6c2f4c3b3548657e141d804a18885be5"/><!-- vatalend2n37 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d637" />
+            <column name="USERNAME" value="user37" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user37" />
+            <column name="ITEMNAME" value="user37" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad37" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user37'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user37 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be137" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be137" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user37'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be137' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad37' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user37 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be137' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user38@example.com" />
+            <column name="FIRSTNAME" value="User 38" />
+            <column name="LASTNAME" value="User 38" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="5dce1064ed0b255ee0a01b10c47439cc"/><!-- vatalend2n38 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d638" />
+            <column name="USERNAME" value="user38" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user38" />
+            <column name="ITEMNAME" value="user38" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad38" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user38'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user38 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be138" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be138" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user38'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be138' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad38' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user38 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be138' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user39@example.com" />
+            <column name="FIRSTNAME" value="User 39" />
+            <column name="LASTNAME" value="User 39" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="da6285ec279a12a57c67747f6c214582"/><!-- vatalend2n39 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d639" />
+            <column name="USERNAME" value="user39" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user39" />
+            <column name="ITEMNAME" value="user39" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad39" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user39'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user39 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be139" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be139" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user39'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be139' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad39' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user39 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be139' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user40@example.com" />
+            <column name="FIRSTNAME" value="User 40" />
+            <column name="LASTNAME" value="User 40" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="94df33bef9de17df10b071e061c2331c"/><!-- vatalend2n40 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d640" />
+            <column name="USERNAME" value="user40" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user40" />
+            <column name="ITEMNAME" value="user40" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad40" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user40'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user40 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be140" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be140" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user40'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be140' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad40' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user40 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be140' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user41@example.com" />
+            <column name="FIRSTNAME" value="User 41" />
+            <column name="LASTNAME" value="User 41" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="7bdb7b62755a9f9f6a697108423e1bd7"/><!-- vatalend2n41 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d641" />
+            <column name="USERNAME" value="user41" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user41" />
+            <column name="ITEMNAME" value="user41" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad41" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user41'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user41 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be141" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be141" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user41'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be141' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad41' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user41 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be141' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user42@example.com" />
+            <column name="FIRSTNAME" value="User 42" />
+            <column name="LASTNAME" value="User 42" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="be2c8246b826a7b37faf822cbadef9fd"/><!-- vatalend2n42 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d642" />
+            <column name="USERNAME" value="user42" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user42" />
+            <column name="ITEMNAME" value="user42" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad42" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user42'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user42 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be142" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be142" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user42'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be142' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad42' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user42 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be142' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user43@example.com" />
+            <column name="FIRSTNAME" value="User 43" />
+            <column name="LASTNAME" value="User 43" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="e57a939b773330603e39ab3b7fd3f224"/><!-- vatalend2n43 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d643" />
+            <column name="USERNAME" value="user43" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user43" />
+            <column name="ITEMNAME" value="user43" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad43" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user43'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user43 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be143" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be143" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user43'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be143' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad43' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user43 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be143' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user44@example.com" />
+            <column name="FIRSTNAME" value="User 44" />
+            <column name="LASTNAME" value="User 44" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="20d94041b5bdcefe40765fc6298e5edb"/><!-- vatalend2n44 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d644" />
+            <column name="USERNAME" value="user44" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user44" />
+            <column name="ITEMNAME" value="user44" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad44" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user44'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user44 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be144" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be144" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user44'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be144' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad44' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user44 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be144' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user45@example.com" />
+            <column name="FIRSTNAME" value="User 45" />
+            <column name="LASTNAME" value="User 45" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="0452ddf16068c39c6c56130d7ed6eb6c"/><!-- vatalend2n45 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d645" />
+            <column name="USERNAME" value="user45" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user45" />
+            <column name="ITEMNAME" value="user45" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad45" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user45'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user45 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be145" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be145" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user45'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be145' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad45' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user45 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be145' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user46@example.com" />
+            <column name="FIRSTNAME" value="User 46" />
+            <column name="LASTNAME" value="User 46" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="bcdfb301185ddc6b2b532adcfd93f030"/><!-- vatalend2n46 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d646" />
+            <column name="USERNAME" value="user46" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user46" />
+            <column name="ITEMNAME" value="user46" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad46" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user46'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user46 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be146" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be146" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user46'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be146' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad46' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user46 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be146' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user47@example.com" />
+            <column name="FIRSTNAME" value="User 47" />
+            <column name="LASTNAME" value="User 47" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="a84d7c0a2cfa5d5fe5680a1827f8a401"/><!-- vatalend2n47 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d647" />
+            <column name="USERNAME" value="user47" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user47" />
+            <column name="ITEMNAME" value="user47" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad47" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user47'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user47 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be147" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be147" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user47'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be147' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad47' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user47 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be147' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user48@example.com" />
+            <column name="FIRSTNAME" value="User 48" />
+            <column name="LASTNAME" value="User 48" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="9df9b0f284ab55022e4993ec1442abf1"/><!-- vatalend2n48 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d648" />
+            <column name="USERNAME" value="user48" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user48" />
+            <column name="ITEMNAME" value="user48" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad48" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user48'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user48 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be148" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be148" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user48'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be148' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad48' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user48 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be148' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user49@example.com" />
+            <column name="FIRSTNAME" value="User 49" />
+            <column name="LASTNAME" value="User 49" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="84a2528e3d047a25654d4c66dd3a43bb"/><!-- vatalend2n49 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d649" />
+            <column name="USERNAME" value="user49" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user49" />
+            <column name="ITEMNAME" value="user49" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad49" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user49'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user49 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be149" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be149" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user49'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be149' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad49' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user49 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be149' AND ITEMTYPE='collection'" />
+        </insert>
+
+        <insert tableName="USERS">
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="ETAG" value="5f1KODsKk4P+rFFC8+6U4zOzU2A=" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ADMIN" valueBoolean="true" />
+            <column name="EMAIL" value="user50@example.com" />
+            <column name="FIRSTNAME" value="User 50" />
+            <column name="LASTNAME" value="User 50" />
+            <column name="LOCKED" valueBoolean="false" />
+            <column name="PASSWORD" value="b95ec9a681824988f5c45c4d8428bff9"/><!-- vatalend2n50 -->
+            <column name="UID" value="265cf78c-fce8-4137-a3c0-fd7adb6a53d650" />
+            <column name="USERNAME" value="user50" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="homecollection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="U9FdHd5nMd+BOuGBqZ4OLMM2Vek=" />
+            <column name="DISPLAYNAME" value="user50" />
+            <column name="ITEMNAME" value="user50" />
+            <column name="UID" value="9d09dc70-d12a-452b-b0ea-1b46bcbcaad50" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user50'" />
+            <column name="VERSION" value="0" />
+        </insert>
+        <insert tableName="ITEM">
+            <column name="ITEMTYPE" value="collection" />
+            <column name="CREATEDATE" value="1370894964077" />
+            <column name="MODIFYDATE" value="1370894964077" />
+            <column name="ETAG" value="nUAhhdsfEFyzEExx2Prsy3bEoVc=" />
+            <column name="DISPLAYNAME" value="user50 items" />
+            <column name="ITEMNAME" value="dbac13a6-10c1-44db-92b3-a47c5b29be150" />
+            <column name="UID" value="dbac13a6-10c1-44db-92b3-a47c5b29be150" />
+            <column name="OWNERID" valueComputed="SELECT ID FROM USERS WHERE USERNAME='user50'" />
+            <column name="VERSION" value="0" />
+        </insert>
+    
+        <insert tableName="COLLECTION_ITEM">
+            <column name="CREATEDATE" value="1371051403601" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be150' AND ITEMTYPE='collection'" />
+            <column name="COLLECTIONID" valueComputed="SELECT ID FROM ITEM WHERE UID='9d09dc70-d12a-452b-b0ea-1b46bcbcaad50' AND ITEMTYPE='homecollection'" />
+        </insert>
+
+        <insert tableName="ATTRIBUTE">
+            <column name="ATTRIBUTETYPE" value="string" />
+            <column name="MODIFYDATE" value="1371051403618" />
+            <column name="NAMESPACE" value="org.osaf.cosmo.model.CalendarCollectionStamp" />
+            <column name="STRINGVALUE" value="user user50 items" />
+            <column name="LOCALNAME" value="description" />
+            <column name="ITEMID" valueComputed="SELECT ID FROM ITEM WHERE UID='dbac13a6-10c1-44db-92b3-a47c5b29be150' AND ITEMTYPE='collection'" />
+        </insert>
+    
+    </changeSet>
+
+</databaseChangeLog>

@@ -23,4 +23,6 @@
     <include file="2013-06-09/ticket_privilege.xml" relativeToChangelogFile="true" />
     <include file="2013-06-09/multistring_values.xml" relativeToChangelogFile="true" />
 
+    <include file="2013-06-12/data.xml" relativeToChangelogFile="true" />
+
 </databaseChangeLog>
