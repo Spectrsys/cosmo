@@ -25,7 +25,7 @@ for ($i = 1; $i < $num; $i++) {
             <column name=\"CREATEDATE\" value=\"1370894964077\" />
             <column name=\"ETAG\" value=\"5f1KODsKk4P+rFFC8+6U4zOzU2A=\" />
             <column name=\"MODIFYDATE\" value=\"1370894964077\" />
-            <column name=\"ADMIN\" valueBoolean=\"true\" />
+            <column name=\"ADMIN\" valueBoolean=\"false\" />
             <column name=\"EMAIL\" value=\"$uname@example.com\" />
             <column name=\"FIRSTNAME\" value=\"User $i\" />
             <column name=\"LASTNAME\" value=\"User $i\" />
@@ -47,7 +47,7 @@ echo "
             <column name=\"DISPLAYNAME\" value=\"$uname\" />
             <column name=\"ITEMNAME\" value=\"$uname\" />
             <column name=\"UID\" value=\"$uuidHomeCollection\" />
-            <column name=\"OWNERID\" valueComputed=\"SELECT ID FROM USERS WHERE USERNAME='$uname'\" />
+            <column name=\"OWNERID\" valueComputed=\"(SELECT ID FROM USERS WHERE USERNAME='$uname')\" />
             <column name=\"VERSION\" value=\"0\" />
         </insert>";
 
@@ -62,7 +62,7 @@ echo "
             <column name=\"DISPLAYNAME\" value=\"$uname items\" />
             <column name=\"ITEMNAME\" value=\"$uuidCollection\" />
             <column name=\"UID\" value=\"$uuidCollection\" />
-            <column name=\"OWNERID\" valueComputed=\"SELECT ID FROM USERS WHERE USERNAME='$uname'\" />
+            <column name=\"OWNERID\" valueComputed=\"(SELECT ID FROM USERS WHERE USERNAME='$uname')\" />
             <column name=\"VERSION\" value=\"0\" />
         </insert>
     ";
@@ -70,8 +70,8 @@ echo "
 echo "
         <insert tableName=\"COLLECTION_ITEM\">
             <column name=\"CREATEDATE\" value=\"1371051403601\" />
-            <column name=\"ITEMID\" valueComputed=\"SELECT ID FROM ITEM WHERE UID='$uuidCollection' AND ITEMTYPE='collection'\" />
-            <column name=\"COLLECTIONID\" valueComputed=\"SELECT ID FROM ITEM WHERE UID='$uuidHomeCollection' AND ITEMTYPE='homecollection'\" />
+            <column name=\"ITEMID\" valueComputed=\"(SELECT ID FROM ITEM WHERE UID='$uuidCollection' AND ITEMTYPE='collection')\" />
+            <column name=\"COLLECTIONID\" valueComputed=\"(SELECT ID FROM ITEM WHERE UID='$uuidHomeCollection' AND ITEMTYPE='homecollection')\" />
         </insert>
 ";
 
@@ -82,7 +82,7 @@ echo "
             <column name=\"NAMESPACE\" value=\"org.osaf.cosmo.model.CalendarCollectionStamp\" />
             <column name=\"STRINGVALUE\" value=\"user $uname items\" />
             <column name=\"LOCALNAME\" value=\"description\" />
-            <column name=\"ITEMID\" valueComputed=\"SELECT ID FROM ITEM WHERE UID='$uuidCollection' AND ITEMTYPE='collection'\" />
+            <column name=\"ITEMID\" valueComputed=\"(SELECT ID FROM ITEM WHERE UID='$uuidCollection' AND ITEMTYPE='collection')\" />
         </insert>
 ";
 
